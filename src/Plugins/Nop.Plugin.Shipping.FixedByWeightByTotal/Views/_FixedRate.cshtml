@@ -12,13 +12,13 @@
                                     type: "json",
                                     transport: {
                                         read: {
-                                            url: "@Html.Raw(Url.Action("FixedShippingRateList", "FixedOrByWeight"))",
+                                            url: "@Html.Raw(Url.Action("FixedShippingRateList", "FixedByWeightByTotal"))",
                                             type: "POST",
                                             dataType: "json",
                                             data: addAntiForgeryToken
                                         },
                                         update: {
-                                            url: "@Html.Raw(Url.Action("UpdateFixedShippingRate", "FixedOrByWeight"))",
+                                            url: "@Html.Raw(Url.Action("UpdateFixedShippingRate", "FixedByWeightByTotal"))",
                                             type: "POST",
                                             dataType: "json",
                                             data: addAntiForgeryToken
@@ -66,11 +66,11 @@
                                 columns: [
                                 {
                                     field: "ShippingMethodName",
-                                    title: "@T("Plugins.Shipping.FixedOrByWeight.Fields.ShippingMethod")",
+                                    title: "@T("Plugins.Shipping.FixedByWeightByTotal.Fields.ShippingMethod")",
                                     width: 400
                                 }, {
                                     field: "Rate",
-                                    title: "@T("Plugins.Shipping.FixedOrByWeight.Fields.Rate")",
+                                    title: "@T("Plugins.Shipping.FixedByWeightByTotal.Fields.Rate")",
                                     width: 200,
                                     editor: function(container, options) {
                                         $('<input name="' + options.field + '"/>')

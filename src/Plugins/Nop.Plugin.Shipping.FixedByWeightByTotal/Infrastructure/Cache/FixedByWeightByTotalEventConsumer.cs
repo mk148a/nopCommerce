@@ -3,12 +3,12 @@ using Nop.Core.Events;
 using Nop.Services.Configuration;
 using Nop.Services.Events;
 
-namespace Nop.Plugin.Shipping.FixedOrByWeight.Infrastructure.Cache
+namespace Nop.Plugin.Shipping.FixedByWeightByTotal.Infrastructure.Cache
 {
     /// <summary>
     /// Event consumer of the "Fixed or by weight" shipping plugin (used for removing unused settings)
     /// </summary>
-    public partial class FixedOrByWeightEventConsumer : IConsumer<EntityDeletedEvent<ShippingMethod>>
+    public partial class FixedByWeightByTotalEventConsumer : IConsumer<EntityDeletedEvent<ShippingMethod>>
     {
         #region Fields
         
@@ -18,7 +18,7 @@ namespace Nop.Plugin.Shipping.FixedOrByWeight.Infrastructure.Cache
 
         #region Ctor
 
-        public FixedOrByWeightEventConsumer(ISettingService settingService)
+        public FixedByWeightByTotalEventConsumer(ISettingService settingService)
         {
             this._settingService = settingService;
         }
@@ -38,7 +38,7 @@ namespace Nop.Plugin.Shipping.FixedOrByWeight.Infrastructure.Cache
                 return;
 
             //delete saved fixed rate if exists
-            var setting = _settingService.GetSetting(string.Format(FixedOrByWeightDefaults.FixedRateSettingsKey, shippingMethod.Id));
+            var setting = _settingService.GetSetting(string.Format(FixedByWeightByTotalDefaults.FixedRateSettingsKey, shippingMethod.Id));
             if (setting != null)
                 _settingService.DeleteSetting(setting);
         }

@@ -1,11 +1,11 @@
 using Nop.Core;
 
-namespace Nop.Plugin.Shipping.FixedOrByWeight.Domain
+namespace Nop.Plugin.Shipping.FixedByWeightByTotal.Domain
 {
     /// <summary>
     /// Represents a shipping by weight record
     /// </summary>
-    public partial class ShippingByWeightRecord : BaseEntity
+    public partial class ShippingByWeightByTotalRecord : BaseEntity
     {
         /// <summary>
         /// Gets or sets the store identifier
@@ -38,14 +38,24 @@ namespace Nop.Plugin.Shipping.FixedOrByWeight.Domain
         public int ShippingMethodId { get; set; }
 
         /// <summary>
-        /// Gets or sets the "from" value
+        /// Gets or sets the "Weight from" value
         /// </summary>
-        public decimal From { get; set; }
+        public decimal WeightFrom { get; set; }
 
         /// <summary>
-        /// Gets or sets the "to" value
+        /// Gets or sets the "Weight to" value
         /// </summary>
-        public decimal To { get; set; }
+        public decimal WeightTo { get; set; }
+
+        /// <summary>
+        /// Gets or sets the "Order subtotal from" value
+        /// </summary>
+        public decimal OrderSubtotalFrom { get; set; }
+
+        /// <summary>
+        /// Gets or sets the "Order subtotal to" value
+        /// </summary>
+        public decimal OrderSubtotalTo { get; set; }
 
         /// <summary>
         /// Gets or sets the additional fixed cost
