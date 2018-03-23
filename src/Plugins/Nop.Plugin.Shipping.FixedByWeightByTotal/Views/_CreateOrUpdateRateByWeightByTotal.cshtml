@@ -1,4 +1,4 @@
-﻿@model Nop.Plugin.Shipping.FixedOrByWeight.Models.ShippingByWeightModel
+﻿@model Nop.Plugin.Shipping.FixedByWeightByTotal.Models.ShippingByWeightByTotalModel
 @using Nop.Web.Framework.Extensions
 
 <div asp-validation-summary="All"></div>
@@ -96,22 +96,42 @@
             </div>
             <div class="form-group">
                 <div class="col-sm-3">
-                    <nop-label asp-for="From" />
+                    <nop-label asp-for="WeightFrom" />
                 </div>
                 <div class="col-sm-9">
-                    <nop-editor asp-for="From" asp-postfix="@Model.BaseWeightIn" />
-                    <span asp-validation-for="From"></span>
+                    <nop-editor asp-for="WeightFrom" asp-postfix="@Model.BaseWeightIn" />
+                    <span asp-validation-for="WeightFrom"></span>
                 </div>
             </div>
             <div class="form-group">
                 <div class="col-sm-3">
-                    <nop-label asp-for="To" />
+                    <nop-label asp-for="WeightTo" />
                 </div>
                 <div class="col-sm-9">
-                    <nop-editor asp-for="To" asp-postfix="@Model.BaseWeightIn" />
-                    <span asp-validation-for="To"></span>
+                    <nop-editor asp-for="WeightTo" asp-postfix="@Model.BaseWeightIn" />
+                    <span asp-validation-for="WeightTo"></span>
                 </div>
             </div>
+
+            <div class="form-group">
+                <div class="col-sm-3">
+                    <nop-label asp-for="OrderSubtotalFrom" />
+                </div>
+                <div class="col-sm-9">
+                    <nop-editor asp-for="OrderSubtotalFrom" asp-postfix="@Model.PrimaryStoreCurrencyCode" />
+                    <span asp-validation-for="OrderSubtotalFrom"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-3">
+                    <nop-label asp-for="OrderSubtotalTo" />
+                </div>
+                <div class="col-sm-9">
+                    <nop-editor asp-for="OrderSubtotalTo" asp-postfix="@Model.PrimaryStoreCurrencyCode" />
+                    <span asp-validation-for="OrderSubtotalTo"></span>
+                </div>
+            </div>
+
             <div class="form-group">
                 <div class="col-sm-3">
                     <nop-label asp-for="AdditionalFixedCost" />

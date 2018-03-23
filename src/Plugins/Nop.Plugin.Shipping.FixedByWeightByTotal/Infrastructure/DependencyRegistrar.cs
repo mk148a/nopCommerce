@@ -5,12 +5,12 @@ using Nop.Core.Data;
 using Nop.Core.Infrastructure;
 using Nop.Core.Infrastructure.DependencyManagement;
 using Nop.Data;
-using Nop.Plugin.Shipping.FixedOrByWeight.Data;
-using Nop.Plugin.Shipping.FixedOrByWeight.Domain;
-using Nop.Plugin.Shipping.FixedOrByWeight.Services;
+using Nop.Plugin.Shipping.FixedByWeightByTotal.Data;
+using Nop.Plugin.Shipping.FixedByWeightByTotal.Domain;
+using Nop.Plugin.Shipping.FixedByWeightByTotal.Services;
 using Nop.Web.Framework.Infrastructure;
 
-namespace Nop.Plugin.Shipping.FixedOrByWeight.Infrastructure
+namespace Nop.Plugin.Shipping.FixedByWeightByTotal.Infrastructure
 {
     /// <summary>
     /// Dependency registrar
@@ -25,15 +25,15 @@ namespace Nop.Plugin.Shipping.FixedOrByWeight.Infrastructure
         /// <param name="config">Config</param>
         public virtual void Register(ContainerBuilder builder, ITypeFinder typeFinder, NopConfig config)
         {
-            builder.RegisterType<ShippingByWeightService>().As<IShippingByWeightService>().InstancePerLifetimeScope();
+            builder.RegisterType<ShippingByWeightByTotalService>().As<IShippingByWeightByTotalService>().InstancePerLifetimeScope();
 
             //data context
-            this.RegisterPluginDataContext<ShippingByWeightObjectContext>(builder, "nop_object_context_shipping_weight_zip");
+            this.RegisterPluginDataContext<ShippingByWeightByTotalObjectContext>(builder, "nop_object_context_shipping_weight_total_zip");
 
             //override required repository with our custom context
-            builder.RegisterType<EfRepository<ShippingByWeightRecord>>()
-                .As<IRepository<ShippingByWeightRecord>>()
-                .WithParameter(ResolvedParameter.ForNamed<IDbContext>("nop_object_context_shipping_weight_zip"))
+            builder.RegisterType<EfRepository<ShippingByWeightByTotalRecord>>()
+                .As<IRepository<ShippingByWeightByTotalRecord>>()
+                .WithParameter(ResolvedParameter.ForNamed<IDbContext>("nop_object_context_shipping_weight_total_zip"))
                 .InstancePerLifetimeScope();
         }
 

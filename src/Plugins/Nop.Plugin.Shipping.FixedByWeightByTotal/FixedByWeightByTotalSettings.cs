@@ -1,11 +1,11 @@
 ﻿using Nop.Core.Configuration;
 
-namespace Nop.Plugin.Shipping.FixedOrByWeight
+namespace Nop.Plugin.Shipping.FixedByWeightByTotal
 {
     /// <summary>
     /// Represents settings of the "Fixed or by weight" shipping plugin
     /// </summary>
-    public class FixedOrByWeightSettings : ISettings
+    public class FixedByWeightByTotalSettings : ISettings
     {
         /// <summary>
         /// Gets or sets a value indicating whether to limit shipping methods to configured ones
@@ -13,8 +13,8 @@ namespace Nop.Plugin.Shipping.FixedOrByWeight
         public bool LimitMethodsToCreated { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the "shipping calculation by weight" method is selected
+        /// Gets or sets a value indicating whether the "shipping calculation by weight and by total" method is selected
         /// </summary>
-        public bool ShippingByWeightEnabled { get; set; }
+        public bool ShippingByWeightByTotalEnabled { get; set; }
     }
 }

@@ -4,18 +4,18 @@ using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using Nop.Core;
 using Nop.Data;
-using Nop.Plugin.Shipping.FixedOrByWeight.Domain;
+using Nop.Plugin.Shipping.FixedByWeightByTotal.Domain;
 
-namespace Nop.Plugin.Shipping.FixedOrByWeight.Data
+namespace Nop.Plugin.Shipping.FixedByWeightByTotal.Data
 {
     /// <summary>
     /// Object context
     /// </summary>
-    public class ShippingByWeightObjectContext : DbContext, IDbContext
+    public class ShippingByWeightByTotalObjectContext : DbContext, IDbContext
     {
         #region Ctor
 
-        public ShippingByWeightObjectContext(string nameOrConnectionString)
+        public ShippingByWeightByTotalObjectContext(string nameOrConnectionString)
             : base(nameOrConnectionString)
         {
             //((IObjectContextAdapter) this).ObjectContext.ContextOptions.LazyLoadingEnabled = true;
@@ -27,11 +27,11 @@ namespace Nop.Plugin.Shipping.FixedOrByWeight.Data
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
-            modelBuilder.Configurations.Add(new ShippingByWeightRecordMap());
+            modelBuilder.Configurations.Add(new ShippingByWeightByTotalRecordMap());
 
             //disable EdmMetadata generation
             //modelBuilder.Conventions.Remove<IncludeMetadataConvention>();
-         base.OnModelCreating(modelBuilder);
+            base.OnModelCreating(modelBuilder);
         }
 
         #endregion
@@ -65,7 +65,7 @@ namespace Nop.Plugin.Shipping.FixedOrByWeight.Data
         public void Uninstall()
         {
             //drop the table
-            var tableName = this.GetTableName<ShippingByWeightRecord>();
+            var tableName = this.GetTableName<ShippingByWeightByTotalRecord>();
             //var tableName = "ShippingByWeight";
             this.DropPluginTable(tableName);
         }
@@ -130,11 +130,11 @@ namespace Nop.Plugin.Shipping.FixedOrByWeight.Data
         {
             get
             {
-                return this.Configuration.ProxyCreationEnabled;
+                return Configuration.ProxyCreationEnabled;
             }
             set
             {
-                this.Configuration.ProxyCreationEnabled = value;
+                Configuration.ProxyCreationEnabled = value;
             }
         }
 
@@ -145,11 +145,11 @@ namespace Nop.Plugin.Shipping.FixedOrByWeight.Data
         {
             get
             {
-                return this.Configuration.AutoDetectChangesEnabled;
+                return Configuration.AutoDetectChangesEnabled;
             }
             set
             {
-                this.Configuration.AutoDetectChangesEnabled = value;
+                Configuration.AutoDetectChangesEnabled = value;
             }
         }
 

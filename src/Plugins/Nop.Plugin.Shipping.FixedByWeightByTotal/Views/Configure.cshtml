@@ -1,4 +1,4 @@
-﻿@model Nop.Plugin.Shipping.FixedOrByWeight.Models.ConfigurationModel
+﻿@model Nop.Plugin.Shipping.FixedByWeightByTotal.Models.ConfigurationModel
 @{
     Layout = "_ConfigurePlugin";
 }
@@ -6,11 +6,11 @@
 <div class="row">
     <div class="col-md-3">
         <div class="onoffswitch">
-            <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="advanced-settings-mode" checked="@Model.ShippingByWeightEnabled">
+            <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="advanced-settings-mode" checked="@Model.ShippingByWeightByTotalEnabled">
             <label class="onoffswitch-label" for="advanced-settings-mode">
                 <span class="onoffswitch-inner"
-                          data-locale-basic="@T("Plugins.Shipping.FixedOrByWeight.Fixed")"
-                          data-locale-advanced="@T("Plugins.Shipping.FixedOrByWeight.ShippingByWeight")"></span>
+                          data-locale-basic="@T("Plugins.Shipping.FixedByWeightByTotal.Fixed")"
+                          data-locale-advanced="@T("Plugins.Shipping.FixedByWeightByTotal.ShippingByWeight")"></span>
                 <span class="onoffswitch-switch"></span>
             </label>
         </div>
@@ -48,7 +48,7 @@
                     checkAdvancedSettingsMode($(this).is(':checked'));
                     $.ajax({
                         cache: false,
-                        url: '@Url.Action("SaveMode", "FixedOrByWeight")',
+                        url: '@Url.Action("SaveMode", "FixedByWeightByTotal")',
                         type: 'post',
                         data: { value: $(this).is(':checked') },
                         dataType: 'json',
@@ -60,5 +60,5 @@
         });
 </script>
 
-@await Html.PartialAsync("~/Plugins/Shipping.FixedOrByWeight/Views/_FixedRate.cshtml")
-@await Html.PartialAsync("~/Plugins/Shipping.FixedOrByWeight/Views/_ByWeight.cshtml", Model)
+@await Html.PartialAsync("~/Plugins/Shipping.FixedByWeightByTotal/Views/_FixedRate.cshtml")
+@await Html.PartialAsync("~/Plugins/Shipping.FixedByWeightByTotal/Views/_ByWeightByTotal.cshtml", Model)

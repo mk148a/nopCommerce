@@ -14,22 +14,22 @@
   <ItemGroup>
     <None Remove="logo.jpg" />
     <None Remove="plugin.json" />
-    <None Remove="Views\AddRateByWeightPopup.cshtml" />
+    <None Remove="Views\AddRateByWeightByTotalPopup.cshtml" />
     <None Remove="Views\Configure.cshtml" />
-    <None Remove="Views\EditRateByWeightPopup.cshtml" />
-    <None Remove="Views\_ByWeight.cshtml" />
-    <None Remove="Views\_CreateOrUpdateRateByWeight.cshtml" />
+    <None Remove="Views\EditRateByWeightByTotalPopup.cshtml" />
+    <None Remove="Views\_ByWeightByTotal.cshtml" />
+    <None Remove="Views\_CreateOrUpdateRateByWeightByTotal.cshtml" />
     <None Remove="Views\_FixedRate.cshtml" />
     <None Remove="Views\_ViewImports.cshtml" />
   </ItemGroup>
   
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <OutputPath>..\..\Presentation\Nop.Web\Plugins\Shipping.FixedOrByWeight</OutputPath>
+    <OutputPath>..\..\Presentation\Nop.Web\Plugins\Shipping.FixedByWeightByTotal</OutputPath>
     <OutDir>$(OutputPath)</OutDir>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <OutputPath>..\..\Presentation\Nop.Web\Plugins\Shipping.FixedOrByWeight</OutputPath>
+    <OutputPath>..\..\Presentation\Nop.Web\Plugins\Shipping.FixedByWeightByTotal</OutputPath>
     <OutDir>$(OutputPath)</OutDir>
   </PropertyGroup>
 
@@ -40,19 +40,19 @@
     <Content Include="plugin.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Views\AddRateByWeightPopup.cshtml">
+    <Content Include="Views\AddRateByWeightByTotalPopup.cshtml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Views\Configure.cshtml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Views\EditRateByWeightPopup.cshtml">
+    <Content Include="Views\EditRateByWeightByTotalPopup.cshtml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Views\_ByWeight.cshtml">
+    <Content Include="Views\_ByWeightByTotal.cshtml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Views\_CreateOrUpdateRateByWeight.cshtml">
+    <Content Include="Views\_CreateOrUpdateRateByWeightByTotal.cshtml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Views\_FixedRate.cshtml">
