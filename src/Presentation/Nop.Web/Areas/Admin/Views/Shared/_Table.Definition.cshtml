@@ -81,6 +81,20 @@
     serverSide: @Model.ServerSide.ToString().ToLower(),
     </text>
 }
+@if (!string.IsNullOrEmpty(Model.RowIdBasedOnField))
+{
+    <text>
+        rowId: function (item) {
+        var rowId = '';
+        if (item.hasOwnProperty('@(Model.RowIdBasedOnField)'))
+        {
+        var val = item.@(Model.RowIdBasedOnField).replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+        rowId = 'row_' + val;
+        }
+        return rowId;
+        },
+    </text>
+}
 @if (Model.Data != null)
 {
     <text>
@@ -353,18 +367,23 @@ columns: [
                     }
                     break;
                 case RenderPicture picture:
+                    var widthAttr = string.Empty;
                     <text>
                     render: function (data, type, row, meta) {
+                        @if (picture.Width > 0)
+                        {
+                            widthAttr = "width=" + picture.Width;
+                        }
                         @if (!string.IsNullOrEmpty(picture.Src))
                         {
                             <text>
-                            return '<img src="@(picture.SrcPrefix)@(picture.Src)"/>';
+                            return '<img src="@(picture.SrcPrefix)@(picture.Src)" @(widthAttr) />';
                             </text>
                         }
                         else
                         {
                             <text>
-                            return '<img src="@(picture.SrcPrefix)' + data + '"/>';
+                            return '<img src="@(picture.SrcPrefix)' + data + '" @(widthAttr) />';
                             </text>
                         }
                     },
