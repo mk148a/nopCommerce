@@ -1634,8 +1634,8 @@ namespace Nop.Web.Areas.Admin.Factories
                     locale.Name = await _localizationService.GetLocalizedAsync(productTag, entity => entity.Name, languageId, false, false);
 					
 					//product tag seo update by Lancelot
-                    locale.MetaDescription = _localizationService.GetLocalizedAsync(productTag, entity => entity.MetaDescription, languageId, false, false);
-                    locale.MetaKeywords = _localizationService.GetLocalizedAsync(productTag, entity => entity.MetaKeywords, languageId, false, false);
+                    locale.MetaDescription = await _localizationService.GetLocalizedAsync(productTag, entity => entity.MetaDescription, languageId, false, false);
+                    locale.MetaKeywords = await _localizationService.GetLocalizedAsync(productTag, entity => entity.MetaKeywords, languageId, false, false);
 
                 };
             }

@@ -218,7 +218,6 @@ namespace Nop.Web.Areas.Admin.Controllers
 
                 var seMetaKeywrd = _urlRecordService.ValidateSeNameAsync(productTag, string.Empty, localized.MetaKeywords, false);
                 await _urlRecordService.SaveSlugAsync(productTag, seMetaKeywrd, localized.LanguageId);
->
             }
         }
 
