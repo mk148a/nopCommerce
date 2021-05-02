@@ -1409,8 +1409,8 @@ namespace Nop.Web.Factories
                         Id = tag.Id,
                         Name = await _localizationService.GetLocalizedAsync(tag, t => t.Name),
                         SeName = await _urlRecordService.GetSeNameAsync(tag),
-						MetaKeywords = _localizationService.GetLocalizedAsync(tag, x => x.MetaKeywords),
-						MetaDescription = _localizationService.GetLocalizedAsync(tag, x => x.MetaDescription),
+						MetaKeywords = await _localizationService.GetLocalizedAsync(tag, x => x.MetaKeywords),
+						MetaDescription =await  _localizationService.GetLocalizedAsync(tag, x => x.MetaDescription),
                         ProductCount = tagStat.Value
                     };
                 })
@@ -1443,12 +1443,10 @@ namespace Nop.Web.Factories
             var model = new ProductsByTagModel
             {
                 Id = productTag.Id,
-
                 TagName = await _localizationService.GetLocalizedAsync(productTag, y => y.Name),
                 TagSeName = await _urlRecordService.GetSeNameAsync(productTag),
-				MetaKeywords = _localizationService.GetLocalizedAsync(productTag, x => x.MetaKeywords),
-                MetaDescription = _localizationService.GetLocalizedAsync(productTag, x => x.MetaDescription)
-
+                MetaKeywords = await _localizationService.GetLocalizedAsync(productTag, x => x.MetaKeywords),
+                MetaDescription = await _localizationService.GetLocalizedAsync(productTag, x => x.MetaDescription),
                 CatalogProductsModel = await PrepareTagProductsModelAsync(productTag, command)
             };
 

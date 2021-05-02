@@ -207,23 +207,23 @@ namespace Nop.Web.Areas.Admin.Controllers
 
                 var seName = await _urlRecordService.ValidateSeNameAsync(productTag, string.Empty, localized.Name, false);
                 await _urlRecordService.SaveSlugAsync(productTag, seName, localized.LanguageId);
-				
-				 //For metadesc by Lancelot
-                _localizedEntityService.SaveLocalizedValueAsync(productTag,
+
+                //For metadesc by Lancelot
+                await _localizedEntityService.SaveLocalizedValueAsync(productTag,
                     x => x.MetaDescription,
                     localized.MetaDescription,
                     localized.LanguageId);
 
-                var seMetaDesc = _urlRecordService.ValidateSeNameAsync(productTag, string.Empty, localized.MetaDescription, false);
+                var seMetaDesc = await _urlRecordService.ValidateSeNameAsync(productTag, string.Empty, localized.MetaDescription, false);
                 await _urlRecordService.SaveSlugAsync(productTag, seMetaDesc, localized.LanguageId);
 
                 //For metakeyword by Lancelot
-                _localizedEntityService.SaveLocalizedValueAsync(productTag,
+                await _localizedEntityService.SaveLocalizedValueAsync(productTag,
                     x => x.MetaKeywords,
                     localized.MetaKeywords,
                     localized.LanguageId);
 
-                var seMetaKeywrd = _urlRecordService.ValidateSeNameAsync(productTag, string.Empty, localized.MetaKeywords, false);
+                var seMetaKeywrd = await _urlRecordService.ValidateSeNameAsync(productTag, string.Empty, localized.MetaKeywords, false);
                 await _urlRecordService.SaveSlugAsync(productTag, seMetaKeywrd, localized.LanguageId);
             }
         }
