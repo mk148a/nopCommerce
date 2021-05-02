@@ -13,7 +13,7 @@
 @await Html.PartialAsync("_AdminTour")
 
 <div class="content-header clearfix">
-    <h1 class="pull-left">
+    <h1 class="float-left">
         @T("Admin.Configuration.Payment.Methods")
     </h1>
 </div>
@@ -26,7 +26,8 @@
                 <div class="card card-default">
                     <div class="card-body">
                         <p>
-                            @T("Admin.Configuration.Payment.Methods.DownloadMorePlugins")
+                            <nop-doc-reference asp-string-resource="@T("Admin.Documentation.Reference.PaymentMethods", Docs.PaymentMethods + Utm.OnAdmin)" asp-add-wrapper="false"/>
+                            @T("Admin.Configuration.Payment.Methods.DownloadMorePlugins", OfficialSite.PaymentPlugins + Utm.OnAdminPaymentPlugins.Replace('?', '&'))
                         </p>
 
                         <div id="payment-methods-area">
@@ -121,7 +122,7 @@
                         <script>
                         function renderColumnConfigure(data, type, row, meta) {
                             if (row.ConfigurationUrl && row.ConfigurationUrl.length > 0) {
-                                return '<a class="btn btn-default" href="' + row.ConfigurationUrl + '"><i class="fa fa-cog"></i>@T("Admin.Configuration.Payment.Methods.Configure").Text</a>';
+                                return '<a class="btn btn-default" href="' + row.ConfigurationUrl + '"><i class="fas fa-cog"></i>@T("Admin.Configuration.Payment.Methods.Configure").Text</a>';
                             } else {
                                 return '';
                             }

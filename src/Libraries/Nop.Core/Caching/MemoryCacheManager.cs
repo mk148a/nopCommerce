@@ -36,17 +36,7 @@ namespace Nop.Core.Caching
         #endregion
 
         #region Utilities
-
-        /// <summary>
-        /// Get a value indicating whether the value associated with the specified key is cached
-        /// </summary>
-        /// <param name="key">Key of cached item</param>
-        /// <returns>True if item already is in cache; otherwise false</returns>
-        private bool IsSet(CacheKey key)
-        {
-            return _memoryCache.TryGetValue(key.Key, out _);
-        }
-
+        
         /// <summary>
         /// Prepare cache entry options for the passed key
         /// </summary>
@@ -76,21 +66,35 @@ namespace Nop.Core.Caching
         /// </summary>
         /// <param name="cacheKey">Cache key</param>
         /// <param name="cacheKeyParameters">Parameters to create cache key</param>
-        public void Remove(CacheKey cacheKey, params object[] cacheKeyParameters)
+        private void Remove(CacheKey cacheKey, params object[] cacheKeyParameters)
         {
             cacheKey = PrepareKey(cacheKey, cacheKeyParameters);
             _memoryCache.Remove(cacheKey.Key);
         }
 
+        /// <summary>
+        /// Add the specified key and object to the cache
+        /// </summary>
+        /// <param name="key">Key of cached item</param>
+        /// <param name="data">Value for caching</param>
+        private void Set(CacheKey key, object data)
+        {
+            if ((key?.CacheTime ?? 0) <= 0 || data == null)
+                return;
+
+            _memoryCache.Set(key.Key, data, PrepareEntryOptions(key));
+        }
+
         #endregion
 
         #region Methods
-        
+
         /// <summary>
         /// Remove the value with the specified key from the cache
         /// </summary>
         /// <param name="cacheKey">Cache key</param>
         /// <param name="cacheKeyParameters">Parameters to create cache key</param>
+        /// <returns>A task that represents the asynchronous operation</returns>
         public Task RemoveAsync(CacheKey cacheKey, params object[] cacheKeyParameters)
         {
             Remove(cacheKey, cacheKeyParameters);
@@ -104,7 +108,10 @@ namespace Nop.Core.Caching
         /// <typeparam name="T">Type of cached item</typeparam>
         /// <param name="key">Cache key</param>
         /// <param name="acquire">Function to load item if it's not in the cache yet</param>
-        /// <returns>The cached value associated with the specified key</returns>
+        /// <returns>
+        /// A task that represents the asynchronous operation
+        /// The task result contains the cached value associated with the specified key
+        /// </returns>
         public async Task<T> GetAsync<T>(CacheKey key, Func<Task<T>> acquire)
         {
             if ((key?.CacheTime ?? 0) <= 0)
@@ -127,7 +134,10 @@ namespace Nop.Core.Caching
         /// <typeparam name="T">Type of cached item</typeparam>
         /// <param name="key">Cache key</param>
         /// <param name="acquire">Function to load item if it's not in the cache yet</param>
-        /// <returns>The cached value associated with the specified key</returns>
+        /// <returns>
+        /// A task that represents the asynchronous operation
+        /// The task result contains the cached value associated with the specified key
+        /// </returns>
         public async Task<T> GetAsync<T>(CacheKey key, Func<T> acquire)
         {
             if ((key?.CacheTime ?? 0) <= 0)
@@ -148,30 +158,41 @@ namespace Nop.Core.Caching
         }
 
         /// <summary>
+        /// Get a cached item. If it's not in the cache yet, then load and cache it
+        /// </summary>
+        /// <typeparam name="T">Type of cached item</typeparam>
+        /// <param name="key">Cache key</param>
+        /// <param name="acquire">Function to load item if it's not in the cache yet</param>
+        /// <returns>The cached value associated with the specified key</returns>
+        public T Get<T>(CacheKey key, Func<T> acquire)
+        {
+            if ((key?.CacheTime ?? 0) <= 0)
+                return acquire();
+
+            if (_memoryCache.TryGetValue(key.Key, out T result))
+                return result;
+
+            result = acquire();
+
+            if (result != null)
+                Set(key, result);
+
+            return result;
+        }
+
+        /// <summary>
         /// Add the specified key and object to the cache
         /// </summary>
         /// <param name="key">Key of cached item</param>
         /// <param name="data">Value for caching</param>
+        /// <returns>A task that represents the asynchronous operation</returns>
         public Task SetAsync(CacheKey key, object data)
         {
-            if ((key?.CacheTime ?? 0) <= 0 || data == null)
-                return Task.CompletedTask;
-
-            _memoryCache.Set(key.Key, data, PrepareEntryOptions(key));
+            Set(key, data);
 
             return Task.CompletedTask;
         }
-
-        /// <summary>
-        /// Get a value indicating whether the value associated with the specified key is cached
-        /// </summary>
-        /// <param name="key">Key of cached item</param>
-        /// <returns>True if item already is in cache; otherwise false</returns>
-        public Task<bool> IsSetAsync(CacheKey key)
-        {
-            return Task.FromResult(IsSet(key));
-        }
-
+        
         /// <summary>
         /// Perform some action with exclusive in-memory lock
         /// </summary>
@@ -182,7 +203,7 @@ namespace Nop.Core.Caching
         public bool PerformActionWithLock(string key, TimeSpan expirationTime, Action action)
         {
             //ensure that lock is acquired
-            if (IsSet(new CacheKey(key)))
+            if (_memoryCache.TryGetValue(key, out _))
                 return false;
 
             try
@@ -206,6 +227,7 @@ namespace Nop.Core.Caching
         /// </summary>
         /// <param name="prefix">Cache key prefix</param>
         /// <param name="prefixParameters">Parameters to create cache key prefix</param>
+        /// <returns>A task that represents the asynchronous operation</returns>
         public Task RemoveByPrefixAsync(string prefix, params object[] prefixParameters)
         {
             prefix = PrepareKeyPrefix(prefix, prefixParameters);
@@ -220,6 +242,7 @@ namespace Nop.Core.Caching
         /// <summary>
         /// Clear all cache data
         /// </summary>
+        /// <returns>A task that represents the asynchronous operation</returns>
         public Task ClearAsync()
         {
             _clearToken.Cancel();

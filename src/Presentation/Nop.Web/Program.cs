@@ -9,15 +9,27 @@ namespace Nop.Web
 {
     public class Program
     {
+        /// <returns>A task that represents the asynchronous operation</returns>
         public static async Task Main(string[] args)
         {
-            await Host.CreateDefaultBuilder(args)
+            //initialize the host
+            using var host = Host.CreateDefaultBuilder(args)
                 .UseServiceProviderFactory(new AutofacServiceProviderFactory())
                 .ConfigureWebHostDefaults(webBuilder => webBuilder
-                    .ConfigureAppConfiguration(configuration => configuration.AddJsonFile(NopConfigurationDefaults.AppSettingsFilePath, true, true))
+                    .ConfigureAppConfiguration(config =>
+                    {
+                        config
+                            .AddJsonFile(NopConfigurationDefaults.AppSettingsFilePath, true, true)
+                            .AddEnvironmentVariables();
+                    })
                     .UseStartup<Startup>())
-                .Build()
-                .RunAsync();
+                .Build();
+
+            //start the program, a task will be completed when the host starts
+            await host.StartAsync();
+
+            //a task will be completed when shutdown is triggered
+            await host.WaitForShutdownAsync();
         }
     }
 }

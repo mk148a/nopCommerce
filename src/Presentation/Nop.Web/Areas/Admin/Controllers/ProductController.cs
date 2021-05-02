@@ -63,6 +63,7 @@ namespace Nop.Web.Areas.Admin.Controllers
         private readonly IPictureService _pictureService;
         private readonly IProductAttributeParser _productAttributeParser;
         private readonly IProductAttributeService _productAttributeService;
+        private readonly IProductAttributeFormatter _productAttributeFormatter;
         private readonly IProductModelFactory _productModelFactory;
         private readonly IProductService _productService;
         private readonly IProductTagService _productTagService;
@@ -101,6 +102,7 @@ namespace Nop.Web.Areas.Admin.Controllers
             IPictureService pictureService,
             IProductAttributeParser productAttributeParser,
             IProductAttributeService productAttributeService,
+            IProductAttributeFormatter productAttributeFormatter,
             IProductModelFactory productModelFactory,
             IProductService productService,
             IProductTagService productTagService,
@@ -135,6 +137,7 @@ namespace Nop.Web.Areas.Admin.Controllers
             _pictureService = pictureService;
             _productAttributeParser = productAttributeParser;
             _productAttributeService = productAttributeService;
+            _productAttributeFormatter = productAttributeFormatter;
             _productModelFactory = productModelFactory;
             _productService = productService;
             _productTagService = productTagService;
@@ -153,6 +156,7 @@ namespace Nop.Web.Areas.Admin.Controllers
 
         #region Utilities
 
+        /// <returns>A task that represents the asynchronous operation</returns>
         protected virtual async Task UpdateLocalesAsync(Product product, ProductModel model)
         {
             foreach (var localized in model.Locales)
@@ -188,7 +192,10 @@ namespace Nop.Web.Areas.Admin.Controllers
             }
         }
 
+
         //ProductTag meta description and keywords language settings is here by Lancelot
+
+
         protected virtual async Task UpdateLocalesAsync(ProductTag productTag, ProductTagModel model)
         {
             foreach (var localized in model.Locales)
@@ -221,6 +228,7 @@ namespace Nop.Web.Areas.Admin.Controllers
             }
         }
 
+        /// <returns>A task that represents the asynchronous operation</returns>
         protected virtual async Task UpdateLocalesAsync(ProductAttributeMapping pam, ProductAttributeMappingModel model)
         {
             foreach (var localized in model.Locales)
@@ -236,6 +244,7 @@ namespace Nop.Web.Areas.Admin.Controllers
             }
         }
 
+        /// <returns>A task that represents the asynchronous operation</returns>
         protected virtual async Task UpdateLocalesAsync(ProductAttributeValue pav, ProductAttributeValueModel model)
         {
             foreach (var localized in model.Locales)
@@ -247,12 +256,14 @@ namespace Nop.Web.Areas.Admin.Controllers
             }
         }
 
+        /// <returns>A task that represents the asynchronous operation</returns>
         protected virtual async Task UpdatePictureSeoNamesAsync(Product product)
         {
             foreach (var pp in await _productService.GetProductPicturesByProductIdAsync(product.Id))
                 await _pictureService.SetSeoFilenameAsync(pp.PictureId, await _pictureService.GetPictureSeNameAsync(product.Name));
         }
 
+        /// <returns>A task that represents the asynchronous operation</returns>
         protected virtual async Task SaveProductAclAsync(Product product, ProductModel model)
         {
             product.SubjectToAcl = model.SelectedCustomerRoleIds.Any();
@@ -278,6 +289,7 @@ namespace Nop.Web.Areas.Admin.Controllers
             }
         }
 
+        /// <returns>A task that represents the asynchronous operation</returns>
         protected virtual async Task SaveCategoryMappingsAsync(Product product, ProductModel model)
         {
             var existingProductCategories = await _categoryService.GetProductCategoriesByProductIdAsync(product.Id, true);
@@ -307,6 +319,7 @@ namespace Nop.Web.Areas.Admin.Controllers
             }
         }
 
+        /// <returns>A task that represents the asynchronous operation</returns>
         protected virtual async Task SaveManufacturerMappingsAsync(Product product, ProductModel model)
         {
             var existingProductManufacturers = await _manufacturerService.GetProductManufacturersByProductIdAsync(product.Id, true);
@@ -336,6 +349,7 @@ namespace Nop.Web.Areas.Admin.Controllers
             }
         }
 
+        /// <returns>A task that represents the asynchronous operation</returns>
         protected virtual async Task SaveDiscountMappingsAsync(Product product, ProductModel model)
         {
             var allDiscounts = await _discountService.GetAllDiscountsAsync(DiscountType.AssignedToSkus, showHidden: true);
@@ -360,6 +374,7 @@ namespace Nop.Web.Areas.Admin.Controllers
             await _productService.UpdateHasDiscountsAppliedAsync(product);
         }
 
+        /// <returns>A task that represents the asynchronous operation</returns>
         protected virtual async Task<string> GetAttributesXmlForProductAttributeCombinationAsync(IFormCollection form, List<string> warnings, int productId)
         {
             var attributesXml = string.Empty;
@@ -522,6 +537,7 @@ namespace Nop.Web.Areas.Admin.Controllers
             return result.ToArray();
         }
 
+        /// <returns>A task that represents the asynchronous operation</returns>
         protected virtual async Task SaveProductWarehouseInventoryAsync(Product product, ProductModel model)
         {
             if (product == null)
@@ -620,6 +636,7 @@ namespace Nop.Web.Areas.Admin.Controllers
             }
         }
 
+        /// <returns>A task that represents the asynchronous operation</returns>
         protected virtual async Task SaveConditionAttributesAsync(ProductAttributeMapping productAttributeMapping,
             ProductAttributeConditionModel model, IFormCollection form)
         {
@@ -708,6 +725,7 @@ namespace Nop.Web.Areas.Admin.Controllers
             await _productAttributeService.UpdateProductAttributeMappingAsync(productAttributeMapping);
         }
 
+        /// <returns>A task that represents the asynchronous operation</returns>
         protected virtual async Task GenerateAttributeCombinationsAsync(Product product, IList<int> allowedAttributeIds = null)
         {
             var allAttributesXml = await _productAttributeParser.GenerateAllCombinationsAsync(product, true, allowedAttributeIds);
@@ -2163,7 +2181,7 @@ namespace Nop.Web.Areas.Admin.Controllers
 
             var products = await _productService.SearchProductsAsync(0,
                 categoryIds: categoryIds,
-                manufacturerId: model.SearchManufacturerId,
+                manufacturerIds: new List<int> { model.SearchManufacturerId },
                 storeId: model.SearchStoreId,
                 vendorId: model.SearchVendorId,
                 warehouseId: model.SearchWarehouseId,
@@ -2219,7 +2237,7 @@ namespace Nop.Web.Areas.Admin.Controllers
 
             var products = await _productService.SearchProductsAsync(0,
                 categoryIds: categoryIds,
-                manufacturerId: model.SearchManufacturerId,
+                manufacturerIds: new List<int> { model.SearchManufacturerId },
                 storeId: model.SearchStoreId,
                 vendorId: model.SearchVendorId,
                 warehouseId: model.SearchWarehouseId,
@@ -2303,7 +2321,7 @@ namespace Nop.Web.Areas.Admin.Controllers
 
             var products = await _productService.SearchProductsAsync(0,
                 categoryIds: categoryIds,
-                manufacturerId: model.SearchManufacturerId,
+                manufacturerIds: new List<int> { model.SearchManufacturerId },
                 storeId: model.SearchStoreId,
                 vendorId: model.SearchVendorId,
                 warehouseId: model.SearchWarehouseId,
@@ -2780,6 +2798,26 @@ namespace Nop.Web.Areas.Admin.Controllers
             //a vendor should have access only to his products
             if (await _workContext.GetCurrentVendorAsync() != null && product.VendorId != (await _workContext.GetCurrentVendorAsync()).Id)
                 return Content("This is not your product");
+
+            //check if existed combinations contains the specified attribute
+            var existedCombinations = await _productAttributeService.GetAllProductAttributeCombinationsAsync(product.Id);
+            if (existedCombinations?.Any() == true)
+            {
+                foreach (var combination in existedCombinations)
+                {
+                    var mappings = await _productAttributeParser
+                        .ParseProductAttributeMappingsAsync(combination.AttributesXml);
+                    
+                    if (mappings?.Any(m => m.Id == productAttributeMapping.Id) == true)
+                    {
+                        _notificationService.ErrorNotification(
+                            string.Format(await _localizationService.GetResourceAsync("Admin.Catalog.Products.ProductAttributes.Attributes.AlreadyExistsInCombination"),
+                                await _productAttributeFormatter.FormatAttributesAsync(product, combination.AttributesXml, await _workContext.GetCurrentCustomerAsync(), ", ")));
+
+                        return RedirectToAction("ProductAttributeMappingEdit", new { id = productAttributeMapping.Id });
+                    }
+                }
+            }
 
             await _productAttributeService.DeleteProductAttributeMappingAsync(productAttributeMapping);
 

@@ -20,8 +20,15 @@ namespace Nop.Data.DataProviders
     /// </summary>
     public partial class MsSqlNopDataProvider : BaseDataProvider, INopDataProvider
     {
+        #region Fields
+
+        private static readonly Lazy<IDataProvider> _dataProvider = new(() => new SqlServerDataProvider(ProviderName.SqlServer, SqlServerVersion.v2012, SqlServerProvider.SystemDataSqlClient), true);
+
+        #endregion
+
         #region Utils
 
+        /// <returns>A task that represents the asynchronous operation</returns>
         protected virtual async Task<SqlConnectionStringBuilder> GetConnectionStringBuilderAsync()
         {
             var connectionString = (await DataSettingsManager.LoadSettingsAsync()).ConnectionString;
@@ -111,7 +118,10 @@ namespace Nop.Data.DataProviders
         /// <summary>
         /// Checks if the specified database exists, returns true if database exists
         /// </summary>
-        /// <returns>Returns true if the database exists.</returns>
+        /// <returns>
+        /// A task that represents the asynchronous operation
+        /// The task result contains the returns true if the database exists.
+        /// </returns>
         public async Task<bool> DatabaseExistsAsync()
         {
             try
@@ -162,7 +172,10 @@ namespace Nop.Data.DataProviders
         /// Get the current identity value
         /// </summary>
         /// <typeparam name="TEntity">Entity type</typeparam>
-        /// <returns>Integer identity; null if cannot get the result</returns>
+        /// <returns>
+        /// A task that represents the asynchronous operation
+        /// The task result contains the integer identity; null if cannot get the result
+        /// </returns>
         public virtual async Task<int?> GetTableIdentAsync<TEntity>() where TEntity : BaseEntity
         {
             using var currentConnection = await CreateDataConnectionAsync();
@@ -179,6 +192,7 @@ namespace Nop.Data.DataProviders
         /// </summary>
         /// <typeparam name="TEntity">Entity type</typeparam>
         /// <param name="ident">Identity value</param>
+        /// <returns>A task that represents the asynchronous operation</returns>
         public virtual async Task SetTableIdentAsync<TEntity>(int ident) where TEntity : BaseEntity
         {
             using var currentConnection = await CreateDataConnectionAsync();
@@ -194,6 +208,7 @@ namespace Nop.Data.DataProviders
         /// <summary>
         /// Creates a backup of the database
         /// </summary>
+        /// <returns>A task that represents the asynchronous operation</returns>
         public virtual async Task BackupDatabaseAsync(string fileName)
         {
             using var currentConnection = await CreateDataConnectionAsync();
@@ -205,6 +220,7 @@ namespace Nop.Data.DataProviders
         /// Restores the database from a backup
         /// </summary>
         /// <param name="backupFileName">The name of the backup file</param>
+        /// <returns>A task that represents the asynchronous operation</returns>
         public virtual async Task RestoreDatabaseAsync(string backupFileName)
         {
             using var currentConnection = await CreateDataConnectionAsync();
@@ -231,6 +247,7 @@ namespace Nop.Data.DataProviders
         /// <summary>
         /// Re-index database tables
         /// </summary>
+        /// <returns>A task that represents the asynchronous operation</returns>
         public virtual async Task ReIndexTablesAsync()
         {
             using var currentConnection = await CreateDataConnectionAsync();
@@ -310,6 +327,7 @@ namespace Nop.Data.DataProviders
         /// </summary>
         /// <param name="entities">Entities with data to update</param>
         /// <typeparam name="TEntity">Entity type</typeparam>
+        /// <returns>A task that represents the asynchronous operation</returns>
         public override async Task UpdateEntitiesAsync<TEntity>(IEnumerable<TEntity> entities)
         {
             using var dataContext = await CreateDataConnectionAsync();
@@ -328,7 +346,7 @@ namespace Nop.Data.DataProviders
         /// <summary>
         /// Sql server data provider
         /// </summary>
-        protected override IDataProvider LinqToDbDataProvider => SqlServerTools.GetDataProvider(SqlServerVersion.v2008, SqlServerProvider.SystemDataSqlClient);
+        protected override IDataProvider LinqToDbDataProvider => _dataProvider.Value;
 
         /// <summary>
         /// Gets allowed a limit input value of the data for hashing functions, returns 0 if not limited

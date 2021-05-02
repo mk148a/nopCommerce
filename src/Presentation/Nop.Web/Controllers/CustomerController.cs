@@ -80,6 +80,7 @@ namespace Nop.Web.Controllers
         private readonly ILogger _logger;
         private readonly IMultiFactorAuthenticationPluginManager _multiFactorAuthenticationPluginManager;
         private readonly INewsLetterSubscriptionService _newsLetterSubscriptionService;
+        private readonly INotificationService _notificationService;
         private readonly IOrderService _orderService;
         private readonly IPictureService _pictureService;
         private readonly IPriceFormatter _priceFormatter;
@@ -128,6 +129,7 @@ namespace Nop.Web.Controllers
             ILogger logger,
             IMultiFactorAuthenticationPluginManager multiFactorAuthenticationPluginManager,
             INewsLetterSubscriptionService newsLetterSubscriptionService,
+            INotificationService notificationService,
             IOrderService orderService,
             IPictureService pictureService,
             IPriceFormatter priceFormatter,
@@ -172,6 +174,7 @@ namespace Nop.Web.Controllers
             _logger = logger;
             _multiFactorAuthenticationPluginManager = multiFactorAuthenticationPluginManager;
             _newsLetterSubscriptionService = newsLetterSubscriptionService;
+            _notificationService = notificationService;
             _orderService = orderService;
             _pictureService = pictureService;
             _priceFormatter = priceFormatter;
@@ -205,6 +208,7 @@ namespace Nop.Web.Controllers
             }
         }
 
+        /// <returns>A task that represents the asynchronous operation</returns>
         protected virtual async Task<string> ParseSelectedProviderAsync(IFormCollection form)
         {
             if (form == null)
@@ -228,6 +232,7 @@ namespace Nop.Web.Controllers
             return string.Empty;
         }
 
+        /// <returns>A task that represents the asynchronous operation</returns>
         protected virtual async Task<string> ParseCustomCustomerAttributesAsync(IFormCollection form)
         {
             if (form == null)
@@ -307,6 +312,7 @@ namespace Nop.Web.Controllers
             return attributesXml;
         }
 
+        /// <returns>A task that represents the asynchronous operation</returns>
         protected virtual async Task LogGdprAsync(Customer customer, CustomerInfoModel oldCustomerInfoModel,
             CustomerInfoModel newCustomerInfoModel, IFormCollection form)
         {
@@ -490,7 +496,10 @@ namespace Nop.Web.Controllers
         /// <summary>
         /// The entry point for injecting a plugin component of type "MultiFactorAuth"
         /// </summary>
-        /// <returns>User verification page for Multi-factor authentication. Served by an authentication provider.</returns>
+        /// <returns>
+        /// A task that represents the asynchronous operation
+        /// The task result contains the user verification page for Multi-factor authentication. Served by an authentication provider.
+        /// </returns>
         public virtual async Task<IActionResult> MultiFactorVerification()
         {
             if (!await _multiFactorAuthenticationPluginManager.HasActivePluginsAsync())
@@ -1569,6 +1578,8 @@ namespace Nop.Web.Controllers
             return View(model);
         }
 
+        //ignore SEO friendly URLs checks
+        [CheckLanguageSeoCode(true)]
         public virtual async Task<IActionResult> UserAgreement(Guid orderItemId)
         {
             var orderItem = await _orderService.GetOrderItemByGuidAsync(orderItemId);
@@ -1618,7 +1629,7 @@ namespace Nop.Web.Controllers
                 var changePasswordResult = await _customerRegistrationService.ChangePasswordAsync(changePasswordRequest);
                 if (changePasswordResult.Success)
                 {
-                    model.Result = await _localizationService.GetResourceAsync("Account.ChangePassword.Success");
+                    _notificationService.SuccessNotification(await _localizationService.GetResourceAsync("Account.ChangePassword.Success"));
                     return View(model);
                 }
 

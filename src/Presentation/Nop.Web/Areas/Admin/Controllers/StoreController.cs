@@ -67,6 +67,7 @@ namespace Nop.Web.Areas.Admin.Controllers
 
         #region Utilities
 
+        /// <returns>A task that represents the asynchronous operation</returns>
         protected virtual async Task UpdateAttributeLocalesAsync(Store store, StoreModel model)
         {
             foreach (var localized in model.Locales)

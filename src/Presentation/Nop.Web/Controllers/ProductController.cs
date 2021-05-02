@@ -9,6 +9,7 @@ using Nop.Core.Domain.Catalog;
 using Nop.Core.Domain.Localization;
 using Nop.Core.Domain.Orders;
 using Nop.Core.Domain.Security;
+using Nop.Core.Domain.Shipping;
 using Nop.Core.Events;
 using Nop.Core.Rss;
 using Nop.Services.Catalog;
@@ -59,6 +60,7 @@ namespace Nop.Web.Controllers
         private readonly IWorkflowMessageService _workflowMessageService;
         private readonly LocalizationSettings _localizationSettings;
         private readonly ShoppingCartSettings _shoppingCartSettings;
+        private readonly ShippingSettings _shippingSettings;
 
         #endregion
 
@@ -88,7 +90,8 @@ namespace Nop.Web.Controllers
             IWorkContext workContext,
             IWorkflowMessageService workflowMessageService,
             LocalizationSettings localizationSettings,
-            ShoppingCartSettings shoppingCartSettings)
+            ShoppingCartSettings shoppingCartSettings,
+            ShippingSettings shippingSettings)
         {
             _captchaSettings = captchaSettings;
             _catalogSettings = catalogSettings;
@@ -115,12 +118,14 @@ namespace Nop.Web.Controllers
             _workflowMessageService = workflowMessageService;
             _localizationSettings = localizationSettings;
             _shoppingCartSettings = shoppingCartSettings;
+            _shippingSettings = shippingSettings;
         }
 
         #endregion
 
         #region Utilities
 
+        /// <returns>A task that represents the asynchronous operation</returns>
         protected virtual async Task ValidateProductReviewAvailabilityAsync(Product product)
         {
             var customer = await _workContext.GetCurrentCustomerAsync();
@@ -234,8 +239,12 @@ namespace Nop.Web.Controllers
                 model = new ProductDetailsModel.ProductEstimateShippingModel();
 
             var errors = new List<string>();
-            if (string.IsNullOrEmpty(model.ZipPostalCode))
+            
+            if (!_shippingSettings.EstimateShippingCityNameEnabled && string.IsNullOrEmpty(model.ZipPostalCode))
                 errors.Add(await _localizationService.GetResourceAsync("Shipping.EstimateShipping.ZipPostalCode.Required"));
+
+            if (_shippingSettings.EstimateShippingCityNameEnabled && string.IsNullOrEmpty(model.City))
+                errors.Add(await _localizationService.GetResourceAsync("Shipping.EstimateShipping.City.Required"));
 
             if (model.CountryId == null || model.CountryId == 0)
                 errors.Add(await _localizationService.GetResourceAsync("Shipping.EstimateShipping.Country.Required"));
@@ -282,9 +291,21 @@ namespace Nop.Web.Controllers
             wrappedProduct.RentalStartDateUtc = rentalStartDate;
             wrappedProduct.RentalEndDateUtc = rentalEndDate;
 
-            var result = await _shoppingCartModelFactory.PrepareEstimateShippingResultModelAsync(new[] { wrappedProduct }, model.CountryId, model.StateProvinceId, model.ZipPostalCode, false);
+            var result = await _shoppingCartModelFactory.PrepareEstimateShippingResultModelAsync(new[] { wrappedProduct }, model, false);
 
             return Json(result);
+        }
+
+        //ignore SEO friendly URLs checks
+        [CheckLanguageSeoCode(true)]
+        public virtual async Task<IActionResult> GetProductCombinations(int productId)
+        {
+            var product = await _productService.GetProductByIdAsync(productId);
+            if (product == null)
+                return NotFound();
+
+            var model = await _productModelFactory.PrepareProductCombinationModelsAsync(product);
+            return Ok(model);
         }
 
         #endregion
@@ -320,6 +341,7 @@ namespace Nop.Web.Controllers
             return View(model);
         }
 
+        [CheckLanguageSeoCode(true)]
         public virtual async Task<IActionResult> NewProductsRss()
         {
             var feed = new RssFeed(
@@ -373,9 +395,7 @@ namespace Nop.Web.Controllers
 
             //default value
             model.AddProductReview.Rating = _catalogSettings.DefaultProductRatingValue;
-
-            model.AddProductReview.CanAddNewReview = await _productService.CanAddReviewAsync(product.Id, (await _storeContext.GetCurrentStoreAsync()).Id);
-
+            
             //default value for all additional review types
             if (model.ReviewTypeList.Count > 0)
                 foreach (var additionalProductReview in model.AddAdditionalProductReviewList)
@@ -470,7 +490,7 @@ namespace Nop.Web.Controllers
                 return View(model);
             }
 
-            //If we got this far, something failed, redisplay form
+            //if we got this far, something failed, redisplay form
             model = await _productModelFactory.PrepareProductReviewsModelAsync(model, product);
             return View(model);
         }
