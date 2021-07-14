@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
-using Microsoft.AspNetCore.Builder;
 
 namespace Nop.Core.Infrastructure
 {

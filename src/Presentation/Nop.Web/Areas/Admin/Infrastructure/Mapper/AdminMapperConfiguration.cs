@@ -1527,7 +1527,8 @@ namespace Nop.Web.Areas.Admin.Infrastructure.Mapper
         {
             CreateMap<Store, StoreModel>()
                 .ForMember(model => model.AvailableLanguages, options => options.Ignore());
-            CreateMap<StoreModel, Store>();
+            CreateMap<StoreModel, Store>()
+                .ForMember(entity => entity.Deleted, options => options.Ignore());
         }
 
         /// <summary>

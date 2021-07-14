@@ -86,7 +86,7 @@ namespace Nop.Services.Stores
         {
             var result = await _storeRepository.GetAllAsync(query =>
             {
-                return from s in query orderby s.DisplayOrder, s.Id select s;
+                return from s in query orderby s.DisplayOrder, s.Id where !s.Deleted select s;
             }, cache => default);
 
             return result;
@@ -102,7 +102,7 @@ namespace Nop.Services.Stores
         /// </returns>
         public virtual async Task<Store> GetStoreByIdAsync(int storeId)
         {
-            return await _storeRepository.GetByIdAsync(storeId, cache => default);
+            return await _storeRepository.GetByIdAsync(storeId, cache => default, false);
         }
 
         /// <summary>

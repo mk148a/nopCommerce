@@ -41,7 +41,7 @@ namespace Nop.Tests
         /// Executes all found (and unapplied) migrations
         /// </summary>
         /// <param name="assembly">Assembly to find the migration</param>
-        public void ApplyDownMigrations(Assembly assembly)
+        public void ApplyDownMigrations(Assembly assembly, MigrationProcessType? migrationProcessType = null)
         {
         }
 
