@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Nop.Core.Infrastructure;
 using Nop.Web.Framework.Infrastructure.Extensions;
 
 namespace Nop.Web
@@ -34,7 +35,9 @@ namespace Nop.Web
         /// <param name="services">Collection of service descriptors</param>
         public void ConfigureServices(IServiceCollection services)
         {
-            services.ConfigureApplicationServices(_configuration, _webHostEnvironment);
+            var appSettings = services.ConfigureApplicationServices(_configuration, _webHostEnvironment);
+            services.RegisterDependencies(appSettings);
+            services.ConfigureNopServices(_configuration);
         }
 
         /// <summary>
@@ -43,7 +46,6 @@ namespace Nop.Web
         /// <param name="application">Builder for configuring an application's request pipeline</param>
         public void Configure(IApplicationBuilder application)
         {
-            application.ConfigureRequestPipeline();
             application.StartEngine();
         }
     }

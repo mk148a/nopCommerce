@@ -77,14 +77,6 @@ namespace Nop.Web.Framework.Infrastructure
             //user agent helper
             services.AddScoped<IUserAgentHelper, UserAgentHelper>();
 
-            //data layer
-            services.AddTransient<IDataProviderManager, DataProviderManager>();
-            services.AddTransient(serviceProvider =>
-                serviceProvider.GetRequiredService<IDataProviderManager>().DataProvider);
-
-            //repositories
-            services.AddScoped(typeof(IRepository<>), typeof(EntityRepository<>));
-
             //plugins
             services.AddScoped<IPluginService, PluginService>();
             services.AddScoped<OfficialFeedManager>();

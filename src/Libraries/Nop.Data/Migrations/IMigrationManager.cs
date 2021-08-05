@@ -15,9 +15,10 @@ namespace Nop.Data.Migrations
         void ApplyUpMigrations(Assembly assembly, MigrationProcessType migrationProcessType = MigrationProcessType.Installation);
 
         /// <summary>
-        /// Executes an Down migration
+        /// Executes a Down for all found applied migrations
         /// </summary>
-        /// <param name="assembly">Assembly to find the migration</param>
-        void ApplyDownMigrations(Assembly assembly);
+        /// <param name="assembly">Assembly to find migrations</param>
+        /// <param name="migrationProcessType">Type of migration process; pass null to skip filter by this parameter</param>
+        void ApplyDownMigrations(Assembly assembly, MigrationProcessType? migrationProcessType = null);
     }
 }

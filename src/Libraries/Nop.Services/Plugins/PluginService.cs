@@ -199,14 +199,14 @@ namespace Nop.Services.Plugins
             _migrationManager.ApplyDownMigrations(assembly);
         }
 
-        protected virtual void InsertPluginData(Type pluginType, MigrationProcessType migrationProcessType = MigrationProcessType.NoMatter)
+        protected virtual void InsertPluginData(Type pluginType, MigrationProcessType migrationProcessType = MigrationProcessType.Installation)
         {
             var assembly = Assembly.GetAssembly(pluginType);
             _migrationManager.ApplyUpMigrations(assembly, migrationProcessType);
         }
 
         #endregion
-                 
+
         #region Methods
 
         /// <summary>
@@ -496,7 +496,7 @@ namespace Nop.Services.Plugins
             {
                 try
                 {
-                    InsertPluginData(descriptor.PluginType, MigrationProcessType.Installation);
+                    InsertPluginData(descriptor.PluginType);
 
                     //try to install an instance
                     await descriptor.Instance<IPlugin>().InstallAsync();
@@ -659,7 +659,7 @@ namespace Nop.Services.Plugins
 
                 if (installedPlugin.Version == newVersion.Version)
                     continue;
-                
+
                 //run new migrations from the plugin if there are exists
                 InsertPluginData(newVersion.PluginType, MigrationProcessType.Update);
 

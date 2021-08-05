@@ -1,4 +1,6 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System;
+using System.Runtime.CompilerServices;
+using Microsoft.AspNetCore.Builder;
 
 namespace Nop.Core.Infrastructure
 {
@@ -11,12 +13,13 @@ namespace Nop.Core.Infrastructure
 
         /// <summary>
         /// Create a static instance of the Nop engine.
+        /// <param name="applicationServices">The System.IServiceProvider that provides access to the application's service container</param>
         /// </summary>
         [MethodImpl(MethodImplOptions.Synchronized)]
-        public static IEngine Create()
+        public static IEngine Create(IServiceProvider applicationServices)
         {
             //create NopEngine as engine
-            return Singleton<IEngine>.Instance ?? (Singleton<IEngine>.Instance = new NopEngine());
+            return Singleton<IEngine>.Instance ??= new NopEngine(applicationServices);
         }
 
         /// <summary>
@@ -28,7 +31,7 @@ namespace Nop.Core.Infrastructure
         {
             Singleton<IEngine>.Instance = engine;
         }
-        
+
         #endregion
 
         #region Properties
@@ -42,7 +45,7 @@ namespace Nop.Core.Infrastructure
             {
                 if (Singleton<IEngine>.Instance == null)
                 {
-                    Create();
+                    throw new NullReferenceException("The instance of the Nop engine hasn't been initialized");
                 }
 
                 return Singleton<IEngine>.Instance;

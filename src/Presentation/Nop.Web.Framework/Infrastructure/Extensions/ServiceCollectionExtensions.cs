@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Net;
+using AutoMapper;
 using Azure.Identity;
 using Azure.Storage.Blobs;
 using FluentValidation.AspNetCore;
@@ -19,6 +20,8 @@ using Nop.Core.Configuration;
 using Nop.Core.Domain.Common;
 using Nop.Core.Http;
 using Nop.Core.Infrastructure;
+using Nop.Core.Infrastructure.DependencyManagement;
+using Nop.Core.Infrastructure.Mapper;
 using Nop.Core.Security;
 using Nop.Data;
 using Nop.Services.Authentication;
@@ -41,14 +44,47 @@ namespace Nop.Web.Framework.Infrastructure.Extensions
     /// </summary>
     public static class ServiceCollectionExtensions
     {
+        #region Utils
+
+        /// <summary>
+        /// Register and configure AutoMapper
+        /// </summary>
+        /// <param name="typeFinder">Type finder</param>
+        private static void AddAutoMapper(ITypeFinder typeFinder)
+        {
+            //find mapper configurations provided by other assemblies
+            var mapperConfigurations = typeFinder.FindClassesOfType<IOrderedMapperProfile>();
+
+            //create and sort instances of mapper configurations
+            var instances = mapperConfigurations
+                .Select(mapperConfiguration => (IOrderedMapperProfile)Activator.CreateInstance(mapperConfiguration))
+                .OrderBy(mapperConfiguration => mapperConfiguration.Order);
+
+            //create AutoMapper configuration
+            var config = new MapperConfiguration(cfg =>
+            {
+                foreach (var instance in instances)
+                {
+                    cfg.AddProfile(instance.GetType());
+                }
+            });
+
+            //register
+            AutoMapperConfiguration.Init(config);
+        }
+
+        #endregion
+
+        #region Methods
+
         /// <summary>
         /// Add services to the application and configure service provider
         /// </summary>
         /// <param name="services">Collection of service descriptors</param>
         /// <param name="configuration">Configuration of the application</param>
         /// <param name="webHostEnvironment">Hosting environment</param>
-        /// <returns>Configured engine and app settings</returns>
-        public static (IEngine, AppSettings) ConfigureApplicationServices(this IServiceCollection services,
+        /// <returns>Configured app settings</returns>
+        public static AppSettings ConfigureApplicationServices(this IServiceCollection services,
             IConfiguration configuration, IWebHostEnvironment webHostEnvironment)
         {
             //let the operating system decide what TLS protocol version to use
@@ -80,13 +116,71 @@ namespace Nop.Web.Framework.Infrastructure.Extensions
             var appSettings = AppSettingsHelper.SaveAppSettings(configurations, CommonHelper.DefaultFileProvider, false);
             services.AddSingleton(appSettings);
 
-            //create engine and configure service provider
-            var engine = EngineContext.Create();
+            return appSettings;
+        }
 
-            engine.ConfigureServices(services, configuration);
-            engine.RegisterDependencies(services, appSettings);
+        /// <summary>
+        /// Register dependencies
+        /// </summary>
+        /// <param name="services">Collection of service descriptors</param>
+        /// <param name="appSettings">App settings</param>
+        public static void RegisterDependencies(this IServiceCollection services, AppSettings appSettings)
+        {
+            var typeFinder = new WebAppTypeFinder();
+            
+            //register type finder
+            services.AddSingleton<ITypeFinder>(typeFinder);
+            Singleton<ITypeFinder>.Instance = typeFinder;
 
-            return (engine, appSettings);
+            //find dependency registrars provided by other assemblies
+            var dependencyRegistrars = typeFinder.FindClassesOfType<IDependencyRegistrar>();
+
+            //create and sort instances of dependency registrars
+            var instances = dependencyRegistrars
+                .Select(dependencyRegistrar => (IDependencyRegistrar)Activator.CreateInstance(dependencyRegistrar))
+                .OrderBy(dependencyRegistrar => dependencyRegistrar.Order);
+
+            //register all provided dependencies
+            foreach (var dependencyRegistrar in instances)
+                dependencyRegistrar.Register(services, typeFinder, appSettings);
+
+            services.AddSingleton(services);
+        }
+
+        /// <summary>
+        /// Add and configure services
+        /// </summary>
+        /// <param name="services">Collection of service descriptors</param>
+        /// <param name="configuration">Configuration of the application</param>
+        public static void ConfigureNopServices(this IServiceCollection services, IConfiguration configuration)
+        {
+            //find startup configurations provided by other assemblies
+            var typeFinder = new WebAppTypeFinder();
+            var startupConfigurations = typeFinder.FindClassesOfType<INopStartup>();
+
+            //create and sort instances of startup configurations
+            var instances = startupConfigurations
+                .Select(startup => (INopStartup)Activator.CreateInstance(startup))
+                .OrderBy(startup => startup.Order);
+
+            //configure services
+            foreach (var instance in instances)
+                instance.ConfigureServices(services, configuration);
+
+            //register mapper configurations
+            AddAutoMapper(typeFinder);
+
+            //resolve assemblies here. otherwise, plugins can throw an exception when rendering views
+            AppDomain.CurrentDomain.AssemblyResolve += (object sender, ResolveEventArgs args) =>
+            {
+                //check for assembly already loaded
+                var assembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.FullName == args.Name);
+                if (assembly != null)
+                    return assembly;
+
+                //get assembly from TypeFinder
+                return EngineContext.Current.Resolve<ITypeFinder>()?.GetAssemblies().FirstOrDefault(a => a.FullName == args.Name);
+            };
         }
 
         /// <summary>
@@ -404,5 +498,7 @@ namespace Nop.Web.Framework.Infrastructure.Extensions
             //client to request reCAPTCHA service
             services.AddHttpClient<CaptchaHttpClient>().WithProxy();
         }
+
+        #endregion
     }
 }
