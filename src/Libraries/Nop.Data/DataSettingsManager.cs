@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.IO;
 using System.Text;
 using Newtonsoft.Json;
@@ -106,11 +107,13 @@ namespace Nop.Data
 
             //backward compatibility
             fileProvider ??= CommonHelper.DefaultFileProvider;
+            DataConfig dataConfig = null;
+
             var filePath_json = fileProvider.MapPath(NopDataSettingsDefaults.FilePath);
             var filePath_txt = fileProvider.MapPath(NopDataSettingsDefaults.ObsoleteFilePath);
             if (fileProvider.FileExists(filePath_json) || fileProvider.FileExists(filePath_txt))
             {
-                var dataSettings = fileProvider.FileExists(filePath_json)
+                dataConfig = fileProvider.FileExists(filePath_json)
                     ? LoadDataSettingsFromOldJsonFile(fileProvider.ReadAllText(filePath_json, Encoding.UTF8))
                     : LoadDataSettingsFromOldTxtFile(fileProvider.ReadAllText(filePath_txt, Encoding.UTF8))
                     ?? new DataConfig();
@@ -118,11 +121,30 @@ namespace Nop.Data
                 fileProvider.DeleteFile(filePath_json);
                 fileProvider.DeleteFile(filePath_txt);
 
-                SaveSettings(dataSettings, fileProvider);
-                Singleton<DataConfig>.Instance = dataSettings;
+                SaveSettings(dataConfig, fileProvider);
+                Singleton<DataConfig>.Instance = dataConfig;
             }
             else
-                Singleton<DataConfig>.Instance = Singleton<AppSettings>.Instance.Get<DataConfig>();
+            {
+                dataConfig = Singleton<AppSettings>.Instance.Get<DataConfig>();
+            }
+
+            if (!string.IsNullOrEmpty(dataConfig.ConnectionString) && dataConfig.DataProvider == DataProviderType.SqlServer)
+            {
+                var cnBuilder = new DbConnectionStringBuilder
+                {
+                    ConnectionString = dataConfig.ConnectionString
+                };
+
+                if (!cnBuilder.ContainsKey("Trust Server Certificate"))
+                {
+                    cnBuilder.Add("Trust Server Certificate", true);
+                    dataConfig.ConnectionString = cnBuilder.ConnectionString;
+                    SaveSettings(dataConfig, fileProvider);
+                }
+            }
+
+            Singleton<DataConfig>.Instance = dataConfig;
 
             return Singleton<DataConfig>.Instance;
         }
