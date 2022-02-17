@@ -70,6 +70,8 @@ namespace Nop.Web.Framework.Infrastructure
         /// <param name="configuration">Configuration of the application</param>
         public virtual void ConfigureServices(IServiceCollection services, IConfiguration configuration)
         {
+            services.AddTransient(typeof(Lazy<>), typeof(LazyInstance<>));
+
             //file provider
             services.AddScoped<INopFileProvider, NopFileProvider>();
 
