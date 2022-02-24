@@ -31,6 +31,8 @@ using Nop.Services.Payments;
 using Nop.Services.Shipping;
 using Nop.Services.Stores;
 using Nop.Services.Vendors;
+using SkiaSharp;
+using Svg.Skia;
 
 namespace Nop.Services.Common
 {
@@ -1191,7 +1193,35 @@ namespace Nop.Services.Common
             if (logoExists)
             {
                 var logoFilePath = await _pictureService.GetThumbLocalPathAsync(logoPicture, 0, false);
-                var logo = Image.GetInstance(logoFilePath);
+                Image logo;
+                
+                if (logoPicture.MimeType == MimeTypes.ImageSvg)
+                {
+                    //we must first convert the SVG to PNG to show the image in the PDF document
+                    using var svg = new SKSvg();
+                    svg.Load(logoFilePath);
+
+                    using var bitmap = new SKBitmap((int)svg.Picture.CullRect.Width, (int)svg.Picture.CullRect.Height);
+                    var canvas = new SKCanvas(bitmap);
+                    canvas.DrawPicture(svg.Picture);
+                    canvas.Flush();
+                    canvas.Save();
+
+                    using var image = SKImage.FromBitmap(bitmap);
+                    using var data = image.Encode(SKEncodedImageFormat.Png, 100);
+
+                    // save the data to a stream
+                    var memStream = new MemoryStream();
+                    data.SaveTo(memStream);
+                    memStream.Seek(0, SeekOrigin.Begin);
+
+                    logo = Image.GetInstance(memStream.ToArray());
+                }
+                else
+                {
+                    logo = Image.GetInstance(logoFilePath);
+                }
+                
                 logo.Alignment = GetAlignment(lang, true);
                 logo.ScaleToFit(65f, 65f);
 

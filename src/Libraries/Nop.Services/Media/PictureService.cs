@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,6 +15,7 @@ using Nop.Services.Catalog;
 using Nop.Services.Configuration;
 using Nop.Services.Seo;
 using SkiaSharp;
+using Svg;
 
 namespace Nop.Services.Media
 {
@@ -430,6 +432,9 @@ namespace Nop.Services.Media
                 case "x-icon":
                     lastPart = "ico";
                     break;
+                case "svg+xml":
+                    lastPart = "svg";
+                    break;
                 default:
                     break;
             }
@@ -638,9 +643,22 @@ namespace Nop.Services.Media
                     {
                         try
                         {
-                            using var image = SKBitmap.Decode(pictureBinary);
-                            var format = GetImageFormatByMimeType(picture.MimeType);
-                            pictureBinary = ImageResize(image, format, targetSize);
+                            if (picture.MimeType == MimeTypes.ImageSvg)
+                            {
+                                using var memStream = new MemoryStream(pictureBinary);
+                                var svgDocument = SvgDocument.Open<SvgDocument>(memStream);
+                                svgDocument.Height = targetSize;
+                                svgDocument.Width = targetSize;
+                                using var stream = new MemoryStream();
+                                svgDocument.Write(stream);
+                                pictureBinary = stream.ToArray();
+                            }
+                            else
+                            {
+                                using var image = SKBitmap.Decode(pictureBinary);
+                                var format = GetImageFormatByMimeType(picture.MimeType);
+                                pictureBinary = ImageResize(image, format, targetSize);
+                            }
                         }
                         catch
                         {
@@ -833,7 +851,8 @@ namespace Nop.Services.Media
                 ".pjp",
                 ".png",
                 ".tiff",
-                ".tif"
+                ".tif",
+                ".svg"
             } as IReadOnlyCollection<string>;
 
             var fileName = formFile.FileName;
@@ -855,7 +874,7 @@ namespace Nop.Services.Media
             //contentType is not always available 
             //that's why we manually update it here
             //http://www.sfsu.edu/training/mimetype.htm
-            if (string.IsNullOrEmpty(contentType))
+            if (string.IsNullOrEmpty(contentType) || contentType == MimeTypes.ImageSvg)
             {
                 switch (fileExtension)
                 {
@@ -878,6 +897,9 @@ namespace Nop.Services.Media
                         break;
                     case ".png":
                         contentType = MimeTypes.ImagePng;
+                        break;
+                    case ".svg":
+                        contentType = MimeTypes.ImageSvg;
                         break;
                     case ".tiff":
                     case ".tif":
