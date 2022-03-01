@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
@@ -128,6 +129,14 @@ namespace Nop.Services.Authentication
 
             //whether the found customer is available
             if (customer == null || !customer.Active || customer.RequireReLogin || customer.Deleted || !await _customerService.IsRegisteredAsync(customer))
+                return null;
+
+            //get the latest password
+            var customerPassword = (await _customerService.GetCustomerPasswordsAsync(customer.Id, passwordsToReturn: 1)).FirstOrDefault();
+            //required a customer to re-login after password changing
+            if (customerPassword.CreatedOnUtc.CompareTo(authenticateResult.Properties.IssuedUtc.HasValue 
+                ? authenticateResult.Properties.IssuedUtc.Value.DateTime 
+                : DateTime.UtcNow) > 0)
                 return null;
 
             //cache authenticated customer
