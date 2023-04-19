@@ -460,55 +460,56 @@ namespace Nop.Plugin.Misc.NopWebApi.Controllers
                         if (customerRole.Any(x => x.Name.ToLower().Contains("admin")))
                         {
                            var allOrders= await _orderService.SearchOrdersAsync();
-                           var workingOrders = allOrders.Where(x => x.OrderStatus == OrderStatus.Complete|| x.OrderStatus == OrderStatus.Processing);
-                         // workingOrders = workingOrders.Where(y => y.Deleted = false);
+                           var workingOrders = allOrders.Where(x => x.OrderStatus == OrderStatus.Complete|| x.OrderStatus == OrderStatus.Processing).ToList();
+                            // workingOrders = workingOrders.Where(y => y.Deleted = false);
 
-
+                            ProductSearchModel sModel = new ProductSearchModel();
+                            sModel.Length = 10000;
+                            var productList = await _productModelFactory.PrepareProductListModelAsync(sModel);
                             List<Siparisler> siparisList= new List<Siparisler>();
+                            int i = 0;
 
-                           foreach (var order in workingOrders)
-                           {
-                               var siparisZamani= order.PaidDateUtc.Value.AddHours(3);
-                               var siparisTutari = order.OrderTotal;
-                               var siparisurunleri = await _orderService.GetOrderItemsAsync(order.Id);
-
-                               foreach (var siparisUrunu in siparisurunleri)
-                               {
-                                   try
-                                   {
-
-                                 
-                                   ProductSearchModel sModel = new ProductSearchModel();
-                                   sModel.Length = 10000;
-
-                                   var productList = await _productModelFactory.PrepareProductListModelAsync(sModel);
-
-                                    var siparis = new Siparisler();
-                                   siparis.Adet = siparisUrunu.Quantity;
-                                   siparis.BirimFiyat= siparisUrunu.UnitPriceExclTax;
-                                   siparis.ParaBirimi = order.CustomerCurrencyCode;
-                                   siparis.ReceiptId = order.Id;
-                                   siparis.SiparisDurumu = order.OrderStatus.ToString();
-                                   siparis.SiparisTarih = siparisZamani;
-                                   siparis.Tarih=DateTime.Now;
-                                   siparis.TransacationId= order.Id;
-                                   siparis.Sku =productList.Data.Where(x => x.Id == siparisUrunu.ProductId).FirstOrDefault().Sku;
-                                   siparisList.Add(siparis);
-                                   }
-                                   catch (Exception e)
-                                   {
-                                       Console.WriteLine(e);
-                                      
-                                   }
+                            for (int j = 0; j < workingOrders.Count(); j++)
+                            {
+                                var order = workingOrders[j];
+                                DateTime siparisZamani = DateTime.Now;
+                                if (order.PaidDateUtc != null)
+                                {
+                                    siparisZamani = order.PaidDateUtc.Value.AddHours(3);
                                 }
-                              
+
+                                var siparisurunleri = await _orderService.GetOrderItemsAsync(order.Id);
+
+                                foreach (var siparisUrunu in siparisurunleri)
+                                {
+
+                                    
+                                    var sku = productList.Data.Where(x => x.Id == siparisUrunu.ProductId);
+                                    if (sku.Any())
+                                    {
+
+
+                                        var siparis = new Siparisler();
+                                        siparis.Adet = siparisUrunu.Quantity;
+                                        siparis.BirimFiyat = siparisUrunu.UnitPriceExclTax;
+                                        siparis.ParaBirimi = order.CustomerCurrencyCode;
+                                        siparis.ReceiptId = order.Id;
+                                        siparis.SiparisDurumu = order.OrderStatus.ToString();
+                                        siparis.SiparisTarih = siparisZamani;
+                                        siparis.Tarih = DateTime.Now;
+                                        siparis.TransacationId = order.Id;
+                                        siparis.Sku = sku.FirstOrDefault().Sku;
+                                        siparisList.Add(siparis);
+                                    }
 
 
 
 
 
-                           }
 
+                                }
+                            }
+                       
                            sonuc.SiparisList= siparisList;
 
 
