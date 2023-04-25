@@ -491,7 +491,7 @@ namespace Nop.Plugin.Misc.NopWebApi.Controllers
                                     if (sku.Any())
                                     {
 
-
+                                        //TODO:Varyasyonlarıda siparişte gösterme sorununu çöz
                                         var siparis = new Siparisler();
                                         siparis.Adet = siparisUrunu.Quantity;
                                         siparis.BirimFiyat = siparisUrunu.UnitPriceExclTax;
@@ -502,6 +502,7 @@ namespace Nop.Plugin.Misc.NopWebApi.Controllers
                                         siparis.Tarih = DateTime.Now;
                                         siparis.TransacationId = order.Id;
                                         siparis.Sku = sku.FirstOrDefault().Sku;
+                                        
                                         siparisList.Add(siparis);
                                     }
 
