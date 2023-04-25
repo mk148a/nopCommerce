@@ -230,6 +230,9 @@ namespace Nop.Plugin.Misc.NopWebApi.Controllers
                                                 {
                                                     Varyasyonlar yeniVaryasyonlar = new Varyasyonlar();
 
+
+                                                    yeniVaryasyonlar.Sku = siteProduct.Sku;
+
                                                     string varyasyonTuru = productAttribute.Name;
                                                     string varyasyonDegeri = productAttributeValue.Name;
 
@@ -469,7 +472,7 @@ namespace Nop.Plugin.Misc.NopWebApi.Controllers
                             List<Siparisler> siparisList= new List<Siparisler>();
                             int i = 0;
 
-                            for (int j = 0; j < workingOrders.Count(); j++)
+                            for (int j = 0; j < workingOrders.Count()+1; j++)
                             {
                                 var order = workingOrders[j];
                                 DateTime siparisZamani = DateTime.Now;
