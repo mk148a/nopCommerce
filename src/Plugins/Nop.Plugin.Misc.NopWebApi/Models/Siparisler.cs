@@ -34,8 +34,9 @@ namespace Nop.Plugin.Misc.NopWebApi.Models
         public long ReceiptId { get; set; }
         public long TransacationId { get; set; }
         public string SiparisNotu { get; set; } = "";
-        
+        public List<Varyasyonlar> VaryasyonList { get; set; }
 
-       
+
+
     }
 }

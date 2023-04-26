@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Xml;
+using LinqToDB.Common;
 using Microsoft.AspNetCore.Mvc;
 using Nop.Core.Domain.Catalog;
 using Nop.Core.Domain.Localization;
@@ -262,7 +264,7 @@ namespace Nop.Plugin.Misc.NopWebApi.Controllers
 
                                                 if (productAttributeValue.PriceAdjustment > 0)
                                                 {
-                                                    yeniVaryasyonlar.SatisFiyati = siteProduct.Price + productAttributeValue.PriceAdjustment;
+                                                    yeniVaryasyonlar.SatisFiyatiFarki = productAttributeValue.PriceAdjustment;
                                                 }
                                                 yeniVaryasyonlar.NopCommerceVaryasyonValueId = productAttributeValue.Id;
                                                 
@@ -502,7 +504,205 @@ namespace Nop.Plugin.Misc.NopWebApi.Controllers
                                         siparis.Tarih = DateTime.Now;
                                         siparis.TransacationId = order.Id;
                                         siparis.Sku = sku.FirstOrDefault().Sku;
-                                        
+                                        var varyasonList=new List<Varyasyonlar>();
+                                        try
+                                        {
+                                            //Todo:attributelar siliniyor ama orderda kalıyor bu durumda execption alıyoruz bununla ilgili çözüm düşün
+                                            //örnek:
+                                            //SELECT *
+                                            //FROM[HoodArcheryShopDb].[dbo].[Product_ProductAttribute_Mapping] where Id = 445
+                                            //SELECT*
+                                            //    FROM[HoodArcheryShopDb].[dbo].[ProductAttributeValue] where Id = 3206
+                                            if (!siparisUrunu.AttributesXml.IsNullOrEmpty())
+                                            {
+                                                string attributesXml = siparisUrunu.AttributesXml;
+                                                string att2 = siparisUrunu.AttributeDescription;
+
+
+                                                XmlDocument document = new XmlDocument();
+                                                document.LoadXml(attributesXml);
+
+                                                var nodes = document.GetElementsByTagName("ProductAttribute");
+                                                foreach (XmlElement node in nodes)
+                                                {
+                                                    try
+                                                    {
+
+                                                        var productAttributeMappingId =
+                                                            int.Parse(node.Attributes[0].InnerText);
+                                                        var productAttributValueId = int.Parse(node.InnerText);
+
+                                                        var productAttributemapping =
+                                                            await _productAttributeService
+                                                                .GetProductAttributeMappingByIdAsync(
+                                                                    productAttributeMappingId);
+
+
+
+
+                                                        var productAttribute =
+                                                            await _productAttributeService.GetProductAttributeByIdAsync(
+                                                                productAttributemapping.ProductAttributeId);
+
+                                                        var productAttributeValue =
+                                                            await _productAttributeService
+                                                                .GetProductAttributeValueByIdAsync(
+                                                                    productAttributValueId);
+
+                                                        Varyasyonlar yeniVaryasyonlar = new Varyasyonlar();
+
+
+                                                        yeniVaryasyonlar.Sku = sku.FirstOrDefault().Sku;
+
+                                                        string varyasyonTuru = productAttribute.Name.ToLower();
+                                                        string varyasyonDegeri = productAttributeValue.Name.ToLower();
+
+                                                        if (productAttributeValue.PictureId != 0)
+                                                        {
+                                                            try
+                                                            {
+                                                                var picture =
+                                                                    await _pictureService.GetPictureByIdAsync(
+                                                                        productAttributeValue.PictureId);
+
+                                                                if (picture != null)
+                                                                {
+                                                                    string url =
+                                                                        await _pictureService.GetPictureUrlAsync(
+                                                                            picture.Id);
+
+                                                                    yeniVaryasyonlar.FotografLinki = url;
+                                                                }
+
+
+                                                            }
+                                                            catch
+                                                            {
+
+                                                                yeniVaryasyonlar.FotografLinki = null;
+                                                            }
+
+
+                                                        }
+
+                                                        if (productAttributeValue.PriceAdjustment > 0)
+                                                        {
+                                                            yeniVaryasyonlar.SatisFiyatiFarki =
+                                                                productAttributeValue.PriceAdjustment;
+                                                        }
+
+                                                        yeniVaryasyonlar.NopCommerceVaryasyonValueId =
+                                                            productAttributeValue.Id;
+
+
+                                                        yeniVaryasyonlar.VaryasyonTuru =
+                                                            productAttribute.Name.ToLower();
+                                                        yeniVaryasyonlar.VaryasyonAdi = varyasyonDegeri.ToLower();
+                                                        yeniVaryasyonlar.NopCommerceVaryasyonId =
+                                                            productAttribute.Id;
+
+                                                        if (varyasyonTuru.Contains("pcs"))
+                                                        {
+                                                            yeniVaryasyonlar.Tip =
+                                                                VaryasyonTipleri.Adet;
+                                                            try
+                                                            {
+                                                                if (varyasyonDegeri
+                                                                    .Contains("broadhead"))
+                                                                {
+                                                                    yeniVaryasyonlar.Adet =
+                                                                        int.Parse(
+                                                                            varyasyonDegeri
+                                                                                .Replace(
+                                                                                    "pcs",
+                                                                                    "")
+                                                                                .Replace(
+                                                                                    "with",
+                                                                                    "")
+                                                                                .Replace(
+                                                                                    "broadhead",
+                                                                                    "")
+                                                                                .Replace(
+                                                                                    " ",
+                                                                                    ""));
+
+                                                                }
+                                                                else
+                                                                {
+                                                                    yeniVaryasyonlar.Adet =
+                                                                        int.Parse(
+                                                                            varyasyonDegeri
+                                                                                .Replace(
+                                                                                    "pcs",
+                                                                                    ""));
+
+                                                                }
+
+                                                            }
+                                                            catch (Exception e)
+                                                            {
+                                                                Console.WriteLine(e);
+                                                            }
+
+                                                        }
+                                                        else if (varyasyonTuru.Contains(
+                                                                     "color") ||
+                                                                 varyasyonTuru.Contains(
+                                                                     "colour"))
+                                                        {
+                                                            yeniVaryasyonlar.Tip =
+                                                                VaryasyonTipleri.Renk;
+                                                        }
+                                                        else if (varyasyonTuru.Contains(
+                                                                     "set"))
+                                                        {
+                                                            yeniVaryasyonlar.Tip =
+                                                                VaryasyonTipleri.Set;
+
+                                                        }
+                                                        else if (varyasyonTuru.Contains(
+                                                                     "length"))
+                                                        {
+                                                            yeniVaryasyonlar.Tip =
+                                                                VaryasyonTipleri.Boyut;
+                                                        }
+                                                        else if (varyasyonTuru.Contains(
+                                                                     "weight") ||
+                                                                 varyasyonTuru.Contains(
+                                                                     "size"))
+                                                        {
+                                                            yeniVaryasyonlar.Tip =
+                                                                VaryasyonTipleri.Boyut;
+                                                        }
+                                                        else
+                                                        {
+                                                            yeniVaryasyonlar.Tip =
+                                                                VaryasyonTipleri
+                                                                    .Özellik;
+                                                        }
+
+                                                        varyasonList.Add(yeniVaryasyonlar);
+
+
+
+
+                                                    }
+                                                    catch { }
+
+
+
+                                                }
+                                            }
+
+                                            siparis.VaryasyonList = varyasonList;
+                                        }
+                                        catch(Exception e)
+                                        {
+                                            
+
+                                        }
+                                            
+
                                         siparisList.Add(siparis);
                                     }
 
