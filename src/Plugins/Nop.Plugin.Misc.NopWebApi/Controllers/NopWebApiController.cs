@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml;
+using iTextSharp.text;
 using LinqToDB.Common;
 using Microsoft.AspNetCore.Mvc;
 using Nop.Core.Domain.Catalog;
@@ -32,6 +33,9 @@ using Nop.Web.Areas.Admin.Factories;
 using Nop.Web.Areas.Admin.Models.Catalog;
 using Nop.Web.Areas.Admin.Models.Customers;
 using static Nop.Plugin.Misc.NopWebApi.Models.Varyasyonlar;
+using Paragraph = DocumentFormat.OpenXml.Drawing.Paragraph;
+using DocumentFormat.OpenXml.Math;
+using System.Text.RegularExpressions;
 
 namespace Nop.Plugin.Misc.NopWebApi.Controllers
 {
@@ -60,7 +64,8 @@ namespace Nop.Plugin.Misc.NopWebApi.Controllers
         private readonly IProductAttributeService _productAttributeService;
         private readonly ICustomerService _customerService;
         private readonly ICustomerRoleModelFactory _customerRoleModelFactory;
-        
+        private readonly IHtmlFormatter _htmlFormatter;
+
 
 
         #endregion
@@ -102,7 +107,8 @@ namespace Nop.Plugin.Misc.NopWebApi.Controllers
             ICustomerRoleModelFactory customerRoleModelFactory
             
 
-            
+
+
 
         )
         {
@@ -130,6 +136,7 @@ namespace Nop.Plugin.Misc.NopWebApi.Controllers
             _productAttributeService = iAttributeService;
             _customerService=customerService;
             _customerRoleModelFactory=customerRoleModelFactory;
+            _htmlFormatter=htmlFormatter;
 
 
 
@@ -476,6 +483,10 @@ namespace Nop.Plugin.Misc.NopWebApi.Controllers
 
                             for (int j = 0; j < workingOrders.Count()+1; j++)
                             {
+                                if (j==34)
+                                {
+                                    string jj = "34";
+                                }
                                 var order = workingOrders[j];
                                 DateTime siparisZamani = DateTime.Now;
                                 if (order.PaidDateUtc != null)
@@ -493,7 +504,7 @@ namespace Nop.Plugin.Misc.NopWebApi.Controllers
                                     if (sku.Any())
                                     {
 
-                                        //TODO:Varyasyonlarıda siparişte gösterme sorununu çöz
+                                        
                                         var siparis = new Siparisler();
                                         siparis.Adet = siparisUrunu.Quantity;
                                         siparis.BirimFiyat = siparisUrunu.UnitPriceExclTax;
@@ -516,90 +527,283 @@ namespace Nop.Plugin.Misc.NopWebApi.Controllers
                                             if (!siparisUrunu.AttributesXml.IsNullOrEmpty())
                                             {
                                                 string attributesXml = siparisUrunu.AttributesXml;
-                                                string att2 = siparisUrunu.AttributeDescription;
+                                                string decAttTxt =
+                                                    _htmlFormatter.ConvertHtmlToPlainText(
+                                                        siparisUrunu.AttributeDescription, true, true);
+
+
 
 
                                                 XmlDocument document = new XmlDocument();
                                                 document.LoadXml(attributesXml);
 
                                                 var nodes = document.GetElementsByTagName("ProductAttribute");
+                                                int nodeSira = 0;
                                                 foreach (XmlElement node in nodes)
                                                 {
                                                     try
                                                     {
+                                                        Varyasyonlar yeniVaryasyonlar = new Varyasyonlar();
 
                                                         var productAttributeMappingId =
                                                             int.Parse(node.Attributes[0].InnerText);
-                                                        var productAttributValueId = int.Parse(node.InnerText);
+
+                                                     
+                                                        int productAttributValueId;
+
+                                                        bool success = int.TryParse(node.InnerText,out productAttributValueId);
+
+                                                       
 
                                                         var productAttributemapping =
                                                             await _productAttributeService
                                                                 .GetProductAttributeMappingByIdAsync(
                                                                     productAttributeMappingId);
+                                                        string varyasyonTuru = "";
+                                                        string varyasyonDegeri ="";
+
+                                                        if (productAttributemapping!=null)
+                                                        {
+                                                            var productAttribute =
+                                                                await _productAttributeService.GetProductAttributeByIdAsync(
+                                                                    productAttributemapping.ProductAttributeId);
+
+                                                            if (productAttribute==null)
+                                                            {
+                                                                string attnullnapcaz = "düşün";
+                                                            }
+                                                            varyasyonTuru = productAttribute.Name.ToLower();
+                                                            
+                                                            if (success)
+                                                            {
+                                                                var productAttributeValue =
+                                                                    await _productAttributeService
+                                                                        .GetProductAttributeValueByIdAsync(
+                                                                            productAttributValueId);
+                                                                if (productAttributeValue!=null)
+                                                                {
+                                                                    varyasyonDegeri = productAttributeValue.Name.ToLower();
+                                                                    if (productAttributeValue.PictureId != 0)
+                                                                    {
+                                                                        try
+                                                                        {
+                                                                            var picture =
+                                                                                await _pictureService.GetPictureByIdAsync(
+                                                                                    productAttributeValue.PictureId);
+
+                                                                            if (picture != null)
+                                                                            {
+                                                                                string url =
+                                                                                    await _pictureService.GetPictureUrlAsync(
+                                                                                        picture.Id);
+
+                                                                                yeniVaryasyonlar.FotografLinki = url;
+                                                                            }
+
+
+                                                                        }
+                                                                        catch
+                                                                        {
+
+                                                                            yeniVaryasyonlar.FotografLinki = null;
+                                                                        }
+
+
+                                                                    }
+
+                                                                    if (productAttributeValue.PriceAdjustment > 0)
+                                                                    {
+                                                                        yeniVaryasyonlar.SatisFiyatiFarki =
+                                                                            productAttributeValue.PriceAdjustment;
+                                                                    }
+
+                                                                }
+                                                                else
+                                                                {
+                                                                    //bu varyasyon value değeri DB'de yok o yüzden baştan oluşturacağız.
+
+                                                                    List<string> varyasonPlainList =
+                                                                        decAttTxt.Split("\n").ToList();
+                                                                    var ilgiliVaryasyonText = varyasonPlainList[nodeSira];
+
+
+                                                                    if (ilgiliVaryasyonText.Contains(" ["))
+                                                                    {
+                                                                        //Length: 5" Ottoman Shape [+6 C$]
+                                                                        //demekki bu varyasyonda ücret farkı var, ücret farkını alıp sadece varyasyon adı bırakalım
+                                                                        string deger = ilgiliVaryasyonText.Split(" [")[1].Replace("]", "").Split(" ")[0];
+                                                                        decimal price = 0;
+                                                                        if (deger.Contains("+"))
+                                                                        {
+                                                                            string degerr = deger.Split("+")[1];
+
+                                                                            decimal.TryParse(degerr, out price);
+
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            decimal.TryParse(deger, out price);
+                                                                        }
+
+                                                                        yeniVaryasyonlar.SatisFiyatiFarki = price;
+                                                                        ilgiliVaryasyonText =
+                                                                            ilgiliVaryasyonText.Split(" [")[0];
+                                                                    }
+
+
+                                                                    var ilgiliVaryasyonTextList =
+                                                                        ilgiliVaryasyonText.Split(": ");
+                                                                    if (productAttribute==null)
+                                                                    {
+                                                                        varyasyonTuru = ilgiliVaryasyonTextList[0].ToLower();
+                                                                    }
+                                                                  
+
+                                                                    string varDegeri = "";
+                                                                    for (int k = 0; k < ilgiliVaryasyonTextList.Length; k++)
+                                                                    {
+                                                                        if (k > 0)
+                                                                        {
+                                                                            varDegeri += ilgiliVaryasyonTextList[k];
+                                                                        }
+                                                                        if (k > 1)
+                                                                        {
+                                                                            varDegeri += ":" + ilgiliVaryasyonTextList[k];
+                                                                        }
+
+                                                                    }
+
+                                                                    if (varDegeri == "")
+                                                                    {
+                                                                        varDegeri = ilgiliVaryasyonTextList[1].ToLower();
+                                                                    }
+
+                                                                    varyasyonDegeri = varDegeri.ToLower();
+                                                                }
 
 
 
 
-                                                        var productAttribute =
-                                                            await _productAttributeService.GetProductAttributeByIdAsync(
-                                                                productAttributemapping.ProductAttributeId);
+                                                                yeniVaryasyonlar.NopCommerceVaryasyonValueId =
+                                                                    productAttributValueId;
 
-                                                        var productAttributeValue =
-                                                            await _productAttributeService
-                                                                .GetProductAttributeValueByIdAsync(
-                                                                    productAttributValueId);
 
-                                                        Varyasyonlar yeniVaryasyonlar = new Varyasyonlar();
+                                                            }
+                                                            else
+                                                            {
+                                                                varyasyonDegeri = node.InnerText;
+                                                                yeniVaryasyonlar.NopCommerceVaryasyonValueId = null;
+                                                            }
+
+
+
+
+
+
+
+
+
+
+                                                            yeniVaryasyonlar.VaryasyonTuru =
+                                                                productAttribute.Name.ToLower();
+                                                            yeniVaryasyonlar.VaryasyonAdi = varyasyonDegeri.ToLower();
+                                                            yeniVaryasyonlar.NopCommerceVaryasyonId =
+                                                                productAttribute.Id;
+                                                        }
+                                                        else
+                                                        {
+                                                            string status = "null";
+
+                                                            //bu varyasyon DB'de yok o yüzden baştan oluşturacağız.
+                                                            List<string> varyasonPlainList =
+                                                                decAttTxt.Split("\n").ToList();
+                                                            var ilgiliVaryasyonText= varyasonPlainList[nodeSira];
+
+
+                                                            if (ilgiliVaryasyonText.Contains(" ["))
+                                                            {
+                                                                //Length: 5" Ottoman Shape [+6 C$]
+                                                                //demekki bu varyasyonda ücret farkı var, ücret farkını alıp sadece varyasyon adı bırakalım
+                                                                string deger=ilgiliVaryasyonText.Split(" [")[1].Replace("]","").Split(" ")[0];
+                                                                decimal price = 0;
+                                                                if (deger.Contains("+"))
+                                                                {
+                                                                    string degerr = Regex.Match(deger.Split("+")[1], @"\d+").Value ;
+
+                                                                    decimal.TryParse(degerr,out price);
+
+                                                                }
+                                                                else
+                                                                {
+                                                                    decimal.TryParse(Regex.Match(deger.Split("+")[1], @"\d+").Value, out price);
+                                                                }
+
+                                                                yeniVaryasyonlar.SatisFiyatiFarki = price;
+                                                                ilgiliVaryasyonText =
+                                                                    ilgiliVaryasyonText.Split(" [")[0];
+                                                            }
+
+
+                                                            var ilgiliVaryasyonTextList =
+                                                                ilgiliVaryasyonText.Split(": ");
+                                                            varyasyonTuru = ilgiliVaryasyonTextList[0].ToLower();
+                                                            
+                                                            string varDegeri = "";
+                                                            for (int k = 0; k < ilgiliVaryasyonTextList.Length; k++)
+                                                            {
+                                                                if (k>0)
+                                                                {
+                                                                    varDegeri += ilgiliVaryasyonTextList[k];
+                                                                }
+                                                                if (k > 1)
+                                                                {
+                                                                    varDegeri += ":" + ilgiliVaryasyonTextList[k];
+                                                                }
+
+                                                            }
+
+                                                            if (varDegeri=="")
+                                                            {
+                                                                varDegeri = ilgiliVaryasyonTextList[1].ToLower();
+                                                            }
+
+                                                            varyasyonDegeri = varDegeri.ToLower();
+
+
+
+                                                            //yeniVaryasyonlar.NopCommerceVaryasyonValueId =
+                                                            //    productAttributeValue.Id;
+                                                            //yeniVaryasyonlar.NopCommerceVaryasyonId =
+                                                            //    productAttribute.Id;
+                                                            
+                                                           
+                                                            yeniVaryasyonlar.NopCommerceVaryasyonValueId = null;
+
+
+
+
+
+                                                            yeniVaryasyonlar.VaryasyonTuru = varyasyonTuru;
+                                                        yeniVaryasyonlar.VaryasyonAdi = varyasyonDegeri;
+                                                       
+
+
+
+
+
+
+                                                    }
+                                                          
+
+                                                       
+                                                       
 
 
                                                         yeniVaryasyonlar.Sku = sku.FirstOrDefault().Sku;
 
-                                                        string varyasyonTuru = productAttribute.Name.ToLower();
-                                                        string varyasyonDegeri = productAttributeValue.Name.ToLower();
+                                                      
 
-                                                        if (productAttributeValue.PictureId != 0)
-                                                        {
-                                                            try
-                                                            {
-                                                                var picture =
-                                                                    await _pictureService.GetPictureByIdAsync(
-                                                                        productAttributeValue.PictureId);
-
-                                                                if (picture != null)
-                                                                {
-                                                                    string url =
-                                                                        await _pictureService.GetPictureUrlAsync(
-                                                                            picture.Id);
-
-                                                                    yeniVaryasyonlar.FotografLinki = url;
-                                                                }
-
-
-                                                            }
-                                                            catch
-                                                            {
-
-                                                                yeniVaryasyonlar.FotografLinki = null;
-                                                            }
-
-
-                                                        }
-
-                                                        if (productAttributeValue.PriceAdjustment > 0)
-                                                        {
-                                                            yeniVaryasyonlar.SatisFiyatiFarki =
-                                                                productAttributeValue.PriceAdjustment;
-                                                        }
-
-                                                        yeniVaryasyonlar.NopCommerceVaryasyonValueId =
-                                                            productAttributeValue.Id;
-
-
-                                                        yeniVaryasyonlar.VaryasyonTuru =
-                                                            productAttribute.Name.ToLower();
-                                                        yeniVaryasyonlar.VaryasyonAdi = varyasyonDegeri.ToLower();
-                                                        yeniVaryasyonlar.NopCommerceVaryasyonId =
-                                                            productAttribute.Id;
+                                                       
 
                                                         if (varyasyonTuru.Contains("pcs"))
                                                         {
@@ -608,7 +812,9 @@ namespace Nop.Plugin.Misc.NopWebApi.Controllers
                                                             try
                                                             {
                                                                 if (varyasyonDegeri
-                                                                    .Contains("broadhead"))
+                                                                    .Contains("broadhead")|| varyasyonDegeri
+                                                                        .Contains("huntinghead") || varyasyonDegeri
+                                                                        .Contains("hunting head"))
                                                                 {
                                                                     yeniVaryasyonlar.Adet =
                                                                         int.Parse(
@@ -623,6 +829,14 @@ namespace Nop.Plugin.Misc.NopWebApi.Controllers
                                                                                     "broadhead",
                                                                                     "")
                                                                                 .Replace(
+                                                                                    " ",
+                                                                                    "").Replace(
+                                                                                    "hunting head",
+                                                                                    "").Replace(
+                                                                                    "huntinghead",
+                                                                                    "").Replace(
+                                                                                    "+",
+                                                                                    "").Replace(
                                                                                     " ",
                                                                                     ""));
 
@@ -687,7 +901,18 @@ namespace Nop.Plugin.Misc.NopWebApi.Controllers
 
 
                                                     }
-                                                    catch { }
+                                                    catch(Exception ef)
+                                                    {
+                                                        string jjj = j.ToString();
+                                                        string skku = sku.First().ToString();
+                                                        string varId = attributesXml;
+                                                     
+                                                      
+                                                     
+
+                                                    }
+
+                                                    nodeSira +=1;
 
 
 
