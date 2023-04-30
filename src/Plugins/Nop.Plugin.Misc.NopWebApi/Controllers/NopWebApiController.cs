@@ -36,6 +36,8 @@ using static Nop.Plugin.Misc.NopWebApi.Models.Varyasyonlar;
 using Paragraph = DocumentFormat.OpenXml.Drawing.Paragraph;
 using DocumentFormat.OpenXml.Math;
 using System.Text.RegularExpressions;
+using Nop.Core.Domain.Directory;
+using Nop.Services.Directory;
 
 namespace Nop.Plugin.Misc.NopWebApi.Controllers
 {
@@ -65,6 +67,7 @@ namespace Nop.Plugin.Misc.NopWebApi.Controllers
         private readonly ICustomerService _customerService;
         private readonly ICustomerRoleModelFactory _customerRoleModelFactory;
         private readonly IHtmlFormatter _htmlFormatter;
+        private readonly ICurrencyService _currencyService;
 
 
 
@@ -104,7 +107,8 @@ namespace Nop.Plugin.Misc.NopWebApi.Controllers
             ICustomerRegistrationService customerRegistrationService,
              IRepository<Product> productRepository,
             IProductAttributeService iAttributeService,
-            ICustomerRoleModelFactory customerRoleModelFactory
+            ICustomerRoleModelFactory customerRoleModelFactory,
+            ICurrencyService currencyService
             
 
 
@@ -137,6 +141,7 @@ namespace Nop.Plugin.Misc.NopWebApi.Controllers
             _customerService=customerService;
             _customerRoleModelFactory=customerRoleModelFactory;
             _htmlFormatter=htmlFormatter;
+            _currencyService=currencyService;
 
 
 
@@ -481,13 +486,11 @@ namespace Nop.Plugin.Misc.NopWebApi.Controllers
                             List<Siparisler> siparisList= new List<Siparisler>();
                             int i = 0;
 
-                            for (int j = 0; j < workingOrders.Count()+1; j++)
+                            for (int j = 0; j < workingOrders.Count(); j++)
                             {
-                                if (j==34)
-                                {
-                                    string jj = "34";
-                                }
+                                
                                 var order = workingOrders[j];
+                              
                                 DateTime siparisZamani = DateTime.Now;
                                 if (order.PaidDateUtc != null)
                                 {
@@ -611,11 +614,49 @@ namespace Nop.Plugin.Misc.NopWebApi.Controllers
 
                                                                     }
 
-                                                                    if (productAttributeValue.PriceAdjustment > 0)
+                                                                    //eğer varyason fiyat farkı değeri sipariş içindekinden farklı ise siparişteki değeri kullan
+
+                                                                    List<string> varyasonPlainList =
+                                                                        decAttTxt.Split("\n").ToList();
+                                                                    var ilgiliVaryasyonText = varyasonPlainList[nodeSira];
+
+                                                                    if (ilgiliVaryasyonText.Contains(" ["))
                                                                     {
-                                                                        yeniVaryasyonlar.SatisFiyatiFarki =
-                                                                            productAttributeValue.PriceAdjustment;
+                                                                        //Length: 5" Ottoman Shape [+6 C$]
+                                                                        //demekki bu varyasyonda ücret farkı var, ücret farkını alıp sadece varyasyon adı bırakalım
+                                                                        string birimliDeger =
+                                                                            ilgiliVaryasyonText.Split(" [")[1]
+                                                                                .Replace("]", "").Replace(",",".");
+                                                                        
+                                                                        decimal birim = 1;
+                                                                        if (birimliDeger.Contains("-"))
+                                                                        {
+                                                                            birim = -1;
+                                                                        }
+
+                                                                    
+
+                                                                        decimal price = 0;
+                                                                        decimal.TryParse(Regex.Match(birimliDeger, "[0-9,\\.]+").Value, out price);
+                                                                        price = birim * price;
+
+                                                                        if (productAttributeValue.PriceAdjustment != price)
+                                                                        {
+                                                                          Console.WriteLine("Hata: Varyasyon Fiyat Farkı :"+price+"/"+ productAttributeValue.PriceAdjustment+"VaryasyonValueId:"+ productAttributeValue.Id);
+                                                                        }
+
+
+                                                                        yeniVaryasyonlar.SatisFiyatiFarki = price;
+                                                                        ilgiliVaryasyonText =
+                                                                            ilgiliVaryasyonText.Split(" [")[0];
                                                                     }
+
+
+
+
+                                                                    
+
+
 
                                                                 }
                                                                 else
@@ -631,19 +672,22 @@ namespace Nop.Plugin.Misc.NopWebApi.Controllers
                                                                     {
                                                                         //Length: 5" Ottoman Shape [+6 C$]
                                                                         //demekki bu varyasyonda ücret farkı var, ücret farkını alıp sadece varyasyon adı bırakalım
-                                                                        string deger = ilgiliVaryasyonText.Split(" [")[1].Replace("]", "").Split(" ")[0];
+                                                                        string birimliDeger =
+                                                                            ilgiliVaryasyonText.Split(" [")[1]
+                                                                                .Replace("]", "").Replace(",", ".");
+
+                                                                        decimal birim = 1;
+                                                                        if (birimliDeger.Contains("-"))
+                                                                        {
+                                                                            birim = -1;
+                                                                        }
+
+
                                                                         decimal price = 0;
-                                                                        if (deger.Contains("+"))
-                                                                        {
-                                                                            string degerr = deger.Split("+")[1];
+                                                                        decimal.TryParse(Regex.Match(birimliDeger, "[0-9,\\.]+").Value, out price);
+                                                                        price = birim * price;
+                                                                     
 
-                                                                            decimal.TryParse(degerr, out price);
-
-                                                                        }
-                                                                        else
-                                                                        {
-                                                                            decimal.TryParse(deger, out price);
-                                                                        }
 
                                                                         yeniVaryasyonlar.SatisFiyatiFarki = price;
                                                                         ilgiliVaryasyonText =
@@ -724,20 +768,22 @@ namespace Nop.Plugin.Misc.NopWebApi.Controllers
                                                             {
                                                                 //Length: 5" Ottoman Shape [+6 C$]
                                                                 //demekki bu varyasyonda ücret farkı var, ücret farkını alıp sadece varyasyon adı bırakalım
-                                                                string deger=ilgiliVaryasyonText.Split(" [")[1].Replace("]","").Split(" ")[0];
+                                                                string birimliDeger =
+                                                                    ilgiliVaryasyonText.Split(" [")[1]
+                                                                        .Replace("]", "").Replace(",", ".");
+
+                                                                decimal birim = 1;
+                                                                if (birimliDeger.Contains("-"))
+                                                                {
+                                                                    birim = -1;
+                                                                }
+
+
                                                                 decimal price = 0;
-                                                                if (deger.Contains("+"))
-                                                                {
-                                                                    string degerr = Regex.Match(deger.Split("+")[1], @"\d+").Value ;
+                                                                decimal.TryParse(Regex.Match(birimliDeger, "[0-9,\\.]+").Value, out price);
+                                                                price = birim * price;
 
-                                                                    decimal.TryParse(degerr,out price);
-
-                                                                }
-                                                                else
-                                                                {
-                                                                    decimal.TryParse(Regex.Match(deger.Split("+")[1], @"\d+").Value, out price);
-                                                                }
-
+                                                                
                                                                 yeniVaryasyonlar.SatisFiyatiFarki = price;
                                                                 ilgiliVaryasyonText =
                                                                     ilgiliVaryasyonText.Split(" [")[0];
