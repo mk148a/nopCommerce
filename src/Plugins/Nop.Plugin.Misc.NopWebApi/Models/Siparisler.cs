@@ -10,7 +10,7 @@ using Nop.Core;
 
 namespace Nop.Plugin.Misc.NopWebApi.Models
 {
-    public class Siparisler : BaseEntity
+    public class Siparisler 
     {
       
         public DateTime Tarih { get; set; }
@@ -29,7 +29,7 @@ namespace Nop.Plugin.Misc.NopWebApi.Models
         public string ParaBirimi { get; set; }
         
         public string SiparisDurumu { get; set; }
-        public int UyeId { get; set; }
+       
 
         public long ReceiptId { get; set; }
         public long TransacationId { get; set; }

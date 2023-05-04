@@ -11,7 +11,7 @@ using Nop.Core;
 
 namespace Nop.Plugin.Misc.NopWebApi.Models
 {
-    public class Varyasyonlar : BaseEntity
+    public class Varyasyonlar 
     {
         public Varyasyonlar()
         {

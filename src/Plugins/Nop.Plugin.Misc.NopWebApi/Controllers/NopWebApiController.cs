@@ -247,8 +247,8 @@ namespace Nop.Plugin.Misc.NopWebApi.Controllers
 
                                                     yeniVaryasyonlar.Sku = siteProduct.Sku;
 
-                                                    string varyasyonTuru = productAttribute.Name;
-                                                    string varyasyonDegeri = productAttributeValue.Name;
+                                                    string varyasyonTuru = productAttribute.Name.ToLower();
+                                                    string varyasyonDegeri = productAttributeValue.Name.ToLower();
 
                                                     if (productAttributeValue.PictureId != 0)
                                                     {
@@ -274,7 +274,7 @@ namespace Nop.Plugin.Misc.NopWebApi.Controllers
 
                                                     }
 
-                                                if (productAttributeValue.PriceAdjustment > 0)
+                                                if (productAttributeValue.PriceAdjustment != 0)
                                                 {
                                                     yeniVaryasyonlar.SatisFiyatiFarki = productAttributeValue.PriceAdjustment;
                                                 }
@@ -291,36 +291,12 @@ namespace Nop.Plugin.Misc.NopWebApi.Controllers
                                                         VaryasyonTipleri.Adet;
                                                     try
                                                     {
-                                                        if (varyasyonDegeri
-                                                         .Contains("broadhead"))
-                                                        {
+                                                      
                                                             yeniVaryasyonlar.Adet =
                                                                 int.Parse(
-                                                                    varyasyonDegeri
-                                                                        .Replace(
-                                                                            "pcs",
-                                                                            "")
-                                                                        .Replace(
-                                                                            "with",
-                                                                            "")
-                                                                        .Replace(
-                                                                            "broadhead",
-                                                                            "")
-                                                                        .Replace(
-                                                                            " ",
-                                                                            ""));
+                                                                    Regex.Match(varyasyonDegeri, "[0-9]+").Value);
 
-                                                        }
-                                                        else
-                                                        {
-                                                            yeniVaryasyonlar.Adet =
-                                                                int.Parse(
-                                                                    varyasyonDegeri
-                                                                        .Replace(
-                                                                            "pcs",
-                                                                            ""));
-
-                                                        }
+                                                        
 
                                                     }
                                                     catch (Exception e)
@@ -516,7 +492,7 @@ namespace Nop.Plugin.Misc.NopWebApi.Controllers
                                         siparis.SiparisDurumu = order.OrderStatus.ToString();
                                         siparis.SiparisTarih = siparisZamani;
                                         siparis.Tarih = DateTime.Now;
-                                        siparis.TransacationId = order.Id;
+                                        siparis.TransacationId = siparisUrunu.Id;
                                         siparis.Sku = sku.FirstOrDefault().Sku;
                                         var varyasonList=new List<Varyasyonlar>();
                                         try
