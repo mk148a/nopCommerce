@@ -466,11 +466,15 @@ namespace Nop.Plugin.Misc.NopWebApi.Controllers
                             {
                                 
                                 var order = workingOrders[j];
-                              
+
                                 DateTime siparisZamani = DateTime.Now;
                                 if (order.PaidDateUtc != null)
                                 {
-                                    siparisZamani = order.PaidDateUtc.Value.AddHours(3);
+                                   siparisZamani = order.PaidDateUtc.Value.AddHours(3);
+                                }
+                                else
+                                {
+                                    siparisZamani = order.CreatedOnUtc.AddHours(3);
                                 }
 
                                 var siparisurunleri = await _orderService.GetOrderItemsAsync(order.Id);
