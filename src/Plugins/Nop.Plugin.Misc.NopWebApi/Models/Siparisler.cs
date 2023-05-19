@@ -22,11 +22,11 @@ namespace Nop.Plugin.Misc.NopWebApi.Models
       
         public int VaryasyonAdet { get; set; }
 
-      
-        public decimal BirimFiyat { get; set; }
+
+        public Fiyat SatisFiyati { get; set; }
 
         public string Sku { get; set; }
-        public string ParaBirimi { get; set; }
+       
         
         public string SiparisDurumu { get; set; }
        

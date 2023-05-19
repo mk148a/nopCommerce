@@ -21,8 +21,7 @@ namespace Nop.Plugin.Misc.NopWebApi.Models
 
         public string UrunAdi { get; set; }
         public string Sku { get; set; }
-        public decimal SatisFiyati { get; set; }
-        public decimal YeniFiyat { get; set; }
+        public Fiyat SatisFiyati { get; set; }
 
         public string FotografLink { get; set; }
 

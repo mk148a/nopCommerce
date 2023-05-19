@@ -22,8 +22,7 @@ namespace Nop.Plugin.Misc.NopWebApi.Models
        public int? NopCommerceVaryasyonId { get; set; }
        public int? NopCommerceVaryasyonValueId { get; set; }
        public string Sku { get; set; }
-       public decimal SatisFiyatiFarki { get; set; }
-       public decimal YeniFiyat { get; set; }
+       public Fiyat SatisFiyati{ get; set; }
 
         public int Adet { get; set; }
         public VaryasyonTipleri Tip { get; set; }

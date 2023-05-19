@@ -202,7 +202,35 @@ namespace Nop.Plugin.Misc.NopWebApi.Controllers
                                 Urunler yeni = new Urunler();
 
                                 yeni.Sku = siteProduct.Sku;
-                                yeni.SatisFiyati = siteProduct.Price;
+                                Fiyat yeniFiyat= new Fiyat();
+
+                                //if (siteProduct.PrimaryStoreCurrencyCode == "USD")
+                                //{
+                                //    yeniFiyat.DovizCinsi = Currencies.USD;
+                                //}
+                                //else if (siteProduct.PrimaryStoreCurrencyCode == "GBP")
+                                //{
+                                //    yeniFiyat.DovizCinsi = Currencies.GBP;
+                                //}
+                                //else if (siteProduct.PrimaryStoreCurrencyCode == "EUR")
+                                //{
+                                //    yeniFiyat.DovizCinsi = Currencies.EUR;
+                                //}
+                                //else if (siteProduct.PrimaryStoreCurrencyCode == "AUD")
+                                //{
+                                //    yeniFiyat.DovizCinsi = Currencies.AUD;
+                                //}
+                                //else
+                                //{
+                                //    yeniFiyat.DovizCinsi = Currencies.USD;
+                                //}
+                                yeniFiyat.DovizCinsi = Currencies.USD;
+
+                                yeniFiyat.YeniFiyat = siteProduct.Price;
+                               yeniFiyat.OlusturmaTarihi=DateTime.Now;
+
+
+                                yeni.SatisFiyati = yeniFiyat;
                                 yeni.UrunAdi = siteProduct.Name;
 
                                 var productPicture = await _pictureService.GetPicturesByProductIdAsync(siteProduct.Id);
@@ -276,7 +304,39 @@ namespace Nop.Plugin.Misc.NopWebApi.Controllers
 
                                                 if (productAttributeValue.PriceAdjustment != 0)
                                                 {
-                                                    yeniVaryasyonlar.SatisFiyatiFarki = productAttributeValue.PriceAdjustment;
+                                                    Fiyat yeniVaryasyonFiyat = new Fiyat();
+
+                                                    //if (siteProduct.PrimaryStoreCurrencyCode == "USD")
+                                                    //{
+                                                    //    yeniVaryasyonFiyat.DovizCinsi = Currencies.USD;
+                                                    //}
+                                                    //else if (siteProduct.PrimaryStoreCurrencyCode == "GBP")
+                                                    //{
+                                                    //    yeniVaryasyonFiyat.DovizCinsi = Currencies.GBP;
+                                                    //}
+                                                    //else if (siteProduct.PrimaryStoreCurrencyCode == "EUR")
+                                                    //{
+                                                    //    yeniVaryasyonFiyat.DovizCinsi = Currencies.EUR;
+                                                    //}
+                                                    //else if (siteProduct.PrimaryStoreCurrencyCode == "AUD")
+                                                    //{
+                                                    //    yeniVaryasyonFiyat.DovizCinsi = Currencies.AUD;
+                                                    //}
+                                                    //else
+                                                    //{
+                                                    //    yeniVaryasyonFiyat.DovizCinsi = Currencies.USD;
+                                                    //}
+yeniVaryasyonFiyat.DovizCinsi = Currencies.USD;
+                                                    yeniVaryasyonFiyat.OlusturmaTarihi =
+                                                        pr.Where(x => x.Id == siteProduct.Id).First().CreatedOnUtc;
+
+
+                                                    yeniVaryasyonFiyat.YeniFiyat= productAttributeValue.PriceAdjustment;
+
+
+
+
+                                                    yeniVaryasyonlar.SatisFiyati = yeniVaryasyonFiyat;
                                                 }
                                                 yeniVaryasyonlar.NopCommerceVaryasyonValueId = productAttributeValue.Id;
                                                 
@@ -490,8 +550,41 @@ namespace Nop.Plugin.Misc.NopWebApi.Controllers
                                         
                                         var siparis = new Siparisler();
                                         siparis.Adet = siparisUrunu.Quantity;
-                                        siparis.BirimFiyat = siparisUrunu.UnitPriceExclTax;
-                                        siparis.ParaBirimi = order.CustomerCurrencyCode;
+                                      
+                                     
+                                        var yeniFiyat = new Fiyat();
+                                        yeniFiyat.YeniFiyat = siparisUrunu.UnitPriceExclTax;
+                                        yeniFiyat.OlusturmaTarihi = siparis.SiparisTarih;
+                                        //if (order.CustomerCurrencyCode == "USD")
+                                        //{
+                                        //    yeniFiyat.DovizCinsi = Currencies.USD;
+                                        //}
+                                        //else if (order.CustomerCurrencyCode == "GBP")
+                                        //{
+                                        //    yeniFiyat.DovizCinsi = Currencies.GBP;
+                                        //}
+                                        //else if (order.CustomerCurrencyCode == "EUR")
+                                        //{
+                                        //    yeniFiyat.DovizCinsi = Currencies.EUR;
+                                        //}
+                                        //else if (order.CustomerCurrencyCode == "AUD")
+                                        //{
+                                        //    yeniFiyat.DovizCinsi = Currencies.AUD;
+                                        //}
+                                        //else if (order.CustomerCurrencyCode == "TRY")
+                                        //{
+                                        //    yeniFiyat.DovizCinsi = Currencies.TRY;
+                                        //}
+                                        //else
+                                        //{
+                                        //    yeniFiyat.DovizCinsi = Currencies.USD;
+                                        //}
+                                        yeniFiyat.DovizCinsi = Currencies.USD;
+
+                                        siparis.SatisFiyati = yeniFiyat;
+
+
+
                                         siparis.ReceiptId = order.Id;
                                         siparis.SiparisDurumu = order.OrderStatus.ToString();
                                         siparis.SiparisTarih = siparisZamani;
@@ -625,8 +718,17 @@ namespace Nop.Plugin.Misc.NopWebApi.Controllers
                                                                           Console.WriteLine("Hata: Varyasyon Fiyat Farkı :"+price+"/"+ productAttributeValue.PriceAdjustment+"VaryasyonValueId:"+ productAttributeValue.Id);
                                                                         }
 
+                                                                        Fiyat yeniVaryasyonFiyat = new Fiyat();
 
-                                                                        yeniVaryasyonlar.SatisFiyatiFarki = price;
+                                                                        yeniVaryasyonFiyat.DovizCinsi =
+                                                                            yeniFiyat.DovizCinsi;
+                                                                        yeniVaryasyonFiyat.YeniFiyat = price;
+                                                                        yeniVaryasyonFiyat.OlusturmaTarihi =
+                                                                            siparis.SiparisTarih;
+                                                                        yeniVaryasyonlar.SatisFiyati = yeniVaryasyonFiyat;
+                                                                        
+
+
                                                                         ilgiliVaryasyonText =
                                                                             ilgiliVaryasyonText.Split(" [")[0];
                                                                     }
@@ -666,10 +768,16 @@ namespace Nop.Plugin.Misc.NopWebApi.Controllers
                                                                         decimal price = 0;
                                                                         decimal.TryParse(Regex.Match(birimliDeger, "[0-9,\\.]+").Value, out price);
                                                                         price = birim * price;
-                                                                     
 
-
-                                                                        yeniVaryasyonlar.SatisFiyatiFarki = price;
+                                                                        Fiyat yeniVaryasyonFiyat = new Fiyat();
+                                                                        yeniVaryasyonFiyat.DovizCinsi =
+                                                                            yeniFiyat.DovizCinsi;
+                                                                        yeniFiyat.OlusturmaTarihi =
+                                                                            siparis.SiparisTarih;
+                                                                        yeniVaryasyonFiyat.YeniFiyat = price;
+                                                                       
+                                                                        yeniVaryasyonlar.SatisFiyati =
+                                                                            yeniVaryasyonFiyat;
                                                                         ilgiliVaryasyonText =
                                                                             ilgiliVaryasyonText.Split(" [")[0];
                                                                     }
@@ -763,8 +871,15 @@ namespace Nop.Plugin.Misc.NopWebApi.Controllers
                                                                 decimal.TryParse(Regex.Match(birimliDeger, "[0-9,\\.]+").Value, out price);
                                                                 price = birim * price;
 
-                                                                
-                                                                yeniVaryasyonlar.SatisFiyatiFarki = price;
+                                                                Fiyat yeniVaryasyonFiyat = new Fiyat();
+                                                                yeniVaryasyonFiyat.DovizCinsi = yeniFiyat.DovizCinsi;
+                                                                yeniVaryasyonFiyat.OlusturmaTarihi =
+                                                                    siparis.SiparisTarih;
+                                                                yeniVaryasyonFiyat.YeniFiyat = price;
+
+
+                                                                yeniVaryasyonlar.SatisFiyati = yeniVaryasyonFiyat;
+
                                                                 ilgiliVaryasyonText =
                                                                     ilgiliVaryasyonText.Split(" [")[0];
                                                             }
