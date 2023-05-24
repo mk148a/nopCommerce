@@ -5,9 +5,11 @@
     <Copyright>Genius Software</Copyright>
     <Company>Genius Software</Company>
     <Authors>Genius Software</Authors>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <Deterministic>false</Deterministic>
     <PackageLicenseUrl>https://github.com/GokhanSevim/Nop.Plugin.Payments.Iyzico/blob/main/LICENSE</PackageLicenseUrl>
-    <PackageProjectUrl>https://download.silverteknoloji.com.tr/nopcommerce/v440/Payments.Iyzico.zip</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/GokhanSevim/Nop.Plugin.Payments.Iyzico</RepositoryUrl>
+    <PackageProjectUrl></PackageProjectUrl>
+    <RepositoryUrl></RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <OutputPath>..\..\Presentation\Nop.Web\Plugins\Payments.Iyzico</OutputPath>
     <OutDir>$(OutputPath)</OutDir>
@@ -16,6 +18,8 @@
     to ensure that the dlls copied from the NuGet cache to the output of your project-->
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <PackageIcon>logo.png</PackageIcon>
+    <AssemblyVersion>1.0.0.1</AssemblyVersion>
+    <FileVersion>1.0.0.1</FileVersion>
 
   </PropertyGroup>
 
