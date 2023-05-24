@@ -1,27 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using System.Threading;
 using System.Threading.Tasks;
-using DocumentFormat.OpenXml.EMMA;
-using DocumentFormat.OpenXml.Office2013.Drawing.ChartStyle;
-using DocumentFormat.OpenXml.Wordprocessing;
-using Iyzipay;
 using Iyzipay.Model;
-using Iyzipay.Model.V2.Transaction;
 using Iyzipay.Request;
-using Iyzipay.Request.V2;
 using LinqToDB.Common;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using MySqlX.XDevAPI.Common;
 using Newtonsoft.Json;
 using Nop.Core;
 using Nop.Core.Domain.Catalog;
-using Nop.Core.Domain.Directory;
 using Nop.Core.Domain.Localization;
 using Nop.Core.Domain.Logging;
 using Nop.Core.Domain.Orders;
@@ -39,7 +27,6 @@ using Nop.Services.Shipping;
 using Nop.Services.Tax;
 using Nop.Web.Controllers;
 using Nop.Web.Factories;
-using Nop.Web.Models.Checkout;
 
 namespace Nop.Plugin.Payments.Iyzico.Controllers
 {
@@ -382,7 +369,7 @@ namespace Nop.Plugin.Payments.Iyzico.Controllers
         }
 
 
-        public async Task<IActionResult> ThView()
+        public IActionResult ThView()
         {
 
 

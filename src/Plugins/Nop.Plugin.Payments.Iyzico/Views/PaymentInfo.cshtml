@@ -1,21 +1,17 @@
-﻿@using Nop.Plugin.Payments.Iyzico
+﻿@using Nop.Services.Directory
 @using Nop.Web.Framework.TagHelpers.Shared
-@using Microsoft.AspNetCore.Mvc.TagHelpers
 @using Nop.Core
-@using Nop.Services.Customers
-@using Nop.Services.Directory
+@using Microsoft.AspNetCore.Mvc.TagHelpers
 @model Nop.Plugin.Payments.Iyzico.Models.PaymentInfoModel
 @{
-	Layout = "";
-    
+    Layout = "";
+
 }
 
-@inject IyzicoPaymentSettings İyIyzicoPaymentSettings
-@inject Nop.Core.Domain.Orders.OrderSettings orderSettings
-@inject Nop.Core.IWebHelper webHelper
+
 @inject IWorkContext _workContext;
 @inject ICurrencyService currencyService
-@inject ICustomerService CustomerService
+
 
 @if (Model.PaymentResult == false)
 {
@@ -37,7 +33,7 @@ else
                 <label asp-for="CardholderName">@T("Payment.CardholderName"):</label>
             </td>
             <td>
-                <input type="text" asp-for="CardholderName" style="width:165px;" autocomplete="off" />
+                <input type="text" asp-for="CardholderName" style="width:165px;" autocomplete="off"/>
                 <span asp-validation-for="CardholderName"></span>
             </td>
         </tr>
@@ -46,7 +42,7 @@ else
                 <label asp-for="CardNumber">@T("Payment.CardNumber"):</label>
             </td>
             <td>
-                <input type="text" asp-for="CardNumber" style="width:165px;" autocomplete="off" maxlength="22" />
+                <input type="text" asp-for="CardNumber" style="width:165px;" autocomplete="off" maxlength="22"/>
                 <span asp-validation-for="CardNumber"></span>
             </td>
         </tr>
@@ -65,7 +61,7 @@ else
                 <label asp-for="CardCode">@T("Payment.CardCode"):</label>
             </td>
             <td>
-                <input type="text" asp-for="CardCode" autocomplete="off" maxlength="4" />
+                <input type="text" asp-for="CardCode" autocomplete="off" maxlength="4"/>
                 <span asp-validation-for="CardCode"></span>
             </td>
         </tr>
@@ -84,9 +80,8 @@ else
             {            
               
                @{
+                   var customercurrency = currencyService.GetCurrencyByCodeAsync("TRY").Result.Id;
 
-                   var customercurrency = @currencyService.GetCurrencyByCodeAsync("TRY").Result.Id;
-                 
 
                    var currency = await currencyService.GetCurrencyByIdAsync(customercurrency);
                    if (currency != null)
@@ -115,9 +110,9 @@ else
              //- İsviçre Frangı (CHF)
              //- Norveç Kronu (NOK) 
 
-             List<string> currencyCodes = new List<string>();           
-             
-             int usdCurrency = -1;
+             var currencyCodes = new List<string>();
+
+             var usdCurrency = -1;
 
              //bendeki tanımlı hesaplar 
              //Todo:Bunu configden ayarlanır hale getir
@@ -125,16 +120,16 @@ else
              currencyCodes.Add("EUR");
              currencyCodes.Add("GBP");
 
-             String currentCurrencyCode = (await _workContext.GetWorkingCurrencyAsync()).CurrencyCode;
-        
-          
+             var currentCurrencyCode = (await _workContext.GetWorkingCurrencyAsync()).CurrencyCode;
+
+
              if (!currencyCodes.Contains(currentCurrencyCode))
              {
                  usdCurrency = currencyService.GetCurrencyByCodeAsync("USD").Result.Id;
 
                  var setCurrency = await currencyService.GetCurrencyByIdAsync(usdCurrency);
-            if (setCurrency != null)
-                await _workContext.SetWorkingCurrencyAsync(setCurrency);
+                 if (setCurrency != null)
+                     await _workContext.SetWorkingCurrencyAsync(setCurrency);
              }
 
          }
