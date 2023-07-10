@@ -1,5 +1,4 @@
 ﻿@model Nop.Plugin.Misc.EtsyToNopcommerce.Models.ConfigurationModel
-
 @{
     Layout = "_ConfigurePlugin";
 }
@@ -59,7 +58,7 @@
                         <nop-label asp-for="TokenDate"/>
                     </div>
                     <div class="col-md-9">
-                        <nop-label asp-for="TokenDate" asp-required="false" />
+                        <nop-editor asp-for="TokenDate" asp-required="false" />
                         <span asp-validation-for="TokenDate"></span>
 
                     </div>

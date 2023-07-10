@@ -25,9 +25,9 @@ using Nop.Plugin.Misc.EtsyToNopcommerce.Models.Shops;
 
 namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
 {
+    [AuthorizeAdmin]
     [Area(AreaNames.Admin)]
     [AutoValidateAntiforgeryToken]
-    [AuthorizeAdmin]
     public class EtsyToNopcommerceController : BasePluginController
     {
         #region Fields
@@ -195,7 +195,10 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
             if (settings != null)
             {
                 string code_challenge = GenerateCodeChallenge(settings.ConsumerKey);
-                string callbackUrl = $"{this.Request.Scheme}://{this.Request.Host}" + "/etys-yetkilendir";
+
+                //https://localhost:59857/etys-yetkilendir
+                string callbackUrl = $"{this.Request.Scheme}://{this.Request.Host}" + "/Admin/EtsyToNopcommerce/etys-yetkilendir";
+
                 string url = $"{settings.RequestUrl}?response_type=code&redirect_uri={callbackUrl}&scope=address_r%20address_w%20billing_r%20cart_r%20cart_w%20email_r%20favorites_r%20favorites_w%20feedback_r%20listings_d%20listings_r%20listings_w%20profile_r%20profile_w%20recommend_r%20recommend_w%20shops_r%20shops_w%20transactions_r%20transactions_w&client_id={settings.ConsumerKey}&state=superstate&code_challenge={code_challenge}&code_challenge_method=S256";
                 return Redirect(url);
             }
@@ -209,7 +212,6 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
 
 
         [HttpGet]
-        [Route("etys-yetkilendir")]
         public async Task<IActionResult> CallbackAsync()
         {
             var storeId = await _storeContext.GetActiveStoreScopeConfigurationAsync();
