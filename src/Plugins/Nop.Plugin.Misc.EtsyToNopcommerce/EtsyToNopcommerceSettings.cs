@@ -1,5 +1,4 @@
 ﻿using System;
-using DocumentFormat.OpenXml.Wordprocessing;
 using System.ComponentModel.DataAnnotations;
 using Nop.Core.Configuration;
 

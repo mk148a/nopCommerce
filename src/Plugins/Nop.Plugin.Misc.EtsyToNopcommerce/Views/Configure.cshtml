@@ -18,84 +18,68 @@
         <div class="card card-default">
             <div class="card-body">
                 <p>
-                    <h5>@T("Plugins.Payments.Iyzico.Instructions")</h5>
+                    <h5>Etsy Tanımlamalarını Buradan Yapabilirsiniz</h5>
                     <br />
                 </p>
                 <hr />
-                <p>@T("Plugins.Payments.Iyzico.AccountInfo")</p>
+                <p>Api Bilgileri</p>
                 <div class="form-group row">
                     <div class="col-md-3">
-                        <nop-override-store-checkbox asp-for="ApiKey_OverrideForStore" asp-input="ApiKey" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
-                        <nop-label asp-for="ApiKey" />
+                        <nop-override-store-checkbox asp-for="ShopName_OverrideForStore" asp-input="ShopName" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                        <nop-label asp-for="ShopName"/>
                     </div>
                     <div class="col-md-9">
-                        <nop-editor asp-for="ApiKey" asp-required="true" />
-                        <span asp-validation-for="ApiKey"></span>
+                        <nop-editor asp-for="ShopName" asp-required="true" />
+                        <span asp-validation-for="ShopName"></span>
                     </div>
                 </div>
                 <div class="form-group row">
                     <div class="col-md-3">
-                        <nop-override-store-checkbox asp-for="ApiSecret_OverrideForStore" asp-input="ApiSecret" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
-                        <nop-label asp-for="ApiSecret" />
+                        <nop-override-store-checkbox asp-for="ShopId_OverrideForStore" asp-input="ShopId" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                        <nop-label asp-for="ShopId"/>
                     </div>
                     <div class="col-md-9">
-                        <nop-editor asp-for="ApiSecret" asp-required="true" />
-                        <span asp-validation-for="ApiSecret"></span>
+                        <nop-editor asp-for="ShopId" asp-required="false" />
+                        <span asp-validation-for="ShopId"></span>
                     </div>
                 </div>
                 <div class="form-group row">
                     <div class="col-md-3">
-                        <nop-override-store-checkbox asp-for="ApiUrl_OverrideForStore" asp-input="ApiUrl" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
-                        <nop-label asp-for="ApiUrl" />
+                        <nop-override-store-checkbox asp-for="Token_OverrideForStore" asp-input="Token" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                        <nop-label asp-for="Token"/>
                     </div>
                     <div class="col-md-9">
-                        <nop-editor asp-for="ApiUrl" asp-required="true" />
-                        <span asp-validation-for="ApiUrl"></span>
+                        <nop-editor asp-for="Token" asp-required="false" />
+                        <span asp-validation-for="Token"></span>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-3">
+                        <nop-override-store-checkbox asp-for="TokenDate_OverrideForStore" asp-input="TokenDate" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                        <nop-label asp-for="TokenDate"/>
+                    </div>
+                    <div class="col-md-9">
+                        <nop-label asp-for="TokenDate" asp-required="false" />
+                        <span asp-validation-for="TokenDate"></span>
+
                     </div>
                 </div>
                 <hr />
-                <p>@T("Plugins.Payments.Iyzico.VirtualPosInfo")</p>
-                <div class="form-group row">
-                    <div class="col-md-3">
-                        <nop-override-store-checkbox asp-for="IsCardStorage_OverrideForStore" asp-input="IsCardStorage" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
-                        <nop-label asp-for="IsCardStorage" />
-                    </div>
-                    <div class="col-md-9">
-                        <nop-editor asp-for="IsCardStorage" />
-                        <span asp-validation-for="IsCardStorage"></span>
-                    </div>
-                </div>
-                <div class="form-group row">
-                    <div class="col-md-3">
-                        <nop-override-store-checkbox asp-for="InstallmentNumbers_OverrideForStore" asp-input="InstallmentNumbers" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
-                        <nop-label asp-for="InstallmentNumbers" />
-                    </div>
-                    <div class="col-md-9">
-                        <div class="form-check form-check-inline">
-                            <nop-editor asp-for="InstallmentNumber2" />
-                            <nop-label class="form-check-label" asp-for="InstallmentNumber2" />
-                        </div>
-                        <div class="form-check form-check-inline">
-                            <nop-editor asp-for="InstallmentNumber3" />
-                            <nop-label class="form-check-label" asp-for="InstallmentNumber3" />
-                        </div>
-                        <div class="form-check form-check-inline">
-                            <nop-editor asp-for="InstallmentNumber6" />
-                            <nop-label class="form-check-label" asp-for="InstallmentNumber6" />
-                        </div>
-                        <div class="form-check form-check-inline">
-                            <nop-editor asp-for="InstallmentNumber9" />
-                            <nop-label class="form-check-label" asp-for="InstallmentNumber9" />
-                        </div>
-                        <div class="form-check form-check-inline">
-                            <nop-editor asp-for="InstallmentNumber12" />
-                            <nop-label class="form-check-label" asp-for="InstallmentNumber12" />
-                        </div>
-                    </div>
-                </div>
+                <p>testet</p>
+  
+                <a asp-controller="EtsyToNopcommerce"
+                   asp-action="Yetkilendir"
+                   class="mr-3 text-primary"
+                   data-toggle="tooltip" data-placement="top"
+                   title="Yetkilendir"
+                   data-original-title="Yetkilendir">
+                    <i class="fa fa-home">
+                        Yetkilendir
+                    </i>
+                </a>
                 <div class="form-group row">
                     <div class="col-md-9 offset-md-3">
-                        <button type="submit" name="save" class="btn btn-primary">@T("Admin.Common.Save")</button>
+                        <button type="submit" name="save" class="btn btn-primary">Kaydet</button>
                     </div>
                 </div>
             </div>

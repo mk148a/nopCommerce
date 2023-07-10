@@ -15,11 +15,13 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Infrastructure
         /// <param name="endpointRouteBuilder">Route builder</param>
         public void RegisterRoutes(IEndpointRouteBuilder endpointRouteBuilder)
         {
-            endpointRouteBuilder.MapControllerRoute("Plugin.Misc.EtsyToNopcommerce",
+            endpointRouteBuilder.MapControllerRoute("Plugin.Misc.EtsyToNopcommerce.Configure",
                 "Admin/EtsyToNopcommerce/Configure",
                 new { controller = "EtsyToNopcommerce", action = "Configure" });
 
-           
+          
+
+
         }
 
         /// <summary>

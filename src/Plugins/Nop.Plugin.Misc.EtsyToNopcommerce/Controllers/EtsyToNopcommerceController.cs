@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text.RegularExpressions;
+using System.Text;
 using System.Threading.Tasks;
 using DocumentFormat.OpenXml.EMMA;
 using Microsoft.AspNetCore.Mvc;
@@ -16,12 +19,14 @@ using Nop.Services.Security;
 using Nop.Web.Framework;
 using Nop.Web.Framework.Controllers;
 using Nop.Web.Framework.Mvc.Filters;
+using System.Net;
+using RestSharp;
+using Nop.Plugin.Misc.EtsyToNopcommerce.Models.Shops;
 
-namespace Nop.Plugin.Payments.PayPalCommerce.Controllers
+namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
 {
     [Area(AreaNames.Admin)]
     [AutoValidateAntiforgeryToken]
-    [ValidateIpAddress]
     [AuthorizeAdmin]
     public class EtsyToNopcommerceController : BasePluginController
     {
@@ -88,20 +93,16 @@ namespace Nop.Plugin.Payments.PayPalCommerce.Controllers
             //we don't need some of the shared settings that loaded above, so load them separately for chosen store
             if (storeId > 0)
             {
-                //settings.WebhookUrl = await _settingService
-                //    .GetSettingByKeyAsync<string>($"{nameof(PayPalCommerceSettings)}.{nameof(PayPalCommerceSettings.WebhookUrl)}", storeId: storeId);
-                //settings.UseSandbox = await _settingService
-                //    .GetSettingByKeyAsync<bool>($"{nameof(PayPalCommerceSettings)}.{nameof(PayPalCommerceSettings.UseSandbox)}", storeId: storeId);
-                //settings.ClientId = await _settingService
-                //    .GetSettingByKeyAsync<string>($"{nameof(PayPalCommerceSettings)}.{nameof(PayPalCommerceSettings.ClientId)}", storeId: storeId);
-                //settings.SecretKey = await _settingService
-                //    .GetSettingByKeyAsync<string>($"{nameof(PayPalCommerceSettings)}.{nameof(PayPalCommerceSettings.SecretKey)}", storeId: storeId);
-                //settings.Email = await _settingService
-                //    .GetSettingByKeyAsync<string>($"{nameof(PayPalCommerceSettings)}.{nameof(PayPalCommerceSettings.Email)}", storeId: storeId);
-                //settings.MerchantGuid = await _settingService
-                //    .GetSettingByKeyAsync<string>($"{nameof(PayPalCommerceSettings)}.{nameof(PayPalCommerceSettings.MerchantGuid)}", storeId: storeId);
-                //settings.SignUpUrl = await _settingService
-                //    .GetSettingByKeyAsync<string>($"{nameof(PayPalCommerceSettings)}.{nameof(PayPalCommerceSettings.SignUpUrl)}", storeId: storeId);
+                model.ShopName_OverrideForStore = await _settingService.SettingExistsAsync(settings, x => x.ShopName, storeId);
+                model.ShopId_OverrideForStore = await _settingService.SettingExistsAsync(settings, x => x.ShopId, storeId);
+                model.RequestUrl_OverrideForStore = await _settingService.SettingExistsAsync(settings, x => x.RequestUrl, storeId);
+                model.RequestAccessTokenUrl_OverrideForStore = await _settingService.SettingExistsAsync(settings, x => x.RequestAccessTokenUrl, storeId);
+                model.ConsumerKey_OverrideForStore = await _settingService.SettingExistsAsync(settings, x => x.ConsumerKey, storeId);
+                model.ConsumerSecret_OverrideForStore = await _settingService.SettingExistsAsync(settings, x => x.ConsumerSecret, storeId);
+                model.RefreshToken_OverrideForStore = await _settingService.SettingExistsAsync(settings, x => x.RefreshToken, storeId);
+                model.TokenSecret_OverrideForStore = await _settingService.SettingExistsAsync(settings, x => x.TokenSecret, storeId);
+                model.TokenDate_OverrideForStore = await _settingService.SettingExistsAsync(settings, x => x.TokenDate, storeId);
+               
             }
 
 
@@ -173,6 +174,113 @@ namespace Nop.Plugin.Payments.PayPalCommerce.Controllers
             return await Configure();
         }
 
+        private string GenerateCodeChallenge(string codeVerifier)
+        {
+            using var sha256 = SHA256.Create();
+            var hash = sha256.ComputeHash(Encoding.UTF8.GetBytes(codeVerifier));
+            var b64Hash = Convert.ToBase64String(hash);
+            var code = Regex.Replace(b64Hash, "\\+", "-");
+            code = Regex.Replace(code, "\\/", "_");
+            code = Regex.Replace(code, "=+$", "");
+            return code;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Yetkilendir()
+        {
+            var storeId = await _storeContext.GetActiveStoreScopeConfigurationAsync();
+            var settings = await _settingService.LoadSettingAsync<EtsyToNopcommerceSettings>(storeId);
+
+         
+            if (settings != null)
+            {
+                string code_challenge = GenerateCodeChallenge(settings.ConsumerKey);
+                string callbackUrl = $"{this.Request.Scheme}://{this.Request.Host}" + "/etys-yetkilendir";
+                string url = $"{settings.RequestUrl}?response_type=code&redirect_uri={callbackUrl}&scope=address_r%20address_w%20billing_r%20cart_r%20cart_w%20email_r%20favorites_r%20favorites_w%20feedback_r%20listings_d%20listings_r%20listings_w%20profile_r%20profile_w%20recommend_r%20recommend_w%20shops_r%20shops_w%20transactions_r%20transactions_w&client_id={settings.ConsumerKey}&state=superstate&code_challenge={code_challenge}&code_challenge_method=S256";
+                return Redirect(url);
+            }
+            else
+            {
+               
+                return await Configure();
+            }
+        }
+
+
+
+        [HttpGet]
+        [Route("etys-yetkilendir")]
+        public async Task<IActionResult> CallbackAsync()
+        {
+            var storeId = await _storeContext.GetActiveStoreScopeConfigurationAsync();
+            var settings = await _settingService.LoadSettingAsync<EtsyToNopcommerceSettings>(storeId);
+
+            if (settings != null)
+            {
+                string RequestAccessTokenUrl = settings.RequestAccessTokenUrl;
+                string ConsumerKey = settings.ConsumerKey;
+                string ConsumerSecret = settings.ConsumerSecret;
+                string TokenSecret = "";
+                // Read token and verifier
+                string code = Request.Query["code"];
+
+
+                string redirect_uri = $"{this.Request.Scheme}://{this.Request.Host}" + "/etys-yetkilendir";
+                RestClient RestClient = new RestSharp.RestClient("https://openapi.etsy.com");
+                var request = new RestRequest("/v3/public/oauth/token",RestSharp.Method.Post);
+                request.AddHeader("Content-Type", "application/x-www-form-urlencoded");
+                request.AddParameter("grant_type", "authorization_code");
+                request.AddParameter("client_id", ConsumerKey);
+                request.AddParameter("redirect_uri", redirect_uri);
+                request.AddParameter("code", code);
+                request.AddParameter("code_verifier", ConsumerKey);
+
+                var response = await RestClient.ExecutePostAsync(request);
+
+                if (response.StatusCode == HttpStatusCode.OK)
+                {
+                    var AuthorizationResponse = Newtonsoft.Json.JsonConvert.DeserializeObject<AuthorizationResponse>(response.Content);
+                    settings.Token = AuthorizationResponse.access_token;
+                    settings.RefreshToken = AuthorizationResponse.refresh_token;
+                    settings.ExpiresIn = AuthorizationResponse.expires_in;
+                    settings.TokenDate = DateTime.Now;
+
+
+
+
+                    //Shop id al
+                    redirect_uri = $"{this.Request.Scheme}://{this.Request.Host}" + "/etys-yetkilendir";
+                    RestClient RestClient1 = new RestSharp.RestClient("https://openapi.etsy.com");
+                    RestRequest request1 = new RestRequest("/v3/application/shops");
+                    request1.AddHeader("Content-Type", "application/x-www-form-urlencoded");
+                    request1.AddHeader("x-api-key", "uh3pwbu285jcynbsz50cadww");
+                    request1.AddHeader("Authorization", "Bearer " + settings.Token);
+                    request1.AddParameter("shop_name", settings.ShopName);
+
+                    var response1 = await RestClient1.ExecuteGetAsync(request1);
+                    string content = response1.Content;
+                    settings.ShopId = Newtonsoft.Json.JsonConvert.DeserializeObject<Shops>(content).results.First()
+                        .shop_id;
+
+
+                    //ayarları sakla
+                    await _settingService.SaveSettingAsync(settings);
+                    await _settingService.ClearCacheAsync();
+
+                    _notificationService.SuccessNotification(await _localizationService.GetResourceAsync("Admin.Plugins.Saved"));
+
+                    return await Configure();
+                }
+                else
+                {
+                    return await Configure();
+                }
+            }
+            else
+            {
+                return await Configure();
+            }
+        }
 
         #endregion
     }

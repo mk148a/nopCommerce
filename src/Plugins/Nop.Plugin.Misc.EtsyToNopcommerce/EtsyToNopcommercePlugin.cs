@@ -15,20 +15,19 @@ using Nop.Services.Plugins;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
+using Nop.Services.Common;
 
 namespace Nop.Plugin.Misc.EtsyToNopcommerce
 {
     /// <summary>
     /// Rename this file and change to the correct type
     /// </summary>
-    public class EtsyToNopcommercePlugin : BasePlugin
+    public class EtsyToNopcommercePlugin : BasePlugin, IMiscPlugin
     {
         #region Fields
 
-        private readonly EtsyToNopcommerceSettings _etsyToNopcommerceSettings;
-        private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILocalizationService _localizationService;
-        private readonly ILogger _logger;
+  
         private readonly ISettingService _settingService;
         private readonly IUrlHelperFactory _urlHelperFactory;
         private readonly IActionContextAccessor _actionContextAccessor;
@@ -37,16 +36,12 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce
 
         #region Ctor
 
-        public EtsyToNopcommercePlugin(EtsyToNopcommerceSettings etsyToNopcommerceSettings,
-            IHttpClientFactory httpClientFactory,
-            ILocalizationService localizationService,
-            ILogger logger,
+        public EtsyToNopcommercePlugin(ILocalizationService localizationService,
             ISettingService settingService, IUrlHelperFactory urlHelperFactory, IActionContextAccessor actionContextAccessor)
         {
-            _etsyToNopcommerceSettings = etsyToNopcommerceSettings;
-            _httpClientFactory = httpClientFactory;
+          
             _localizationService = localizationService;
-            _logger = logger;
+           
             _settingService = settingService;
             _urlHelperFactory = urlHelperFactory;
             _actionContextAccessor = actionContextAccessor;

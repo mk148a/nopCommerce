@@ -6,7 +6,7 @@ using Nop.Core.Infrastructure;
 
 namespace Nop.Plugin.Misc.EtsyToNopcommerce.Infrastructure
 {
-    public class PluginNopStartup : INopStartup
+    public class NopStartup : INopStartup
     {
         public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
         {
