@@ -125,3 +125,35 @@
         </div>
     </div>
 </form>
+
+
+
+<form id="EtsyYorumlari" asp-controller="EtsyToNopcommerce" asp-action="Configure" method="post">
+    <div class="cards-group">
+        <div class="card card-default">
+            <div class="card-body">
+                <p>
+                    <h5>Etsy Yorumlarini Buradan Görebilirsiniz</h5>
+                    <br />
+                </p>
+                <hr />
+                <p>Testt Bilgileri</p>
+               
+                <hr />
+                <p>testet</p>
+
+                <a asp-controller="EtsyToNopcommerce"
+                   asp-action="EtsyYorumlariniCagir"
+                   class="mr-3 text-primary"
+                   data-toggle="tooltip" data-placement="top"
+                   title="Etsy Yorumlarini Cagir"
+                   data-original-title="Etsy Yorumlarini Cagir">
+                    <i class="fa fa-home">
+                        Etsy Yorumlarini Cagir
+                    </i>
+                </a>
+                
+            </div>
+        </div>
+    </div>
+</form>

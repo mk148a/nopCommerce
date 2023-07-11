@@ -25,6 +25,15 @@ using Nop.Plugin.Misc.EtsyToNopcommerce.Models.Shops;
 using System.Collections.Generic;
 using System.Threading;
 using DocumentFormat.OpenXml.Bibliography;
+using Nop.Plugin.Misc.EtsyToNopcommerce.Models.Reviews;
+using Nop.Plugin.Misc.EtsyToNopcommerce.Models.Listings;
+using Nop.Plugin.Misc.EtsyToNopcommerce.Models.Transactions;
+using System.Security.Policy;
+using Nop.Plugin.Misc.EtsyToNopcommerce.Models.Receipts;
+using Nop.Services.Catalog;
+using Nop.Services.Customers;
+using Nop.Services.Logging;
+using StackExchange.Profiling.Internal;
 
 namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
 {
@@ -40,8 +49,9 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
         private readonly IPermissionService _permissionService;
         private readonly ISettingService _settingService;
         private readonly IStoreContext _storeContext;
-        //private readonly ServiceManager _serviceManager;
-        private readonly ShoppingCartSettings _shoppingCartSettings;
+        private readonly ICustomerService _customerService;
+        private readonly IProductService _productService;
+ 
 
         #endregion
 
@@ -52,14 +62,15 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
             IPermissionService permissionService,
             ISettingService settingService,
             IStoreContext storeContext,
-            ShoppingCartSettings shoppingCartSettings)
+           ICustomerService customerService,IProductService productService)
         {
             _localizationService = localizationService;
             _notificationService = notificationService;
             _permissionService = permissionService;
             _settingService = settingService;
             _storeContext = storeContext;
-            _shoppingCartSettings = shoppingCartSettings;
+            _productService= productService;
+            _customerService = customerService;
         }
 
         #endregion
@@ -291,9 +302,26 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
             }
         }
 
+ [HttpGet]
+        public async Task<IActionResult> EtsyYorumlariniCagir()
+        {
+            var storeId = await _storeContext.GetActiveStoreScopeConfigurationAsync();
+            var settings = await _settingService.LoadSettingAsync<EtsyToNopcommerceSettings>(storeId);
 
+            if (settings != null)
+            {
+                await ReviewlariAlVeIsle();
+                _notificationService.SuccessNotification(await _localizationService.GetResourceAsync("Admin.Plugins.Saved"));
+               
+                return await Configure();
+            }
+            else
+            {
+                return await Configure();
+            }
+        }
 
-        public async Task<IRestResponse> EtsyRequests(string url, Method method, List<KeyValuePair<string, string>> parameters)
+        public async Task<IRestResponse> EtsyRequests(string url,List<KeyValuePair<string, string>> parameters)
         {
             Thread.Sleep(250);
             var storeId = await _storeContext.GetActiveStoreScopeConfigurationAsync();
@@ -304,7 +332,7 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
 
 
             RestClient restClient = new RestSharp.RestClient("https://openapi.etsy.com");
-            RestRequest request = new RestRequest("/v3/application/shops");
+            RestRequest request = new RestRequest(url);
             IRestResponse response = null;
             request.AddHeader("Content-Type", "application/x-www-form-urlencoded");
                 if (url != "v3/public/oauth/token")
@@ -326,9 +354,9 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
                     foreach (var parameter in parameters)
                     {
                         request.AddParameter(parameter.Key, parameter.Value, ParameterType.GetOrPost);
+                       
 
-
-                    }
+                }
                      response = await restClient.ExecutePostTaskAsync(request);
                 }
 
@@ -361,7 +389,30 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
 
             return response;
         }
-        private async Task CheckTokenExpire()
+        public static async Task<List<T>> WhenAllEx<T>(List<Task<T>> tasks)
+        {
+            // get Task which completes when all 'tasks' have completed
+            List<string> sonuc = new List<string>();
+            var whenAllTask = Task.WhenAll(tasks);
+            for (; ; )
+            {
+                // get Task which completes after 250ms
+                var timer = Task.Delay(350); // you might want to make this configurable
+                // Wait until either all tasks have completed OR 250ms passed
+
+                await Task.WhenAny(whenAllTask, timer);
+              
+                // if all tasks have completed, complete the returned task
+                if (whenAllTask.IsCompleted)
+                {
+                    return whenAllTask.Result.ToList();
+                }
+                // Otherwise call progress report lambda and do another round
+
+            }
+
+        }
+        private async Task CheckTokenExpire(bool authourised)
         {
             var storeId = await _storeContext.GetActiveStoreScopeConfigurationAsync();
             var ayar = await _settingService.LoadSettingAsync<EtsyToNopcommerceSettings>(storeId);
@@ -373,7 +424,7 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
 
                 var suan = DateTime.Now;
                 var tokenExpiredate = ayar.TokenDate.AddSeconds(ayar.ExpiresIn - 1000);
-                if (suan > tokenExpiredate)
+                if (suan > tokenExpiredate||!authourised)
                 {
                     // Refresh Token Alınıyor.....
                     List<KeyValuePair<string, string>> parameters = new List<KeyValuePair<string, string>>();
@@ -381,7 +432,7 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
                     parameters.Add(new KeyValuePair<string, string>("client_id", ayar.ConsumerKey));
                     parameters.Add(new KeyValuePair<string, string>("refresh_token", ayar.RefreshToken));
 
-                    var tokResponse = await EtsyRequests(requestGetTokenUrl, Method.POST, parameters);
+                    var tokResponse = await EtsyRequests(requestGetTokenUrl, parameters);
 
                     if (tokResponse.StatusCode == System.Net.HttpStatusCode.OK)
                     {
@@ -404,7 +455,115 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
         }
 
 
+        private async Task<HashSet<Models.Reviews.Result>?> GetEtsyReviews(string requestReviewsUrl, List<KeyValuePair<string, string>> getReviewsParameters)
+        {
+            IRestResponse getReviewsResponse;
 
+            EtsyReviews getReviewsResult;
+            getReviewsResponse =
+                await EtsyRequests(requestReviewsUrl, getReviewsParameters);
+
+            if (getReviewsResponse.StatusCode == HttpStatusCode.OK)
+            {
+                try
+                {
+                    getReviewsResult =
+                        Newtonsoft.Json.JsonConvert
+                            .DeserializeObject<EtsyReviews>(
+                                getReviewsResponse.Content.Replace("&amp;", "&"));
+                    return getReviewsResult.Results;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                }
+            }
+
+            return null;
+        }
+
+        private async Task<HashSet<Models.Listings.Result>?> GetEtsyListings(string requestListingsUrl, List<KeyValuePair<string, string>> getListingsParameters)
+        {
+            IRestResponse getEtsyListingsResponse;
+
+            GetListingsById getEtsyListingsResult;
+            getEtsyListingsResponse =
+                await EtsyRequests(requestListingsUrl, getListingsParameters);
+
+            if (getEtsyListingsResponse.StatusCode == HttpStatusCode.OK)
+            {
+                try
+                {
+                    getEtsyListingsResult =
+                        Newtonsoft.Json.JsonConvert
+                            .DeserializeObject<GetListingsById>(
+                                getEtsyListingsResponse.Content.Replace("&amp;", "&"));
+                    return getEtsyListingsResult.Results.ToHashSet();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                }
+            }
+
+            return null;
+        }
+
+      
+        private async Task<Models.Transactions.Transactions> GetTransactions(string requestTransactionsUrl, List<KeyValuePair<string, string>> getListingsParameters)
+        {
+            IRestResponse getEtsyTransactionResponse;
+
+            Transactions getEtsyTransactionsResult;
+            getEtsyTransactionResponse =
+                await EtsyRequests(requestTransactionsUrl, getListingsParameters);
+
+            if (getEtsyTransactionResponse.StatusCode == HttpStatusCode.OK)
+            {
+                try
+                {
+                    getEtsyTransactionsResult =
+                        Newtonsoft.Json.JsonConvert
+                            .DeserializeObject<Transactions>(
+                                getEtsyTransactionResponse.Content.Replace("&amp;", "&"));
+                    return getEtsyTransactionsResult;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                }
+            }
+
+            return null;
+        }
+
+
+        private async Task<Models.Receipts.Receipts> GetReceipts(string requestReceiptsUrl, List<KeyValuePair<string, string>> getListingsParameters)
+        {
+            IRestResponse getEtsyReceiptsResponse;
+
+            Receipts getEtsyReceiptsResult;
+            getEtsyReceiptsResponse =
+                await EtsyRequests(requestReceiptsUrl, getListingsParameters);
+
+            if (getEtsyReceiptsResponse.StatusCode == HttpStatusCode.OK)
+            {
+                try
+                {
+                    getEtsyReceiptsResult =
+                        Newtonsoft.Json.JsonConvert
+                            .DeserializeObject<Receipts>(
+                                getEtsyReceiptsResponse.Content.Replace("&amp;", "&"));
+                    return getEtsyReceiptsResult;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                }
+            }
+
+            return null;
+        }
 
         //Etsy yorumlarını Nopcommerce websitesine çekme planı
 
@@ -415,12 +574,9 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
         //3- reviewları çek
         //https://openapi.etsy.com/v3/application/shops/21815852/reviews
 
-        //4- reviwlar içinden listing id ile ilgili listingi çek
-        //https://openapi.etsy.com/v3/application/listings/batch?listing_ids=1296830887&includes=Images,Shop,Inventory,Videos,Shipping
 
-        //5-ilgili ürünün skusunu bul 
 
-        //6-ilgili review'a ait translaction id ile receipt id bul
+        //6-ilgili review'a ait translaction id ile receipt id bul ayrıca sku burda
         //    https://openapi.etsy.com/v3/application/shops/21815852/transactions/3561732827
 
 
@@ -431,134 +587,36 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
 
         private async Task ReviewlariAlVeIsle()
         {
-
+            var storeId = await _storeContext.GetActiveStoreScopeConfigurationAsync();
+            var ayar = await _settingService.LoadSettingAsync<EtsyToNopcommerceSettings>(storeId);
             string BaseAdres = "https://openapi.etsy.com/";
 
-            string requestGetShopReceiptsUrl = $"v3/application/shops/{ayar.ShopId}/receipts";
-            string requestGetShopListingsUrl = $"v3/application/shops/{ayar.ShopId}/listings?includes=Shipping,Images,Inventory,Videos";
-
-            await CheckTokenExpire(ayar, await _contextFactory.CreateDbContextAsync());
-            #region Etsy İlanlari Çagırma Bölümü
-            List<KeyValuePair<string, string>> getShopListingsParameters = new List<KeyValuePair<string, string>>
-                        {
-                            new KeyValuePair<string, string>("limit", "100")
-                        };
-            var getShopListingsResponse = await EtsyRequests(requestGetShopListingsUrl, Method.Post, getShopListingsParameters, ayar.Id);
-            if (getShopListingsResponse.StatusCode == System.Net.HttpStatusCode.OK)
-            {
-                GetShopListings getShopListingsResult =
-                    Newtonsoft.Json.JsonConvert.DeserializeObject<GetShopListings>(
-                        getShopListingsResponse.Content.Replace("&amp;", "&"));
-
-                if (getShopListingsResult.Count > 100)
-                {
-                    //Todo:100den fazla ilanlar için needücüük
-                    Console.WriteLine("ilanlar için sira sayisi yaz");
-                }
-                else
-                {
-                    foreach (var etsyUrun in getShopListingsResult.Results)
-                    {
-                        if (etsyUrun.Skus.Capacity > 0)
-                        {
-                            string etsySku = etsyUrun.Skus.First().ToLower();
-                            var urunContext = await _contextFactory.CreateDbContextAsync();
-
-                            bool urunDbdeVarmi = urunContext.Urunler.Any(x => x.Sku == etsySku);
-                            if (!urunDbdeVarmi)
-                            {
-                                try
-                                {
-
-
-                                    //300x300 ve üstü foto al
-                                    var etsyUrunFotoUrl = etsyUrun.Images.First().Url570xN;
-                                    var urunFiyat = etsyUrun.Price;
-                                    var urunAdi = etsyUrun.Title;
-
-                                    Urunler yeniUrunler = new Urunler();
-                                    yeniUrunler.Sku = etsySku;
-                                    yeniUrunler.UrunAdi = urunAdi;
-                                    yeniUrunler.Fiyat = new Fiyat();
-
-                                    yeniUrunler.Fiyat.DovizCinsi = GetAppCurrencyFromShopCurrency(urunFiyat.CurrencyCode);
-
-                                    yeniUrunler.Fiyat.YeniFiyat = (urunFiyat.Amount.Value / urunFiyat.Divisor.Value);
-                                    yeniUrunler.UyeId = (await urunContext.Uyeler.Where(x => x.AdSoyad == "admin").FirstAsync()).Id;
-
-                                    var foto = await SavePhotoFromUrl(etsyUrunFotoUrl);
-                                    bool fotoVarmi = await
-                                        _context.Fotograflar.AnyAsync(x => x.Hash == foto.Hash);
-                                    if (!fotoVarmi)
-                                    {
-                                        await _context.Fotograflar.AddAsync(foto);
-                                        var saveResult = await _context.SaveChangesAsync();
-                                        if (saveResult == 1)
-                                        {
-                                            yeniUrunler.FotografId = (await _context.Fotograflar
-                                                .SingleAsync(x => x.Hash == foto.Hash)).Id;
-                                        }
-                                    }
-                                    else
-                                    {
-                                        yeniUrunler.FotografId = (await _context.Fotograflar
-                                            .SingleAsync(x => x.Hash == foto.Hash)).Id;
-                                    }
-                                    await urunContext.Urunler.AddAsync(yeniUrunler);
-                                    await urunContext.SaveChangesAsync();
-
-
-                                    //urun varyasyonlarini sorgula
-                                    await AddEtsyVaryasyonu(etsyUrun, urunContext, etsySku, _context, ayar);
-                                }
-                                catch (Exception e)
-                                {
-                                    Console.WriteLine("line277: " + e.Message + "/" + e.StackTrace);
-
-                                }
+            string requestGetShopReviewsUrl = $"v3/application/shops/{ayar.ShopId}/reviews";
 
 
 
+           
 
-                            }
-                            else
-                            {
-                                //urun varyasyonlarini sorgula
-                                await AddEtsyVaryasyonu(etsyUrun, urunContext, etsySku, _context, ayar);
-                            }
-                        }
-                        else
-                        {
-                            Console.WriteLine("Etsyde skusuz ürün var ürün ID:" + etsyUrun.ListingId);
-                        }
+            await CheckTokenExpire(true);
+            await _settingService.ClearCacheAsync();
+            ayar = await _settingService.LoadSettingAsync<EtsyToNopcommerceSettings>(storeId);
 
-                    }
-                }
-            }
-
-
-            #endregion
-
-            #region Etsy Siparisleri Cagirma Bölümü
-
-
-
-
-            List<KeyValuePair<string, string>> getShopReceiptsParameters = new List<KeyValuePair<string, string>>
+            #region Etsy Reviewları Çagırma Bölümü
+            List<KeyValuePair<string, string>> getReviewsParameters = new List<KeyValuePair<string, string>>
                         {
                             new KeyValuePair<string, string>("limit", "1")
                         };
+            var getShopReviewsResponse = await EtsyRequests(requestGetShopReviewsUrl, getReviewsParameters);
 
-
-            var getShopReceiptsResponse = await EtsyRequests(requestGetShopReceiptsUrl, Method.Post, getShopReceiptsParameters, ayar.Id);
-            if (getShopReceiptsResponse.StatusCode == System.Net.HttpStatusCode.OK)
+            if (getShopReviewsResponse.StatusCode == System.Net.HttpStatusCode.OK)
             {
-                getShopReceiptsResult getShopReceiptsResult =
-                    Newtonsoft.Json.JsonConvert.DeserializeObject<getShopReceiptsResult>(
-                        getShopReceiptsResponse.Content.Replace("&amp;", "&"));
-                if (getShopReceiptsResult.Count > 0)
+                var getShopReviewsResult =
+                    Newtonsoft.Json.JsonConvert.DeserializeObject<EtsyReviews>(
+                        getShopReviewsResponse.Content.Replace("&amp;", "&"));
+
+                if (getShopReviewsResult.Count > 0)
                 {
-                    int maxcount = int.Parse(getShopReceiptsResult.Count.ToString());
+                    int maxcount = int.Parse(getShopReviewsResult.Count.ToString());
                     double sirasayisi = 0;
                     double x = (double)maxcount / (double)100;
                     sirasayisi = Math.Round(x, 0);
@@ -566,23 +624,100 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
                     {
                         sirasayisi = 1;
                     }
-                 
-                    List<Task> getReceiptsJobs = new List<Task>();
+
+                    List<Task<HashSet<Models.Reviews.Result>?>> getReviewssJobs = new List<Task<HashSet<Models.Reviews.Result>>>();
+
                     for (int i = 0; i < sirasayisi + 2; i++)
                     {
-                        getShopReceiptsParameters.Clear();
-                        getShopReceiptsParameters.Add(new KeyValuePair<string, string>("limit", "100"));
-                        getShopReceiptsParameters.Add(new KeyValuePair<string, string>("offset", (i * 100).ToString()));
-                        getReceiptsJobs.Add(GetEtsyReceips(requestGetShopReceiptsUrl, getShopReceiptsParameters, ayar, await _contextFactory.CreateDbContextAsync()));
+                        getReviewsParameters.Clear();
+                        getReviewsParameters.Add(new KeyValuePair<string, string>("limit", "100"));
+                        getReviewsParameters.Add(new KeyValuePair<string, string>("offset", (i * 100).ToString()));
+                        getReviewssJobs.Add(GetEtsyReviews(requestGetShopReviewsUrl, getReviewsParameters));
                     }
 
-                    await WhenAllEx(getReceiptsJobs);
-                   
+                   var reviewsList= await WhenAllEx(getReviewssJobs);
+                   HashSet<Models.Reviews.Result> EtsyReviewList = new HashSet<Models.Reviews.Result>();
+
+                   foreach (var reviewResults in reviewsList)
+                   {
+                       foreach (var review in reviewResults)
+                       {
+                           EtsyReviewList.Add(review);
+                       }
+                   }
+
+                   HashSet<long?> listingIds =
+                       EtsyReviewList.Select(x => x.ListingId).Distinct().ToHashSet();
+
+                   HashSet<long?> translactionIds =
+                       EtsyReviewList.Select(x => x.TransactionId).Distinct().ToHashSet();
 
                    
+
+
+
+                 
+                   
+
+                    List<Task<Transactions>> getTransactionJob = new List<Task<Transactions>>();
+
+                    foreach (var translactionId in translactionIds)
+                    {
+                        string requestTranlactionsUrl = $"v3/application/shops/{ayar.ShopId}/transactions/"+ translactionId;
+                        getTransactionJob.Add( GetTransactions(requestTranlactionsUrl, new List<KeyValuePair<string, string>>()));
+                    }
+                    //review'ı olan ürünlerle ilgili receipt_id ve skular burda 
+                    var etsyTransactionsList = await WhenAllEx(getTransactionJob);
+                    etsyTransactionsList = etsyTransactionsList.Where(x => x != null).ToList();
+                    HashSet<long?> receiptIds =
+                        etsyTransactionsList.Select(x => x.ReceiptId).Distinct().ToHashSet();
+
+
+                    List<Task<Receipts>> getReceiptsJob = new List<Task<Receipts>>();
+                    foreach (var receiptId in receiptIds)
+                    {
+                        string requestReceiptUrl = $"v3/application/shops/{ayar.ShopId}/receipts/" + receiptId;
+                        getReceiptsJob.Add( GetReceipts(requestReceiptUrl, new List<KeyValuePair<string, string>>()));
+                    }
+
+                    //review'ı olan ürünlerle ilgili adresler burda
+                    List<Receipts> etsyReceiptsList = await WhenAllEx(getReceiptsJob);
+                    etsyReceiptsList = etsyReceiptsList.Where(x => x != null).ToList();
+                    //tüm datalar elimizde şimdi yorumları sırası ile ilgili ilana yükleme
+                    foreach (var etsyReview in EtsyReviewList)
+                    {
+                        //ilk olarak ilgili yorum hangi ürüne ait skusunu bulup siteden ilgili ürünü bulmak lazım
+
+                        var ilgliTransaction=etsyTransactionsList.Single(x => x.TransactionId == etsyReview.TransactionId);
+                        var ilgiliSku = ilgliTransaction.Sku;
+                        
+                        var ilgiliNopcommerceUrun=await _productService.GetProductBySkuAsync(ilgiliSku);
+
+                        //bu yorum bu ürün için daha önce yapılmışmı kontrol et
+                        var productReviewsByproductId = await _productService.GetAllProductReviewsAsync(productId:ilgiliNopcommerceUrun.Id);
+
+                        var buYorumDahaOnceYapildiMi= productReviewsByproductId.ToList().Any(x => x.ReviewText.Contains(etsyReview.Review));
+
+                        if (!buYorumDahaOnceYapildiMi)
+                        {
+                            
+                        }
+                    }
+
+                }
+                else
+                {
+
                 }
             }
+            else
+            {
+                await CheckTokenExpire(false);
+            }
+
             #endregion
+
+          
 
         }
 
