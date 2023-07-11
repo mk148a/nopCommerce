@@ -19,11 +19,11 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Infrastructure
                 "Admin/EtsyToNopcommerce/Configure",
                 new { controller = "EtsyToNopcommerce", action = "Configure" });
 
-            endpointRouteBuilder.MapControllerRoute("Plugin.Misc.EtsyToNopcommerce.etys-yetkilendir",
-                "Admin/EtsyToNopcommerce/etys-yetkilendir",
-                new { controller = "EtsyToNopcommerce", action = "Callback" });
+            //endpointRouteBuilder.MapControllerRoute("etsy-yetkilendir",
+            //    "Admin/EtsyToNopcommerce/etsy-yetkilendir",
+            //    new { controller = "EtsyToNopcommerce", action = "Callback" });
 
-
+          
 
 
         }

@@ -44,6 +44,46 @@
                 </div>
                 <div class="form-group row">
                     <div class="col-md-3">
+                        <nop-override-store-checkbox asp-for="ConsumerKey_OverrideForStore" asp-input="ConsumerKey" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                        <nop-label asp-for="ConsumerKey" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="ConsumerKey" asp-required="true" />
+                        <span asp-validation-for="ConsumerKey"></span>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-3">
+                        <nop-override-store-checkbox asp-for="ConsumerSecret_OverrideForStore" asp-input="ConsumerSecret" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                        <nop-label asp-for="ConsumerSecret" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="ConsumerSecret" asp-required="true" />
+                        <span asp-validation-for="ConsumerSecret"></span>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-3">
+                        <nop-override-store-checkbox asp-for="RequestUrl_OverrideForStore" asp-input="RequestUrl" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                        <nop-label asp-for="RequestUrl" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="RequestUrl" asp-required="true" />
+                        <span asp-validation-for="RequestUrl"></span>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-3">
+                        <nop-override-store-checkbox asp-for="RequestAccessTokenUrl_OverrideForStore" asp-input="RequestAccessTokenUrl" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                        <nop-label asp-for="RequestAccessTokenUrl" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="RequestAccessTokenUrl" asp-required="true" />
+                        <span asp-validation-for="RequestAccessTokenUrl"></span>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-3">
                         <nop-override-store-checkbox asp-for="Token_OverrideForStore" asp-input="Token" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
                         <nop-label asp-for="Token"/>
                     </div>
