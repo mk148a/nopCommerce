@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Nop.Core.Infrastructure;
+using Nop.Plugin.Misc.EtsyToNopcommerce.Services;
+using Nop.Services.Plugins;
 
 namespace Nop.Plugin.Misc.EtsyToNopcommerce.Infrastructure
 {
@@ -17,6 +19,12 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Infrastructure
 
             //register services and interfaces
             //services.AddScoped<CustomModelFactory, ICustomerModelFactory>();
+
+            //services.AddScoped<IVideoService, VideoService>();
+            services.AddScoped<ICustomProductReviewMappingService, CustomProductReviewMappingService>();
+            services.AddSingleton<IBackgroundQueue, BackgroundQueue>();
+            services.AddHostedService<QueueService>();
+            
         }
 
         public void Configure(IApplicationBuilder application)

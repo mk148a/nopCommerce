@@ -23,17 +23,41 @@ using System.Net;
 using RestSharp;
 using Nop.Plugin.Misc.EtsyToNopcommerce.Models.Shops;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 using DocumentFormat.OpenXml.Bibliography;
 using Nop.Plugin.Misc.EtsyToNopcommerce.Models.Reviews;
 using Nop.Plugin.Misc.EtsyToNopcommerce.Models.Listings;
 using Nop.Plugin.Misc.EtsyToNopcommerce.Models.Transactions;
 using System.Security.Policy;
+using Nop.Core.Domain.Common;
+using Nop.Core.Domain.Customers;
 using Nop.Plugin.Misc.EtsyToNopcommerce.Models.Receipts;
 using Nop.Services.Catalog;
 using Nop.Services.Customers;
 using Nop.Services.Logging;
 using StackExchange.Profiling.Internal;
+using Nop.Services.Directory;
+using Nop.Data;
+using Nop.Services.Common;
+using StateProvince = Nop.Core.Domain.Directory.StateProvince;
+using Nop.Web.Models.Catalog;
+using Org.BouncyCastle.Crypto;
+using System.IO;
+using DocumentFormat.OpenXml.Presentation;
+using ImageProcessor;
+using ImageProcessor.Plugins.WebP.Imaging.Formats;
+using Nop.Plugin.Misc.EtsyToNopcommerce.Domains;
+using Nop.Plugin.Misc.EtsyToNopcommerce.Services;
+using Nop.Services.Media;
+using Picture = Nop.Core.Domain.Media.Picture;
+using Nop.Core.Domain.Catalog;
+using Nop.Services.Seo;
+using Nop.Web.Factories;
+using Nop.Web.Models.Customer;
+using Nop.Services.Helpers;
+using Result = Nop.Plugin.Misc.EtsyToNopcommerce.Models.Reviews.Result;
+
 
 namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
 {
@@ -51,7 +75,19 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
         private readonly IStoreContext _storeContext;
         private readonly ICustomerService _customerService;
         private readonly IProductService _productService;
- 
+        private readonly ICountryService _countryService;
+        private readonly IAddressService _addressService;
+        private readonly IRepository<StateProvince> _stateProvinceRepository;
+        private readonly IRepository<Address> _addressRepository;
+        private readonly IPictureService _pictureService;
+        private readonly ICustomProductReviewMappingService _customProductReviewMappingService;
+        private readonly CatalogSettings _catalogSettings;
+        private readonly IBackgroundQueue _queue;
+        private readonly IUrlRecordService _urlRecordService;
+        private readonly ICustomerRegistrationService _customerRegistrationService;
+        private readonly ICustomerModelFactory _customerModelFactory;
+        private readonly IGenericAttributeService _genericAttributeService;
+        private readonly CustomerSettings _customerSettings;
 
         #endregion
 
@@ -62,7 +98,10 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
             IPermissionService permissionService,
             ISettingService settingService,
             IStoreContext storeContext,
-           ICustomerService customerService,IProductService productService)
+           ICustomerService customerService,IProductService productService,ICountryService countryService, IAddressService addressService,
+            IRepository<StateProvince> stateProvinceRepository, IRepository<Address> addressRepository, IPictureService pictureService,
+            ICustomProductReviewMappingService customProductReviewMappingService, CatalogSettings catalogSettings, IBackgroundQueue queue,
+            IUrlRecordService urlRecordService, ICustomerRegistrationService customerRegistrationService, ICustomerModelFactory customerModelFactory, IGenericAttributeService genericAttributeService, CustomerSettings customerSettings)
         {
             _localizationService = localizationService;
             _notificationService = notificationService;
@@ -71,6 +110,19 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
             _storeContext = storeContext;
             _productService= productService;
             _customerService = customerService;
+            _countryService= countryService;
+            _addressService= addressService;
+            _stateProvinceRepository= stateProvinceRepository;
+            _addressRepository= addressRepository;
+            _pictureService= pictureService;
+            _customProductReviewMappingService= customProductReviewMappingService;
+            _catalogSettings= catalogSettings;
+            _queue= queue;
+            _urlRecordService = urlRecordService;
+            _customerRegistrationService = customerRegistrationService;
+            _customerModelFactory= customerModelFactory;
+            _genericAttributeService= genericAttributeService;
+            _customerSettings= customerSettings;
         }
 
         #endregion
@@ -160,26 +212,7 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
             settings.RequestUrl=model.RequestUrl;
             settings.TokenDate=model.TokenDate;
             
-            //settings.PaymentType = (PaymentType)model.PaymentTypeId;
-            //settings.DisplayButtonsOnShoppingCart = model.DisplayButtonsOnShoppingCart;
-            //settings.DisplayButtonsOnProductDetails = model.DisplayButtonsOnProductDetails;
-            //settings.DisplayLogoInHeaderLinks = model.DisplayLogoInHeaderLinks;
-            //settings.LogoInHeaderLinks = model.LogoInHeaderLinks;
-            //settings.DisplayLogoInFooter = model.DisplayLogoInFooter;
-            //settings.DisplayPayLaterMessages = model.DisplayPayLaterMessages;
-            //settings.LogoInFooter = model.LogoInFooter;
-
-         
-
-            //await _settingService.SaveSettingOverridablePerStoreAsync(settings, setting => setting.SetCredentialsManually, model.SetCredentialsManually_OverrideForStore, storeId, false);
-            //await _settingService.SaveSettingOverridablePerStoreAsync(settings, setting => setting.PaymentType, model.PaymentTypeId_OverrideForStore, storeId, false);
-            //await _settingService.SaveSettingOverridablePerStoreAsync(settings, setting => setting.DisplayButtonsOnShoppingCart, model.DisplayButtonsOnShoppingCart_OverrideForStore, storeId, false);
-            //await _settingService.SaveSettingOverridablePerStoreAsync(settings, setting => setting.DisplayButtonsOnProductDetails, model.DisplayButtonsOnProductDetails_OverrideForStore, storeId, false);
-            //await _settingService.SaveSettingOverridablePerStoreAsync(settings, setting => setting.DisplayLogoInHeaderLinks, model.DisplayLogoInHeaderLinks_OverrideForStore, storeId, false);
-            //await _settingService.SaveSettingOverridablePerStoreAsync(settings, setting => setting.LogoInHeaderLinks, model.LogoInHeaderLinks_OverrideForStore, storeId, false);
-            //await _settingService.SaveSettingOverridablePerStoreAsync(settings, setting => setting.DisplayLogoInFooter, model.DisplayLogoInFooter_OverrideForStore, storeId, false);
-            //await _settingService.SaveSettingOverridablePerStoreAsync(settings, setting => setting.DisplayPayLaterMessages, model.DisplayPayLaterMessages_OverrideForStore, storeId, false);
-            //await _settingService.SaveSettingOverridablePerStoreAsync(settings, setting => setting.LogoInFooter, model.LogoInFooter_OverrideForStore, storeId, false);
+      
             await _settingService.SaveSettingAsync(settings);
             await _settingService.ClearCacheAsync();
 
@@ -310,8 +343,14 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
 
             if (settings != null)
             {
-                await ReviewlariAlVeIsle();
                 _notificationService.SuccessNotification(await _localizationService.GetResourceAsync("Admin.Plugins.Saved"));
+                string reviewResult=  await ReviewlariAlVeIsle();
+
+              if (reviewResult != null)
+              {
+                    _notificationService.SuccessNotification(reviewResult.Split(",")[0] +" adet yorum, "+ reviewResult.Split(",")[1] +" adet fotograflı yorum eklendi");
+                }
+                
                
                 return await Configure();
             }
@@ -470,8 +509,16 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
                     getReviewsResult =
                         Newtonsoft.Json.JsonConvert
                             .DeserializeObject<EtsyReviews>(
-                                getReviewsResponse.Content.Replace("&amp;", "&"));
-                    return getReviewsResult.Results;
+                                getReviewsResponse.Content.Replace("&amp;", "&").Replace("Etsy","web site"));
+                    HashSet<Models.Reviews.Result> newResult = new HashSet<Result>();
+             
+
+                    foreach (var result in getReviewsResult.Results)
+                    {
+                        result.Review= System.Web.HttpUtility.HtmlDecode(result.Review);
+                        newResult.Add(result);
+                    }
+                    return newResult;
                 }
                 catch (Exception ex)
                 {
@@ -565,6 +612,76 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
             return null;
         }
 
+        public async Task<string> InsertReviewMedia(string ProductSeName, UploadDataBinary data, int reviewId)
+        {
+
+            string name = ProductSeName + "-" + DateTime.UtcNow.ToFileTime();
+            Stopwatch sw = new Stopwatch();
+
+            var pic = new Picture();
+
+
+            var vid = new Video();
+            if (data.Extentions.Contains("image"))
+            {
+                try
+                {
+                    sw.Start();
+
+                    var ms = new MemoryStream();
+                    ImageFactory imageFactory = new ImageFactory(preserveExifData: false);
+                    imageFactory.Load(data.BinaryData).Format(new WebPFormat()).Quality(90).Save(ms);
+                    sw.Stop();
+                    Console.WriteLine("Elapsed Picture Encode={0}", sw.Elapsed);
+
+                    byte[] raw = ms.ToArray();
+                    await ms.DisposeAsync();
+                    imageFactory.Dispose();
+
+
+                    pic = await _pictureService.InsertPictureAsync(raw, "image/webp", name);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message + Environment.NewLine);
+                }
+            }
+            //else if (data.Extentions.Contains("video"))
+            //{
+            //    try
+            //    {
+            //        vid = await _videoService.InsertVideoAsync(data.BinaryData, name, data.Extentions);
+            //    }
+            //    catch (Exception e)
+            //    {
+            //        System.IO.File.AppendAllText(@"customProductReview.log", e.InnerException + Environment.NewLine);
+            //    }
+            //}
+
+            int? lastPicId = pic.Id;
+            int? lastVidId = 0;
+            if (lastPicId == 0)
+            {
+                lastPicId = null;
+            }
+
+            if (lastVidId == 0)
+            {
+                lastVidId = null;
+            }
+
+
+            if (!(lastPicId == null && lastVidId == null))
+            {
+                await _customProductReviewMappingService.InsertCustomProductReviewMappingAsync(reviewId, lastPicId,
+                    lastVidId);
+            }
+
+            return "done";
+        }
+
+
+
         //Etsy yorumlarını Nopcommerce websitesine çekme planı
 
         //1- Api bilgilerini gir mağaza bilgileri için Uygulamaya Etsy izin ver+
@@ -585,17 +702,20 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
 
         //8- bu bilgilerle nopcommerce de yeni kullanıcı oluştur ve ilgili sku ile eşleşen listeye yorum ekle
 
-        private async Task ReviewlariAlVeIsle()
+        private async Task<string> ReviewlariAlVeIsle()
         {
             var storeId = await _storeContext.GetActiveStoreScopeConfigurationAsync();
+            var currentStore = await _storeContext.GetCurrentStoreAsync();
+            storeId= currentStore.Id;
             var ayar = await _settingService.LoadSettingAsync<EtsyToNopcommerceSettings>(storeId);
             string BaseAdres = "https://openapi.etsy.com/";
 
             string requestGetShopReviewsUrl = $"v3/application/shops/{ayar.ShopId}/reviews";
 
 
+            int reviewsAdded = 0;
+            int reviewsWithPhotoAdded = 0;
 
-           
 
             await CheckTokenExpire(true);
             await _settingService.ClearCacheAsync();
@@ -636,13 +756,18 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
                     }
 
                    var reviewsList= await WhenAllEx(getReviewssJobs);
-                   HashSet<Models.Reviews.Result> EtsyReviewList = new HashSet<Models.Reviews.Result>();
+                   var EtsyReviewList = new HashSet<Models.Reviews.Result>();
 
                    foreach (var reviewResults in reviewsList)
                    {
                        foreach (var review in reviewResults)
                        {
-                           EtsyReviewList.Add(review);
+                           if (review!=null &&review.TransactionId!=null)
+                           {
+                               EtsyReviewList.Add(review);
+
+                           }
+                          
                        }
                    }
 
@@ -669,6 +794,10 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
                     //review'ı olan ürünlerle ilgili receipt_id ve skular burda 
                     var etsyTransactionsList = await WhenAllEx(getTransactionJob);
                     etsyTransactionsList = etsyTransactionsList.Where(x => x != null).ToList();
+                    var etsyyy = EtsyReviewList.Where(x =>
+                        etsyTransactionsList.Any(y => y.TransactionId == x.TransactionId));
+
+                    EtsyReviewList = etsyyy.ToHashSet();
                     HashSet<long?> receiptIds =
                         etsyTransactionsList.Select(x => x.ReceiptId).Distinct().ToHashSet();
 
@@ -683,6 +812,8 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
                     //review'ı olan ürünlerle ilgili adresler burda
                     List<Receipts> etsyReceiptsList = await WhenAllEx(getReceiptsJob);
                     etsyReceiptsList = etsyReceiptsList.Where(x => x != null).ToList();
+
+                 
                     //tüm datalar elimizde şimdi yorumları sırası ile ilgili ilana yükleme
                     foreach (var etsyReview in EtsyReviewList)
                     {
@@ -690,20 +821,227 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
 
                         var ilgliTransaction=etsyTransactionsList.Single(x => x.TransactionId == etsyReview.TransactionId);
                         var ilgiliSku = ilgliTransaction.Sku;
-                        
+                        var ilgiliReceipt = etsyReceiptsList.Single(x => x.ReceiptId == ilgliTransaction.ReceiptId);
+
                         var ilgiliNopcommerceUrun=await _productService.GetProductBySkuAsync(ilgiliSku);
 
-                        //bu yorum bu ürün için daha önce yapılmışmı kontrol et
-                        var productReviewsByproductId = await _productService.GetAllProductReviewsAsync(productId:ilgiliNopcommerceUrun.Id);
-
-                        var buYorumDahaOnceYapildiMi= productReviewsByproductId.ToList().Any(x => x.ReviewText.Contains(etsyReview.Review));
-
-                        if (!buYorumDahaOnceYapildiMi)
+                        if (ilgiliNopcommerceUrun != null)
                         {
-                            
-                        }
-                    }
+                            //bu yorum bu ürün için daha önce yapılmışmı kontrol et
+                            var productReviewsByproductId = await _productService.GetAllProductReviewsAsync(productId: ilgiliNopcommerceUrun.Id);
+                            if (productReviewsByproductId!=null)
+                            {
+                                var buYorumDahaOnceYapildiMi = productReviewsByproductId.ToList().Any(x => x.ReviewText.Contains(etsyReview.Review));
+                                if (!buYorumDahaOnceYapildiMi)
+                                {
 
+                                    var buMusteriDahaOnceKayitOlduMu = (await _customerService.GetAllCustomersAsync(email: ilgiliReceipt.BuyerEmail)).ToList()
+                                        .Any(x => x.Email.Contains(ilgiliReceipt.BuyerEmail));
+                                    Random rnd = new Random();
+                                    //eğer müşteri maili daha önce kayıt edilmediyse yeni müşteri kadı oluşturulacak
+                                    if (!buMusteriDahaOnceKayitOlduMu)
+                                    {
+                                        var registerModel = new RegisterModel();
+                                        registerModel = await _customerModelFactory.PrepareRegisterModelAsync(registerModel, false, setDefaultValues: true);
+
+
+
+
+
+
+                                        Customer newEtsyCustomer = new Customer();
+
+
+
+                                        var yorumTarihi = int.Parse(etsyReview.CreatedTimestamp.ToString())
+                                            .UnixTimeStampToDateTime().AddDays(-rnd.Next(30, 600));
+                                        var musteriGeneratedEmail
+                                            = rnd.Next(1000, 9999) + "_" + ilgiliReceipt.BuyerEmail;
+                                        newEtsyCustomer.Email = musteriGeneratedEmail;
+                                        newEtsyCustomer.Active = true;
+                                        newEtsyCustomer.CreatedOnUtc = yorumTarihi;
+                                        newEtsyCustomer.AdminComment = "EtsyToNopcommerceGeneratedCustomer";
+                                        newEtsyCustomer.LastActivityDateUtc = yorumTarihi.AddDays(rnd.Next(3, 600));
+                                        newEtsyCustomer.LastLoginDateUtc = yorumTarihi.AddDays(rnd.Next(3, 600));
+                                        newEtsyCustomer.RegisteredInStoreId = storeId;
+
+
+                                        await _customerService.InsertCustomerAsync(newEtsyCustomer);
+
+                                        var kayitliMusteri = await _customerService.GetCustomerByEmailAsync(musteriGeneratedEmail);
+
+
+                                        Address yeniMusteriAdresiAddress = new Address();
+
+                                        string firstName = "";
+                                        string lastName = "";
+                                        if (ilgiliReceipt.Name.Contains(" "))
+                                        {
+                                            firstName = ilgiliReceipt.Name.Split(" ")[0];
+                                            lastName = ilgiliReceipt.Name.Split(" ")[1];
+                                        }
+                                        else
+                                        {
+                                            firstName = ilgiliReceipt.Name;
+                                        }
+
+                                        yeniMusteriAdresiAddress.FirstName = firstName;
+                                        yeniMusteriAdresiAddress.LastName = lastName;
+                                        yeniMusteriAdresiAddress.Email = musteriGeneratedEmail;
+                                        yeniMusteriAdresiAddress.CreatedOnUtc = yorumTarihi;
+                                        yeniMusteriAdresiAddress.Address1 = ilgiliReceipt.FirstLine;
+                                        yeniMusteriAdresiAddress.Address2 = ilgiliReceipt.SecondLine;
+                                        yeniMusteriAdresiAddress.City = ilgiliReceipt.City;
+                                        yeniMusteriAdresiAddress.ZipPostalCode = ilgiliReceipt.Zip;
+
+
+                                        var ilgiliCountry = await _countryService.GetCountryByTwoLetterIsoCodeAsync(ilgiliReceipt.CountryIso);
+                                        var ilgiliStateVarmi = await _stateProvinceRepository.Table.AnyAsync(x =>
+                                            x.Name.ToLower() == ilgiliReceipt.State.ToLower() && x.CountryId == ilgiliCountry.Id);
+                                        bool ilgliStateKisaltilmismi = false;
+                                        if (!ilgiliStateVarmi)
+                                        {
+                                            ilgiliStateVarmi = await _stateProvinceRepository.Table.AnyAsync(x => x.Abbreviation == ilgiliReceipt.State && x.CountryId == ilgiliCountry.Id);
+                                            if (ilgiliStateVarmi)
+                                            {
+                                                ilgliStateKisaltilmismi = true;
+
+                                            }
+                                        }
+
+
+                                        if (ilgiliStateVarmi)
+                                        {
+                                            if (ilgliStateKisaltilmismi)
+                                            {
+                                                var ilgiliState = await _stateProvinceRepository.Table.SingleAsync(x => x.Abbreviation == ilgiliReceipt.State && x.CountryId == ilgiliCountry.Id);
+                                                yeniMusteriAdresiAddress.StateProvinceId = ilgiliState.Id;
+                                            }
+                                            else
+                                            {
+                                                var ilgiliState = await _stateProvinceRepository.Table.SingleAsync(x =>
+                                                    x.Name.ToLower() == ilgiliReceipt.State.ToLower() && x.CountryId == ilgiliCountry.Id);
+                                                yeniMusteriAdresiAddress.StateProvinceId = ilgiliState.Id;
+                                            }
+
+                                        }
+
+
+                                        yeniMusteriAdresiAddress.CountryId = ilgiliCountry.Id;
+                                        await _addressService.InsertAddressAsync(yeniMusteriAdresiAddress);
+
+                                        var kayitliMusteriAdresi = await _addressRepository.Table.SingleAsync(x => x.Email == musteriGeneratedEmail);
+                                        await _customerService.InsertCustomerAddressAsync(kayitliMusteri, kayitliMusteriAdresi);
+
+                                        kayitliMusteri.Active = true;
+                                        kayitliMusteri.Username = kayitliMusteri.Email;
+                                        kayitliMusteri.BillingAddressId = kayitliMusteriAdresi.Id;
+                                        kayitliMusteri.ShippingAddressId = kayitliMusteriAdresi.Id;
+
+                                        await _customerService.UpdateCustomerAsync(kayitliMusteri);
+
+                                        //form fields
+
+
+                                        if (_customerSettings.FirstNameEnabled)
+                                            await _genericAttributeService.SaveAttributeAsync(kayitliMusteri, NopCustomerDefaults.FirstNameAttribute, kayitliMusteriAdresi.FirstName);
+                                        if (_customerSettings.LastNameEnabled)
+                                            await _genericAttributeService.SaveAttributeAsync(kayitliMusteri, NopCustomerDefaults.LastNameAttribute, kayitliMusteriAdresi.LastName);
+
+
+                                    }
+
+                                    var currentCustomer = (await _customerService.GetAllCustomersAsync(email: ilgiliReceipt.BuyerEmail)).ToList()
+                                        .Single(x => x.Email.Contains(ilgiliReceipt.BuyerEmail));
+
+                                    //yorum ekleme burada yapılacak
+
+                                    var rating = etsyReview.Rating.Value;
+                                    if (rating < 1 || rating > 5)
+                                        rating = _catalogSettings.DefaultProductRatingValue;
+                                    var isApproved = !_catalogSettings.ProductReviewsMustBeApproved;
+                                    var customer = currentCustomer;
+
+                                    var productReview = new ProductReview
+                                    {
+                                        ProductId = ilgiliNopcommerceUrun.Id,
+                                        CustomerId = customer.Id,
+                                        Title = "",
+                                        ReviewText = etsyReview.Review,
+                                        Rating = rating,
+                                        HelpfulYesTotal = rnd.Next(1, 7),
+                                        HelpfulNoTotal = 0,
+                                        IsApproved = true,
+                                        CreatedOnUtc = int.Parse(etsyReview.CreatedTimestamp.ToString())
+                                            .UnixTimeStampToDateTime(),
+                                        StoreId = storeId,
+                                    };
+                                    await _productService.InsertProductReviewAsync(productReview);
+                                    reviewsAdded += 1;
+                                    Console.WriteLine("Toplam " + reviewsAdded + " adet yorum eklendi");
+                                    var reviewId = productReview.Id;
+
+
+
+
+                                    //update product totals
+                                    await _productService.UpdateProductReviewTotalsAsync(ilgiliNopcommerceUrun);
+
+
+
+                                    #region Product Review Media Upload Section
+
+                                    try
+                                    {
+
+
+                                        //pictures
+                                        List<UploadDataBinary> dataList = new List<UploadDataBinary>();
+
+                                        if (etsyReview.ImageUrlFullxfull != null)
+                                        {
+                                            WebClient client = new WebClient();
+
+                                            byte[] bytes = await client.DownloadDataTaskAsync(etsyReview.ImageUrlFullxfull);
+
+                                            var uploadData = new UploadDataBinary();
+                                            uploadData.BinaryData = bytes;
+                                            uploadData.Extentions = "image";
+
+                                            dataList.Add(uploadData);
+
+                                            //string fileName = "tempUpload"+DateTime.UtcNow.ToFileTime() + fileInfo.Extension;
+
+                                            var productSeName = await _urlRecordService.GetSeNameAsync(ilgiliNopcommerceUrun, currentStore.DefaultLanguageId);
+                                            foreach (var data in dataList)
+                                            {
+                                                _queue.QueueTask(async token =>
+                                                {
+                                                    reviewsWithPhotoAdded += 1;
+
+                                                    Console.WriteLine("Toplam " + reviewsWithPhotoAdded + " adet fotograflı yorum eklendi");
+                                                    await InsertReviewMedia(productSeName, data, reviewId);
+                                                });
+                                            }
+                                        }
+
+
+                                    }
+                                    catch (Exception e)
+                                    {
+                                        Console.WriteLine(e);
+
+                                    }
+                                    #endregion
+
+                                }
+                            }
+                          
+                        }
+                      
+                    }
+                    Console.WriteLine("Toplam "+reviewsAdded+" adet yorum eklendi");
+                    Console.WriteLine("Toplam " + reviewsWithPhotoAdded + " adet fotograflı yorum eklendi");
                 }
                 else
                 {
@@ -717,8 +1055,8 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
 
             #endregion
 
-          
 
+            return reviewsAdded.ToString() + "," + reviewsWithPhotoAdded.ToString();
         }
 
 

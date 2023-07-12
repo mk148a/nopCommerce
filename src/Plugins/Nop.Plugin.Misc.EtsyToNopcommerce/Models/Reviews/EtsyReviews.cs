@@ -31,7 +31,7 @@
         public long? BuyerUserId { get; set; }
 
         [JsonProperty("rating", NullValueHandling = NullValueHandling.Ignore)]
-        public long? Rating { get; set; }
+        public int? Rating { get; set; }
 
         [JsonProperty("review", NullValueHandling = NullValueHandling.Ignore)]
         public string Review { get; set; }

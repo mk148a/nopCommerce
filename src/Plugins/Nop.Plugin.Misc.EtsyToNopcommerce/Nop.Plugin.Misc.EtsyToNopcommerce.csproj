@@ -50,16 +50,22 @@
     <Folder Include="Areas\Admin\Factories\" />
     <Folder Include="Areas\Admin\Models\" />
     <Folder Include="Components\" />
-    <Folder Include="Domains\" />
     <Folder Include="Extensions\" />
     <Folder Include="Factories\" />
     <Folder Include="Mapping\Builders\" />
     <Folder Include="Migrations\" />
-    <Folder Include="Services\" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="RestSharp" Version="106.4.2" />
+    <PackageReference Include="ImageProcessor" Version="2.9.1">
+      <GeneratePathProperty>True</GeneratePathProperty>
+    </PackageReference>
+    <PackageReference Include="ImageProcessor.Plugins.WebP" Version="1.3.0">
+      <GeneratePathProperty>True</GeneratePathProperty>
+    </PackageReference>
+    <PackageReference Include="RestSharp" Version="106.4.2">
+      <GeneratePathProperty>True</GeneratePathProperty>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>
