@@ -19,7 +19,7 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Domains
         [JsonProperty("listing_id", NullValueHandling = NullValueHandling.Ignore)]
         public long? ListingId { get; set; }
 
-        [Key]
+        
         [JsonProperty("transaction_id", NullValueHandling = NullValueHandling.Ignore)]
         public long? TransactionId { get; set; }
 
