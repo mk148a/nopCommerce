@@ -9,7 +9,8 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Domains
 {
     public class ProductReviewsTransactionsMapping:BaseEntity
     {
-        public long TransactionId { get; set; }
+        public int EtsyReviewId { get; set; }
+        public long? TransactionId { get; set; }
         public int ProductReviewId { get; set; }
     }
 }

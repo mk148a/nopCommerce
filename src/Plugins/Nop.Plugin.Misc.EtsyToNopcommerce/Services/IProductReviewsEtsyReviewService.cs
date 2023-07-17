@@ -55,6 +55,8 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Services
         Task<EtsyReview> GetEtsyReviewByIdAsync(int EtsyReviewId);
         Task<List<EtsyReview>> GetEtsyReviewByTransactionIdAsync(long transactionId);
 
+        Task<bool> AskEtsyReviewByTransactionIdAsync(long transactionId);
+
 
 
 

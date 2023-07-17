@@ -183,8 +183,18 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Services
 
             return mappings;
         }
-        
 
+        public virtual async Task<bool> AskEtsyReviewByTransactionIdAsync(long transactionId)
+        {
+            if (transactionId == 0)
+                return false;
+
+            var result =await _repository.Table.AnyAsync(x => x.TransactionId == transactionId);
+
+           
+
+            return result;
+        }
 
         #endregion
     }

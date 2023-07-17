@@ -19,7 +19,7 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Mapping.Builders
             table
                 .WithColumn(nameof(ProductReviewsTransactionsMapping.Id)).AsInt32().NotNullable().PrimaryKey().Identity()
                 .WithColumn(nameof(ProductReviewsTransactionsMapping.ProductReviewId)).AsInt32().ForeignKey<ProductReview>()
-                .WithColumn(nameof(ProductReviewsTransactionsMapping.TransactionId)).AsInt64().ForeignKey<EtsyReview>();
+                .WithColumn(nameof(ProductReviewsTransactionsMapping.EtsyReviewId)).AsInt32().ForeignKey<EtsyReview>();
         }
 
         #endregion

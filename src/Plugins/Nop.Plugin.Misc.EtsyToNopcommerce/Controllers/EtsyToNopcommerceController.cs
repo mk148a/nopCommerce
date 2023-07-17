@@ -76,7 +76,8 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
         private readonly ICustomerModelFactory _customerModelFactory;
         private readonly IGenericAttributeService _genericAttributeService;
         private readonly CustomerSettings _customerSettings;
-
+        private readonly IProductReviewsEtsyReviewService _etsyReviewService;
+        private readonly IProductReviewsTransactionsMappingService _productReviewsTransactionsMappingService;
         #endregion
 
         #region Ctor
@@ -89,7 +90,8 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
            ICustomerService customerService,IProductService productService,ICountryService countryService, IAddressService addressService,
             IRepository<StateProvince> stateProvinceRepository, IRepository<Address> addressRepository, IPictureService pictureService,
             ICustomProductReviewMappingService customProductReviewMappingService, CatalogSettings catalogSettings, IBackgroundQueue queue,
-            IUrlRecordService urlRecordService, ICustomerRegistrationService customerRegistrationService, ICustomerModelFactory customerModelFactory, IGenericAttributeService genericAttributeService, CustomerSettings customerSettings)
+            IUrlRecordService urlRecordService, ICustomerRegistrationService customerRegistrationService, ICustomerModelFactory customerModelFactory,
+            IGenericAttributeService genericAttributeService, CustomerSettings customerSettings, IProductReviewsEtsyReviewService etsyReviewService, IProductReviewsTransactionsMappingService productReviewsTransactionsMappingService)
         {
             _localizationService = localizationService;
             _notificationService = notificationService;
@@ -111,6 +113,8 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
             _customerModelFactory= customerModelFactory;
             _genericAttributeService= genericAttributeService;
             _customerSettings= customerSettings;
+            _etsyReviewService=etsyReviewService;
+            _productReviewsTransactionsMappingService=productReviewsTransactionsMappingService;
         }
 
         #endregion
@@ -753,11 +757,23 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
                            if (review!=null &&review.TransactionId!=null)
                            {
                                EtsyReviewList.Add(review);
+                               
+                               var reviewVarmi =await _etsyReviewService.AskEtsyReviewByTransactionIdAsync(review.TransactionId.Value);
+                               if (!reviewVarmi)
+                               {
+                                var result=  await _etsyReviewService.InsertEtsyReviewAsync(review.ShopId, review.TransactionId.Value,
+                                       review.ListingId, review.BuyerUserId,
+                                       review.Rating, review.Review, review.Language, review.ImageUrlFullxfull,
+                                       review.CreateTimestamp, review.CreatedTimestamp,
+                                       review.UpdateTimestamp, review.UpdatedTimestamp);
+                               }
 
                            }
                           
                        }
                    }
+
+                   //Todo:Buraları servise çevir
 
                    HashSet<long?> listingIds =
                        EtsyReviewList.Select(x => x.ListingId).Distinct().ToHashSet();
