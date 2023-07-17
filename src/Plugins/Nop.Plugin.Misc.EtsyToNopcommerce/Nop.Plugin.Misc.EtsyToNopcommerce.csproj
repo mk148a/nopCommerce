@@ -52,8 +52,6 @@
     <Folder Include="Components\" />
     <Folder Include="Extensions\" />
     <Folder Include="Factories\" />
-    <Folder Include="Mapping\Builders\" />
-    <Folder Include="Migrations\" />
   </ItemGroup>
 
   <ItemGroup>

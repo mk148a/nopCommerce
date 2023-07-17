@@ -18,13 +18,14 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Infrastructure
             });
 
             //register services and interfaces
-            //services.AddScoped<CustomModelFactory, ICustomerModelFactory>();
-
-            //services.AddScoped<IVideoService, VideoService>();
+            services.AddScoped<IProductReviewsEtsyReviewService, ProductReviewsEtsyReviewService>();
             services.AddScoped<ICustomProductReviewMappingService, CustomProductReviewMappingService>();
+            services.AddScoped<IProductReviewsTransactionsMappingService, ProductReviewsTransactionsMappingService>();
+            
             services.AddSingleton<IBackgroundQueue, BackgroundQueue>();
             services.AddHostedService<QueueService>();
-            
+          
+
         }
 
         public void Configure(IApplicationBuilder application)

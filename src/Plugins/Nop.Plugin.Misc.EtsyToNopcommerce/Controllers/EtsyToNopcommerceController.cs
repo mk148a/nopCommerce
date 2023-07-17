@@ -4,45 +4,35 @@ using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 using System.Text;
 using System.Threading.Tasks;
-using DocumentFormat.OpenXml.EMMA;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Nop.Core;
-using Nop.Core.Domain.Orders;
-using Nop.Plugin.Misc.EtsyToNopcommerce;
 using Nop.Plugin.Misc.EtsyToNopcommerce.Models;
-using Nop.Services;
 using Nop.Services.Configuration;
 using Nop.Services.Localization;
 using Nop.Services.Messages;
 using Nop.Services.Security;
 using Nop.Web.Framework;
 using Nop.Web.Framework.Controllers;
-using Nop.Web.Framework.Mvc.Filters;
 using System.Net;
 using RestSharp;
 using Nop.Plugin.Misc.EtsyToNopcommerce.Models.Shops;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
-using DocumentFormat.OpenXml.Bibliography;
 using Nop.Plugin.Misc.EtsyToNopcommerce.Models.Reviews;
 using Nop.Plugin.Misc.EtsyToNopcommerce.Models.Listings;
 using Nop.Plugin.Misc.EtsyToNopcommerce.Models.Transactions;
-using System.Security.Policy;
 using Nop.Core.Domain.Common;
 using Nop.Core.Domain.Customers;
 using Nop.Plugin.Misc.EtsyToNopcommerce.Models.Receipts;
 using Nop.Services.Catalog;
 using Nop.Services.Customers;
-using Nop.Services.Logging;
 using StackExchange.Profiling.Internal;
 using Nop.Services.Directory;
 using Nop.Data;
 using Nop.Services.Common;
 using StateProvince = Nop.Core.Domain.Directory.StateProvince;
-using Nop.Web.Models.Catalog;
-using Org.BouncyCastle.Crypto;
 using System.IO;
 using DocumentFormat.OpenXml.Presentation;
 using ImageProcessor;
@@ -55,13 +45,11 @@ using Nop.Core.Domain.Catalog;
 using Nop.Services.Seo;
 using Nop.Web.Factories;
 using Nop.Web.Models.Customer;
-using Nop.Services.Helpers;
-using Result = Nop.Plugin.Misc.EtsyToNopcommerce.Models.Reviews.Result;
 
 
 namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
 {
-   
+
     [Area(AreaNames.Admin)]
     [AutoValidateAntiforgeryToken]
     public class EtsyToNopcommerceController : BasePluginController
@@ -494,7 +482,7 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
         }
 
 
-        private async Task<HashSet<Models.Reviews.Result>?> GetEtsyReviews(string requestReviewsUrl, List<KeyValuePair<string, string>> getReviewsParameters)
+        private async Task<HashSet<EtsyReview>?> GetEtsyReviews(string requestReviewsUrl, List<KeyValuePair<string, string>> getReviewsParameters)
         {
             IRestResponse getReviewsResponse;
 
@@ -510,7 +498,7 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
                         Newtonsoft.Json.JsonConvert
                             .DeserializeObject<EtsyReviews>(
                                 getReviewsResponse.Content.Replace("&amp;", "&").Replace("Etsy","web site"));
-                    HashSet<Models.Reviews.Result> newResult = new HashSet<Result>();
+                 var newResult = new HashSet<EtsyReview>();
              
 
                     foreach (var result in getReviewsResult.Results)
@@ -745,7 +733,7 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
                         sirasayisi = 1;
                     }
 
-                    List<Task<HashSet<Models.Reviews.Result>?>> getReviewssJobs = new List<Task<HashSet<Models.Reviews.Result>>>();
+                    List<Task<HashSet<EtsyReview>?>> getReviewssJobs = new List<Task<HashSet<EtsyReview>>>();
 
                     for (int i = 0; i < sirasayisi + 2; i++)
                     {
@@ -756,7 +744,7 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
                     }
 
                    var reviewsList= await WhenAllEx(getReviewssJobs);
-                   var EtsyReviewList = new HashSet<Models.Reviews.Result>();
+                   var EtsyReviewList = new HashSet<EtsyReview>();
 
                    foreach (var reviewResults in reviewsList)
                    {
