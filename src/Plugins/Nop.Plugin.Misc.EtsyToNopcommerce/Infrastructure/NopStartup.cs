@@ -2,9 +2,13 @@
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Nop.Core.Infrastructure;
+using Nop.Plugin.Misc.EtsyToNopcommerce.Job;
 using Nop.Plugin.Misc.EtsyToNopcommerce.Services;
 using Nop.Services.Plugins;
+using Quartz;
+using Quartz.AspNetCore;
 
 namespace Nop.Plugin.Misc.EtsyToNopcommerce.Infrastructure
 {
@@ -21,15 +25,47 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Infrastructure
             services.AddScoped<IProductReviewsEtsyReviewService, ProductReviewsEtsyReviewService>();
             services.AddScoped<ICustomProductReviewMappingService, CustomProductReviewMappingService>();
             services.AddScoped<IProductReviewsTransactionsMappingService, ProductReviewsTransactionsMappingService>();
-            
+            services.AddScoped<IEtsyApiService, EtsyApiService>();
+
             services.AddSingleton<IBackgroundQueue, BackgroundQueue>();
             services.AddHostedService<QueueService>();
+
+            //Quartz Server codes
+
+            services.AddLogging();
+            var serviceProvider = services.BuildServiceProvider();
+            var logger = serviceProvider.GetService<ILogger<JobGetReviews>>();
+           
+            services.AddSingleton(typeof(ILogger), logger);
           
+
+
+            services.AddQuartz(q =>
+            {
+                q.UseMicrosoftDependencyInjectionJobFactory();
+               
+                    q.ScheduleJob<JobGetReviews>(TJobGetReviews => TJobGetReviews
+                        .WithIdentity("TJobGetReviews")
+                        .StartNow()
+                        .WithDailyTimeIntervalSchedule(x => x.WithInterval(2, IntervalUnit.Minute))
+                        .WithDescription("TJobGetReviews")
+                    );
+
+
+            });
+
+            //ASP.NET Core hosting
+            services.AddQuartzServer(options =>
+            {
+                // when shutting down we want jobs to complete gracefully
+                options.WaitForJobsToComplete = true;
+            });
 
         }
 
         public void Configure(IApplicationBuilder application)
         {
+
         }
 
         public int Order => 11;

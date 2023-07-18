@@ -22,10 +22,8 @@ using System.Diagnostics;
 using System.Threading;
 using Nop.Plugin.Misc.EtsyToNopcommerce.Models.Reviews;
 using Nop.Plugin.Misc.EtsyToNopcommerce.Models.Listings;
-using Nop.Plugin.Misc.EtsyToNopcommerce.Models.Transactions;
 using Nop.Core.Domain.Common;
 using Nop.Core.Domain.Customers;
-using Nop.Plugin.Misc.EtsyToNopcommerce.Models.Receipts;
 using Nop.Services.Catalog;
 using Nop.Services.Customers;
 using StackExchange.Profiling.Internal;
@@ -37,6 +35,7 @@ using System.IO;
 using DocumentFormat.OpenXml.Presentation;
 using ImageProcessor;
 using ImageProcessor.Plugins.WebP.Imaging.Formats;
+using LinqToDB.Common;
 using Nop.Plugin.Misc.EtsyToNopcommerce.Domains;
 using Nop.Plugin.Misc.EtsyToNopcommerce.Services;
 using Nop.Services.Media;
@@ -175,7 +174,10 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
             //        _notificationService.SuccessNotification(await _localizationService.GetResourceAsync("Plugins.Payments.PayPalCommerce.Credentials.Valid"));
             //}
 
-
+            if (model.RefreshToken.IsNullOrEmpty())
+            {
+                _notificationService.WarningNotification(await _localizationService.GetResourceAsync("Nop.Plugins.Misc.EtsyToNopcommerce.Fields.AuthorizeNecessary"));
+            }
            
 
             return View("~/Plugins/Nop.Plugin.Misc.EtsyToNopcommerce/Views/Configure.cshtml", model);
@@ -311,7 +313,7 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
                     await _settingService.SaveSettingAsync(settings);
                     await _settingService.ClearCacheAsync();
 
-                    _notificationService.SuccessNotification(await _localizationService.GetResourceAsync("Admin.Plugins.Saved"));
+                    _notificationService.SuccessNotification(await _localizationService.GetResourceAsync("Nop.Plugins.Misc.EtsyToNopcommerce.Fields.AuthorizeSuccess"));
 
                     return await Configure();
                 }
@@ -336,6 +338,7 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
             if (settings != null)
             {
                 _notificationService.SuccessNotification(await _localizationService.GetResourceAsync("Admin.Plugins.Saved"));
+                //Todo:buraya servisler ile istek ekle
                 string reviewResult=  await ReviewlariAlVeIsle();
 
               if (reviewResult != null)
@@ -549,11 +552,11 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
         }
 
       
-        private async Task<Models.Transactions.Transactions> GetTransactions(string requestTransactionsUrl, List<KeyValuePair<string, string>> getListingsParameters)
+        private async Task<Transaction> GetTransactions(string requestTransactionsUrl, List<KeyValuePair<string, string>> getListingsParameters)
         {
             IRestResponse getEtsyTransactionResponse;
 
-            Transactions getEtsyTransactionsResult;
+            Transaction getEtsyTransactionsResult;
             getEtsyTransactionResponse =
                 await EtsyRequests(requestTransactionsUrl, getListingsParameters);
 
@@ -563,7 +566,7 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
                 {
                     getEtsyTransactionsResult =
                         Newtonsoft.Json.JsonConvert
-                            .DeserializeObject<Transactions>(
+                            .DeserializeObject<Transaction>(
                                 getEtsyTransactionResponse.Content.Replace("&amp;", "&"));
                     return getEtsyTransactionsResult;
                 }
@@ -577,11 +580,11 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
         }
 
 
-        private async Task<Models.Receipts.Receipts> GetReceipts(string requestReceiptsUrl, List<KeyValuePair<string, string>> getListingsParameters)
+        private async Task<Receipt> GetReceipts(string requestReceiptsUrl, List<KeyValuePair<string, string>> getListingsParameters)
         {
             IRestResponse getEtsyReceiptsResponse;
 
-            Receipts getEtsyReceiptsResult;
+            Receipt getEtsyReceiptsResult;
             getEtsyReceiptsResponse =
                 await EtsyRequests(requestReceiptsUrl, getListingsParameters);
 
@@ -591,7 +594,7 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
                 {
                     getEtsyReceiptsResult =
                         Newtonsoft.Json.JsonConvert
-                            .DeserializeObject<Receipts>(
+                            .DeserializeObject<Receipt>(
                                 getEtsyReceiptsResponse.Content.Replace("&amp;", "&"));
                     return getEtsyReceiptsResult;
                 }
@@ -788,7 +791,7 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
                  
                    
 
-                    List<Task<Transactions>> getTransactionJob = new List<Task<Transactions>>();
+                    List<Task<Transaction>> getTransactionJob = new List<Task<Transaction>>();
 
                     foreach (var translactionId in translactionIds)
                     {
@@ -806,7 +809,7 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
                         etsyTransactionsList.Select(x => x.ReceiptId).Distinct().ToHashSet();
 
 
-                    List<Task<Receipts>> getReceiptsJob = new List<Task<Receipts>>();
+                    List<Task<Receipt>> getReceiptsJob = new List<Task<Receipt>>();
                     foreach (var receiptId in receiptIds)
                     {
                         string requestReceiptUrl = $"v3/application/shops/{ayar.ShopId}/receipts/" + receiptId;
@@ -814,7 +817,7 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
                     }
 
                     //review'ı olan ürünlerle ilgili adresler burda
-                    List<Receipts> etsyReceiptsList = await WhenAllEx(getReceiptsJob);
+                    List<Receipt> etsyReceiptsList = await WhenAllEx(getReceiptsJob);
                     etsyReceiptsList = etsyReceiptsList.Where(x => x != null).ToList();
 
                  

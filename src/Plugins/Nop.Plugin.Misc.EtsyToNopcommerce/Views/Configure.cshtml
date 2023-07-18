@@ -42,7 +42,7 @@
                         <span asp-validation-for="ShopId"></span>
                     </div>
                 </div>
-                <div class="form-group row">
+                <div class="form-group row" type="hidden">
                     <div class="col-md-3">
                         <nop-override-store-checkbox asp-for="ConsumerKey_OverrideForStore" asp-input="ConsumerKey" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
                         <nop-label asp-for="ConsumerKey" />
@@ -52,7 +52,7 @@
                         <span asp-validation-for="ConsumerKey"></span>
                     </div>
                 </div>
-                <div class="form-group row">
+                <div class="form-group row" hidden>
                     <div class="col-md-3">
                         <nop-override-store-checkbox asp-for="ConsumerSecret_OverrideForStore" asp-input="ConsumerSecret" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
                         <nop-label asp-for="ConsumerSecret" />
@@ -62,7 +62,7 @@
                         <span asp-validation-for="ConsumerSecret"></span>
                     </div>
                 </div>
-                <div class="form-group row">
+                <div class="form-group row" hidden>
                     <div class="col-md-3">
                         <nop-override-store-checkbox asp-for="RequestUrl_OverrideForStore" asp-input="RequestUrl" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
                         <nop-label asp-for="RequestUrl" />
@@ -72,7 +72,7 @@
                         <span asp-validation-for="RequestUrl"></span>
                     </div>
                 </div>
-                <div class="form-group row">
+                <div class="form-group row" hidden>
                     <div class="col-md-3">
                         <nop-override-store-checkbox asp-for="RequestAccessTokenUrl_OverrideForStore" asp-input="RequestAccessTokenUrl" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
                         <nop-label asp-for="RequestAccessTokenUrl" />
@@ -82,7 +82,7 @@
                         <span asp-validation-for="RequestAccessTokenUrl"></span>
                     </div>
                 </div>
-                <div class="form-group row">
+                <div class="form-group row" hidden>
                     <div class="col-md-3">
                         <nop-override-store-checkbox asp-for="Token_OverrideForStore" asp-input="Token" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
                         <nop-label asp-for="Token"/>
@@ -90,6 +90,16 @@
                     <div class="col-md-9">
                         <nop-editor asp-for="Token" asp-required="false" />
                         <span asp-validation-for="Token"></span>
+                    </div>
+                </div>
+                <div class="form-group row" >
+                    <div class="col-md-3">
+                        <nop-override-store-checkbox asp-for="RefreshToken_OverrideForStore" asp-input="Token" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                        <nop-label asp-for="RefreshToken"/>
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="RefreshToken" asp-required="false" />
+                        <span asp-validation-for="RefreshToken"></span>
                     </div>
                 </div>
                 <div class="form-group row">
@@ -104,22 +114,21 @@
                     </div>
                 </div>
                 <hr />
-                <p>testet</p>
-  
-                <a asp-controller="EtsyToNopcommerce"
-                   asp-action="Yetkilendir"
-                   class="mr-3 text-primary"
-                   data-toggle="tooltip" data-placement="top"
-                   title="Yetkilendir"
-                   data-original-title="Yetkilendir">
-                    <i class="fa fa-home">
-                        Yetkilendir
-                    </i>
-                </a>
+
                 <div class="form-group row">
                     <div class="col-md-9 offset-md-3">
                         <button type="submit" name="save" class="btn btn-primary">Kaydet</button>
                     </div>
+                </div>
+                <div class="form-group row">
+                    <a class="btn btn-primary" asp-controller="EtsyToNopcommerce"
+                       asp-action="Yetkilendir"
+                       class="mr-3 text-primary"
+                       data-toggle="tooltip" data-placement="top"
+                       title="Yetkilendir"
+                       data-original-title="Yetkilendir">
+                        Yetkilendir
+                    </a>
                 </div>
             </div>
         </div>

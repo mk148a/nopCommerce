@@ -51,92 +51,7 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce
 
         #region Methods
 
-        /// <summary>
-        /// Gets currency live rates
-        /// </summary>
-        /// <param name="exchangeRateCurrencyCode">Exchange rate currency code</param>
-        /// <returns>
-        /// A task that represents the asynchronous operation
-        /// The task result contains the exchange rates
-        /// </returns>
-        
-        //public async Task<IList<Core.Domain.Directory.ExchangeRate>> GetCurrencyLiveRatesAsync(string exchangeRateCurrencyCode)
-        //{
-        //    if (exchangeRateCurrencyCode == null)
-        //        throw new ArgumentNullException(nameof(exchangeRateCurrencyCode));
-
-        //    //add euro with rate 1
-        //    var ratesToEuro = new List<Core.Domain.Directory.ExchangeRate>
-        //    {
-        //        new Core.Domain.Directory.ExchangeRate
-        //        {
-        //            CurrencyCode = "EUR",
-        //            Rate = 1,
-        //            UpdatedOn = DateTime.UtcNow
-        //        }
-        //    };
-
-        //    //get exchange rates to euro from European Central Bank
-        //    try
-        //    {
-        //        var httpClient = _httpClientFactory.CreateClient(NopHttpDefaults.DefaultHttpClient);
-        //        var stream = await httpClient.GetStreamAsync(_ecbExchangeRateSettings.EcbLink);
-
-        //        //load XML document
-        //        var document = new XmlDocument();
-        //        document.Load(stream);
-
-        //        //add namespaces
-        //        var namespaces = new XmlNamespaceManager(document.NameTable);
-        //        namespaces.AddNamespace("ns", "http://www.ecb.int/vocabulary/2002-08-01/eurofxref");
-        //        namespaces.AddNamespace("gesmes", "http://www.gesmes.org/xml/2002-08-01");
-
-        //        //get daily rates
-        //        var dailyRates = document.SelectSingleNode("gesmes:Envelope/ns:Cube/ns:Cube", namespaces);
-        //        if (!DateTime.TryParseExact(dailyRates.Attributes["time"].Value, "yyyy-MM-dd", null, DateTimeStyles.None, out var updateDate))
-        //            updateDate = DateTime.UtcNow;
-
-        //        foreach (XmlNode currency in dailyRates.ChildNodes)
-        //        {
-        //            //get rate
-        //            if (!decimal.TryParse(currency.Attributes["rate"].Value, NumberStyles.Currency, CultureInfo.InvariantCulture, out var currencyRate))
-        //                continue;
-
-        //            ratesToEuro.Add(new Core.Domain.Directory.ExchangeRate()
-        //            {
-        //                CurrencyCode = currency.Attributes["currency"].Value,
-        //                Rate = currencyRate,
-        //                UpdatedOn = updateDate
-        //            });
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        await _logger.ErrorAsync("ECB exchange rate provider", ex);
-        //    }
-
-        //    //return result for the euro
-        //    if (exchangeRateCurrencyCode.Equals("eur", StringComparison.InvariantCultureIgnoreCase))
-        //        return ratesToEuro;
-
-        //    //use only currencies that are supported by ECB
-        //    var exchangeRateCurrency = ratesToEuro.FirstOrDefault(rate => rate.CurrencyCode.Equals(exchangeRateCurrencyCode, StringComparison.InvariantCultureIgnoreCase));
-        //    if (exchangeRateCurrency == null)
-        //        throw new NopException(await _localizationService.GetResourceAsync("Plugins.ExchangeRate.EcbExchange.Error"));
-
-        //    //return result for the selected (not euro) currency
-        //    return ratesToEuro.Select(rate => new Core.Domain.Directory.ExchangeRate
-        //    {
-        //        CurrencyCode = rate.CurrencyCode,
-        //        Rate = Math.Round(rate.Rate / exchangeRateCurrency.Rate, 4),
-        //        UpdatedOn = rate.UpdatedOn
-        //    }).ToList();
-        //}
-
-        /// <summary>
-        /// Install the plugin
-        /// </summary>
-        /// <returns>A task that represents the asynchronous operation</returns>
+    
         public override async Task InstallAsync()
         {
             //settings
@@ -150,7 +65,14 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce
             await _settingService.SaveSettingAsync(defaultSettings);
 
             //locales
-            await _localizationService.AddOrUpdateLocaleResourceAsync("Plugins.Misc.EtsyToNopcommerce.Test", "Test");
+            await _localizationService.AddOrUpdateLocaleResourceAsync("Nop.Plugins.Misc.EtsyToNopcommerce.Test", "Test");
+            await _localizationService.AddOrUpdateLocaleResourceAsync("Nop.Plugins.Misc.EtsyToNopcommerce.Fields.AuthorizeNecessary", "Etsy Mağazanız İçin Yetkilendirme Gerekiyor");
+            await _localizationService.AddOrUpdateLocaleResourceAsync("Nop.Plugins.Misc.EtsyToNopcommerce.Fields.AuthorizeSuccess", "Etsy Mağazanız İçin Yetkilendirme Başarılı");
+            await _localizationService.AddOrUpdateLocaleResourceAsync("Nop.Plugin.Misc.EtsyToNopcommerce.Fields.ShopName", "Etsy Mağaza Adı");
+            await _localizationService.AddOrUpdateLocaleResourceAsync("Nop.Plugin.Misc.EtsyToNopcommerce.Fields.ShopId", "Etsy Mağaza Id");
+            await _localizationService.AddOrUpdateLocaleResourceAsync("Nop.Plugin.Misc.EtsyToNopcommerce.Fields.ConsumerKey", "Etsy Api Key");
+            await _localizationService.AddOrUpdateLocaleResourceAsync("Nop.Plugin.Misc.EtsyToNopcommerce.Fields.RefreshToken", "RefreshToken");
+            await _localizationService.AddOrUpdateLocaleResourceAsync("Nop.Plugin.Misc.EtsyToNopcommerce.Fields.TokenDate", "Token Alınma Tarihi");
 
             await base.InstallAsync();
         }
@@ -165,7 +87,15 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce
             await _settingService.DeleteSettingAsync<EtsyToNopcommerceSettings>();
 
             //locales
-            await _localizationService.DeleteLocaleResourceAsync("Plugins.Misc.EtsyToNopcommerce.Test");
+            await _localizationService.DeleteLocaleResourceAsync("Nop.Plugins.Misc.EtsyToNopcommerce.Test");
+            await _localizationService.DeleteLocaleResourceAsync("Nop.Plugins.Misc.EtsyToNopcommerce.Fields.AuthorizeNecessary");
+            await _localizationService.DeleteLocaleResourceAsync("Nop.Plugins.Misc.EtsyToNopcommerce.Fields.AuthorizeSuccess");
+            await _localizationService.DeleteLocaleResourceAsync("Nop.Plugin.Misc.EtsyToNopcommerce.Fields.ShopName");
+            await _localizationService.DeleteLocaleResourceAsync("Nop.Plugin.Misc.EtsyToNopcommerce.Fields.ShopId");
+            await _localizationService.DeleteLocaleResourceAsync("Nop.Plugin.Misc.EtsyToNopcommerce.Fields.ConsumerKey");
+            await _localizationService.DeleteLocaleResourceAsync("Nop.Plugin.Misc.EtsyToNopcommerce.Fields.RefreshToken");
+            await _localizationService.DeleteLocaleResourceAsync("Nop.Plugin.Misc.EtsyToNopcommerce.Fields.TokenDate");
+
 
             await base.UninstallAsync();
         }

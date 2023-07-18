@@ -1,4 +1,4 @@
-﻿namespace Nop.Plugin.Misc.EtsyToNopcommerce.Models.Transactions
+﻿namespace Nop.Plugin.Misc.EtsyToNopcommerce.Domains
 {
     using System;
     using System.Collections.Generic;
@@ -7,7 +7,7 @@
     using Newtonsoft.Json;
     using Newtonsoft.Json.Converters;
 
-    public partial class Transactions
+    public partial class Transaction
     {
         [JsonProperty("transaction_id", NullValueHandling = NullValueHandling.Ignore)]
         public long? TransactionId { get; set; }
