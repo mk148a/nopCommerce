@@ -26,6 +26,6 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce
         public int ExpiresIn { get; set; }
 
         [Display(Name = "Tarih")]
-        public DateTime TokenDate { get; set; }
+        public DateTime? TokenDate { get; set; }
     }
 }

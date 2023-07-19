@@ -40,9 +40,9 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Migrations
         {
             try
             {
-
-            //Delete.Table("EtsyReview");
-            //Delete.Table("ProductReviewsTransactionsMapping");
+                Delete.Table("ProductReviewsTransactionsMapping");
+                Delete.Table("EtsyReview");
+            
 
             }
             catch (Exception e)

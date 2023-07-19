@@ -67,7 +67,10 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Job
           {
               _loglist.LogDebug("JobGetReviewsResult: " + "/" + result + " at {DT}",
                   DateTime.UtcNow.ToLongTimeString());
-            }
+              
+              Console.WriteLine(
+              "JobGetReviewsResult: " + "/" + result + " at " + DateTime.UtcNow.ToLongTimeString());
+          }
 
 
           await Task.CompletedTask;

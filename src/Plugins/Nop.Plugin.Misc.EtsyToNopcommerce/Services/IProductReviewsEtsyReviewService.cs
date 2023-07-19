@@ -23,7 +23,7 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Services
 
         /// </returns>
         Task<EtsyReview> InsertEtsyReviewAsync(long? shopId, long transactionId,
-            long? listingId, long? buyerUserId, int? rating, string review, string language, Uri imageUrlFullxfull,
+            long? listingId, long? buyerUserId, int? rating, string review, string language, string imageUrlFullxfull,
             long? createTimestamp, long? createdTimestamp, long? updateTimestamp, long? updatedTimestam);
 
 
@@ -43,7 +43,7 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Services
         /// The task result contains the EtsyReview
         /// </returns>
         Task<EtsyReview> UpdateEtsyReviewAsync(int EtsyReviewId, long? shopId, long transactionId,
-            long? listingId, long? buyerUserId, int? rating, string review, string language, Uri imageUrlFullxfull,
+            long? listingId, long? buyerUserId, int? rating, string review, string language, string imageUrlFullxfull,
             long? createTimestamp, long? createdTimestamp, long? updateTimestamp, long? updatedTimestamp);
 
         /// <summary>
@@ -57,7 +57,7 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Services
 
         Task<bool> AskEtsyReviewByTransactionIdAsync(long transactionId);
 
-
+        Task<HashSet<EtsyReview>> GetEtsyReviews();
 
 
 

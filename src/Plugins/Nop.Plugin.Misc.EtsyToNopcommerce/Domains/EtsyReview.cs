@@ -36,7 +36,7 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Domains
         public string Language { get; set; }
 
         [JsonProperty("image_url_fullxfull")]
-        public Uri ImageUrlFullxfull { get; set; }
+        public string ImageUrlFullxfull { get; set; }
 
         [JsonProperty("create_timestamp", NullValueHandling = NullValueHandling.Ignore)]
         public long? CreateTimestamp { get; set; }

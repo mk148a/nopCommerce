@@ -49,7 +49,7 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Services
         /// The task result contains the EtsyReview
         /// </returns>
         public virtual async Task<EtsyReview> InsertEtsyReviewAsync(long? shopId, long transactionId,
-            long? listingId, long? buyerUserId, int? rating, string review, string language, Uri imageUrlFullxfull,
+            long? listingId, long? buyerUserId, int? rating, string review, string language, string imageUrlFullxfull,
             long? createTimestamp, long? createdTimestamp, long? updateTimestamp, long? updatedTimestamp)
         {
 
@@ -84,7 +84,7 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Services
         /// The task result contains the EtsyReview
         /// </returns>
         public virtual async Task<EtsyReview> UpdateEtsyReviewAsync(int EtsyReviewId, long? shopId, long transactionId,
-            long? listingId, long? buyerUserId, int? rating, string review, string language, Uri imageUrlFullxfull,
+            long? listingId, long? buyerUserId, int? rating, string review, string language, string imageUrlFullxfull,
             long? createTimestamp, long? createdTimestamp, long? updateTimestamp, long? updatedTimestamp)
         {
 
@@ -159,7 +159,11 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Services
         }
 
 
-     
+        public virtual async Task<HashSet<EtsyReview>> GetEtsyReviews()
+        {
+            var dd=(await _repository.GetAllAsync(query=>query.Where(x=>x!=null))).ToHashSet();
+            return  dd;
+        }
 
         /// <summary>
         /// Gets pictures by product identifier

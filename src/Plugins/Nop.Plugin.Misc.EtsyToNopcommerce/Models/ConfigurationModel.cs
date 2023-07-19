@@ -47,7 +47,7 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Models
         public bool RefreshToken_OverrideForStore { get; set; }
 
         [NopResourceDisplayName("Nop.Plugin.Misc.EtsyToNopcommerce.Fields.TokenDate")]
-        public DateTime TokenDate { get; set; }
+        public DateTime? TokenDate { get; set; }
         public bool TokenDate_OverrideForStore { get; set; }
 
 

@@ -1,0 +1,107 @@
+﻿@using Nop.Plugin.Misc.EtsyToNopcommerce.Domains;
+@model HashSet<EtsyReview>
+@using Nop.Plugin.Misc.EtsyToNopcommerce.Models;
+@using Nop.Web.Framework.TagHelpers.Shared
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using LinqToDB.Common
+
+
+<form method="post" id="insertEtsyReviewsForm" asp-area="Admin" asp-controller="EtsyReviews" asp-action="InsertEtsyReviewsToNopcommerce">
+    <div class="card">
+        <div class="card-body">         
+            <div class="table-responsive">
+                <table class="table table-centered datatable dt-responsive nowrap " style="border-collapse: collapse; border-spacing: 0; width: 100%;">
+                    <thead class="thead-light">
+                    <tr>
+                        <th style="width: 20px;">
+                          Seç
+                        </th>
+                        <th>ID</th>
+                        <th>Transaction Id</th>
+                        <th>Yıldız</th>
+                        <th>Yorum</th>
+                        <th>Fotoğraf</th>
+                        <th>Tarih>                         
+                        <th>Durum</th>                          
+                    </tr>
+                    </thead>
+                    <tbody id="tablolist">
+                    @foreach (var item in Model)
+                    {
+                        
+                        <tr>
+                            <td>
+                                <input type="checkbox" id="Deletes" name="Deletes" >
+                                   @* @Html.CheckBoxFor(modelItem => false,new { id = "Deletes",name="Deletes" })*@
+                              
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Id)
+                                @Html.HiddenFor(modelItem => item.Id)
+                                </td>
+                            <td>
+                                    @Html.DisplayFor(modelItem => item.TransactionId)
+                                    @Html.HiddenFor(modelItem => item.TransactionId)
+                                </td>
+                            <td>
+                                    @Html.DisplayFor(modelItem => item.Rating)
+                                    @Html.HiddenFor(modelItem => item.Rating)
+                                </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Review)
+                                @Html.HiddenFor(modelItem => item.Review)
+                            </td>
+                            <td>
+                                @if (!item.ImageUrlFullxfull.IsNullOrEmpty())
+                                {
+                                    <img src="@item.ImageUrlFullxfull" height="100" width="100" />
+
+                                        @Html.HiddenFor(modelItem => item.ImageUrlFullxfull)
+                                }
+
+                            </td>
+                            <td>
+                            <td>
+                                        @Html.DisplayFor(modelItem => item.CreatedTimestamp)
+                                        @Html.HiddenFor(modelItem =>  item.CreatedTimestamp)
+                            </td>
+                            <td>
+                                Eklendi yada Eklenmedi durumu
+                            </td>  
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+                <div class="form-group row">
+                    <div class="col-md-9 offset-md-3">
+                        <button type="submit" name="save" class="btn btn-primary">Seçili Yorumları Web Siteme Aktar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<script>
+console.log('test');
+    console.log('test1');
+    $("#insertEtsyReviewsForm").submit(function () {
+        console.log('test2');
+        var count = 0;
+        $("tbody tr").each(function () {
+            console.log('test3');
+            if ($(this).find("#Deletes").prop("checked")) {
+                console.log('test4');
+                $(this).find("#item_Id").attr("name", "fromDelist[" + count + "].Id");
+                $(this).find("#item_TransactionId").attr("name", "fromDelist[" + count + "].TransactionId");
+                $(this).find("#item_Rating").attr("name", "fromDelist[" + count + "].Rating");
+               
+              
+                count++;
+            }
+        })
+    })
+
+</script>
+
+

@@ -348,8 +348,37 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Services
                 string requestGetTokenUrl = "v3/public/oauth/token";
 
                 var suan = DateTime.Now;
-                var tokenExpiredate = ayar.TokenDate.AddSeconds(ayar.ExpiresIn - 1000);
-                if (suan > tokenExpiredate || !authourised)
+                DateTime? tokenDate= ayar.TokenDate; ;
+                if (ayar.TokenDate!=null)
+                {
+                 
+                    var tokenExpiredate = tokenDate.Value.AddSeconds(ayar.ExpiresIn - 1000);
+                    if (suan > tokenExpiredate || !authourised)
+                    {
+                        // Refresh Token Alınıyor.....
+                        List<KeyValuePair<string, string>> parameters = new List<KeyValuePair<string, string>>();
+                        parameters.Add(new KeyValuePair<string, string>("grant_type", "refresh_token"));
+                        parameters.Add(new KeyValuePair<string, string>("client_id", ayar.ConsumerKey));
+                        parameters.Add(new KeyValuePair<string, string>("refresh_token", ayar.RefreshToken));
+
+                        var tokResponse = await EtsyRequests(requestGetTokenUrl, parameters);
+
+                        if (tokResponse.StatusCode == System.Net.HttpStatusCode.OK)
+                        {
+                            var AuthorizationResponse =
+                                Newtonsoft.Json.JsonConvert.DeserializeObject<AuthorizationResponse>(
+                                    tokResponse.Content);
+                            ayar.Token = AuthorizationResponse.access_token;
+                            ayar.RefreshToken = AuthorizationResponse.refresh_token;
+                            ayar.ExpiresIn = AuthorizationResponse.expires_in;
+                            ayar.TokenDate = DateTime.Now;
+
+                            await _settingService.SaveSettingAsync(ayar);
+                            await _settingService.ClearCacheAsync();
+                        }
+                    }
+                }
+                else
                 {
                     // Refresh Token Alınıyor.....
                     List<KeyValuePair<string, string>> parameters = new List<KeyValuePair<string, string>>();
@@ -373,6 +402,7 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Services
                         await _settingService.ClearCacheAsync();
                     }
                 }
+              
 
             }
         }

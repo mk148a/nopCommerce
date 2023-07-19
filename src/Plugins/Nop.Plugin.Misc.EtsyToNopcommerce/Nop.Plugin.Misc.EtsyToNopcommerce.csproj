@@ -14,6 +14,7 @@
 	<None Remove="logo.jpg" />
 	<None Remove="plugin.json" />
 	<None Remove="Views\Configure.cshtml" />
+	<None Remove="Views\Shared\Components\EtsyReviews\Default.cshtml" />
     <None Remove="Views\_ViewImports.cshtml" />
     <None Remove="Areas\Admin\Views\_ViewImports.cshtml" />
   </ItemGroup>
@@ -26,6 +27,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Views\Configure.cshtml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Views\Shared\Components\EtsyReviews\Default.cshtml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Views\_ViewImports.cshtml" />
@@ -49,7 +53,6 @@
     <Folder Include="Areas\Admin\Extensions\" />
     <Folder Include="Areas\Admin\Factories\" />
     <Folder Include="Areas\Admin\Models\" />
-    <Folder Include="Components\" />
     <Folder Include="Extensions\" />
     <Folder Include="Factories\" />
   </ItemGroup>
