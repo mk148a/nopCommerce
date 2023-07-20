@@ -26,44 +26,44 @@
                     </tr>
                     </thead>
                     <tbody id="tablolist">
-                    @foreach (var item in Model)
+                        @for (int i = 0;i< Model.Count; i++)
                     {
                         
                         <tr>
                             <td>
-                                <input type="checkbox" id="Deletes" name="Deletes" >
-                                   @* @Html.CheckBoxFor(modelItem => false,new { id = "Deletes",name="Deletes" })*@
+                              @*  <input type="checkbox" id="Deletes" name="Deletes" checked="false" >*@
+                                    @Html.CheckBoxFor(modelItem => @Model.ToList()[i].IsChecked)
                               
                             </td>
                             <td>
-                                @Html.DisplayFor(modelItem => item.Id)
-                                @Html.HiddenFor(modelItem => item.Id)
+                                    @Html.DisplayFor(modelItem => @Model.ToList()[i].Id)
+                              @*  @Html.HiddenFor(modelItem => item.Id)*@
                                 </td>
                             <td>
-                                    @Html.DisplayFor(modelItem => item.TransactionId)
-                                    @Html.HiddenFor(modelItem => item.TransactionId)
+                                    @Html.DisplayFor(modelItem => @Model.ToList()[i].TransactionId)
+                                  @*  @Html.HiddenFor(modelItem => item.TransactionId)*@
                                 </td>
                             <td>
-                                    @Html.DisplayFor(modelItem => item.Rating)
-                                    @Html.HiddenFor(modelItem => item.Rating)
+                                    @Html.DisplayFor(modelItem => @Model.ToList()[i].Rating)
+                                  @*  @Html.HiddenFor(modelItem => item.Rating)*@
                                 </td>
                             <td>
-                                @Html.DisplayFor(modelItem => item.Review)
-                                @Html.HiddenFor(modelItem => item.Review)
+                                    @Html.DisplayFor(modelItem => @Model.ToList()[i].Review)
+                               @* @Html.HiddenFor(modelItem => item.Review)*@
                             </td>
                             <td>
-                                @if (!item.ImageUrlFullxfull.IsNullOrEmpty())
+                                    @if (!@Model.ToList()[i].ImageUrlFullxfull.IsNullOrEmpty())
                                 {
-                                    <img src="@item.ImageUrlFullxfull" height="100" width="100" />
+                                        <img src="@@Model.ToList()[i].ImageUrlFullxfull" height="100" width="100" />
 
-                                        @Html.HiddenFor(modelItem => item.ImageUrlFullxfull)
+                                        @Html.HiddenFor(modelItem => @Model.ToList()[i].ImageUrlFullxfull)
                                 }
 
                             </td>
                             <td>
                             <td>
-                                        @Html.DisplayFor(modelItem => item.CreatedTimestamp)
-                                        @Html.HiddenFor(modelItem =>  item.CreatedTimestamp)
+                                        @Html.DisplayFor(modelItem => @Model.ToList()[i].CreatedTimestamp)
+                                        @*@Html.HiddenFor(modelItem =>  item.CreatedTimestamp)*@
                             </td>
                             <td>
                                 Eklendi yada Eklenmedi durumu
@@ -83,14 +83,14 @@
 </form>
 
 <script>
-console.log('test');
+@*console.log('test');
     console.log('test1');
     $("#insertEtsyReviewsForm").submit(function () {
         console.log('test2');
         var count = 0;
         $("tbody tr").each(function () {
             console.log('test3');
-            if ($(this).find("#Deletes").prop("checked")) {
+            if ($(this).find("#item_IsChecked").prop("checked")) {
                 console.log('test4');
                 $(this).find("#item_Id").attr("name", "fromDelist[" + count + "].Id");
                 $(this).find("#item_TransactionId").attr("name", "fromDelist[" + count + "].TransactionId");
@@ -100,7 +100,7 @@ console.log('test');
                 count++;
             }
         })
-    })
+    })*@
 
 </script>
 

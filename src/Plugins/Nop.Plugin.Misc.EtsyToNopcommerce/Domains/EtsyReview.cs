@@ -49,5 +49,7 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Domains
 
         [JsonProperty("updated_timestamp", NullValueHandling = NullValueHandling.Ignore)]
         public long? UpdatedTimestamp { get; set; }
+
+        public bool IsChecked { get; set; }
     }
 }

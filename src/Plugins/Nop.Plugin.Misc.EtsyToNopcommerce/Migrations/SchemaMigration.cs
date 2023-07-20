@@ -11,7 +11,7 @@ using Nop.Plugin.Widgets.CustomProductReviews.Mapping.Builders;
 
 namespace Nop.Plugin.Misc.EtsyToNopcommerce.Migrations
 {
-    [NopMigration("2022/12/12 15:40:55:1687541", "Nop.Plugin.Misc.EtsyToNopcommerce.Migrations base schema", MigrationProcessType.Installation)]
+    [NopMigration("2023/07/07 15:40:55:1687541", "Nop.Plugin.Misc.EtsyToNopcommerce.Migrations base schema")]
     public class SchemaMigration : FluentMigrator.Migration
     {
         private readonly IMigrationManager _migrationManager;

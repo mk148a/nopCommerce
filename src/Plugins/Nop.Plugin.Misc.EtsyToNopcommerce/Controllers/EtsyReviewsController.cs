@@ -122,7 +122,7 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
         #region Methods
     
         [HttpPost]
-        public async Task<IActionResult> InsertEtsyReviewsToNopcommerce(IEnumerable<EtsyReview> fromDelist)
+        public async Task<IActionResult> InsertEtsyReviewsToNopcommerce(HashSet<EtsyReview> item)
         {
             var storeId = await _storeContext.GetActiveStoreScopeConfigurationAsync();
             var settings = await _settingService.LoadSettingAsync<EtsyToNopcommerceSettings>(storeId);
