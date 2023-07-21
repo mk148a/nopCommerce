@@ -159,9 +159,9 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Services
         }
 
 
-        public virtual async Task<HashSet<EtsyReview>> GetEtsyReviews()
+        public virtual async Task<IList<EtsyReview>> GetEtsyReviews()
         {
-            var dd=(await _repository.GetAllAsync(query=>query.Where(x=>x!=null))).ToHashSet();
+            var dd=(await _repository.GetAllAsync(query=>query.Where(x=>x!=null)));
             return  dd;
         }
 

@@ -13,6 +13,7 @@ using Nop.Core.Domain.Orders;
 using Nop.Core;
 using System.Collections.Generic;
 using LinqToDB.Common;
+using Nop.Plugin.Misc.EtsyToNopcommerce.Domains;
 using Nop.Services.Customers;
 using Nop.Services.Localization;
 using Nop.Services.Orders;
@@ -29,6 +30,9 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Components
 
     
         private readonly IProductReviewsEtsyReviewService _etsyReviewService;
+        [BindProperty] 
+        IList<EtsyReview> reviews { get; set; }
+
         #endregion
 
         #region Ctor
@@ -55,9 +59,10 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Components
        
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            var model=await _etsyReviewService.GetEtsyReviews();
 
-            return View("~/Plugins/Nop.Plugin.Misc.EtsyToNopcommerce/Views/Shared/Components/EtsyReviews/Default.cshtml", model);
+            reviews = await _etsyReviewService.GetEtsyReviews();
+
+            return View("~/Plugins/Nop.Plugin.Misc.EtsyToNopcommerce/Views/Shared/Components/EtsyReviews/Default.cshtml", reviews);
 
 
 

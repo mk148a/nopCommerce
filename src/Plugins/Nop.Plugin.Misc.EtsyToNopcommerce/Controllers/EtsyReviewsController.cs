@@ -50,6 +50,7 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
 {
 
     [Area(AreaNames.Admin)]
+    [RequestFormLimits(ValueCountLimit = Int32.MaxValue)]
     public class EtsyReviewsController : BasePluginController
     {
         #region Fields
@@ -122,8 +123,9 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
         #region Methods
     
         [HttpPost]
-        public async Task<IActionResult> InsertEtsyReviewsToNopcommerce(HashSet<EtsyReview> item)
+        public async Task<IActionResult> InsertEtsyReviewsToNopcommerce(IList<EtsyReview> fromDelist)
         {
+
             var storeId = await _storeContext.GetActiveStoreScopeConfigurationAsync();
             var settings = await _settingService.LoadSettingAsync<EtsyToNopcommerceSettings>(storeId);
 

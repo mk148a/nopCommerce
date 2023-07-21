@@ -1,5 +1,5 @@
 ﻿@using Nop.Plugin.Misc.EtsyToNopcommerce.Domains;
-@model HashSet<EtsyReview>
+@model IList<EtsyReview>
 @using Nop.Plugin.Misc.EtsyToNopcommerce.Models;
 @using Nop.Web.Framework.TagHelpers.Shared
 @using Microsoft.AspNetCore.Mvc.TagHelpers
@@ -7,67 +7,68 @@
 
 
 <form method="post" id="insertEtsyReviewsForm" asp-area="Admin" asp-controller="EtsyReviews" asp-action="InsertEtsyReviewsToNopcommerce">
+
     <div class="card">
-        <div class="card-body">         
+        <div class="card-body">
             <div class="table-responsive">
                 <table class="table table-centered datatable dt-responsive nowrap " style="border-collapse: collapse; border-spacing: 0; width: 100%;">
                     <thead class="thead-light">
                     <tr>
                         <th style="width: 20px;">
-                          Seç
+                            Seç
                         </th>
-                        <th>ID</th>
                         <th>Transaction Id</th>
                         <th>Yıldız</th>
                         <th>Yorum</th>
                         <th>Fotoğraf</th>
-                        <th>Tarih>                         
-                        <th>Durum</th>                          
+                        <th>Tarih>
+                        <th>Durum</th>
                     </tr>
                     </thead>
                     <tbody id="tablolist">
-                        @for (int i = 0;i< Model.Count; i++)
+                    @for (int i = 0; i < Model.Count; i++)
                     {
-                        
+
                         <tr>
                             <td>
-                              @*  <input type="checkbox" id="Deletes" name="Deletes" checked="false" >*@
-                                    @Html.CheckBoxFor(modelItem => @Model.ToList()[i].IsChecked)
-                              
+                                    @Html.CheckBoxFor(m => m[i].IsChecked,new {id="item_IsChecked"})
+                        @*        <input asp-for="@Model[i].IsChecked" class="form-check-input"/>*@
                             </td>
                             <td>
-                                    @Html.DisplayFor(modelItem => @Model.ToList()[i].Id)
-                              @*  @Html.HiddenFor(modelItem => item.Id)*@
-                                </td>
-                            <td>
-                                    @Html.DisplayFor(modelItem => @Model.ToList()[i].TransactionId)
-                                  @*  @Html.HiddenFor(modelItem => item.TransactionId)*@
-                                </td>
-                            <td>
-                                    @Html.DisplayFor(modelItem => @Model.ToList()[i].Rating)
-                                  @*  @Html.HiddenFor(modelItem => item.Rating)*@
-                                </td>
-                            <td>
-                                    @Html.DisplayFor(modelItem => @Model.ToList()[i].Review)
-                               @* @Html.HiddenFor(modelItem => item.Review)*@
+                                @Model.ToList()[i].TransactionId
+                                    @Html.HiddenFor(modelItem => modelItem[i].TransactionId,new {id="item_TransactionId"})
+                                    @Html.HiddenFor(modelItem => modelItem[i].Id,new {id="item_Id"})
+
                             </td>
                             <td>
-                                    @if (!@Model.ToList()[i].ImageUrlFullxfull.IsNullOrEmpty())
+                                    @Html.TextBoxFor(modelItem => modelItem[i].Rating,new {id="item_Rating"})
+
+                            </td>
+                            <td>
+                                    @Html.TextBoxFor(modelItem => modelItem[i].Review,new {id="item_Review"})
+
+                            </td>
+                            <td>
+                                @if (!@Model.ToList()[i].ImageUrlFullxfull.IsNullOrEmpty())
                                 {
-                                        <img src="@@Model.ToList()[i].ImageUrlFullxfull" height="100" width="100" />
+                                    <img src="@Model.ToList()[i].ImageUrlFullxfull" height="100" width="100"/>
 
-                                        @Html.HiddenFor(modelItem => @Model.ToList()[i].ImageUrlFullxfull)
+
                                 }
-
+                                    @Html.HiddenFor(modelItem => modelItem[i].ImageUrlFullxfull,new {id="item_ImageUrlFullxfull"})
                             </td>
                             <td>
-                            <td>
-                                        @Html.DisplayFor(modelItem => @Model.ToList()[i].CreatedTimestamp)
-                                        @*@Html.HiddenFor(modelItem =>  item.CreatedTimestamp)*@
+                                    @Html.TextBoxFor(modelItem => modelItem[i].CreatedTimestamp,new {id="item_CreatedTimestamp"})
+                                    @Html.HiddenFor(modelItem => modelItem[i].CreatedTimestamp,new {id="item_CreatedTimestamp"})
+                                    @Html.HiddenFor(modelItem => modelItem[i].UpdateTimestamp,new {id="item_UpdateTimestamp"})
+                                    @Html.HiddenFor(modelItem => modelItem[i].UpdatedTimestamp,new {id="item_UpdatedTimestamp"})
+                                    @Html.HiddenFor(modelItem => modelItem[i].BuyerUserId,new {id="item_BuyerUserId"})
+                                    @Html.HiddenFor(modelItem => modelItem[i].Language,new {id="item_Language"})
+                                    @Html.HiddenFor(modelItem => modelItem[i].ListingId,new {id="item_ListingId"})
                             </td>
                             <td>
                                 Eklendi yada Eklenmedi durumu
-                            </td>  
+                            </td>
                         </tr>
                     }
                     </tbody>
@@ -80,13 +81,13 @@
             </div>
         </div>
     </div>
+    }
 </form>
 
 <script>
-@*console.log('test');
-    console.log('test1');
+  
     $("#insertEtsyReviewsForm").submit(function () {
-        console.log('test2');
+      
         var count = 0;
         $("tbody tr").each(function () {
             console.log('test3');
@@ -95,12 +96,16 @@
                 $(this).find("#item_Id").attr("name", "fromDelist[" + count + "].Id");
                 $(this).find("#item_TransactionId").attr("name", "fromDelist[" + count + "].TransactionId");
                 $(this).find("#item_Rating").attr("name", "fromDelist[" + count + "].Rating");
+                $(this).find("#item_Review").attr("name", "fromDelist[" + count + "].Review");
+                $(this).find("#item_ImageUrlFullxfull").attr("name", "fromDelist[" + count + "].ImageUrlFullxfull");
+                $(this).find("#item_CreatedTimestamp").attr("name", "fromDelist[" + count + "].CreatedTimestamp");
+                $(this).find("#item_IsChecked").attr("name", "fromDelist[" + count + "].IsChecked");
                
               
                 count++;
             }
         })
-    })*@
+    })
 
 </script>
 
