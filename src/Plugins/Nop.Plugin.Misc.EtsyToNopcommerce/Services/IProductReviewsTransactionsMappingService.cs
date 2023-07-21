@@ -50,7 +50,8 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Services
         Task<ProductReviewsTransactionsMapping> GetProductReviewsTransactionsMappingByIdAsync(int ProductReviewsTransactionsMappingId);
         Task<List<ProductReviewsTransactionsMapping>> GetProductReviewsTransactionsMappingByProductReviewIdAsync(int productReviewId);
 
-
+        Task<List<ProductReviewsTransactionsMapping>> GetProductReviewsTransactionsMappingByTransactionIdAsync(
+            long transactionId);
 
 
 

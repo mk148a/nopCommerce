@@ -158,7 +158,29 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Services
 
             return mappings;
         }
-        
+
+        /// <summary>
+        /// Gets pictures by product identifier
+        /// </summary>
+        /// <param name="productId">Product identifier</param>
+        /// <param name="recordsToReturn">Number of records to return. 0 if you want to get all items</param>
+        /// <returns>
+        /// A task that represents the asynchronous operation
+        /// The task result contains the pictures
+        /// </returns>
+        public virtual async Task<List<ProductReviewsTransactionsMapping>> GetProductReviewsTransactionsMappingByTransactionIdAsync(long transactionId)
+        {
+            if (transactionId == 0)
+                return new List<ProductReviewsTransactionsMapping>();
+
+            var query = from p in _repository.Table
+                where p.TransactionId == transactionId
+                select p;
+
+            var mappings = await query.ToListAsync();
+
+            return mappings;
+        }
 
 
         #endregion

@@ -133,6 +133,23 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
             {
                 _notificationService.SuccessNotification(await _localizationService.GetResourceAsync("Admin.Plugins.Saved"));
                 //Todo:buraya servisler ile istek ekle
+
+                foreach (var review in fromDelist)
+                {
+                 var resultTransactionMapping=  await _etsyReviewService.GetEtsyReviewByTransactionIdAsync(review.TransactionId.Value);
+                 
+                 if (resultTransactionMapping.Count>0)
+                 {
+                     //bu review daha önce eklenmiş ona göre update işlemi vs. yap
+
+                 }
+                 else
+                 {
+                     //eğer review yoksa burda yorumu ekleme işlemlerini yap
+                    
+                 }
+                }
+              
                 //  string reviewResult=  await ReviewlariAlVeIsle();
 
                 //if (reviewResult != null)
@@ -140,7 +157,7 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
                 //      _notificationService.SuccessNotification(reviewResult.Split(",")[0] +" adet yorum, "+ reviewResult.Split(",")[1] +" adet fotograflı yorum eklendi");
                 //  }
 
-                
+
             return RedirectToRoute("Plugin.Misc.EtsyToNopcommerce.Configure");
             }
             else
