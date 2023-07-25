@@ -17,7 +17,7 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Services
         #region Fields
 
         private readonly IRepository<EtsyReview> _repository;
-
+       
         #endregion
 
         #region Ctor
@@ -25,6 +25,7 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Services
         public ProductReviewsEtsyReviewService(IRepository<EtsyReview> repository)
         {
             _repository = repository;
+           
         }
 
         #endregion
@@ -50,7 +51,7 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Services
         /// </returns>
         public virtual async Task<EtsyReview> InsertEtsyReviewAsync(long? shopId, long transactionId,
             long? listingId, long? buyerUserId, int? rating, string review, string language, string imageUrlFullxfull,
-            long? createTimestamp, long? createdTimestamp, long? updateTimestamp, long? updatedTimestamp)
+            long? createTimestamp, long? createdTimestamp, long? updateTimestamp, long? updatedTimestamp,string sku)
         {
 
 
@@ -67,7 +68,8 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Services
                 CreateTimestamp = createTimestamp,
                 CreatedTimestamp = createdTimestamp,
                 UpdateTimestamp = updateTimestamp,
-                UpdatedTimestamp = updatedTimestamp
+                UpdatedTimestamp = updatedTimestamp,
+                Sku = sku
             };
 
             await _repository.InsertAsync(EtsyReview);

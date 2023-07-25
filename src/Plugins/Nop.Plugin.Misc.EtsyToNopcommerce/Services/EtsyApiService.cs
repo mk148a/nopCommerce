@@ -123,11 +123,17 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Services
                                 {
                                     if (receipts.Any(x=>x.Transactions.Any(y=>y.TransactionId== review.TransactionId.Value)) )
                                     {
+                                        var ilgiliReceipt = receipts.Single(x => x.Transactions.Any(y => y.TransactionId == review.TransactionId));
+                                        string ilgiliSku =
+                                            (from m in ilgiliReceipt.Transactions
+                                                where m.TransactionId == review.TransactionId
+                                                select (string)m.Sku)
+                                            .FirstOrDefault();
                                         var newAddedEtsyReview = await _etsyReviewService.InsertEtsyReviewAsync(review.ShopId, review.TransactionId.Value,
                                             review.ListingId, review.BuyerUserId,
                                             review.Rating, review.Review, review.Language, review.ImageUrlFullxfull,
                                             review.CreateTimestamp, review.CreatedTimestamp,
-                                            review.UpdateTimestamp, review.UpdatedTimestamp);
+                                            review.UpdateTimestamp, review.UpdatedTimestamp, ilgiliSku);
 
                                         addedEtsyReviews += 1;
 

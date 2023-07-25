@@ -21,7 +21,7 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Services
 
 
         /// </returns>
-        Task<ProductReviewsTransactionsMapping> InsertProductReviewsTransactionsMappingAsync(int productReviewId, long transactionId);
+        Task<ProductReviewsTransactionsMapping> InsertProductReviewsTransactionsMappingAsync(int productReviewId, long transactionId,int etsyReviewId);
 
 
         /// <summary>

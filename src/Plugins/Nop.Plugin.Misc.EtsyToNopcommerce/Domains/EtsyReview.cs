@@ -9,10 +9,20 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Domains
     using System.Globalization;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Converters;
+    using Nop.Plugin.Misc.EtsyToNopcommerce.Services;
 
  
     public class EtsyReview:BaseEntity
     {
+        private readonly IProductReviewsTransactionsMappingService _productReviewsTransactionsMappingService;
+        public EtsyReview()
+        {
+            
+        }
+        public EtsyReview(IProductReviewsTransactionsMappingService productReviewsTransactionsMappingService)
+        {
+            this._productReviewsTransactionsMappingService = productReviewsTransactionsMappingService;
+        }
         [JsonProperty("shop_id", NullValueHandling = NullValueHandling.Ignore)]
         public long? ShopId { get; set; }
 
@@ -51,5 +61,7 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Domains
         public long? UpdatedTimestamp { get; set; }
 
         public bool IsChecked { get; set; }
+        public string Sku { get; set; }
+
     }
 }

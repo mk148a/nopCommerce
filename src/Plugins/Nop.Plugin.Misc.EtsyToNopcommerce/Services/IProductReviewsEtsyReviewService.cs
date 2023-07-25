@@ -24,7 +24,7 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Services
         /// </returns>
         Task<EtsyReview> InsertEtsyReviewAsync(long? shopId, long transactionId,
             long? listingId, long? buyerUserId, int? rating, string review, string language, string imageUrlFullxfull,
-            long? createTimestamp, long? createdTimestamp, long? updateTimestamp, long? updatedTimestam);
+            long? createTimestamp, long? createdTimestamp, long? updateTimestamp, long? updatedTimestam,string sku);
 
 
         /// <summary>

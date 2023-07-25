@@ -799,7 +799,7 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
                                        review.ListingId, review.BuyerUserId,
                                        review.Rating, review.Review, review.Language, review.ImageUrlFullxfull,
                                        review.CreateTimestamp, review.CreatedTimestamp,
-                                       review.UpdateTimestamp, review.UpdatedTimestamp);
+                                       review.UpdateTimestamp, review.UpdatedTimestamp,"");
                                }
 
                            }

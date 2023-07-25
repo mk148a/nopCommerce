@@ -48,14 +48,15 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Services
         /// A task that represents the asynchronous operation
         /// The task result contains the ProductReviewsTransactionsMapping
         /// </returns>
-        public virtual async Task<ProductReviewsTransactionsMapping> InsertProductReviewsTransactionsMappingAsync(int productReviewId, long transactionId)
+        public virtual async Task<ProductReviewsTransactionsMapping> InsertProductReviewsTransactionsMappingAsync(int productReviewId, long transactionId, int etsyReviewId)
         {
 
 
             var ProductReviewsTransactionsMapping = new ProductReviewsTransactionsMapping
             {
                 ProductReviewId = productReviewId,
-                TransactionId = transactionId
+                TransactionId = transactionId,
+                EtsyReviewId = etsyReviewId
             };
 
             await _repository.InsertAsync(ProductReviewsTransactionsMapping);
