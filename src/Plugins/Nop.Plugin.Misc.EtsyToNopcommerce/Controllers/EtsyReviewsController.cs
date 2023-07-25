@@ -32,6 +32,7 @@ using Nop.Data;
 using Nop.Services.Common;
 using StateProvince = Nop.Core.Domain.Directory.StateProvince;
 using System.IO;
+using System.Net.Http;
 using DocumentFormat.OpenXml.Presentation;
 using ImageProcessor;
 using ImageProcessor.Plugins.WebP.Imaging.Formats;
@@ -196,7 +197,7 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
             return "done";
         }
 
-        [HttpPost]
+        
         public async Task<IActionResult> InsertEtsyReviewsToNopcommerce(IList<EtsyReview> fromDelist)
         {
 
@@ -473,10 +474,22 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
             }
         }
 
-     
 
 
+        [HttpPost]
+        public async Task<IActionResult> GetParaphrased(IList<EtsyReview> fromDelist)
+        {
+            var client = new HttpClient();
+            var request = new HttpRequestMessage(HttpMethod.Post, "https://api.sapling.ai/api/v1/paraphrase");
+            var content = new StringContent("{\n    \"key\": \"NDOKHU426M1ADTKW855L3GW1AZYW08IF\",\n    \"text\": \"These are very show worthy and beautiful, I’m afraid one has broke on me already but I have an idea on making it into a pen/pencil :)Well made and painted but the plastic nocks I find are a bit too tight on my string and makes it fly a bit wonky.\"\n  \n}", null, "application/json");
+            request.Content = content;
+            var response = await client.SendAsync(request);
+            response.EnsureSuccessStatusCode();
+          var result= await response.Content.ReadAsStringAsync();
 
+          return RedirectToRoute("Plugin.Misc.EtsyToNopcommerce.Configure");
+        }
+    }
         #endregion
     }
 }
