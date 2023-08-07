@@ -220,7 +220,13 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
 
                 foreach (var review in fromDelist)
                 {
-                 var resultTransactionMapping=  await _productReviewsTransactionsMappingService.GetProductReviewsTransactionsMappingByTransactionIdAsync(review.TransactionId.Value);
+                    //Todo: try catch eklendi ama hala hata var çöz
+                    try
+                    {
+
+                 
+
+                    var resultTransactionMapping=  await _productReviewsTransactionsMappingService.GetProductReviewsTransactionsMappingByTransactionIdAsync(review.TransactionId.Value);
                  
                  if (resultTransactionMapping.Count>0)
                  {
@@ -456,8 +462,14 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
 
 
 
-                   
 
+
+                        }
+                    }
+                    catch (Exception e )
+                    {
+
+                        Console.WriteLine(e);
                     }
                 }
 
@@ -492,4 +504,3 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
     }
         #endregion
     }
-}
