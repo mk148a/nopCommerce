@@ -10,5 +10,6 @@ namespace Nop.Plugin.Misc.ProductCatalogCreator
     /// </summary>
     public class CustomPlugin : BasePlugin
     {
+
     }
 }
