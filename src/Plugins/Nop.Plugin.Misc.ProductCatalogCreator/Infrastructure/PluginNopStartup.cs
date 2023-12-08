@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Nop.Core.Infrastructure;
+using Nop.Plugin.Misc.ProductCatalogCreator.Services;
 
 namespace Nop.Plugin.Misc.ProductCatalogCreator.Infrastructure
 {
@@ -16,7 +17,7 @@ namespace Nop.Plugin.Misc.ProductCatalogCreator.Infrastructure
             });
 
             //register services and interfaces
-            //services.AddScoped<CustomModelFactory, ICustomerModelFactory>();
+            services.AddScoped<ProductCatalogService, ProductCatalogService>();
         }
 
         public void Configure(IApplicationBuilder application)

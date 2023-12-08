@@ -1,0 +1,178 @@
+﻿@using LinqToDB.Common
+@model Nop.Plugin.Misc.ProductCatalogCreator.Areas.Admin.Models.ProductCatalogModel
+@{
+    Layout = "_AdminLayout";
+ 
+}
+<head>
+    <style>
+        .image-container {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .product-image {
+            max-width: 150px;
+            max-height: 150px;
+            margin: 5px 0;
+        }
+
+        .nested-table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+            .nested-table th, .nested-table td {
+                border: 1px solid #ddd;
+                padding: 8px;
+                text-align: left;
+            }
+
+            .nested-table tr:nth-child(even) {
+                background-color: #f2f2f2;
+            }
+    </style>
+</head>
+
+<form asp-action="Index" method="post"  enctype="multipart/form-data">
+    <h2>Select Categories</h2>
+    <div>
+        @for (var i = 0; i < Model.AvailableCategories.Count; i++)
+        {
+           @*  <input type="checkbox" name="Model.SelectedCategoryIds[@i]" value="@Model.AvailableCategories[i].Value" /> *@
+           <input type="hidden" id="selectedCategoryIds" name="SelectedCategoryIds" value="" />
+            <input type="checkbox" name="SelectedCategoryIds[@i]" value="@Model.AvailableCategories[i].Value" />
+            <label>@Model.AvailableCategories[i].Text</label>
+            <br />
+        }
+     
+    </div>
+    <button id="submitButton" type="submit" >Show Products</button>
+</form>
+
+@if (Model.Products != null && Model.Products.Any())
+{
+    <form asp-action="CreateCatalog" method="post" enctype="multipart/form-data">
+        <h2>Select Products</h2>
+        <table class="nested-table">
+            <tr>
+                <th>Select All</th>
+                <th>SKU</th>
+                <th>Title</th>
+                <th>Price</th>
+                <th>Categories</th>
+                <th>Pictures</th>
+            </tr>
+            @for (var i = 0; i < Model.Products.Count; i++)
+            {
+             
+
+                <tr>
+
+                    <input type="hidden" id="SelectedProductIds" name="SelectedProductIds" value=""/>
+                    <td><input type="checkbox" class="select-checkbox" name="SelectedProductIds[@i]" value="@Model.Products[i].ProductId"/></td>
+                    <td>@Model.Products[i].Sku</td>
+                    <td>@Model.Products[i].Title</td>
+                    <td>@Model.Products[i].Price</td>
+                    <td>@string.Join(", ", @Model.Products[i].CategoryNames)</td>
+                    <td>
+                        <table class="nested-table">
+                            <tr>
+                                @if (!@Model.Products[i].PictureUrl1.IsNullOrEmpty())
+                                {
+                                    <td>
+                                        <img src="@Model.Products[i].PictureUrl1" alt="Product Image" class="product-image" />
+                                    </td>
+
+                                }
+                                @if (!@Model.Products[i].PictureUrl2.IsNullOrEmpty())
+                                {
+                                    <td>
+                                        <img src="@Model.Products[i].PictureUrl2" alt="Product Image" class="product-image" />
+                                    </td>
+                                }
+                            </tr>
+                            <tr>
+                                @if (!@Model.Products[i].PictureUrl3.IsNullOrEmpty())
+                                {
+                                    <td>
+                                        <img src="@Model.Products[i].PictureUrl3" alt="Product Image" class="product-image" />
+                                    </td>
+                                }
+                                @if (!@Model.Products[i].PictureUrl4.IsNullOrEmpty())
+                                {
+                                    <td>
+                                        <img src="@Model.Products[i].PictureUrl4" alt="Product Image" class="product-image" />
+                                    </td>
+                                }
+                            </tr>
+                        </table>
+
+                    </td>
+                </tr>
+            }
+        </table>
+        <button type="submit" id="createCatalogButton" disabled>Create Catalog</button>
+        <button type="button" id="selectAllButton">Select All</button>
+    </form>
+}
+
+<script>
+    // Burada JavaScript ile 'Create Catalog' butonunu etkinleştirmek için gerekli kodları yazabilirsiniz.
+    document.addEventListener("DOMContentLoaded", function () {
+        const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+        const hiddenInput = document.getElementById("selectedCategoryIds");
+
+        checkboxes.forEach(function (checkbox) {
+            checkbox.addEventListener("change", function () {
+                const selectedIds = Array.from(checkboxes)
+                    .filter((checkbox) => checkbox.checked)
+                    .map((checkbox) => checkbox.value);
+
+                hiddenInput.value = selectedIds.join(",");
+            });
+        });
+    });
+
+
+    // JavaScript for enabling 'Create Catalog' button and 'Select All' button
+    document.addEventListener("DOMContentLoaded", function () {
+        const checkboxes = document.querySelectorAll('.select-checkbox');
+        const createCatalogButton = document.getElementById("createCatalogButton");
+        const selectAllButton = document.getElementById("selectAllButton");
+
+        checkboxes.forEach(function (checkbox) {
+            checkbox.addEventListener("change", function () {
+                const selectedIds = Array.from(checkboxes)
+                    .filter((checkbox) => checkbox.checked)
+                    .map((checkbox) => checkbox.value);
+
+                createCatalogButton.disabled = selectedIds.length === 0;
+            });
+        });
+
+        selectAllButton.addEventListener("click", function () {
+            checkboxes.forEach(function (checkbox) {
+                checkbox.checked = true;
+            });
+
+            createCatalogButton.disabled = false;
+        });
+    });
+
+
+    document.addEventListener("DOMContentLoaded", function () {       
+        const checkboxes = document.querySelectorAll('input[type="checkbox"][name^="SelectedProductIds"]');
+        const hiddenInput = document.getElementById("SelectedProductIds");
+
+        checkboxes.forEach(function (checkbox) {
+            checkbox.addEventListener("change", function () {
+                const SelectedProductIds = Array.from(checkboxes)
+                    .filter((checkbox) => checkbox.checked)
+                    .map((checkbox) => checkbox.value);
+
+                hiddenInput.value = SelectedProductIds.join(",");
+            });
+        });
+    });
+</script>
