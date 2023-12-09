@@ -135,24 +135,28 @@ namespace Nop.Plugin.Misc.ProductCatalogCreator.Services
                 {
                     var page = document.AddPage();
                     var graphics = XGraphics.FromPdfPage(page);
-                    graphics.DrawString(category.CategoryName, new XFont("Arial", 14), XBrushes.Black,
-                        new XPoint(100, 100));
+                    int yPosition = 100; // Başlangıç y koordinatı
 
-                    // Alt başlıklar ve ürünler burada eklenir
+                    // Kategori adını yazdır
+                    graphics.DrawString(category.CategoryName, new XFont("Arial", 14), XBrushes.Black, new XPoint(100, yPosition));
+                    yPosition += 40; // Kategori adından sonra y koordinatını artır
+
+
+                    // Alt kategorileri ve ürünleri ekle
                     if (!category.Subcategories.IsNullOrEmpty())
                     {
                         foreach (var subCategory in category.Subcategories)
                         {
-                            graphics.DrawString(subCategory.CategoryName, new XFont("Arial", 12), XBrushes.Black,
-                                new XPoint(120, 140));
+                            graphics.DrawString(subCategory.CategoryName, new XFont("Arial", 12), XBrushes.Black, new XPoint(120, yPosition));
+                            yPosition += 40; // Alt kategori adından sonra y koordinatını artır
 
-                            // Ürünleri burada ekleyebilirsiniz
+                            // Ürünleri ekle
                             if (!subCategory.Products.IsNullOrEmpty())
                             {
                                 foreach (var product in subCategory.Products)
                                 {
-                                    graphics.DrawString(product.Title, new XFont("Arial", 10), XBrushes.Black,
-                                        new XPoint(140, 180));
+                                    graphics.DrawString(product.Title, new XFont("Arial", 10), XBrushes.Black, new XPoint(140, yPosition));
+                                    yPosition += 20; // Üründen sonra y koordinatını artır
                                 }
                             }
                         }
@@ -162,8 +166,8 @@ namespace Nop.Plugin.Misc.ProductCatalogCreator.Services
                         // Ürünleri burada ekleyebilirsiniz
                         foreach (var product in category.Products)
                         {
-                            graphics.DrawString(product.Title, new XFont("Arial", 10), XBrushes.Black,
-                                new XPoint(140, 180));
+                            graphics.DrawString(product.Title, new XFont("Arial", 10), XBrushes.Black, new XPoint(140, yPosition));
+                            yPosition += 20; // Üründen sonra y koordinatını artır
                         }
                     }
                    

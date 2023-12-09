@@ -4,6 +4,7 @@
     Layout = "_AdminLayout";
  
 }
+@addTagHelper*, Microsoft.AspNetCore.Mvc.TagHelpers
 <head>
     <style>
         .image-container {
@@ -34,7 +35,7 @@
     </style>
 </head>
 
-<form asp-action="Index" method="post"  enctype="multipart/form-data">
+<form class="index-form" id="indexform" enctype="multipart/form-data"  asp-controller="ProductCatalog" asp-action="Index">
     <h2>Select Categories</h2>
     <div>
         @for (var i = 0; i < Model.AvailableCategories.Count; i++)
@@ -47,12 +48,31 @@
         }
      
     </div>
-    <button id="submitButton" type="submit" >Show Products</button>
+    <button id="submitButton" type="submit">Show Products</button>
 </form>
 
 @if (Model.Products != null && Model.Products.Any())
 {
-    <form asp-action="CreateCatalog" method="post" enctype="multipart/form-data">
+    <form asp-action="CreateCatalog" class="createcatalog-form" method="post" enctype="multipart/form-data">
+        <div>
+            <label>Upload Template:</label>
+            <input type="file" name="templateFile" />
+        </div>
+        <div>
+            <label>Upload Font:</label>
+            <input type="file" name="fontFile" />
+        </div>
+        <div>
+            <label>Select Information to Include:</label>
+            <div><input type="checkbox" name="IncludeSKU" checked="@Model.IncludeSKU" /> SKU</div>
+            <div><input type="checkbox" name="IncludeTitle" checked="@Model.IncludeTitle" /> Title</div>
+            <div><input type="checkbox" name="IncludePrice" checked="@Model.IncludePrice" /> Price</div>
+            <div><input type="checkbox" name="IncludeShortDescription" checked="@Model.IncludeShortDescription" /> Short Description</div>
+            <div><input type="checkbox" name="IncludeImages" checked="@Model.IncludeImages" /> Images</div>
+        </div>
+        <div>
+        </div>
+
         <h2>Select Products</h2>
         <table class="nested-table">
             <tr>
@@ -65,11 +85,11 @@
             </tr>
             @for (var i = 0; i < Model.Products.Count; i++)
             {
-             
+
 
                 <tr>
 
-                    <input type="hidden" id="SelectedProductIds" name="SelectedProductIds" value=""/>
+                    <input type="hidden" id="selectedProductIds" name="SelectedProductIds" value=""/>
                     <td><input type="checkbox" class="select-checkbox" name="SelectedProductIds[@i]" value="@Model.Products[i].ProductId"/></td>
                     <td>@Model.Products[i].Sku</td>
                     <td>@Model.Products[i].Title</td>
@@ -81,14 +101,14 @@
                                 @if (!@Model.Products[i].PictureUrl1.IsNullOrEmpty())
                                 {
                                     <td>
-                                        <img src="@Model.Products[i].PictureUrl1" alt="Product Image" class="product-image" />
+                                        <img src="@Model.Products[i].PictureUrl1" alt="Product Image" class="product-image"/>
                                     </td>
 
                                 }
                                 @if (!@Model.Products[i].PictureUrl2.IsNullOrEmpty())
                                 {
                                     <td>
-                                        <img src="@Model.Products[i].PictureUrl2" alt="Product Image" class="product-image" />
+                                        <img src="@Model.Products[i].PictureUrl2" alt="Product Image" class="product-image"/>
                                     </td>
                                 }
                             </tr>
@@ -96,13 +116,13 @@
                                 @if (!@Model.Products[i].PictureUrl3.IsNullOrEmpty())
                                 {
                                     <td>
-                                        <img src="@Model.Products[i].PictureUrl3" alt="Product Image" class="product-image" />
+                                        <img src="@Model.Products[i].PictureUrl3" alt="Product Image" class="product-image"/>
                                     </td>
                                 }
                                 @if (!@Model.Products[i].PictureUrl4.IsNullOrEmpty())
                                 {
                                     <td>
-                                        <img src="@Model.Products[i].PictureUrl4" alt="Product Image" class="product-image" />
+                                        <img src="@Model.Products[i].PictureUrl4" alt="Product Image" class="product-image"/>
                                     </td>
                                 }
                             </tr>
@@ -116,11 +136,15 @@
         <button type="button" id="selectAllButton">Select All</button>
     </form>
 }
-
 <script>
+
+    
+
     // Burada JavaScript ile 'Create Catalog' butonunu etkinleştirmek için gerekli kodları yazabilirsiniz.
-    document.addEventListener("DOMContentLoaded", function () {
-        const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+    document.addEventListener("DOMContentLoaded", function () 
+    {
+        try {
+        const checkboxes = document.querySelectorAll('input[type="checkbox"][name^="SelectedCategoryIds"]');
         const hiddenInput = document.getElementById("selectedCategoryIds");
 
         checkboxes.forEach(function (checkbox) {
@@ -132,18 +156,20 @@
                 hiddenInput.value = selectedIds.join(",");
             });
         });
-    });
+        } 
+    catch {
 
+    }
 
-    // JavaScript for enabling 'Create Catalog' button and 'Select All' button
-    document.addEventListener("DOMContentLoaded", function () {
-        const checkboxes = document.querySelectorAll('.select-checkbox');
+        try {
+        // JavaScript for enabling 'Create Catalog' button and 'Select All' button
+        const checkboxes1 = document.querySelectorAll('.select-checkbox');
         const createCatalogButton = document.getElementById("createCatalogButton");
         const selectAllButton = document.getElementById("selectAllButton");
 
-        checkboxes.forEach(function (checkbox) {
+        checkboxes1.forEach(function (checkbox) {
             checkbox.addEventListener("change", function () {
-                const selectedIds = Array.from(checkboxes)
+                const selectedIds = Array.from(checkboxes1)
                     .filter((checkbox) => checkbox.checked)
                     .map((checkbox) => checkbox.value);
 
@@ -152,27 +178,106 @@
         });
 
         selectAllButton.addEventListener("click", function () {
-            checkboxes.forEach(function (checkbox) {
+            checkboxes1.forEach(function (checkbox) {
                 checkbox.checked = true;
             });
 
             createCatalogButton.disabled = false;
         });
-    });
+    } catch {
 
+    }
 
-    document.addEventListener("DOMContentLoaded", function () {       
-        const checkboxes = document.querySelectorAll('input[type="checkbox"][name^="SelectedProductIds"]');
-        const hiddenInput = document.getElementById("SelectedProductIds");
+        //create catalog send data
+        try {
 
-        checkboxes.forEach(function (checkbox) {
+      
+        console.log('start1');
+        const checkboxes2 = document.querySelectorAll('input[type="checkbox"][name^="SelectedProductIds"]');
+        const hiddenInput2 = document.getElementById("selectedProductIds");
+
+        checkboxes2.forEach(function (checkbox) {
             checkbox.addEventListener("change", function () {
-                const SelectedProductIds = Array.from(checkboxes)
+                const selectedIds2 = Array.from(checkboxes2)
                     .filter((checkbox) => checkbox.checked)
                     .map((checkbox) => checkbox.value);
 
-                hiddenInput.value = SelectedProductIds.join(",");
+                hiddenInput2.value = selectedIds2.join(",");
             });
         });
+
+        $('#createCatalogButton').click(function ()
+        {
+          
+
+                // const formCatalog = document.querySelector('form[class="createcatalog-form"]');
+               
+                 const includeSKU = document.querySelector('input[name="IncludeSKU"]').checked;
+                const includeTitle = document.querySelector('input[name="IncludeTitle"]').checked;
+                 const includePrice = document.querySelector('input[name="IncludePrice"]').checked;
+                 const includeShortDescription = document.querySelector('input[name="IncludeShortDescription"]').checked;
+                 const includeImages = document.querySelector('input[name="IncludeImages"]').checked;
+                console.log(includeSKU);
+                console.log(includeTitle);
+                console.log(includePrice);
+                
+            if (includeSKU) {
+                @Model.IncludeSKU=true;
+            }
+            if (includeTitle) {
+                @Model.IncludeTitle=true;
+            }
+            if (includePrice) {
+                @Model.IncludePrice=true;
+            }
+            if (includeShortDescription) {
+                @Model.IncludeShortDescription=true;
+            }
+            if (includeImages) {
+                @Model.IncludeImages=true;
+            }
+
+          
+
+
+        });
+        } catch {
+
+        }
+        // const includeSKU = document.querySelector('input[name="includeSKU"]').checked;
+        // const includeTitle = document.querySelector('input[name="includeTitle"]').checked;
+        // const includePrice = document.querySelector('input[name="includePrice"]').checked;
+        // const includeShortDescription = document.querySelector('input[name="includeShortDescription"]').checked;
+        // const includeImages = document.querySelector('input[name="includeImages"]').checked;
+
+        // const formData = new FormData(form);
+        // formData.append('SelectedCategoryIds', selectedCategoryIds.join(","));
+        // formData.append('SelectedProductIds', selectedProductIds.join(","));
+        // formData.append('includeSKU', includeSKU);
+        // formData.append('includeTitle', includeTitle);
+        // formData.append('includePrice', includePrice);
+        // formData.append('includeShortDescription', includeShortDescription);
+        // formData.append('includeImages', includeImages);
     });
+
+
+   
+  
+    
+    // document.addEventListener("DOMContentLoaded", function () {
+    //     const checkboxes = document.querySelectorAll('input[type="checkbox"][name^="SelectedCategoryIds"]');
+    //     const hiddenInput = document.getElementById("SelectedProductIds");
+
+    //     checkboxes.forEach(function (checkbox) {
+    //         checkbox.addEventListener("change", function () {
+    //             const SelectedProductIds = Array.from(checkboxes)
+    //                 .filter((checkbox) => checkbox.checked)
+    //                 .map((checkbox) => checkbox.value);
+
+    //             hiddenInput.value = SelectedProductIds.join(",");
+    //         });
+    //     });
+    // });
+
+   
 </script>

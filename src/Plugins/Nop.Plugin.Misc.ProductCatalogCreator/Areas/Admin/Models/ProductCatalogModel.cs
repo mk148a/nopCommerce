@@ -3,6 +3,7 @@
     using System.Linq;
     using System.Text;
     using System.Threading.Tasks;
+    using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc.Rendering;
 
     namespace Nop.Plugin.Misc.ProductCatalogCreator.Areas.Admin.Models
@@ -19,8 +20,15 @@
 
             public List<ProductModel> Products { get; set; }
             public List<SelectListItem> AvailableCategories { get; set; }
-            public List<int> SelectedCategoryIds { get; set; }
-            public List<int> SelectedProductIds { get; set; }
+        public List<int> SelectedCategoryIds { get; set; }
+        public List<int> SelectedProductIds { get; set; }
+        public IFormFile TemplateFile { get; set; }
+        public IFormFile FontFile { get; set; }
+        public bool IncludeSKU { get; set; }
+        public bool IncludeTitle { get; set; }
+        public bool IncludePrice { get; set; }
+        public bool IncludeShortDescription { get; set; }
+        public bool IncludeImages { get; set; }
     }
 
         public class ProductModel
