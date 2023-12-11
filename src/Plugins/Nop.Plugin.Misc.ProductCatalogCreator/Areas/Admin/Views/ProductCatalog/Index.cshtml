@@ -35,18 +35,24 @@
     </style>
 </head>
 
-<form class="index-form" id="indexform" enctype="multipart/form-data"  asp-controller="ProductCatalog" asp-action="Index">
-    <h2>Select Categories</h2>
-    <div>
-        @for (var i = 0; i < Model.AvailableCategories.Count; i++)
-        {
-           @*  <input type="checkbox" name="Model.SelectedCategoryIds[@i]" value="@Model.AvailableCategories[i].Value" /> *@
-           <input type="hidden" id="selectedCategoryIds" name="SelectedCategoryIds" value="" />
-            <input type="checkbox" name="SelectedCategoryIds[@i]" value="@Model.AvailableCategories[i].Value" />
-            <label>@Model.AvailableCategories[i].Text</label>
-            <br />
-        }
-     
+<form class="index-form" id="indexform" enctype="multipart/form-data" asp-controller="ProductCatalog" asp-action="Index">
+    <div class="card card-default">
+        <div class="card-body">
+            <div id="products-grid_wrapper" class="dataTables_wrapper dt-bootstrap4 no-footer">
+            <h2>Select Categories</h2>
+            <div>
+                @for (var i = 0; i < Model.AvailableCategories.Count; i++)
+                {
+                    @*  <input type="checkbox" name="Model.SelectedCategoryIds[@i]" value="@Model.AvailableCategories[i].Value" /> *@
+                    <input type="hidden" id="selectedCategoryIds" name="SelectedCategoryIds" value=""/>
+                    <input type="checkbox" name="SelectedCategoryIds[@i]" value="@Model.AvailableCategories[i].Value"/>
+                    <label>@Model.AvailableCategories[i].Text</label>
+                    <br/>
+                }
+
+            </div>
+            </div>
+        </div>  
     </div>
     <button id="submitButton" type="submit">Show Products</button>
 </form>
@@ -76,7 +82,9 @@
         <h2>Select Products</h2>
         <table class="nested-table">
             <tr>
-                <th>Select All</th>
+                <th class="sorting_disabled text-center" rowspan="1" colspan="1" style="width: 50.6333px;">
+                    <input class="mastercheckbox" type="checkbox" id="selectAllCheck">
+                </th>
                 <th>SKU</th>
                 <th>Title</th>
                 <th>Price</th>
@@ -133,7 +141,7 @@
             }
         </table>
         <button type="submit" id="createCatalogButton" disabled>Create Catalog</button>
-        <button type="button" id="selectAllButton">Select All</button>
+     
     </form>
 }
 <script>
@@ -165,7 +173,7 @@
         // JavaScript for enabling 'Create Catalog' button and 'Select All' button
         const checkboxes1 = document.querySelectorAll('.select-checkbox');
         const createCatalogButton = document.getElementById("createCatalogButton");
-        const selectAllButton = document.getElementById("selectAllButton");
+        //const selectAllCheck = document.getElementById("selectAllCheck");
 
         checkboxes1.forEach(function (checkbox) {
             checkbox.addEventListener("change", function () {
@@ -176,14 +184,24 @@
                 createCatalogButton.disabled = selectedIds.length === 0;
             });
         });
+        
+        $('#selectAllCheck').on('click', function () {
+                if (this.checked) {
+                    checkboxes1.forEach(function (checkbox) {
+                        checkbox.checked = true;
+                    });
 
-        selectAllButton.addEventListener("click", function () {
-            checkboxes1.forEach(function (checkbox) {
-                checkbox.checked = true;
+                    createCatalogButton.disabled = false;
+                } else {
+                    checkboxes1.forEach(function (checkbox) {
+                        checkbox.checked = false;
+                    });
+
+                    createCatalogButton.disabled = true;
+                }
             });
 
-            createCatalogButton.disabled = false;
-        });
+            
     } catch {
 
     }
