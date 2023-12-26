@@ -219,46 +219,44 @@
                 const selectedIds2 = Array.from(checkboxes2)
                     .filter((checkbox) => checkbox.checked)
                     .map((checkbox) => checkbox.value);
-
+                console.log(selectedIds2);
                 hiddenInput2.value = selectedIds2.join(",");
             });
         });
 
-        $('#createCatalogButton').click(function ()
-        {
+        // $('#createCatalogButton').click(function ()
+        // {
           
 
-                // const formCatalog = document.querySelector('form[class="createcatalog-form"]');
+        //         // const formCatalog = document.querySelector('form[class="createcatalog-form"]');
                
-                 const includeSKU = document.querySelector('input[name="IncludeSKU"]').checked;
-                const includeTitle = document.querySelector('input[name="IncludeTitle"]').checked;
-                 const includePrice = document.querySelector('input[name="IncludePrice"]').checked;
-                 const includeShortDescription = document.querySelector('input[name="IncludeShortDescription"]').checked;
-                 const includeImages = document.querySelector('input[name="IncludeImages"]').checked;
-                console.log(includeSKU);
-                console.log(includeTitle);
-                console.log(includePrice);
+        //          const includeSKU = document.querySelector('input[name="IncludeSKU"]').checked;
+        //         const includeTitle = document.querySelector('input[name="IncludeTitle"]').checked;
+        //          const includePrice = document.querySelector('input[name="IncludePrice"]').checked;
+        //          const includeShortDescription = document.querySelector('input[name="IncludeShortDescription"]').checked;
+        //          const includeImages = document.querySelector('input[name="IncludeImages"]').checked;
+               
                 
-            if (includeSKU) {
-                @Model.IncludeSKU=true;
-            }
-            if (includeTitle) {
-                @Model.IncludeTitle=true;
-            }
-            if (includePrice) {
-                @Model.IncludePrice=true;
-            }
-            if (includeShortDescription) {
-                @Model.IncludeShortDescription=true;
-            }
-            if (includeImages) {
-                @Model.IncludeImages=true;
-            }
+        //     if (includeSKU) {
+        //         @Model.IncludeSKU=true;
+        //     }
+        //     if (includeTitle) {
+        //         @Model.IncludeTitle=true;
+        //     }
+        //     if (includePrice) {
+        //         @Model.IncludePrice=true;
+        //     }
+        //     if (includeShortDescription) {
+        //         @Model.IncludeShortDescription=true;
+        //     }
+        //     if (includeImages) {
+        //         @Model.IncludeImages=true;
+        //     }
 
           
 
 
-        });
+        // });
         } catch {
 
         }
