@@ -7,11 +7,12 @@ using Nop.Data.Extensions;
 using Nop.Data.Mapping;
 using Nop.Data.Migrations;
 using Nop.Plugin.Misc.EtsyToNopcommerce.Domains;
+using Nop.Plugin.Misc.EtsyToNopcommerce.Models.Listings;
 using Nop.Plugin.Widgets.CustomProductReviews.Mapping.Builders;
 
 namespace Nop.Plugin.Misc.EtsyToNopcommerce.Migrations
 {
-    [NopMigration("2023/07/07 15:40:55:1687541", "Nop.Plugin.Misc.EtsyToNopcommerce.Migrations base schema")]
+    [NopMigration("2023/12/28 10:16:55:1687541", "Nop.Plugin.Misc.EtsyToNopcommerce.Migrations base schema")]
     public class SchemaMigration : FluentMigrator.Migration
     {
         private readonly IMigrationManager _migrationManager;
@@ -27,8 +28,41 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Migrations
         public override void Up() {
             try
             {
-                Create.TableFor<EtsyReview>();
-                Create.TableFor<ProductReviewsTransactionsMapping>();
+                try
+                {
+                    Create.TableFor<EtsyReview>();
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                  
+                }
+                try
+                {
+                    Create.TableFor<ProductReviewsTransactionsMapping>();
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    
+                }
+                try
+                {
+                    Create.TableFor<EtsyPropertyValue>();
+                    Create.TableFor<EtsyPrice>();
+                    Create.TableFor<EtsyOffering>();
+                    Create.TableFor<EtsyProduct>();
+                    Create.TableFor<EtsyInventory>();
+                    Create.TableFor<EtsyListing>();
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+
+                }
+
+              
+                //Todo:Can be need maybe create a db for Etsy listings and Etsy customers data
             }
             catch (Exception e)
             {
@@ -40,15 +74,13 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Migrations
         {
             try
             {
-                Delete.Table("ProductReviewsTransactionsMapping");
-                Delete.Table("EtsyReview");
-            
-
+                //Delete.Table("ProductReviewsTransactionsMapping");
+                //Delete.Table("EtsyReview");
+               // Delete.Table("EtsyListing");
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                
             }
 
 

@@ -9,6 +9,7 @@ using Nop.Core;
 using Nop.Data;
 using Nop.Plugin.Misc.EtsyToNopcommerce.Domains;
 using Nop.Plugin.Misc.EtsyToNopcommerce.Models;
+using Nop.Plugin.Misc.EtsyToNopcommerce.Models.Listings;
 using Nop.Plugin.Misc.EtsyToNopcommerce.Models.Receipts;
 using Nop.Plugin.Misc.EtsyToNopcommerce.Models.Reviews;
 using Nop.Services.Catalog;
@@ -30,18 +31,20 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Services
         private readonly ISettingService _settingService;
         private readonly IProductReviewsEtsyReviewService _etsyReviewService;
         private readonly IProductService _productService;
+        private readonly IEtsyListingsService _etsyListingsService;
 
         #endregion
 
         #region Ctor
 
-        public EtsyApiService(IRepository<EtsyReview> repository, IStoreContext storeContext, ISettingService settingService, IProductReviewsEtsyReviewService etsyReviewService, IProductService productService)
+        public EtsyApiService(IRepository<EtsyReview> repository, IStoreContext storeContext, ISettingService settingService, IProductReviewsEtsyReviewService etsyReviewService, IProductService productService, IEtsyListingsService etsyListingsService)
         {
             _repository = repository;
             _storeContext = storeContext;
             _settingService = settingService;
             _etsyReviewService=etsyReviewService;
             _productService = productService;
+            _etsyListingsService=etsyListingsService;
         }
 
         #endregion
@@ -476,6 +479,315 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Services
 
             return null;
         }
+
+        public async Task<HashSet<Models.Listings.EtsyListing>?> GetEtsyListings(string requestListingsUrl, List<KeyValuePair<string, string>> getListingsParameters)
+        {
+            IRestResponse getListingsResponse;
+
+            GetListingsById getListingsResult;
+            getListingsResponse =
+                await EtsyRequests(requestListingsUrl, getListingsParameters);
+
+            if (getListingsResponse.StatusCode == HttpStatusCode.OK)
+            {
+                try
+                {
+                    getListingsResult =
+                        Newtonsoft.Json.JsonConvert
+                            .DeserializeObject<GetListingsById>(
+                                getListingsResponse.Content.Replace("&amp;", "&"));
+                    var newResult = new HashSet<EtsyListing>();
+
+
+                    foreach (var result in getListingsResult.Results)
+                    {
+                        result.Description = System.Web.HttpUtility.HtmlDecode(result.Description);
+                        result.Title = System.Web.HttpUtility.HtmlDecode(result.Title);
+                        newResult.Add(result);
+                    }
+                    return newResult;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                }
+            }
+
+            return null;
+        }
+
+
+        public async Task<string> ListingleriAlVeIsle()
+        {
+            var storeId = await _storeContext.GetActiveStoreScopeConfigurationAsync();
+            var currentStore = await _storeContext.GetCurrentStoreAsync();
+            storeId = currentStore.Id;
+            var ayar = await _settingService.LoadSettingAsync<EtsyToNopcommerceSettings>(storeId);
+            string BaseAdres = "https://openapi.etsy.com/";
+
+            //https://openapi.etsy.com/v3/application/shops/21815852/listings?state=inactive&
+            string requestGetShopListingsUrl = $"v3/application/shops/{ayar.ShopId}/listings";
+
+
+            int reviewsAdded = 0;
+            int reviewsWithPhotoAdded = 0;
+
+
+            await CheckTokenExpire(true);
+            await _settingService.ClearCacheAsync();
+            ayar = await _settingService.LoadSettingAsync<EtsyToNopcommerceSettings>(storeId);
+
+            #region Etsy İLanları Çagırma Bölümü
+
+            //inactive listings
+            List<KeyValuePair<string, string>> getListingsParameters = new List<KeyValuePair<string, string>>
+                        {
+                            new KeyValuePair<string, string>("limit", "1"),
+                            new KeyValuePair<string, string>("state", "inactive")
+                        };
+            var getShopListingsResponse = await EtsyRequests(requestGetShopListingsUrl, getListingsParameters);
+
+            if (getShopListingsResponse.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                var getShopListingsResult =
+                    Newtonsoft.Json.JsonConvert.DeserializeObject<GetListingsById>(
+                        getShopListingsResponse.Content.Replace("&amp;", "&"));
+
+                if (getShopListingsResult.Count > 0)
+                {
+                    int maxcount = int.Parse(getShopListingsResult.Count.ToString());
+                    double sirasayisi = 0;
+                    double x = (double)maxcount / (double)100;
+                    sirasayisi = Math.Round(x, 0);
+                    if (sirasayisi < 1)
+                    {
+                        sirasayisi = 1;
+                    }
+
+                    List<Task<HashSet<EtsyListing>?>> getListingsJobs = new List<Task<HashSet<EtsyListing>>>();
+
+                    for (int i = 0; i < sirasayisi + 2; i++)
+                    {
+                        getListingsParameters.Clear();
+                        getListingsParameters.Add(new KeyValuePair<string, string>("state", "inactive"));
+                        getListingsParameters.Add(new KeyValuePair<string, string>("limit", "100"));
+                        getListingsParameters.Add(new KeyValuePair<string, string>("offset", (i * 100).ToString()));
+                        getListingsJobs.Add(GetEtsyListings(requestGetShopListingsUrl, getListingsParameters));
+                    }
+
+                    //active listings
+                    getListingsParameters = new List<KeyValuePair<string, string>>
+                    {
+                        new KeyValuePair<string, string>("limit", "1"),
+                        new KeyValuePair<string, string>("state", "active")
+                    };
+                    getShopListingsResponse = await EtsyRequests(requestGetShopListingsUrl, getListingsParameters);
+
+                    if (getShopListingsResponse.StatusCode == System.Net.HttpStatusCode.OK)
+                    {
+                        getShopListingsResult =
+                           Newtonsoft.Json.JsonConvert.DeserializeObject<GetListingsById>(
+                               getShopListingsResponse.Content.Replace("&amp;", "&"));
+
+                        if (getShopListingsResult.Count > 0)
+                        {
+                            maxcount = int.Parse(getShopListingsResult.Count.ToString());
+                            sirasayisi = 0;
+                            x = (double)maxcount / (double)100;
+                            sirasayisi = Math.Round(x, 0);
+                            if (sirasayisi < 1)
+                            {
+                                sirasayisi = 1;
+                            }
+
+                            for (int i = 0; i < sirasayisi + 2; i++)
+                            {
+                                getListingsParameters.Clear();
+                                getListingsParameters.Add(new KeyValuePair<string, string>("state", "active"));
+                                getListingsParameters.Add(new KeyValuePair<string, string>("limit", "100"));
+                                getListingsParameters.Add(new KeyValuePair<string, string>("offset", (i * 100).ToString()));
+                                getListingsJobs.Add(GetEtsyListings(requestGetShopListingsUrl, getListingsParameters));
+                            }
+                        }
+
+
+                    }
+
+
+                    //sold_out listings
+                    getListingsParameters = new List<KeyValuePair<string, string>>
+                    {
+                        new KeyValuePair<string, string>("limit", "1"),
+                        new KeyValuePair<string, string>("state", "sold_out")
+                    };
+                    getShopListingsResponse = await EtsyRequests(requestGetShopListingsUrl, getListingsParameters);
+
+                    if (getShopListingsResponse.StatusCode == System.Net.HttpStatusCode.OK)
+                    {
+                        getShopListingsResult =
+                            Newtonsoft.Json.JsonConvert.DeserializeObject<GetListingsById>(
+                                getShopListingsResponse.Content.Replace("&amp;", "&"));
+
+                        if (getShopListingsResult.Count > 0)
+                        {
+                            maxcount = int.Parse(getShopListingsResult.Count.ToString());
+                            sirasayisi = 0;
+                            x = (double)maxcount / (double)100;
+                            sirasayisi = Math.Round(x, 0);
+                            if (sirasayisi < 1)
+                            {
+                                sirasayisi = 1;
+                            }
+
+                            for (int i = 0; i < sirasayisi + 2; i++)
+                            {
+                                getListingsParameters.Clear();
+                                getListingsParameters.Add(new KeyValuePair<string, string>("state", "sold_out"));
+                                getListingsParameters.Add(new KeyValuePair<string, string>("limit", "100"));
+                                getListingsParameters.Add(new KeyValuePair<string, string>("offset", (i * 100).ToString()));
+                                getListingsJobs.Add(GetEtsyListings(requestGetShopListingsUrl, getListingsParameters));
+                            }
+                        }
+
+
+                    }
+
+
+                    //removed listings
+                    getListingsParameters = new List<KeyValuePair<string, string>>
+                    {
+                        new KeyValuePair<string, string>("limit", "1"),
+                        new KeyValuePair<string, string>("state", "removed")
+                    };
+                    getShopListingsResponse = await EtsyRequests(requestGetShopListingsUrl, getListingsParameters);
+
+                    if (getShopListingsResponse.StatusCode == System.Net.HttpStatusCode.OK)
+                    {
+                        getShopListingsResult =
+                            Newtonsoft.Json.JsonConvert.DeserializeObject<GetListingsById>(
+                                getShopListingsResponse.Content.Replace("&amp;", "&"));
+
+                        if (getShopListingsResult.Count > 0)
+                        {
+                            maxcount = int.Parse(getShopListingsResult.Count.ToString());
+                            sirasayisi = 0;
+                            x = (double)maxcount / (double)100;
+                            sirasayisi = Math.Round(x, 0);
+                            if (sirasayisi < 1)
+                            {
+                                sirasayisi = 1;
+                            }
+
+                            for (int i = 0; i < sirasayisi + 2; i++)
+                            {
+                                getListingsParameters.Clear();
+                                getListingsParameters.Add(new KeyValuePair<string, string>("state", "removed"));
+                                getListingsParameters.Add(new KeyValuePair<string, string>("limit", "100"));
+                                getListingsParameters.Add(new KeyValuePair<string, string>("offset", (i * 100).ToString()));
+                                getListingsJobs.Add(GetEtsyListings(requestGetShopListingsUrl, getListingsParameters));
+                            }
+                        }
+
+
+                    }
+
+
+                    //expired listings
+                    getListingsParameters = new List<KeyValuePair<string, string>>
+                    {
+                        new KeyValuePair<string, string>("limit", "1"),
+                        new KeyValuePair<string, string>("state", "expired")
+                    };
+                    getShopListingsResponse = await EtsyRequests(requestGetShopListingsUrl, getListingsParameters);
+
+                    if (getShopListingsResponse.StatusCode == System.Net.HttpStatusCode.OK)
+                    {
+                        getShopListingsResult =
+                            Newtonsoft.Json.JsonConvert.DeserializeObject<GetListingsById>(
+                                getShopListingsResponse.Content.Replace("&amp;", "&"));
+
+                        if (getShopListingsResult.Count > 0)
+                        {
+                            maxcount = int.Parse(getShopListingsResult.Count.ToString());
+                            sirasayisi = 0;
+                            x = (double)maxcount / (double)100;
+                            sirasayisi = Math.Round(x, 0);
+                            if (sirasayisi < 1)
+                            {
+                                sirasayisi = 1;
+                            }
+
+                            for (int i = 0; i < sirasayisi + 2; i++)
+                            {
+                                getListingsParameters.Clear();
+                                getListingsParameters.Add(new KeyValuePair<string, string>("state", "expired"));
+                                getListingsParameters.Add(new KeyValuePair<string, string>("limit", "100"));
+                                getListingsParameters.Add(new KeyValuePair<string, string>("offset", (i * 100).ToString()));
+                                getListingsJobs.Add(GetEtsyListings(requestGetShopListingsUrl, getListingsParameters));
+                            }
+                        }
+
+
+                    }
+
+
+
+
+
+
+                    var listingsList = await WhenAllEx(getListingsJobs);
+                    var EtsyListingsList = new HashSet<EtsyListing>();
+
+                    foreach (var listingResults in listingsList)
+                    {
+                        foreach (var listing in listingResults)
+                        {
+                            if (listing != null)
+                            {
+                                EtsyListingsList.Add(listing);
+
+                                var reviewVarmi = await _etsyListingsService.AskEtsyListingByIdAsync(listing.Id);
+                                if (!reviewVarmi)
+                                {
+                                    try
+                                    {
+
+                                    var result = await _etsyListingsService.InsertEtsyListingAsync(listing);
+                                    reviewsAdded += 1;
+
+                                    }
+                                    catch (Exception e)
+                                    {
+                                        Console.WriteLine(e);
+                                    }
+                                }
+
+                            }
+
+                        }
+                    }
+
+
+
+
+                    Console.WriteLine("Toplam " + reviewsAdded + " adet ilan eklendi");
+                }
+                else
+                {
+
+                }
+            }
+            else
+            {
+                await CheckTokenExpire(false);
+            }
+
+            #endregion
+
+
+            return reviewsAdded.ToString() + "," + reviewsWithPhotoAdded.ToString();
+        }
+
 
         #endregion
     }

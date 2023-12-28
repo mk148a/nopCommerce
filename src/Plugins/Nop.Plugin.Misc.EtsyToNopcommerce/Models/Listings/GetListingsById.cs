@@ -1,25 +1,25 @@
-﻿namespace Nop.Plugin.Misc.EtsyToNopcommerce.Models.Listings
+﻿using DocumentFormat.OpenXml.Math;
+using Nop.Core;
+
+namespace Nop.Plugin.Misc.EtsyToNopcommerce.Models.Listings
 {
     using System;
     using System.Collections.Generic;
-
-    using System.Globalization;
     using Newtonsoft.Json;
-    using Newtonsoft.Json.Converters;
 
-    public partial class GetListingsById
+    public class GetListingsById
     {
         [JsonProperty("count", NullValueHandling = NullValueHandling.Ignore)]
         public long? Count { get; set; }
 
         [JsonProperty("results", NullValueHandling = NullValueHandling.Ignore)]
-        public List<Result> Results { get; set; }
+        public List<EtsyListing> Results { get; set; }
     }
 
-    public partial class Result
+    public class EtsyListing:BaseEntity
     {
         [JsonProperty("listing_id", NullValueHandling = NullValueHandling.Ignore)]
-        public long? ListingId { get; set; }
+        public long ListingId { get; set; }
 
         [JsonProperty("user_id", NullValueHandling = NullValueHandling.Ignore)]
         public long? UserId { get; set; }
@@ -96,11 +96,11 @@
         [JsonProperty("listing_type", NullValueHandling = NullValueHandling.Ignore)]
         public string ListingType { get; set; }
 
-        [JsonProperty("tags", NullValueHandling = NullValueHandling.Ignore)]
-        public List<string> Tags { get; set; }
+        [JsonProperty("tags")]
+        public string Tags { get; set; }
 
         [JsonProperty("materials", NullValueHandling = NullValueHandling.Ignore)]
-        public List<string> Materials { get; set; }
+        public string Materials { get; set; }
 
         [JsonProperty("shipping_profile_id", NullValueHandling = NullValueHandling.Ignore)]
         public long? ShippingProfileId { get; set; }
@@ -123,29 +123,23 @@
         [JsonProperty("is_supply", NullValueHandling = NullValueHandling.Ignore)]
         public bool? IsSupply { get; set; }
 
-        [JsonProperty("item_weight")]
-        public string ItemWeight { get; set; }
+        [JsonProperty("item_weight")] public string ItemWeight { get; set; }
 
-        [JsonProperty("item_weight_unit")]
-        public string ItemWeightUnit { get; set; }
+        [JsonProperty("item_weight_unit")] public string ItemWeightUnit { get; set; }
 
-        [JsonProperty("item_length")]
-        public string ItemLength { get; set; }
+        [JsonProperty("item_length")] public string ItemLength { get; set; }
 
-        [JsonProperty("item_width")]
-        public string ItemWidth { get; set; }
+        [JsonProperty("item_width")] public string ItemWidth { get; set; }
 
-        [JsonProperty("item_height")]
-        public string ItemHeight { get; set; }
+        [JsonProperty("item_height")] public string ItemHeight { get; set; }
 
-        [JsonProperty("item_dimensions_unit")]
-        public string ItemDimensionsUnit { get; set; }
+        [JsonProperty("item_dimensions_unit")] public string ItemDimensionsUnit { get; set; }
 
         [JsonProperty("is_private", NullValueHandling = NullValueHandling.Ignore)]
         public bool? IsPrivate { get; set; }
 
         [JsonProperty("style", NullValueHandling = NullValueHandling.Ignore)]
-        public List<string> Style { get; set; }
+        public string Style { get; set; }
 
         [JsonProperty("file_data", NullValueHandling = NullValueHandling.Ignore)]
         public string FileData { get; set; }
@@ -160,61 +154,54 @@
         public string Language { get; set; }
 
         [JsonProperty("price", NullValueHandling = NullValueHandling.Ignore)]
-        public Price Price { get; set; }
+        public EtsyPrice Price { get; set; }
 
         [JsonProperty("taxonomy_id", NullValueHandling = NullValueHandling.Ignore)]
         public long? TaxonomyId { get; set; }
 
         [JsonProperty("production_partners", NullValueHandling = NullValueHandling.Ignore)]
-        public List<string> ProductionPartners { get; set; }
+        public string ProductionPartners { get; set; }
 
         [JsonProperty("skus", NullValueHandling = NullValueHandling.Ignore)]
-        public List<string> Skus { get; set; }
+        public string Skus { get; set; }
 
         [JsonProperty("views", NullValueHandling = NullValueHandling.Ignore)]
         public long? Views { get; set; }
 
-        [JsonProperty("shipping_profile")]
-        public string ShippingProfile { get; set; }
+        [JsonProperty("shipping_profile")] public string ShippingProfile { get; set; }
 
-        [JsonProperty("shop")]
-        public string Shop { get; set; }
+        [JsonProperty("shop")] public string Shop { get; set; }
 
-        [JsonProperty("images")]
-        public string Images { get; set; }
+        [JsonProperty("images")] public string Images { get; set; }
 
-        [JsonProperty("videos")]
-        public string Videos { get; set; }
+        [JsonProperty("videos")] public string Videos { get; set; }
 
-        [JsonProperty("user")]
-        public string User { get; set; }
+        [JsonProperty("user")] public string User { get; set; }
 
-        [JsonProperty("translations")]
-        public string Translations { get; set; }
+        [JsonProperty("translations")] public string Translations { get; set; }
 
         [JsonProperty("inventory", NullValueHandling = NullValueHandling.Ignore)]
-        public Inventory Inventory { get; set; }
+        public EtsyInventory Inventory { get; set; }
     }
 
-    public partial class Inventory
+    public partial class EtsyInventory:BaseEntity
     {
         [JsonProperty("products", NullValueHandling = NullValueHandling.Ignore)]
-        public List<Product> Products { get; set; }
+        public virtual List<EtsyProduct> Products { get; set; }
 
         [JsonProperty("price_on_property", NullValueHandling = NullValueHandling.Ignore)]
-        public List<string> PriceOnProperty { get; set; }
+        public string PriceOnProperty { get; set; }
 
         [JsonProperty("quantity_on_property", NullValueHandling = NullValueHandling.Ignore)]
-        public List<string> QuantityOnProperty { get; set; }
+        public string QuantityOnProperty { get; set; }
 
         [JsonProperty("sku_on_property", NullValueHandling = NullValueHandling.Ignore)]
-        public List<string> SkuOnProperty { get; set; }
+        public string SkuOnProperty { get; set; }
 
-        [JsonProperty("listing")]
-        public string Listing { get; set; }
+        [JsonProperty("listing")] public string Listing { get; set; }
     }
 
-    public partial class Product
+    public partial class EtsyProduct : BaseEntity
     {
         [JsonProperty("product_id", NullValueHandling = NullValueHandling.Ignore)]
         public long? ProductId { get; set; }
@@ -226,13 +213,13 @@
         public bool? IsDeleted { get; set; }
 
         [JsonProperty("offerings", NullValueHandling = NullValueHandling.Ignore)]
-        public List<Offering> Offerings { get; set; }
+        public virtual List<EtsyOffering> Offerings { get; set; }
 
         [JsonProperty("property_values", NullValueHandling = NullValueHandling.Ignore)]
-        public List<PropertyValue> PropertyValues { get; set; }
+        public virtual List<EtsyPropertyValue> PropertyValues { get; set; }
     }
 
-    public partial class Offering
+    public partial class EtsyOffering : BaseEntity
     {
         [JsonProperty("offering_id", NullValueHandling = NullValueHandling.Ignore)]
         public long? OfferingId { get; set; }
@@ -247,10 +234,10 @@
         public bool? IsDeleted { get; set; }
 
         [JsonProperty("price", NullValueHandling = NullValueHandling.Ignore)]
-        public Price Price { get; set; }
+        public virtual EtsyPrice Price { get; set; }
     }
 
-    public partial class Price
+    public partial class EtsyPrice:BaseEntity
     {
         [JsonProperty("amount", NullValueHandling = NullValueHandling.Ignore)]
         public long? Amount { get; set; }
@@ -262,7 +249,7 @@
         public string CurrencyCode { get; set; }
     }
 
-    public partial class PropertyValue
+    public partial class EtsyPropertyValue:BaseEntity
     {
         [JsonProperty("property_id", NullValueHandling = NullValueHandling.Ignore)]
         public long? PropertyId { get; set; }
@@ -270,16 +257,14 @@
         [JsonProperty("property_name", NullValueHandling = NullValueHandling.Ignore)]
         public string PropertyName { get; set; }
 
-        [JsonProperty("scale_id")]
-        public long? ScaleId { get; set; }
+        [JsonProperty("scale_id")] public long? ScaleId { get; set; }
 
-        [JsonProperty("scale_name")]
-        public string ScaleName { get; set; }
+        [JsonProperty("scale_name")] public string ScaleName { get; set; }
 
         [JsonProperty("value_ids", NullValueHandling = NullValueHandling.Ignore)]
         public List<long> ValueIds { get; set; }
 
         [JsonProperty("values", NullValueHandling = NullValueHandling.Ignore)]
-        public List<string> Values { get; set; }
+        public string Values { get; set; }
     }
 }

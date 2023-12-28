@@ -23,6 +23,7 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Infrastructure
 
             //register services and interfaces
             services.AddScoped<IProductReviewsEtsyReviewService, ProductReviewsEtsyReviewService>();
+            services.AddScoped<IEtsyListingsService, EtsyListingsService>();
             services.AddScoped<ICustomProductReviewMappingService, CustomProductReviewMappingService>();
             services.AddScoped<IProductReviewsTransactionsMappingService, ProductReviewsTransactionsMappingService>();
             services.AddScoped<IEtsyApiService, EtsyApiService>();
@@ -37,19 +38,34 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Infrastructure
             var logger = serviceProvider.GetService<ILogger<JobGetReviews>>();
            
             services.AddSingleton(typeof(ILogger), logger);
-          
 
+            var logger1 = serviceProvider.GetService<ILogger<JobGetListings>>();
+            services.AddSingleton(typeof(ILogger), logger1);
 
             services.AddQuartz(q =>
             {
                 q.UseMicrosoftDependencyInjectionJobFactory();
-               
-                    q.ScheduleJob<JobGetReviews>(TJobGetReviews => TJobGetReviews
-                        .WithIdentity("TJobGetReviews")
-                        .StartNow()
-                        .WithDailyTimeIntervalSchedule(x => x.WithInterval(2, IntervalUnit.Minute))
-                        .WithDescription("TJobGetReviews")
-                    );
+
+                q.ScheduleJob<JobGetReviews>(TJobGetReviews => TJobGetReviews
+                    .WithIdentity("TJobGetReviews")
+                    .StartNow()
+                    .WithDailyTimeIntervalSchedule(x => x.WithInterval(2, IntervalUnit.Minute))
+                    .WithDescription("TJobGetReviews")
+                );
+
+
+            });
+
+            services.AddQuartz(q =>
+            {
+                q.UseMicrosoftDependencyInjectionJobFactory();
+
+                q.ScheduleJob<JobGetListings>(TJobGetListings => TJobGetListings
+                    .WithIdentity("TJobGetListings")
+                    .StartNow()
+                    .WithDailyTimeIntervalSchedule(x => x.WithInterval(5, IntervalUnit.Minute))
+                    .WithDescription("TJobGetListings")
+                );
 
 
             });

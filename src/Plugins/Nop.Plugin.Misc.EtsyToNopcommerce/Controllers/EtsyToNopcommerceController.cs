@@ -76,6 +76,7 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
         private readonly IGenericAttributeService _genericAttributeService;
         private readonly CustomerSettings _customerSettings;
         private readonly IProductReviewsEtsyReviewService _etsyReviewService;
+        private readonly IEtsyListingsService _etsyListingsService;
         private readonly IProductReviewsTransactionsMappingService _productReviewsTransactionsMappingService;
         #endregion
 
@@ -90,7 +91,8 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
             IRepository<StateProvince> stateProvinceRepository, IRepository<Address> addressRepository, IPictureService pictureService,
             ICustomProductReviewMappingService customProductReviewMappingService, CatalogSettings catalogSettings, IBackgroundQueue queue,
             IUrlRecordService urlRecordService, ICustomerRegistrationService customerRegistrationService, ICustomerModelFactory customerModelFactory,
-            IGenericAttributeService genericAttributeService, CustomerSettings customerSettings, IProductReviewsEtsyReviewService etsyReviewService, IProductReviewsTransactionsMappingService productReviewsTransactionsMappingService)
+            IGenericAttributeService genericAttributeService, CustomerSettings customerSettings, IProductReviewsEtsyReviewService etsyReviewService, IProductReviewsTransactionsMappingService productReviewsTransactionsMappingService,
+            IEtsyListingsService etsyListingsService)
         {
             _localizationService = localizationService;
             _notificationService = notificationService;
@@ -114,6 +116,8 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
             _customerSettings= customerSettings;
             _etsyReviewService=etsyReviewService;
             _productReviewsTransactionsMappingService=productReviewsTransactionsMappingService;
+            _etsyListingsService=etsyListingsService;
+
         }
 
         #endregion
@@ -555,32 +559,6 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
             return null;
         }
 
-        private async Task<HashSet<Models.Listings.Result>?> GetEtsyListings(string requestListingsUrl, List<KeyValuePair<string, string>> getListingsParameters)
-        {
-            IRestResponse getEtsyListingsResponse;
-
-            GetListingsById getEtsyListingsResult;
-            getEtsyListingsResponse =
-                await EtsyRequests(requestListingsUrl, getListingsParameters);
-
-            if (getEtsyListingsResponse.StatusCode == HttpStatusCode.OK)
-            {
-                try
-                {
-                    getEtsyListingsResult =
-                        Newtonsoft.Json.JsonConvert
-                            .DeserializeObject<GetListingsById>(
-                                getEtsyListingsResponse.Content.Replace("&amp;", "&"));
-                    return getEtsyListingsResult.Results.ToHashSet();
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex);
-                }
-            }
-
-            return null;
-        }
 
       
         private async Task<Transaction> GetTransactions(string requestTransactionsUrl, List<KeyValuePair<string, string>> getListingsParameters)
@@ -856,7 +834,10 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
                     foreach (var etsyReview in EtsyReviewList)
                     {
                         //ilk olarak ilgili yorum hangi ürüne ait skusunu bulup siteden ilgili ürünü bulmak lazım
+                        try
+                        {
 
+                       
                         var ilgliTransaction=etsyTransactionsList.Single(x => x.TransactionId == etsyReview.TransactionId);
                         var ilgiliSku = ilgliTransaction.Sku;
                         var ilgiliReceipt = etsyReceiptsList.Single(x => x.ReceiptId == ilgliTransaction.ReceiptId);
@@ -1076,7 +1057,17 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
                             }
                           
                         }
-                      
+                        else
+                        {
+                                Console.WriteLine("Error Message: Sku Number:" +ilgiliSku+" product is not found in website");
+                        }
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine("Error Message:"+e+"/"+e.Message);
+                           
+                        }
+
                     }
                     Console.WriteLine("Toplam "+reviewsAdded+" adet yorum eklendi");
                     Console.WriteLine("Toplam " + reviewsWithPhotoAdded + " adet fotograflı yorum eklendi");
@@ -1096,8 +1087,6 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
 
             return reviewsAdded.ToString() + "," + reviewsWithPhotoAdded.ToString();
         }
-
-
 
 
         #endregion

@@ -16,7 +16,7 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Services
 
         Task<HashSet<Receipt>> GetAllEtsyReceipts();
 
-
+        Task<string> ListingleriAlVeIsle();
 
 
 

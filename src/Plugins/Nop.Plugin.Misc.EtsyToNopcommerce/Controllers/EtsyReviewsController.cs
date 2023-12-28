@@ -238,9 +238,14 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
                      //ilk olarak ilgili yorum hangi ürüne ait skusunu bulup siteden ilgili ürünü bulmak lazım
 
                      var ilgiliReceipt = receipts.Single(x => x.Transactions.Any(y=>y.TransactionId== review.TransactionId));
+                     Random rnd = new Random();
 
-                     if (ilgiliReceipt != null)
+                            if (ilgiliReceipt != null)
                      {
+                         if (ilgiliReceipt.BuyerEmail.IsNullOrEmpty())
+                         {
+                             ilgiliReceipt.BuyerEmail = "test_" + rnd.Next(1000, 9999)+"@site.com";
+                         }
                          string ilgiliSku =
                              (from m in ilgiliReceipt.Transactions
                               where m.TransactionId == review.TransactionId
@@ -258,7 +263,7 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
                                  var buMusteriDahaOnceKayitOlduMu = (await _customerService.GetAllCustomersAsync(email: ilgiliReceipt.BuyerEmail)).ToList()
                                      .Any(x => x.Email.Contains(ilgiliReceipt.BuyerEmail));
                                  
-                                 Random rnd = new Random();
+                               
                                  //eğer müşteri maili daha önce kayıt edilmediyse yeni müşteri kadı oluşturulacak
                                  if (!buMusteriDahaOnceKayitOlduMu)
                                  {
@@ -488,19 +493,7 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
 
 
 
-        [HttpPost]
-        public async Task<IActionResult> GetParaphrased(IList<EtsyReview> fromDelist)
-        {
-            var client = new HttpClient();
-            var request = new HttpRequestMessage(HttpMethod.Post, "https://api.sapling.ai/api/v1/paraphrase");
-            var content = new StringContent("{\n    \"key\": \"NDOKHU426M1ADTKW855L3GW1AZYW08IF\",\n    \"text\": \"These are very show worthy and beautiful, I’m afraid one has broke on me already but I have an idea on making it into a pen/pencil :)Well made and painted but the plastic nocks I find are a bit too tight on my string and makes it fly a bit wonky.\"\n  \n}", null, "application/json");
-            request.Content = content;
-            var response = await client.SendAsync(request);
-            response.EnsureSuccessStatusCode();
-          var result= await response.Content.ReadAsStringAsync();
-
-          return RedirectToRoute("Plugin.Misc.EtsyToNopcommerce.Configure");
-        }
+        
     }
         #endregion
     }
