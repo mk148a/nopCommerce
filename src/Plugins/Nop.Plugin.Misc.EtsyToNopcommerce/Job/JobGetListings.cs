@@ -25,11 +25,11 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Job
 
             if (result.Any())
             {
-                _loglist.LogDebug("JobGetReviewsResult: " + "/" + result + " at {DT}",
+                _loglist.LogDebug("JobGetEtsyListingsResult: " + "/" + result + " at {DT}",
                     DateTime.UtcNow.ToLongTimeString());
 
                 Console.WriteLine(
-                    "JobGetReviewsResult: " + "/" + result + " at " + DateTime.UtcNow.ToLongTimeString());
+                    "JobGetEtsyListingsResult: " + "/" + result + " at " + DateTime.UtcNow.ToLongTimeString());
             }
 
             await Task.CompletedTask;

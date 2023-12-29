@@ -81,7 +81,7 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Infrastructure
 
         public void Configure(IApplicationBuilder application)
         {
-
+            
         }
 
         public int Order => 11;

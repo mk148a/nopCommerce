@@ -1,12 +1,75 @@
-﻿using DocumentFormat.OpenXml.Math;
+﻿using System.Runtime.Serialization;
+using DocumentFormat.OpenXml.Math;
 using Nop.Core;
 
 namespace Nop.Plugin.Misc.EtsyToNopcommerce.Models.Listings
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
+    using System.IO;
+    using System.Runtime.InteropServices;
+    using System.Runtime.Serialization.Formatters.Binary;
     using Newtonsoft.Json;
+    using Newtonsoft.Json.Linq;
 
+    public class StringArrayConverter : JsonConverter
+    {
+        private string _delimiter = " ; ";
+        public override bool CanConvert(Type objectType)
+        {
+            return objectType == typeof(string[]);
+        }
+
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        {
+            JToken token = JToken.Load(reader);
+
+            if (token.Type == JTokenType.Array)
+            {
+                string[] arrayString = token.ToObject<string[]>();
+
+                return string.Join(_delimiter, arrayString);
+            }
+
+            return null;
+        }
+
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        {
+            if (value is string[] stringArray)
+            {
+                string convertedString = string.Join(", ", stringArray);
+                writer.WriteValue(convertedString);
+            }
+        }
+    }
+
+    public static class SerializerDeserializerExtensions
+    {
+        public static byte[] Serializer(this object _object)
+        {
+            byte[] bytes;
+            using (var _MemoryStream = new MemoryStream())
+            {
+                IFormatter _BinaryFormatter = new BinaryFormatter();
+                _BinaryFormatter.Serialize(_MemoryStream, _object);
+                bytes = _MemoryStream.ToArray();
+            }
+            return bytes;
+        }
+
+        public static T Deserializer<T>(this byte[] _byteArray)
+        {
+            T ReturnValue;
+            using (var _MemoryStream = new MemoryStream(_byteArray))
+            {
+                IFormatter _BinaryFormatter = new BinaryFormatter();
+                ReturnValue = (T)_BinaryFormatter.Deserialize(_MemoryStream);
+            }
+            return ReturnValue;
+        }
+    }
     public class GetListingsById
     {
         [JsonProperty("count", NullValueHandling = NullValueHandling.Ignore)]
@@ -96,9 +159,12 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Models.Listings
         [JsonProperty("listing_type", NullValueHandling = NullValueHandling.Ignore)]
         public string ListingType { get; set; }
 
+       
+        [JsonConverter(typeof(StringArrayConverter))]
         [JsonProperty("tags")]
         public string Tags { get; set; }
 
+        [JsonConverter(typeof(StringArrayConverter))]
         [JsonProperty("materials", NullValueHandling = NullValueHandling.Ignore)]
         public string Materials { get; set; }
 
@@ -139,6 +205,7 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Models.Listings
         public bool? IsPrivate { get; set; }
 
         [JsonProperty("style", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonConverter(typeof(StringArrayConverter))]
         public string Style { get; set; }
 
         [JsonProperty("file_data", NullValueHandling = NullValueHandling.Ignore)]
@@ -156,12 +223,15 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Models.Listings
         [JsonProperty("price", NullValueHandling = NullValueHandling.Ignore)]
         public EtsyPrice Price { get; set; }
 
+
         [JsonProperty("taxonomy_id", NullValueHandling = NullValueHandling.Ignore)]
         public long? TaxonomyId { get; set; }
 
+        [JsonConverter(typeof(StringArrayConverter))]
         [JsonProperty("production_partners", NullValueHandling = NullValueHandling.Ignore)]
         public string ProductionPartners { get; set; }
 
+        [JsonConverter(typeof(StringArrayConverter))]
         [JsonProperty("skus", NullValueHandling = NullValueHandling.Ignore)]
         public string Skus { get; set; }
 
@@ -182,12 +252,13 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Models.Listings
 
         [JsonProperty("inventory", NullValueHandling = NullValueHandling.Ignore)]
         public EtsyInventory Inventory { get; set; }
+       
     }
 
     public partial class EtsyInventory:BaseEntity
     {
         [JsonProperty("products", NullValueHandling = NullValueHandling.Ignore)]
-        public virtual List<EtsyProduct> Products { get; set; }
+        public List<EtsyProduct> Products { get; set; }
 
         [JsonProperty("price_on_property", NullValueHandling = NullValueHandling.Ignore)]
         public string PriceOnProperty { get; set; }
@@ -203,6 +274,7 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Models.Listings
 
     public partial class EtsyProduct : BaseEntity
     {
+      
         [JsonProperty("product_id", NullValueHandling = NullValueHandling.Ignore)]
         public long? ProductId { get; set; }
 
@@ -213,10 +285,10 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Models.Listings
         public bool? IsDeleted { get; set; }
 
         [JsonProperty("offerings", NullValueHandling = NullValueHandling.Ignore)]
-        public virtual List<EtsyOffering> Offerings { get; set; }
+        public  List<EtsyOffering> Offerings { get; set; }
 
         [JsonProperty("property_values", NullValueHandling = NullValueHandling.Ignore)]
-        public virtual List<EtsyPropertyValue> PropertyValues { get; set; }
+        public List<EtsyPropertyValue> PropertyValues { get; set; }
     }
 
     public partial class EtsyOffering : BaseEntity
@@ -234,7 +306,8 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Models.Listings
         public bool? IsDeleted { get; set; }
 
         [JsonProperty("price", NullValueHandling = NullValueHandling.Ignore)]
-        public virtual EtsyPrice Price { get; set; }
+        public EtsyPrice Price { get; set; }
+       
     }
 
     public partial class EtsyPrice:BaseEntity
@@ -266,5 +339,6 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Models.Listings
 
         [JsonProperty("values", NullValueHandling = NullValueHandling.Ignore)]
         public string Values { get; set; }
+       
     }
 }

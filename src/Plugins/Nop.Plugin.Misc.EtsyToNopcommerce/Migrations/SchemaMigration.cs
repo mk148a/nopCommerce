@@ -8,7 +8,6 @@ using Nop.Data.Mapping;
 using Nop.Data.Migrations;
 using Nop.Plugin.Misc.EtsyToNopcommerce.Domains;
 using Nop.Plugin.Misc.EtsyToNopcommerce.Models.Listings;
-using Nop.Plugin.Widgets.CustomProductReviews.Mapping.Builders;
 
 namespace Nop.Plugin.Misc.EtsyToNopcommerce.Migrations
 {
@@ -48,12 +47,9 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Migrations
                 }
                 try
                 {
-                    Create.TableFor<EtsyPropertyValue>();
-                    Create.TableFor<EtsyPrice>();
-                    Create.TableFor<EtsyOffering>();
-                    Create.TableFor<EtsyProduct>();
-                    Create.TableFor<EtsyInventory>();
+                  
                     Create.TableFor<EtsyListing>();
+              
                 }
                 catch (Exception e)
                 {
