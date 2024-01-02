@@ -191,8 +191,8 @@ namespace Nop.Plugin.Payments.Stripe
             var shoppingCartTotal = await _orderTotalCalculationService.GetShoppingCartTotalAsync(cart, true);
             var shoppingCartUnitPriceWithoutDiscount = await _currencyService.ConvertFromPrimaryStoreCurrencyAsync(shoppingCartSubTotal.subTotalWithDiscount, currency);
             var shoppingCartUnitPriceWithDiscount = await _currencyService.ConvertFromPrimaryStoreCurrencyAsync(shoppingCartTotal.shoppingCartTotal.Value, currency);
-            string finalValue = shoppingCartUnitPriceWithDiscount.ToString();
-            var finalValueLong= Convert.ToInt64(Convert.ToDecimal(finalValue));
+            //string finalValue = shoppingCartUnitPriceWithDiscount.ToString();
+            //var finalValueLong= Convert.ToInt64(Convert.ToDecimal(finalValue));
 
             var service = new ChargeService();
 
@@ -216,7 +216,7 @@ namespace Nop.Plugin.Payments.Stripe
 
             var chargeOptions = new ChargeCreateOptions
             {
-                Amount = finalValueLong*100,
+                Amount = (long)(shoppingCartUnitPriceWithDiscount * 100),
                 Currency = currency.CurrencyCode.ToLower(),
                 Description = string.Format(StripePaymentDefaults.PaymentNote, processPaymentRequest.OrderGuid),
                 ReceiptEmail=customer.billingAddress.Email,
