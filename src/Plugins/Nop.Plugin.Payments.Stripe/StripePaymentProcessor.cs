@@ -31,6 +31,9 @@ using Nop.Plugin.Payments.Stripe.Validators;
 using Stripe;
 using Nop.Core.Domain.Common;
 using Nop.Plugin.Payments.Stripe.Services;
+using LinqToDB.SqlQuery;
+using Order = Nop.Core.Domain.Orders.Order;
+using Nop.Core.Domain.Customers;
 
 namespace Nop.Plugin.Payments.Stripe
 {
@@ -157,12 +160,12 @@ namespace Nop.Plugin.Payments.Stripe
         {
             var customer = await _paymentStripeService.GetBuyer(processPaymentRequest.CustomerId);
 
-            string tokenKey =await _localizationService.GetResourceAsync("Plugins.Payments.Stripe.Fields.StripeToken.Key");
-            if (!processPaymentRequest.CustomValues.TryGetValue(tokenKey, out object stripeTokenObj) || !(stripeTokenObj is string) || !IsStripeTokenID((string)stripeTokenObj))
-            {
-                throw new NopException("Card token not received");
-            }
-            string stripeToken = stripeTokenObj.ToString();
+            //string tokenKey =await _localizationService.GetResourceAsync("Plugins.Payments.Stripe.Fields.StripeToken.Key");
+            //if (!processPaymentRequest.CustomValues.TryGetValue(tokenKey, out object stripeTokenObj) || !(stripeTokenObj is string) || !IsStripeTokenID((string)stripeTokenObj))
+            //{
+            //    throw new NopException("Card token not received");
+            //}
+            //string stripeToken = stripeTokenObj.ToString();
             if (customer == null || customer.Id.IsNullOrEmpty())
                 throw new Exception("No Valid Customer Found!");
 
@@ -189,17 +192,35 @@ namespace Nop.Plugin.Payments.Stripe
             var shoppingCartUnitPriceWithoutDiscount = await _currencyService.ConvertFromPrimaryStoreCurrencyAsync(shoppingCartSubTotal.subTotalWithDiscount, currency);
             var shoppingCartUnitPriceWithDiscount = await _currencyService.ConvertFromPrimaryStoreCurrencyAsync(shoppingCartTotal.shoppingCartTotal.Value, currency);
             string finalValue = shoppingCartUnitPriceWithDiscount.ToString();
-            var finalValueLong=long.Parse(finalValue);
+            var finalValueLong= Convert.ToInt64(Convert.ToDecimal(finalValue));
 
             var service = new ChargeService();
-          
+
+            var myCustomer = new CardCreateNestedOptions();
+
+            myCustomer.Name = processPaymentRequest.CreditCardName;
+            myCustomer.AddressCity = customer.billingAddress.City;
+            myCustomer.AddressCountry=customer.billingAddress.Country;
+            myCustomer.AddressLine1 = customer.billingAddress.Address1;
+            myCustomer.AddressLine2=customer.billingAddress.Address2;
+            myCustomer.AddressState=customer.billingAddress.State;
+            myCustomer.AddressZip = customer.billingAddress.ZipCode;
+            myCustomer.Cvc = processPaymentRequest.CreditCardCvv2;
+            myCustomer.ExpMonth = processPaymentRequest.CreditCardExpireMonth;
+            myCustomer.ExpYear=processPaymentRequest.CreditCardExpireYear;
+            myCustomer.Number=processPaymentRequest.CreditCardNumber;
+           
+
+
+
 
             var chargeOptions = new ChargeCreateOptions
             {
-                Amount = finalValueLong,
+                Amount = finalValueLong*100,
                 Currency = currency.CurrencyCode.ToLower(),
                 Description = string.Format(StripePaymentDefaults.PaymentNote, processPaymentRequest.OrderGuid),
-                ReceiptEmail=customer.billingAddress.Email
+                ReceiptEmail=customer.billingAddress.Email,
+                Source = myCustomer
             };
 
             if (customer.shippinAddress.Id != null)

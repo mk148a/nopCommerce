@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Nop.Core.Infrastructure;
+using Nop.Plugin.Payments.Stripe.Services;
 
 namespace Nop.Plugin.Payments.Stripe.Infrastructure
 {
@@ -16,7 +17,7 @@ namespace Nop.Plugin.Payments.Stripe.Infrastructure
             });
 
             //register services and interfaces
-            //services.AddScoped<CustomModelFactory, ICustomerModelFactory>();
+            services.AddScoped<IPaymentStripeService, PaymentStripeService>();
         }
 
         public void Configure(IApplicationBuilder application)
