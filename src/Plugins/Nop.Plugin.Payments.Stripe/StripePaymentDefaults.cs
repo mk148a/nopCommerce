@@ -35,6 +35,6 @@ namespace Nop.Plugin.Payments.Stripe
         /// <remarks>
         /// {0} : Order Guid
         /// </remarks>
-        public static string PaymentNote => "nopCommerce: {0}";
+        public static string PaymentNote => "nopCommerce Order Id: {0}";
     }
 }

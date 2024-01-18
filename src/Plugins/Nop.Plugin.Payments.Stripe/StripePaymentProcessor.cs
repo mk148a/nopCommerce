@@ -208,17 +208,55 @@ namespace Nop.Plugin.Payments.Stripe
             myCustomer.Cvc = processPaymentRequest.CreditCardCvv2;
             myCustomer.ExpMonth = processPaymentRequest.CreditCardExpireMonth;
             myCustomer.ExpYear=processPaymentRequest.CreditCardExpireYear;
-            myCustomer.Number=processPaymentRequest.CreditCardNumber;
+            myCustomer.Number = processPaymentRequest.CreditCardNumber;
+
+            //order details section
+            string orderId = "";
+
+            var order = await _orderService.GetOrderByGuidAsync(processPaymentRequest.OrderGuid);
+            if (order!=null)
+            {
+                orderId = order.Id.ToString();
+            }
+            else
+            {
+                orderId = processPaymentRequest.OrderGuid.ToString();
+            }
+
+            myCustomer.Metadata = new Dictionary<string, string>
+            {
+                { "Order Id:", orderId }
+            };
+
+            for (int i = 0; i < cart.Count; i++)
+            {
+                var cartItem = cart[i];
+                var product = await _productService.GetProductByIdAsync(cartItem.ProductId);
+                var price = (await _shoppingCartService.GetUnitPriceAsync(cartItem, true)).unitPrice;
+                var productName = product.Name;
+                string productType = "Virtual- Shipping Not Required ";
+                if (product.IsShipEnabled)
+                {
+                    productType = "PHYSICAL - Shipping Required";
+                }
+
+
+                if (!product.Sku.IsNullOrEmpty())
+                    productName = productName + "(" + product.Sku + ")";
+               
+                myCustomer.Metadata.Add("Item"+(i+1), "Unit Count:" +cartItem.Quantity+ ";"+ "Product Name:"+ productName+";"+"Price:"+price+";"+"Product Type:"+productType);
+            }
+
+
            
 
-
-
+            
 
             var chargeOptions = new ChargeCreateOptions
             {
                 Amount = (long)(shoppingCartUnitPriceWithDiscount * 100),
                 Currency = currency.CurrencyCode.ToLower(),
-                Description = string.Format(StripePaymentDefaults.PaymentNote, processPaymentRequest.OrderGuid),
+                Description = string.Format(StripePaymentDefaults.PaymentNote, orderId),
                 ReceiptEmail=customer.billingAddress.Email,
                 Source = myCustomer
             };
@@ -251,6 +289,7 @@ namespace Nop.Plugin.Payments.Stripe
                 result.NewPaymentStatus = PaymentStatus.Paid;
                 result.AuthorizationTransactionId = charge.Id;
                 result.AuthorizationTransactionResult = $"Transaction was processed by using {charge?.Source.Object}. Status is {charge.Status}";
+              
                 return await Task.FromResult(result);
             }
             else
@@ -262,58 +301,7 @@ namespace Nop.Plugin.Payments.Stripe
          
         }
 
-        ///// <summary>
-        ///// Get transaction line items
-        ///// </summary>
-        ///// <param name="customer">Customer</param>
-        ///// <param name="storeId">Store identifier</param>
-        ///// <returns>List of transaction items</returns>
-        //private async Task<List<BasketItem>> GetBasketItems(Core.Domain.Customers.Customer customer, int storeId)
-        //{
-        //    var items = new List<BasketItem>();
-
-        //    //get current shopping cart            
-        //    var shoppingCart = await _shoppingCartService.GetShoppingCartAsync(customer, ShoppingCartType.ShoppingCart, storeId);
-
-        //    //define function to create item
-        //    BasketItem createItem(decimal price, string productId, string productName, string categoryName, BasketItemType itemType = BasketItemType.PHYSICAL)
-        //    {
-
-        //        return new BasketItem
-        //        {
-        //            Id = productId,
-        //            Name = productName,
-        //            Category1 = categoryName,
-        //            ItemType = itemType.ToString(),
-        //            Price = IyzicoHelper.ToDecimalStringInvariant(price)
-        //        };
-        //    }
-
-        //    items.AddRange(shoppingCart.Select(sci =>
-        //    {
-        //        var product = _productService.GetProductByIdAsync(sci.ProductId).Result;
-        //        var price = IyzicoHelper.ToDecimalInvariant(_shoppingCartService.GetUnitPriceAsync(sci, true).Result.unitPrice);
-        //        var shoppingCartUnitPriceWithDiscountBase = _taxService.GetProductPriceAsync(product, price, true, customer);
-        //        var shoppingCartUnitPriceWithDiscount = _currencyService.ConvertFromPrimaryStoreCurrencyAsync(shoppingCartUnitPriceWithDiscountBase.Result.price, _workContext.GetWorkingCurrencyAsync().Result);
-        //        var productName = product.Name;
-
-        //        if (!product.Sku.IsNullOrEmpty())
-        //            productName = productName + "(" + product.Sku + ")";
-
-        //        return createItem(shoppingCartUnitPriceWithDiscount.Result * sci.Quantity,
-        //            product.Id.ToString(),
-        //            productName,
-        //            _categoryService.GetProductCategoriesByProductIdAsync(sci.ProductId).Result.Aggregate(",", (all, pc) =>
-        //            {
-        //                var res = _categoryService.GetCategoryByIdAsync(pc.CategoryId).Result.Name;
-        //                res = all == "," ? res : all + ", " + res;
-        //                return res;
-        //            }),
-        //            product.IsShipEnabled ? BasketItemType.PHYSICAL : BasketItemType.VIRTUAL);
-        //    }));
-
-        //    return items;
-        //}
+   
 
         /// <summary>
         /// Post process payment (used by payment gateways that require redirecting to a third-party URL)
@@ -367,126 +355,120 @@ namespace Nop.Plugin.Payments.Stripe
         public async Task<RefundPaymentResult> RefundAsync(RefundPaymentRequest refundPaymentRequest)
         {
             var result = new RefundPaymentResult();
-            //if (!refundPaymentRequest.IsPartialRefund)
-            //{
-            //    var request = new CreateRefundRequest();
-            //    request.ConversationId = refundPaymentRequest.Order.Id.ToString();
-            //    request.Locale = Locale.EN.ToString();
-            //    request.PaymentTransactionId = refundPaymentRequest.Order.AuthorizationTransactionId;
-            //    request.Price = IyzicoHelper.ToDecimalStringInvariant(refundPaymentRequest.AmountToRefund);
-            //    request.Ip = refundPaymentRequest.Order.CustomerIp;
-            //    request.Currency = refundPaymentRequest.Order.CustomerCurrencyCode;
 
-            //    RetrievePaymentRequest request1 = new()
-            //    {
-            //        PaymentConversationId = refundPaymentRequest.Order.CaptureTransactionId
-            //    };
-            //    try
-            //    {
+            var currency = await _currencyService.GetCurrencyByCodeAsync(refundPaymentRequest.Order.CustomerCurrencyCode);
+       
+            var convertedCurrency = await _currencyService.ConvertFromPrimaryStoreCurrencyAsync(refundPaymentRequest.AmountToRefund, currency);
+            if (!refundPaymentRequest.IsPartialRefund)
+            {
+                var service = new RefundService();
 
-            //        var paymentRes = Payment.Retrieve(request1, IyzicoHelper.GetOptions(_iyzicoPaymentSettings));
-            //        if (paymentRes.Status == "success")
-            //        {
-            //            if (!paymentRes.PaymentItems.IsNullOrEmpty())
-            //            {
-            //                request.PaymentTransactionId = paymentRes.PaymentItems.First().PaymentTransactionId;
-            //            }
-            //        }
-            //    }
-            //    catch
-            //    {
-            //    }
-            //    var refund = Refund.Create(request, IyzicoHelper.GetOptions(_iyzicoPaymentSettings));
-            //    if (refund.Status == "success")
-            //    {
-            //        result.NewPaymentStatus = PaymentStatus.Refunded;
-            //        try
-            //        {
-            //            string refundIdTxt = await _localizationService.GetResourceAsync("Plugins.Payments.Iyzico.Fields.refundIdTxt");
-            //            string transactionIdTxt = await _localizationService.GetResourceAsync("Plugins.Payments.Iyzico.Fields.transactionIdTxt");
-            //            string refundAmountTxt = await _localizationService.GetResourceAsync("Plugins.Payments.Iyzico.Fields.refundAmountTxt");
+                var refundOpt= new RefundCreateOptions();
+               
+                refundOpt.Charge = refundPaymentRequest.Order.AuthorizationTransactionId.ToString();
 
-            //            var resTxt = refundIdTxt + refund.PaymentId + Environment.NewLine +
-            //                         transactionIdTxt + refund.PaymentTransactionId + Environment.NewLine +
-            //                         refundAmountTxt + String.Format("{C2}", refund.Price);
-            //            List<string> PaymentInformation = new()
-            //            {
-            //                resTxt
+                var refund = await service.CreateAsync(refundOpt, GetStripeApiRequestOptions());
+             
+            
+                if (refund.Status == "succeeded")
+                {
+                    result.NewPaymentStatus = PaymentStatus.Refunded;
+                    try
+                    {
+                      
 
-            //            };
-            //            //order note
-            //            await _orderService.InsertOrderNoteAsync(new OrderNote
-            //            {
-            //                OrderId = refundPaymentRequest.Order.Id,
-            //                Note = string.Join(" | ", PaymentInformation),
-            //                DisplayToCustomer = false,
-            //                CreatedOnUtc = DateTime.UtcNow
+                        var resTxt = "Refund Id:" + refund.Id+ Environment.NewLine +
+                                     "Balance Transaction Id:" + refund.BalanceTransactionId + Environment.NewLine +
+                                     "Amount:" + refund.Amount/100+refund.Currency;
+                        List<string> PaymentInformation = new()
+                        {
+                            resTxt
 
-            //            });
+                        };
+                        //order note
+                        await _orderService.InsertOrderNoteAsync(new OrderNote
+                        {
+                            OrderId = refundPaymentRequest.Order.Id,
+                            Note = string.Join(" | ", PaymentInformation),
+                            DisplayToCustomer = false,
+                            CreatedOnUtc = DateTime.UtcNow
 
-            //        }
-            //        catch
-            //        {
+                        });
 
-            //        }
-            //    }
-            //    else
-            //    {
-            //        result.Errors.Add(refund.ErrorMessage);
-            //    }
-            //}
-            //else
-            //{
-            //    var request = new CreateAmountBasedRefundRequest();
-            //    request.ConversationId = refundPaymentRequest.Order.Id.ToString();
-            //    request.Locale = Locale.EN.ToString();
-            //    request.PaymentId = refundPaymentRequest.Order.AuthorizationTransactionId;
-            //    request.Price = IyzicoHelper.ToDecimalStringInvariant(refundPaymentRequest.AmountToRefund);
-            //    request.Ip = refundPaymentRequest.Order.CustomerIp;
+                        try
+                        {
+                            refundPaymentRequest.Order.OrderStatus = OrderStatus.Cancelled;
+                            await _orderService.UpdateOrderAsync(refundPaymentRequest.Order);
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine(e);
+                           
+                        }
+                      
 
+                    }
+                    catch
+                    {
 
-            //    var refund = Refund.CreateAmountBasedRefundRequest(request, IyzicoHelper.GetOptions(_iyzicoPaymentSettings));
-            //    if (refund.Status == "success")
-            //    {
-            //        result.NewPaymentStatus = PaymentStatus.PartiallyRefunded;
-            //        try
-            //        {
+                    }
+                }
+                else
+                {
+                    result.Errors.Add(refund.FailureReason);
+                }
+            }
+            else
+            {
+                var service = new RefundService();
 
-            //            string refundIdTxt = await _localizationService.GetResourceAsync("Plugins.Payments.Iyzico.Fields.refundIdTxt");
-            //            string transactionIdTxt = await _localizationService.GetResourceAsync("Plugins.Payments.Iyzico.Fields.transactionIdTxt");
-            //            string refundAmountTxt = await _localizationService.GetResourceAsync("Plugins.Payments.Iyzico.Fields.refundAmountTxt");
+                var refundOpt = new RefundCreateOptions();
+                refundOpt.Amount = (long)(convertedCurrency * 100);
+                refundOpt.Charge = refundPaymentRequest.Order.AuthorizationTransactionId.ToString();
 
 
 
-            //            List<string> PaymentInformation = new List<string>();
-            //            PaymentInformation.Add(refundIdTxt + refund.PaymentId);
-            //            PaymentInformation.Add(transactionIdTxt + refund.PaymentTransactionId);
-            //            PaymentInformation.Add(refundAmountTxt + refund.Price);
-            //            //order note
-            //            await _orderService.InsertOrderNoteAsync(new OrderNote
-            //            {
-            //                OrderId = refundPaymentRequest.Order.Id,
-            //                Note = string.Join(" | ", PaymentInformation),
-            //                DisplayToCustomer = false,
-            //                CreatedOnUtc = DateTime.UtcNow
-            //            });
+                var refund = await service.CreateAsync(refundOpt, GetStripeApiRequestOptions());
+
+                if (refund.Status == "succeeded")
+                {
+                    result.NewPaymentStatus = PaymentStatus.PartiallyRefunded;
+                    try
+                    {
+
+                     
+
+
+
+                        List<string> PaymentInformation = new List<string>();
+                        PaymentInformation.Add("Refund Id:" + refund.Id);
+                        PaymentInformation.Add("Balance Transaction Id:" + refund.BalanceTransactionId);
+                        PaymentInformation.Add("Amount:" + refund.Amount / 100 + refund.Currency);
+                        //order note
+                        await _orderService.InsertOrderNoteAsync(new OrderNote
+                        {
+                            OrderId = refundPaymentRequest.Order.Id,
+                            Note = string.Join(" | ", PaymentInformation),
+                            DisplayToCustomer = false,
+                            CreatedOnUtc = DateTime.UtcNow
+                        });
 
 
 
 
 
 
-            //        }
-            //        catch
-            //        {
+                    }
+                    catch
+                    {
 
-            //        }
-            //    }
-            //    else
-            //    {
-            //        result.Errors.Add(refund.ErrorMessage);
-            //    }
-            //}
+                    }
+                }
+                else
+                {
+                    result.Errors.Add(refund.FailureReason);
+                }
+            }
 
             return await Task.FromResult(result);
         }
@@ -502,76 +484,54 @@ namespace Nop.Plugin.Payments.Stripe
         public async Task<VoidPaymentResult> VoidAsync(VoidPaymentRequest voidPaymentRequest)
         {
             var result = new VoidPaymentResult();
+            var service = new RefundService();
 
-            //var request = new CreateRefundRequest();
-            //request.ConversationId = voidPaymentRequest.Order.Id.ToString();
-            //request.Locale = Locale.EN.ToString();
-            //request.PaymentTransactionId = voidPaymentRequest.Order.AuthorizationTransactionId;
-            //request.Price = IyzicoHelper.ToDecimalStringInvariant(voidPaymentRequest.Order.OrderTotal);
-            //request.Ip = voidPaymentRequest.Order.CustomerIp;
-            //request.Currency = voidPaymentRequest.Order.CustomerCurrencyCode;
-
-            //RetrievePaymentRequest request1 = new()
-            //{
-            //    PaymentConversationId = voidPaymentRequest.Order.CaptureTransactionId
-            //};
-            //try
-            //{
-
-            //    var paymentRes = Payment.Retrieve(request1, IyzicoHelper.GetOptions(_iyzicoPaymentSettings));
-            //    if (paymentRes.Status == "success")
-            //    {
-            //        if (!paymentRes.PaymentItems.IsNullOrEmpty())
-            //        {
-            //            request.PaymentTransactionId = paymentRes.PaymentItems.First().PaymentTransactionId;
-            //        }
-            //    }
-            //}
-            //catch
-            //{
-            //}
-
-            //var refund = Refund.Create(request, IyzicoHelper.GetOptions(_iyzicoPaymentSettings));
-            //if (refund.Status == "success")
-            //{
-            //    result.NewPaymentStatus = PaymentStatus.Refunded;
-            //    try
-            //    {
-            //        string refundIdTxt = await _localizationService.GetResourceAsync("Plugins.Payments.Iyzico.Fields.refundIdTxt");
-            //        string transactionIdTxt = await _localizationService.GetResourceAsync("Plugins.Payments.Iyzico.Fields.transactionIdTxt");
-            //        string refundAmountTxt = await _localizationService.GetResourceAsync("Plugins.Payments.Iyzico.Fields.refundAmountTxt");
-
-            //        var resTxt = refundIdTxt + refund.PaymentId + Environment.NewLine +
-            //                     transactionIdTxt + refund.PaymentTransactionId + Environment.NewLine +
-            //                     refundAmountTxt + String.Format("{C2}", refund.Price);
-            //        List<string> PaymentInformation = new()
-            //            {
-            //                resTxt
-
-            //            };
-
-            //        //order note
-            //        await _orderService.InsertOrderNoteAsync(new OrderNote
-            //        {
-            //            OrderId = voidPaymentRequest.Order.Id,
-            //            Note = string.Join(" | ", PaymentInformation),
-            //            DisplayToCustomer = false,
-            //            CreatedOnUtc = DateTime.UtcNow
-            //        });
-
-            //    }
-            //    catch
-            //    {
-
-            //    }
-            //}
-            //else
-            //{
-            //    result.Errors.Add(refund.ErrorMessage);
-            //}
+            var refundOpt = new RefundCreateOptions();
+            refundOpt.Charge = voidPaymentRequest.Order.AuthorizationTransactionId.ToString();
+     
 
 
 
+            var refund = await service.CreateAsync(refundOpt, GetStripeApiRequestOptions());
+
+            if (refund.Status == "succeeded")
+            {
+                result.NewPaymentStatus = PaymentStatus.Voided;
+                try
+                {
+
+
+
+
+
+                    List<string> PaymentInformation = new List<string>();
+                    PaymentInformation.Add("Refund Id:" + refund.Id);
+                    PaymentInformation.Add("Balance Transaction Id:" + refund.BalanceTransactionId);
+                    PaymentInformation.Add("Amount:" + refund.Amount);
+                    //order note
+                    await _orderService.InsertOrderNoteAsync(new OrderNote
+                    {
+                        OrderId = voidPaymentRequest.Order.Id,
+                        Note = string.Join(" | ", PaymentInformation),
+                        DisplayToCustomer = false,
+                        CreatedOnUtc = DateTime.UtcNow
+                    });
+
+
+
+
+
+
+                }
+                catch
+                {
+
+                }
+            }
+            else
+            {
+                result.Errors.Add(refund.FailureReason);
+            }
 
             return await Task.FromResult(result);
         }
