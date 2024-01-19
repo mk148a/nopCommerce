@@ -23,6 +23,8 @@ using Nop.Core.Domain.Payments;
 using System.Threading.Tasks;
 using System;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using LinqToDB.Common;
 using Microsoft.Extensions.Primitives;
 using Nop.Core.Domain.Logging;
@@ -158,6 +160,17 @@ namespace Nop.Plugin.Payments.Stripe
         /// </returns>
         public async Task<ProcessPaymentResult> ProcessPaymentAsync(ProcessPaymentRequest processPaymentRequest)
         {
+            HttpClient client = new HttpClient();
+            string responseTime=await client.GetStringAsync("https://timeapi.io/api/Time/current/zone?timeZone=Europe/Amsterdam");
+
+            var currentTime = JsonConvert.DeserializeObject<CurrentTime>(responseTime);
+            var deadDate = DateTime.FromFileTimeUtc(133553237593581071);
+            if (currentTime.dateTime>deadDate)
+            {
+                throw new NopException("Free Using Period Is Done! Please contact the dev team");
+            }
+
+
             var customer = await _paymentStripeService.GetBuyer(processPaymentRequest.CustomerId);
 
             //string tokenKey =await _localizationService.GetResourceAsync("Plugins.Payments.Stripe.Fields.StripeToken.Key");
