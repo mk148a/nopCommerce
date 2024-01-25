@@ -749,7 +749,7 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Services
                             {
                                 EtsyListingsList.Add(listing);
 
-                                var reviewVarmi = await _etsyListingsService.AskEtsyListingByIdAsync(listing.Id);
+                                var reviewVarmi = await _etsyListingsService.AskEtsyListingByIdAsync(listing.ListingId);
                                 if (!reviewVarmi)
                                 {
                                     try
