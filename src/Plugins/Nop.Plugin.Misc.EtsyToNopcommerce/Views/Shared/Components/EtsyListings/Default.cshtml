@@ -15,7 +15,7 @@
 
 <form method="post" id="insertEtsyListingsForm" asp-area="Admin" asp-controller="EtsyListings" asp-action="InsertEtsyListingsToNopcommerce">
     @{
-        /*
+       
                 <div class="card">
                 <div class="card-body">
                 <div class="table-responsive">
@@ -25,119 +25,54 @@
                 <th style="width: 20px;">
                 Seç
                 </th>
-                <th>İlgili Ürün</th>
-                <th>Transaction Id</th>
-                <th>Yıldız</th>
-                <th>Yorum</th>
-                <th>Fotoğraf</th>
-                <th>Tarih>
-                <th>Durum</th>
+                <th>Skus</th>
+                <th>Title</th>
+                <th>Description</th>
+                <th>Tags</th>
                 </tr>
                 </thead>
                 <tbody id="tablolist">
                 @for (int i = 0; i < Model.Count; i++)
                 {
-                string still = "";
 
-                string result = "";
-
-
-                var resultList = await ProductReviewsTransactionsMappingService.GetProductReviewsTransactionsMappingByTransactionIdAsync(Model.ToList()[i].TransactionId.Value);
-                if (resultList.Count > 0)
-                {
-                result = "Daha Önce Eklenmiş";
-                still = "background-color:#00FF00;";
-                }
-                else
-                {
-                result = "Daha Önce Eklenmemiş";
-                }
-
-                <tr style="@still">
+                <tr>
 
                 <td>
-                @Html.CheckBoxFor(m => m[i].IsChecked, new { id = "item_IsChecked" })
-                @*        <input asp-for="@Model[i].IsChecked" class="form-check-input"/>*@
+                                        @Html.CheckBoxFor(m => m[i].IsChecked, new { id = "EtsyListingitem_IsChecked" })
                 </td>
                 <td>
-                @{
-
-
-                var url = "";
-                try
-                {
-
-                var ilgiliNopcommerceUrun = await ProductService.GetProductBySkuAsync(Model.ToList()[i].Sku);
-
-
-                if (ilgiliNopcommerceUrun != null)
-                {
-                var seName = await UrlRecordService.GetSeNameAsync(ilgiliNopcommerceUrun);
-                if (seName != null)
-                {
-                url = Url.RouteUrl("Product", new { SeName = seName });
-                }
-
-                }
-
-                }
-                catch (Exception e)
-                {
-                Console.WriteLine(e);
-                }
-
-                }
-                <a href="@url">@Model.ToList()[i].Sku </a>
+                <a >@Model.ToList()[i].Skus </a>
                 </td>
                 <td>
-                @Model.ToList()[i].TransactionId
-                @Html.HiddenFor(modelItem => modelItem[i].TransactionId, new { id = "item_TransactionId" })
-                @Html.HiddenFor(modelItem => modelItem[i].Id, new { id = "item_Id" })
+                @Model.ToList()[i].Title
+                @Html.HiddenFor(modelItem => modelItem[i].Title, new { id = "EtsyListingitem_Title" })
+                @Html.HiddenFor(modelItem => modelItem[i].Id, new { id = "EtsyListingitem_Id" })
 
                 </td>
                 <td>
-                @Html.TextBoxFor(modelItem => modelItem[i].Rating, new { id = "item_Rating" })
+                    @Html.TextBoxFor(modelItem => modelItem[i].Description, new { id = "EtsyListingitem_Description" })
 
                 </td>
                 <td>
-                @Html.TextBoxFor(modelItem => modelItem[i].Review, new { id = "item_Review" })
+                    @Html.TextBoxFor(modelItem => modelItem[i].Tags, new { id = "EtsyListingitem_Tags" })
+                    @Html.HiddenFor(modelItem => modelItem[i].ListingId, new { id = "EtsyListingitem_ListingId" })
 
                 </td>
-                <td>
-                @if (!@Model.ToList()[i].ImageUrlFullxfull.IsNullOrEmpty())
-                {
-                <img src="@Model.ToList()[i].ImageUrlFullxfull" height="100" width="100"/>
-
-
-                }
-                @Html.HiddenFor(modelItem => modelItem[i].ImageUrlFullxfull, new { id = "item_ImageUrlFullxfull" })
-                </td>
-                <td>
-                @Html.TextBoxFor(modelItem => modelItem[i].CreatedTimestamp, new { id = "item_CreatedTimestamp" })
-                @Html.HiddenFor(modelItem => modelItem[i].CreatedTimestamp, new { id = "item_CreatedTimestamp" })
-                @Html.HiddenFor(modelItem => modelItem[i].UpdateTimestamp, new { id = "item_UpdateTimestamp" })
-                @Html.HiddenFor(modelItem => modelItem[i].UpdatedTimestamp, new { id = "item_UpdatedTimestamp" })
-                @Html.HiddenFor(modelItem => modelItem[i].BuyerUserId, new { id = "item_BuyerUserId" })
-                @Html.HiddenFor(modelItem => modelItem[i].Language, new { id = "item_Language" })
-                @Html.HiddenFor(modelItem => modelItem[i].ListingId, new { id = "item_ListingId" })
-                </td>
-                <td>
-                @result
-                </td>
+               
                 </tr>
                 }
                 </tbody>
                 </table>
                 <div class="form-group row">
                 <div class="col-md-9 offset-md-3">
-                <button type="submit" name="save" class="btn btn-primary">Seçili Yorumları Web Siteme Aktar</button>
+                <button type="submit" name="save" class="btn btn-primary">Insert Selected Listings To Website</button>
                 </div>
                 </div>
                 </div>
                 </div>
                 </div>
 
-         */
+         
     }
 </form>
 
@@ -148,15 +83,12 @@
         var count = 0;
         $("tbody tr").each(function () {
           
-            if ($(this).find("#item_IsChecked").prop("checked")) {
+            if ($(this).find("#EtsyListingitem_IsChecked").prop("checked")) {
              
-                $(this).find("#item_Id").attr("name", "fromDelist[" + count + "].Id");
-                $(this).find("#item_TransactionId").attr("name", "fromDelist[" + count + "].TransactionId");
-                $(this).find("#item_Rating").attr("name", "fromDelist[" + count + "].Rating");
-                $(this).find("#item_Review").attr("name", "fromDelist[" + count + "].Review");
-                $(this).find("#item_ImageUrlFullxfull").attr("name", "fromDelist[" + count + "].ImageUrlFullxfull");
-                $(this).find("#item_CreatedTimestamp").attr("name", "fromDelist[" + count + "].CreatedTimestamp");
-                $(this).find("#item_IsChecked").attr("name", "fromDelist[" + count + "].IsChecked");
+                $(this).find("#EtsyListingitem_Id").attr("name", "fromDelist[" + count + "].Id");
+                $(this).find("#EtsyListingitem_Title").attr("name", "fromDelist[" + count + "].Title");
+                $(this).find("#EtsyListingitem_Description").attr("name", "fromDelist[" + count + "].Description");
+                $(this).find("#EtsyListingitem_IsChecked").attr("name", "fromDelist[" + count + "].IsChecked");
                
               
                 count++;

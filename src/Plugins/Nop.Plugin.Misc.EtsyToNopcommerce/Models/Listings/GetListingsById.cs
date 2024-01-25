@@ -252,7 +252,8 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Models.Listings
 
         [JsonProperty("inventory", NullValueHandling = NullValueHandling.Ignore)]
         public EtsyInventory Inventory { get; set; }
-       
+        public bool IsChecked { get; set; }
+
     }
 
     public partial class EtsyInventory:BaseEntity
