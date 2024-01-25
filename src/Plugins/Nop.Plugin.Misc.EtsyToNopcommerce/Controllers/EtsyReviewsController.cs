@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Linq;
-using System.Security.Cryptography;
-using System.Text.RegularExpressions;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Nop.Core;
 using Nop.Plugin.Misc.EtsyToNopcommerce.Models;
 using Nop.Services.Configuration;
@@ -15,24 +11,17 @@ using Nop.Services.Security;
 using Nop.Web.Framework;
 using Nop.Web.Framework.Controllers;
 using System.Net;
-using RestSharp;
-using Nop.Plugin.Misc.EtsyToNopcommerce.Models.Shops;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Threading;
-using Nop.Plugin.Misc.EtsyToNopcommerce.Models.Reviews;
-using Nop.Plugin.Misc.EtsyToNopcommerce.Models.Listings;
 using Nop.Core.Domain.Common;
 using Nop.Core.Domain.Customers;
 using Nop.Services.Catalog;
 using Nop.Services.Customers;
-using StackExchange.Profiling.Internal;
 using Nop.Services.Directory;
 using Nop.Data;
 using Nop.Services.Common;
 using StateProvince = Nop.Core.Domain.Directory.StateProvince;
 using System.IO;
-using System.Net.Http;
 using DocumentFormat.OpenXml.Presentation;
 using ImageProcessor;
 using ImageProcessor.Plugins.WebP.Imaging.Formats;
@@ -44,8 +33,6 @@ using Picture = Nop.Core.Domain.Media.Picture;
 using Nop.Core.Domain.Catalog;
 using Nop.Services.Seo;
 using Nop.Web.Factories;
-using Nop.Web.Models.Customer;
-using Nop.Plugin.Misc.EtsyToNopcommerce.Models.Receipts;
 
 
 namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers

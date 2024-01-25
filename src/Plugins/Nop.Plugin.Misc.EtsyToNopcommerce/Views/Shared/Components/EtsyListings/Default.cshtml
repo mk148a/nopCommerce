@@ -1,14 +1,10 @@
-﻿@using Nop.Plugin.Misc.EtsyToNopcommerce.Domains;
-@model IList<Nop.Plugin.Misc.EtsyToNopcommerce.Models.Listings.EtsyListing>
-@using Nop.Plugin.Misc.EtsyToNopcommerce.Models;
-@using Nop.Web.Framework.TagHelpers.Shared
-@using Microsoft.AspNetCore.Mvc.TagHelpers
-@using LinqToDB.Common
+﻿@using Nop.Plugin.Misc.EtsyToNopcommerce.Domains
 @using Nop.Plugin.Misc.EtsyToNopcommerce.Services
-@using Microsoft.AspNetCore.Mvc.TagHelpers
 @using Nop.Services.Catalog
 @using Nop.Services.Seo
 @using Nop.Web.Framework.TagHelpers.Shared
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model IList<Nop.Plugin.Misc.EtsyToNopcommerce.Models.Etsy.Listings.EtsyListing>
 @inject IProductReviewsTransactionsMappingService ProductReviewsTransactionsMappingService;
 @inject IProductService ProductService;
 @inject IUrlRecordService UrlRecordService;

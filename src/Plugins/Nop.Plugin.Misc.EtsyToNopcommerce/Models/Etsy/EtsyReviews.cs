@@ -1,6 +1,6 @@
 ﻿using Nop.Plugin.Misc.EtsyToNopcommerce.Domains;
 
-namespace Nop.Plugin.Misc.EtsyToNopcommerce.Models.Reviews
+namespace Nop.Plugin.Misc.EtsyToNopcommerce.Models.Etsy
 {
     using System;
     using System.Collections.Generic;

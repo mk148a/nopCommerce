@@ -1,4 +1,4 @@
-﻿namespace Nop.Plugin.Misc.EtsyToNopcommerce.Models.Receipts
+﻿namespace Nop.Plugin.Misc.EtsyToNopcommerce.Models.Etsy
 {
     using System;
     using System.Collections.Generic;
@@ -8,9 +8,9 @@
     using Newtonsoft.Json.Converters;
     using Nop.Plugin.Misc.EtsyToNopcommerce.Domains;
 
-    
 
-    public partial class Receipts
+
+    public class Receipts
     {
         [JsonProperty("count", NullValueHandling = NullValueHandling.Ignore)]
         public long? Count { get; set; }

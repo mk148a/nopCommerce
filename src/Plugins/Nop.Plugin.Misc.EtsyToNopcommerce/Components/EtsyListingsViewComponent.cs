@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Nop.Plugin.Misc.EtsyToNopcommerce.Models.Listings;
+using Nop.Plugin.Misc.EtsyToNopcommerce.Models.Etsy.Listings;
 using Nop.Plugin.Misc.EtsyToNopcommerce.Services;
 
 namespace Nop.Plugin.Misc.EtsyToNopcommerce.Components

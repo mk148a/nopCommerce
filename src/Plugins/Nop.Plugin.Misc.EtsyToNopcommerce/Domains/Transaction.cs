@@ -26,5 +26,7 @@
 
         [JsonProperty("product_id", NullValueHandling = NullValueHandling.Ignore)]
         public long? ProductId { get; set; }
+        [JsonProperty("title", NullValueHandling = NullValueHandling.Ignore)]
+        public string Title { get; set; }
     }
 }

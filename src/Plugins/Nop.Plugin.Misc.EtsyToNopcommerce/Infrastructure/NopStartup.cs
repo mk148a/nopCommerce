@@ -24,6 +24,7 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Infrastructure
             //register services and interfaces
             services.AddScoped<IProductReviewsEtsyReviewService, ProductReviewsEtsyReviewService>();
             services.AddScoped<IEtsyListingsService, EtsyListingsService>();
+            services.AddScoped<IEtsyCustomersService, EtsyCustomersService>();
             services.AddScoped<ICustomProductReviewMappingService, CustomProductReviewMappingService>();
             services.AddScoped<IProductReviewsTransactionsMappingService, ProductReviewsTransactionsMappingService>();
             services.AddScoped<IEtsyApiService, EtsyApiService>();
@@ -65,6 +66,20 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Infrastructure
                     .StartNow()
                     .WithDailyTimeIntervalSchedule(x => x.WithInterval(5, IntervalUnit.Minute))
                     .WithDescription("TJobGetListings")
+                );
+
+
+            });
+
+            services.AddQuartz(q =>
+            {
+                q.UseMicrosoftDependencyInjectionJobFactory();
+
+                q.ScheduleJob<JobGetCustomers>(TJobGetCustomers => TJobGetCustomers
+                    .WithIdentity("TJobGetCustomers")
+                    .StartNow()
+                    .WithDailyTimeIntervalSchedule(x => x.WithInterval(5, IntervalUnit.Minute))
+                    .WithDescription("TJobGetCustomers")
                 );
 
 

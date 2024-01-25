@@ -12,11 +12,13 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Services
     public partial interface IEtsyApiService
     {
         
-        Task<string> GetAllEtsyReviews();
+        Task<string> GetAllEtsyReviews(bool onlyAddNopcommerceProduct = true);
 
-        Task<HashSet<Receipt>> GetAllEtsyReceipts();
+        Task<HashSet<Receipt>> GetAllEtsyReceipts(bool onlyAddNopcommerceProduc=true);
 
         Task<string> ListingleriAlVeIsle();
+
+        Task<string> GetAllEtsyCustomers();
 
 
 

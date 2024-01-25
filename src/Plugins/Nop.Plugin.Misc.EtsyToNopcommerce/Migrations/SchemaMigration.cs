@@ -7,7 +7,8 @@ using Nop.Data.Extensions;
 using Nop.Data.Mapping;
 using Nop.Data.Migrations;
 using Nop.Plugin.Misc.EtsyToNopcommerce.Domains;
-using Nop.Plugin.Misc.EtsyToNopcommerce.Models.Listings;
+using Nop.Plugin.Misc.EtsyToNopcommerce.Models;
+using Nop.Plugin.Misc.EtsyToNopcommerce.Models.Etsy.Listings;
 
 namespace Nop.Plugin.Misc.EtsyToNopcommerce.Migrations
 {
@@ -56,8 +57,18 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Migrations
                     Console.WriteLine(e);
 
                 }
+                try
+                {
 
-              
+                    Create.TableFor<EtsyCustomer>();
+
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+
+                }
+
                 //Todo:Can be need maybe create a db for Etsy listings and Etsy customers data
             }
             catch (Exception e)

@@ -20,8 +20,7 @@ using Nop.Plugin.Misc.EtsyToNopcommerce.Models.Shops;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
-using Nop.Plugin.Misc.EtsyToNopcommerce.Models.Reviews;
-using Nop.Plugin.Misc.EtsyToNopcommerce.Models.Listings;
+using Nop.Plugin.Misc.EtsyToNopcommerce.Models.Etsy.Listings;
 using Nop.Core.Domain.Common;
 using Nop.Core.Domain.Customers;
 using Nop.Services.Catalog;
@@ -44,6 +43,7 @@ using Nop.Core.Domain.Catalog;
 using Nop.Services.Seo;
 using Nop.Web.Factories;
 using Nop.Web.Models.Customer;
+using Nop.Plugin.Misc.EtsyToNopcommerce.Models.Etsy;
 
 
 namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers

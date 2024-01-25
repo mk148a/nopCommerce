@@ -5,8 +5,7 @@ using System.Threading.Tasks;
 
 using Nop.Data;
 using Nop.Plugin.Misc.EtsyToNopcommerce.Domains;
-using Nop.Plugin.Misc.EtsyToNopcommerce.Models.Listings;
-
+using Nop.Plugin.Misc.EtsyToNopcommerce.Models.Etsy.Listings;
 
 namespace Nop.Plugin.Misc.EtsyToNopcommerce.Services
 {

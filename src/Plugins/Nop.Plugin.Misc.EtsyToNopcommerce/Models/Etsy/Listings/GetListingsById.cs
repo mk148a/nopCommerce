@@ -2,7 +2,7 @@
 using DocumentFormat.OpenXml.Math;
 using Nop.Core;
 
-namespace Nop.Plugin.Misc.EtsyToNopcommerce.Models.Listings
+namespace Nop.Plugin.Misc.EtsyToNopcommerce.Models.Etsy.Listings
 {
     using System;
     using System.Collections.Generic;
@@ -23,11 +23,11 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Models.Listings
 
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
-            JToken token = JToken.Load(reader);
+            var token = JToken.Load(reader);
 
             if (token.Type == JTokenType.Array)
             {
-                string[] arrayString = token.ToObject<string[]>();
+                var arrayString = token.ToObject<string[]>();
 
                 return string.Join(_delimiter, arrayString);
             }
@@ -39,7 +39,7 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Models.Listings
         {
             if (value is string[] stringArray)
             {
-                string convertedString = string.Join(", ", stringArray);
+                var convertedString = string.Join(", ", stringArray);
                 writer.WriteValue(convertedString);
             }
         }
@@ -79,7 +79,7 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Models.Listings
         public List<EtsyListing> Results { get; set; }
     }
 
-    public class EtsyListing:BaseEntity
+    public class EtsyListing : BaseEntity
     {
         [JsonProperty("listing_id", NullValueHandling = NullValueHandling.Ignore)]
         public long ListingId { get; set; }
@@ -159,7 +159,7 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Models.Listings
         [JsonProperty("listing_type", NullValueHandling = NullValueHandling.Ignore)]
         public string ListingType { get; set; }
 
-       
+
         [JsonConverter(typeof(StringArrayConverter))]
         [JsonProperty("tags")]
         public string Tags { get; set; }
@@ -256,7 +256,7 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Models.Listings
 
     }
 
-    public partial class EtsyInventory:BaseEntity
+    public partial class EtsyInventory : BaseEntity
     {
         [JsonProperty("products", NullValueHandling = NullValueHandling.Ignore)]
         public List<EtsyProduct> Products { get; set; }
@@ -275,7 +275,7 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Models.Listings
 
     public partial class EtsyProduct : BaseEntity
     {
-      
+
         [JsonProperty("product_id", NullValueHandling = NullValueHandling.Ignore)]
         public long? ProductId { get; set; }
 
@@ -286,7 +286,7 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Models.Listings
         public bool? IsDeleted { get; set; }
 
         [JsonProperty("offerings", NullValueHandling = NullValueHandling.Ignore)]
-        public  List<EtsyOffering> Offerings { get; set; }
+        public List<EtsyOffering> Offerings { get; set; }
 
         [JsonProperty("property_values", NullValueHandling = NullValueHandling.Ignore)]
         public List<EtsyPropertyValue> PropertyValues { get; set; }
@@ -308,10 +308,10 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Models.Listings
 
         [JsonProperty("price", NullValueHandling = NullValueHandling.Ignore)]
         public EtsyPrice Price { get; set; }
-       
+
     }
 
-    public partial class EtsyPrice:BaseEntity
+    public partial class EtsyPrice : BaseEntity
     {
         [JsonProperty("amount", NullValueHandling = NullValueHandling.Ignore)]
         public long? Amount { get; set; }
@@ -323,7 +323,7 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Models.Listings
         public string CurrencyCode { get; set; }
     }
 
-    public partial class EtsyPropertyValue:BaseEntity
+    public partial class EtsyPropertyValue : BaseEntity
     {
         [JsonProperty("property_id", NullValueHandling = NullValueHandling.Ignore)]
         public long? PropertyId { get; set; }
@@ -340,6 +340,6 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Models.Listings
 
         [JsonProperty("values", NullValueHandling = NullValueHandling.Ignore)]
         public string Values { get; set; }
-       
+
     }
 }
