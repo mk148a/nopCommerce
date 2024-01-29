@@ -259,38 +259,42 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Services
 
                     foreach (var receipts in receiptList)
                     {
-                        foreach (var receipt in receipts)
+                        if (receipts!=null)
                         {
-                            if (receipt != null)
+                            foreach (var receipt in receipts)
                             {
-                                if (receipt.Transactions != null)
+                                if (receipt != null)
                                 {
-                                    if (receipt.Transactions.Count > 0)
+                                    if (receipt.Transactions != null)
                                     {
-                                        //Todo:burada nopcommerce ile etsy receipts arasında sku kontrölü yapılacak
-                                        foreach (var transaction in receipt.Transactions)
+                                        if (receipt.Transactions.Count > 0)
                                         {
-                                            var ilgiliNopcommerceUrun = await _productService.GetProductBySkuAsync(transaction.Sku);
-
-                                            if (onlyAddNopcommerceProduct)
+                                            //Todo:burada nopcommerce ile etsy receipts arasında sku kontrölü yapılacak
+                                            foreach (var transaction in receipt.Transactions)
                                             {
+                                                var ilgiliNopcommerceUrun = await _productService.GetProductBySkuAsync(transaction.Sku);
 
-                                                if (ilgiliNopcommerceUrun != null)
+                                                if (onlyAddNopcommerceProduct)
+                                                {
+
+                                                    if (ilgiliNopcommerceUrun != null)
+                                                    {
+                                                        result.Add(receipt);
+                                                    }
+                                                }
+                                                //We add this because we will use this function for "GetEtsyCustomers" service
+                                                else
                                                 {
                                                     result.Add(receipt);
                                                 }
-                                            }
-                                            //We add this because we will use this function for "GetEtsyCustomers" service
-                                            else
-                                            {
-                                                result.Add(receipt);
+
                                             }
 
                                         }
-
                                     }
                                 }
                             }
+
                         }
                     }
 
@@ -336,6 +340,10 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Services
                     etsyCustomer.BuyerEmail = etsyOrder.BuyerEmail;
                     etsyCustomer.BuyerName = etsyOrder.Name;
                     etsyCustomer.RatingAndReviews = "";
+                    etsyCustomer.City=etsyOrder.City;
+                    etsyCustomer.State=etsyOrder.State;
+                    etsyCustomer.Country = etsyOrder.CountryIso;
+                    etsyCustomer.ZipCode = etsyOrder.Zip;
                     foreach (var transaction in etsyOrder.Transactions)
                     {
                         etsyCustomer.OrderedItems += transaction.Title + " (" + transaction.Sku + ")" + " (" + transaction.TransactionId + ") ; ";
