@@ -12,8 +12,8 @@
     <Company>Genius Software</Company>
     <Authors>Genius Software</Authors>
     <PackageIcon>logo.png</PackageIcon>
-    <AssemblyVersion>1.00</AssemblyVersion>
-    <FileVersion>1.00</FileVersion>
+    <AssemblyVersion>1.10</AssemblyVersion>
+    <FileVersion>1.10</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>

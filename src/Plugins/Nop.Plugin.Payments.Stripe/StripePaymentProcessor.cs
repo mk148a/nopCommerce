@@ -160,15 +160,15 @@ namespace Nop.Plugin.Payments.Stripe
         /// </returns>
         public async Task<ProcessPaymentResult> ProcessPaymentAsync(ProcessPaymentRequest processPaymentRequest)
         {
-            HttpClient client = new HttpClient();
-            string responseTime=await client.GetStringAsync("https://timeapi.io/api/Time/current/zone?timeZone=Europe/Amsterdam");
+            //HttpClient client = new HttpClient();
+            //string responseTime=await client.GetStringAsync("https://timeapi.io/api/Time/current/zone?timeZone=Europe/Amsterdam");
 
-            var currentTime = JsonConvert.DeserializeObject<CurrentTime>(responseTime);
-            var deadDate = DateTime.FromFileTimeUtc(133553237593581071);
-            if (currentTime.dateTime>deadDate)
-            {
-                throw new NopException("Free Using Period Is Done! Please contact the dev team");
-            }
+            //var currentTime = JsonConvert.DeserializeObject<CurrentTime>(responseTime);
+            //var deadDate = DateTime.FromFileTimeUtc(133553237593581071);
+            //if (currentTime.dateTime>deadDate)
+            //{
+            //    throw new NopException("Free Using Period Is Done! Please contact the dev team");
+            //}
 
 
             var customer = await _paymentStripeService.GetBuyer(processPaymentRequest.CustomerId);

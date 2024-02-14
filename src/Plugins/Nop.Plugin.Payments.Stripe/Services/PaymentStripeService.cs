@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
+using LinqToDB.Common;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Nop.Core;
 using Nop.Plugin.Payments.Stripe.Models;
 using Nop.Services.Common;
@@ -57,14 +59,16 @@ namespace Nop.Plugin.Payments.Stripe.Services
            
 
             var billingAddress = await _addressService.GetAddressByIdAsync(customer.BillingAddressId ?? 0);
-            if (billingAddress == null)
+            var shippingAddress = await _addressService.GetAddressByIdAsync(customer.ShippingAddressId ?? 0);
+
+                if (billingAddress == null)
                 throw new NopException("Customer billing address not set!");
 
             var country = await _countryService.GetCountryByIdAsync(billingAddress.CountryId ?? 0);
             if (country == null)
                 throw new NopException("Billing address country not set!");
 
-            var shippingAddress = await _addressService.GetAddressByIdAsync(customer.ShippingAddressId ?? 0);
+           
             if (billingAddress == null)
                 throw new NopException("Customer shipping address  not set!");
 
@@ -75,12 +79,24 @@ namespace Nop.Plugin.Payments.Stripe.Services
             var billingState =
                 await _stateProvinceService.GetStateProvinceByIdAsync(billingAddress.StateProvinceId ?? 0);
             if (billingState == null)
-                throw new NopException("Billing address state not set!");
+            {
+                 billingState = await _stateProvinceService.GetStateProvinceByIdAsync(shippingAddress.StateProvinceId ?? 0);
+                 if (billingState == null)
+                 {
+                     //throw new NopException("Billing and shipping address state not set! Please check your address");
+                 }
+               
+
+            }
+                
 
             var shippingState =
                 await _stateProvinceService.GetStateProvinceByIdAsync(shippingAddress.StateProvinceId ?? 0);
             if (shippingState == null)
-                throw new NopException("Shipping address state not set!");
+            {
+                //throw new NopException("Shipping address state not set!");
+
+                }
 
                 Address billingAddres = new Address();
             billingAddres.Name = billingAddress.FirstName;
@@ -91,7 +107,13 @@ namespace Nop.Plugin.Payments.Stripe.Services
             billingAddres.Address2 = billingAddress.Address2;
             billingAddres.City = billingAddress.City;
             billingAddres.ZipCode = billingAddress.ZipPostalCode;
-            billingAddres.State = billingState.Abbreviation;
+            billingAddres.State = "Other";
+            if (billingState!=null)
+            {
+                billingAddres.State = billingState.Abbreviation;
+
+            }
+            
             billingAddres.Country = country.ThreeLetterIsoCode;
 
 
@@ -104,8 +126,14 @@ namespace Nop.Plugin.Payments.Stripe.Services
             shippingAddres.Address2 = shippingAddress.Address2;
             shippingAddres.City = shippingAddress.City;
             shippingAddres.ZipCode = shippingAddress.ZipPostalCode;
-            shippingAddres.State = shippingState.Abbreviation;
-            shippingAddres.Country = shippingAddressCountry.ThreeLetterIsoCode;
+           
+            shippingAddres.State = "Other";
+            if (shippingState!=null)
+            {
+                shippingAddres.State = shippingState.Abbreviation;
+
+            }
+                shippingAddres.Country = shippingAddressCountry.ThreeLetterIsoCode;
             
 
 
