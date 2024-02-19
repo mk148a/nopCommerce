@@ -121,6 +121,7 @@ namespace Nop.Plugin.Widgets.CustomProductReviews
             return "CustomProductReviews";
         }
 
+    
 
         /// <summary>
         /// Install plugin
