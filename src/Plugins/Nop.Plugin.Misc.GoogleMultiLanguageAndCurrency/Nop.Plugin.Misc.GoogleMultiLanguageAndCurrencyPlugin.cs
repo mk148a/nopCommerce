@@ -26,15 +26,13 @@ namespace Nop.Plugin.Misc.GoogleMultiLanguageAndCurrency
     /// </summary>
     public class GoogleMultiLanguageAndCurrencyPlugin : BasePlugin, IWidgetPlugin
     {
-        private readonly ILocalizationService _localizationService;
-        private readonly IWebHelper _webHelper;
+      
 
         public bool HideInWidgetList => throw new NotImplementedException();
 
-        public GoogleMultiLanguageAndCurrencyPlugin(ILocalizationService localizationService, IWebHelper webHelper)
+        public GoogleMultiLanguageAndCurrencyPlugin()
         {
-            _localizationService = localizationService;
-            _webHelper = webHelper;
+           
         }
         
         public override async Task InstallAsync()
