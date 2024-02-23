@@ -81,23 +81,21 @@ namespace Nop.Plugin.Misc.GoogleMultiLanguageAndCurrency.Components
                     var defaultLang = activeLanguages.Single(z => z.Id == currentStore.DefaultLanguageId);
 
                     var actionKeys = Url.ActionContext.ModelState.Keys.ToList();
-                    var actionDescriptor = Url.ActionContext.ActionDescriptor;
-                    var actionName = data.Values["action"] as string;
                     var controllerName = data.Values["controller"] as string;
 
                     var pathBase = Url.ActionContext.HttpContext.Request.PathBase;
-                    var currentUrl = await GetHttpProtocolAsync() + "://" + HttpContext.Request.Host.Value + HttpContext.Request.Path;
+                    var currentUrl = await GetHttpProtocolAsync() + "://" + HttpContext.Request.Host.Value + HttpContext.Request.Path+ HttpContext.Request.QueryString;
                     pathBase = HttpContext.Request.PathBase;
 
                     //Extract server and path from url
                     var scheme = new Uri(currentUrl).GetComponents(UriComponents.SchemeAndServer,
                         UriFormat.Unescaped);
-                    var path = new Uri(currentUrl).LocalPath;
+                    var path = new Uri(currentUrl).PathAndQuery;
 
                     
 
                     UrlRecord urlRecord= null;
-                    if (actionKeys.Count > 0)
+                    if (actionKeys.Count > 0&&actionKeys.Any(x=>x.Contains("id")))
                     {
                         var key = actionKeys.Single(x=>!x.IsNullOrEmpty());
 
