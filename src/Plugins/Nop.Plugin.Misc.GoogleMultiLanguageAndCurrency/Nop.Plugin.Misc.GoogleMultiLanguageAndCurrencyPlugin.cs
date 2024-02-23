@@ -26,9 +26,9 @@ namespace Nop.Plugin.Misc.GoogleMultiLanguageAndCurrency
     /// </summary>
     public class GoogleMultiLanguageAndCurrencyPlugin : BasePlugin, IWidgetPlugin
     {
-      
 
-        public bool HideInWidgetList => throw new NotImplementedException();
+
+        public bool HideInWidgetList => false;
 
         public GoogleMultiLanguageAndCurrencyPlugin()
         {

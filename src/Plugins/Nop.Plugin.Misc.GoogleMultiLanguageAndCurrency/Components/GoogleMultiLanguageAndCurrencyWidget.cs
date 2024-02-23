@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using DocumentFormat.OpenXml.InkML;
+using DocumentFormat.OpenXml.Office2013.PowerPoint.Roaming;
 using DocumentFormat.OpenXml.Spreadsheet;
 using LinqToDB.Common;
 using Microsoft.AspNetCore.Http;
@@ -95,7 +96,8 @@ namespace Nop.Plugin.Misc.GoogleMultiLanguageAndCurrency.Components
                     
 
                     UrlRecord urlRecord= null;
-                    if (actionKeys.Count > 0&&actionKeys.Any(x=>x.Contains("id")))
+                    
+                    if (actionKeys.Count > 0&&actionKeys.Any(x=>x.EndsWith("id")&& data.Values[x]!=null&& int.TryParse(data.Values[x].ToString(), out _)))
                     {
                         var key = actionKeys.Single(x=>!x.IsNullOrEmpty());
 
