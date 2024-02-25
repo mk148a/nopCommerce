@@ -18,18 +18,22 @@
     <None Remove="Views\Configure.cshtml" />
     <None Remove="Views\Edit.cshtml" />
     <None Remove="Views\_Configure.General.cshtml" />
+    <None Remove="Views\_Configure.Override.cshtml" />
     <None Remove="Views\_Update.cshtml" />
     <None Remove="Views\_ViewImports.cshtml" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Files\taxonomy.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    <EmbeddedResource Include="Files\taxonomy.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
     <Content Include="logo.jpg">
 		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="plugin.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Views\_Configure.Override.cshtml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Views\_Configure.General.cshtml">
