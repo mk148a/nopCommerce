@@ -160,7 +160,7 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry.Controllers
 
         [AuthorizeAdmin]
         [Area(AreaNames.Admin)]
-        public async Task<IActionResult> Configure()
+        public async Task<IActionResult> ConfigureAsync()
         {
             var model = new FeedGoogleShoppingModel();
             await PrepareModelAsync(model);
@@ -173,14 +173,14 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry.Controllers
         [HttpPost]
         [FormValueRequired("save")]
         [AutoValidateAntiforgeryToken]
-        public async Task<IActionResult> Configure(FeedGoogleShoppingModel model)
+        public async Task<IActionResult> ConfigureAsync(FeedGoogleShoppingModel model)
         {
             if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManagePlugins))
                 return AccessDeniedView();
 
             if (!ModelState.IsValid)
             {
-                return await Configure();
+                return await ConfigureAsync();
             }
 
             //load settings for a chosen store scope
@@ -213,7 +213,7 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry.Controllers
             _notificationService.SuccessNotification(await _localizationService.GetResourceAsync("Admin.Plugins.Saved"));
 
             //redisplay the form
-            return await Configure();
+            return await ConfigureAsync();
         }
 
         [HttpPost, ActionName("Configure")]
@@ -252,7 +252,7 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry.Controllers
                 await _logger.ErrorAsync(exc.Message, exc);
             }
 
-            return await Configure();
+            return await ConfigureAsync();
         }
 
         [HttpPost]

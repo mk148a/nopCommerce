@@ -291,7 +291,7 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry
         {
             //return _urlHelperFactory.GetUrlHelper(_actionContextAccessor.ActionContext).RouteUrl(AccessiBeDefaults.ConfigurationRouteName);
             //return $"{_webHelper.GetStoreLocation()}Admin/PaymentIyzico/Configure";
-            return $"{_webHelper.GetStoreLocation()}Admin/MiscGoogleShoppingMultiCountry/Configure";
+            return $"{_webHelper.GetStoreLocation()}Admin/GoogleShoppingMultiCountry/Configure";
         }
         /// <summary>
         /// Generate a static feed file
