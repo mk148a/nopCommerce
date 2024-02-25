@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Nop.Core.Infrastructure;
+using Nop.Plugin.Misc.GoogleShoppingMultiCountry.Services;
 
 namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry.Infrastructure
 {
@@ -16,13 +17,13 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry.Infrastructure
             });
 
             //register services and interfaces
-            //services.AddScoped<CustomModelFactory, ICustomerModelFactory>();
+            services.AddScoped<IGoogleService, GoogleService>();
         }
 
         public void Configure(IApplicationBuilder application)
         {
         }
 
-        public int Order => 11;
+        public int Order => 5000;
     }
 }
