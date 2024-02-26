@@ -102,10 +102,10 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry.Controllers
         /// Prepare FeedGoogleShoppingModel
         /// </summary>
         /// <param name="model">Model</param>
-        private async Task PrepareModelAsync(FeedGoogleShoppingModel model)
+        private async Task<FeedGoogleShoppingModel> PrepareModelAsync(FeedGoogleShoppingModel model)
         {
             if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManagePlugins))
-                return;
+                return model;
 
             //load settings for a chosen store scope
             var storeScope = await _storeContext.GetActiveStoreScopeConfigurationAsync();
@@ -160,6 +160,8 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry.Controllers
                 model.PricesConsiderPromotions_OverrideForStore = await _settingService.SettingExistsAsync(googleShoppingSettings, x => x.PricesConsiderPromotions, storeScope);
                 model.ProductPictureSize_OverrideForStore = await _settingService.SettingExistsAsync(googleShoppingSettings, x => x.ProductPictureSize, storeScope);
             }
+
+            return model;
         }
 
         #endregion
@@ -171,7 +173,16 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry.Controllers
         public async Task<IActionResult> Configure()
         {
             var model = new FeedGoogleShoppingModel();
-            await PrepareModelAsync(model);
+            try
+            {
+                model = await PrepareModelAsync(model);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+               
+            }
+          
 
             return View("~/Plugins/Nop.Plugin.Misc.GoogleShoppingMultiCountry/Views/Configure.cshtml", model);
         }
@@ -260,7 +271,7 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry.Controllers
                 await _logger.ErrorAsync(exc.Message, exc);
             }
 
-            return await Configure();
+            return await Configure(model);
         }
 
         [HttpPost]

@@ -4,9 +4,11 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
+using LinqToDB.Common;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
@@ -15,6 +17,7 @@ using Nop.Core;
 using Nop.Core.Domain.Catalog;
 using Nop.Core.Domain.Directory;
 using Nop.Core.Domain.Localization;
+using Nop.Core.Domain.Seo;
 using Nop.Core.Domain.Stores;
 using Nop.Core.Infrastructure;
 using Nop.Plugin.Misc.GoogleShoppingMultiCountry.Services;
@@ -443,10 +446,20 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry
                         }
                     }
 
-                    //link [link] - URL directly linking to your item's page on your website
-                    var test = await _urlRecordService.GetSeNameAsync(productToProcess, languageId: lang.Id);
-                    var productUrl = GetUrlHelper().RouteUrl("Product", new { SeName = await _urlRecordService.GetSeNameAsync(productToProcess,languageId:lang.Id) }, await GetHttpProtocolAsync());
-                    writer.WriteElementString("link", productUrl);
+              
+                    var urlHelper = GetUrlHelper();
+                    
+
+                    var productUrl = urlHelper.RouteUrl("Product", new { SeName = await _urlRecordService.GetSeNameAsync(productToProcess, languageId: lang.Id) }, await GetHttpProtocolAsync());
+                    var pathBase = urlHelper.ActionContext.HttpContext.Request.PathBase;
+                    var scheme = new Uri(productUrl).GetComponents(UriComponents.SchemeAndServer,
+                        UriFormat.Unescaped);
+                    var path = new Uri(productUrl).PathAndQuery;
+                    var localizedPath = path
+                        .RemoveLanguageSeoCodeFromUrl(pathBase, true)
+                        .AddLanguageSeoCodeToUrl(pathBase, true, lang);
+                    var localizedUrl = new Uri(new Uri(scheme), localizedPath).ToString();
+                    writer.WriteElementString("link", localizedUrl);
 
                     //image link [image_link] - URL of an image of the item
                     //additional images [additional_image_link]
@@ -482,7 +495,7 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry
                     //condition [condition] - Condition or state of the item
                   await  writer.WriteElementStringAsync("g", "condition", googleBaseNamespace, "new");
 
-                  await  writer.WriteElementStringAsync("g", "expiration_date", googleBaseNamespace, DateTime.Now.AddDays(googleShoppingSettings.ExpirationNumberOfDays).ToString("yyyy-MM-dd"));
+                 //await  writer.WriteElementStringAsync("g", "expiration_date", googleBaseNamespace, DateTime.Now.AddDays(googleShoppingSettings.ExpirationNumberOfDays).ToString("yyyy-MM-dd"));
 
                     #endregion
 
