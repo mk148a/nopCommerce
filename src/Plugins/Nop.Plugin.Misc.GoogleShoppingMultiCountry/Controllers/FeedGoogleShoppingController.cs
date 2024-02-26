@@ -36,6 +36,7 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry.Controllers
         #region Fields
 
         private readonly ICurrencyService _currencyService;
+        private readonly ILanguageService _languageService;
         private readonly IGenericAttributeService _genericAttributeService;
         private readonly IGoogleService _googleService;
         private readonly ILocalizationService _localizationService;
@@ -71,7 +72,8 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry.Controllers
             IStoreService storeService,
             IWebHelper webHelper,
             IWebHostEnvironment webHostEnvironment,
-            IWorkContext workContext)
+            IWorkContext workContext,
+            ILanguageService languageService)
         {
             _currencyService = currencyService;
             _genericAttributeService = genericAttributeService;
@@ -89,6 +91,7 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry.Controllers
             _webHelper = webHelper;
             _webHostEnvironment = webHostEnvironment;
             _workContext = workContext;
+            _languageService = languageService;
         }
 
         #endregion
@@ -127,20 +130,25 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry.Controllers
             model.HideGeneralBlock = await _genericAttributeService.GetAttributeAsync<bool>(currentCustomer, GoogleShoppingMultiCountryDefaults.HideGeneralBlock);
             model.HideProductSettingsBlock = await _genericAttributeService.GetAttributeAsync<bool>(currentCustomer, GoogleShoppingMultiCountryDefaults.HideProductSettingsBlock);
 
-            //prepare nested search models
-            model.GoogleFeedProductSearchModel.SetGridPageSize();
-
+            
             //file paths
             foreach (var store in await _storeService.GetAllStoresAsync())
             {
-                var localFilePath = _nopFileProvider.Combine(_webHostEnvironment.WebRootPath, "files", "exportimport", store.Id + "-" + googleShoppingSettings.StaticFileName);
-                if (_nopFileProvider.FileExists(localFilePath))
-                    model.GeneratedFiles.Add(new GeneratedFileModel
-                    {
-                        StoreName = store.Name,
-                        FileUrl = $"{_webHelper.GetStoreLocation(false)}files/exportimport/{store.Id}-{googleShoppingSettings.StaticFileName}"
-                    });
+                foreach (var language in await _languageService.GetAllLanguagesAsync(false, store.Id))
+                {
+                    var localFilePath = _nopFileProvider.Combine(_webHostEnvironment.WebRootPath, "files", "exportimport", store.Id + "-" +"-"+ googleShoppingSettings.StaticFileName);
+                    if (_nopFileProvider.FileExists(localFilePath))
+                        model.GeneratedFiles.Add(new GeneratedFileModel
+                        {
+                            StoreName = store.Name,
+                            FileUrl = $"{_webHelper.GetStoreLocation(false)}files/exportimport/{store.Id}-{language.UniqueSeoCode}-{googleShoppingSettings.StaticFileName}"
+                        });
+
+                }
+              
             }
+            //prepare nested search models
+            model.GoogleFeedProductSearchModel.SetGridPageSize();
 
             model.ActiveStoreScopeConfiguration = storeScope;
             if (storeScope > 0)
@@ -285,6 +293,7 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry.Controllers
                         gModel.Color = googleProduct.Color;
                         gModel.GoogleSize = googleProduct.Size;
                         gModel.CustomGoods = googleProduct.CustomGoods;
+                        gModel.LanguageId=googleProduct.LanguageId;
                     }
                     return gModel;
                 });
@@ -317,7 +326,8 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry.Controllers
                 CustomGoods = googleProduct.CustomGoods,
                 Gender = googleProduct.Gender,
                 GoogleSize = googleProduct.Size,
-                GoogleCategory = googleProduct.Taxonomy
+                GoogleCategory = googleProduct.Taxonomy,
+                LanguageId = googleProduct.LanguageId
             };
 
             return View("~/Plugins/Nop.Plugin.Misc.GoogleShoppingMultiCountry/Views/Edit.cshtml", model);
@@ -339,6 +349,7 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry.Controllers
                 googleProduct.Color = model.Color;
                 googleProduct.Size = model.GoogleSize;
                 googleProduct.CustomGoods = model.CustomGoods;
+                googleProduct.LanguageId = model.LanguageId;
                 await _googleService.UpdateGoogleProductRecordAsync(googleProduct);
             }
             else
@@ -352,7 +363,8 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry.Controllers
                     AgeGroup = model.AgeGroup,
                     Color = model.Color,
                     Size = model.GoogleSize,
-                    CustomGoods = model.CustomGoods
+                    CustomGoods = model.CustomGoods,
+                    LanguageId = model.LanguageId
                 };
                 await _googleService.InsertGoogleProductRecordAsync(googleProduct);
             }

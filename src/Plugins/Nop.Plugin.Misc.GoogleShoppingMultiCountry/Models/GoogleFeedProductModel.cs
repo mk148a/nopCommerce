@@ -41,7 +41,8 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry.Models
 
         [NopResourceDisplayName("Plugins.Misc.GoogleShoppingMultiCountry.CustomGoods")]
         public bool CustomGoods { get; set; }
-
+        [NopResourceDisplayName("Plugins.Misc.GoogleShoppingMultiCountry.Products.LanguageId")]
+        public int LanguageId{ get; set; }
         public GoogleFeedProductSearchModel GoogleFeedProductListSearchModel { get; set; }
     }
 }

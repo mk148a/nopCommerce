@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Mvc.Routing;
 using Nop.Core;
 using Nop.Core.Domain.Catalog;
 using Nop.Core.Domain.Directory;
+using Nop.Core.Domain.Localization;
 using Nop.Core.Domain.Stores;
 using Nop.Core.Infrastructure;
 using Nop.Plugin.Misc.GoogleShoppingMultiCountry.Services;
@@ -251,6 +252,8 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry
                     ["Plugins.Misc.GoogleShoppingMultiCountry.Products.AgeGroup.Hint"] = "Age category of people for whom the goods are intended.",
                     ["Plugins.Misc.GoogleShoppingMultiCountry.Products.Color"] = "Color",
                     ["Plugins.Misc.GoogleShoppingMultiCountry.Products.Color.Hint"] = "Product color.",
+                    ["Plugins.Misc.GoogleShoppingMultiCountry.Products.LanguageId"] = "Language Id",
+                    ["Plugins.Misc.GoogleShoppingMultiCountry.Products.LanguageId.Hint"] = "Language Id.",
                     ["Plugins.Misc.GoogleShoppingMultiCountry.Products.Size"] = "Size",
                     ["Plugins.Misc.GoogleShoppingMultiCountry.Products.Size.Hint"] = "Product size.",
                     ["Plugins.Misc.GoogleShoppingMultiCountry.Products.CustomGoods"] = "Custom goods",
@@ -258,6 +261,7 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry
                     ["Plugins.Misc.GoogleShoppingMultiCountry.SuccessResult"] = "Google Shopping feed has been successfully generated.",
                     ["Plugins.Misc.GoogleShoppingMultiCountry.StaticFilePath"] = "Generated file path (static)",
                     ["Plugins.Misc.GoogleShoppingMultiCountry.StaticFilePath.Hint"] = "A file path of the generated file. It's static for your store and can be shared with the Google Shopping service."
+
                 });
 
                 await base.InstallAsync();
@@ -304,10 +308,13 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry
         {
             if (store == null)
                 throw new ArgumentNullException(nameof(store));
-
-            var filePath = _nopFileProvider.Combine(_webHostEnvironment.WebRootPath, "files", "exportimport", store.Id + "-" + _googleShoppingMultiCountrySettings.StaticFileName);
-            using var fs = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.ReadWrite);
-            await GenerateFeedAsync(fs, store);
+            foreach (var language in await _languageService.GetAllLanguagesAsync(false,store.Id))
+            {
+                var filePath = _nopFileProvider.Combine(_webHostEnvironment.WebRootPath, "files", "exportimport", store.Id + "-"+language.UniqueSeoCode +"-"+ _googleShoppingMultiCountrySettings.StaticFileName);
+                using var fs = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.ReadWrite);
+                await GenerateFeedAsync(fs, store, language);
+            }
+         
         }
         /// <summary>
         /// Generate a feed
@@ -315,7 +322,7 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry
         /// <param name="stream">Stream</param>
         /// <param name="store">Store</param>
         /// <returns>Generated feed</returns>
-        public async Task GenerateFeedAsync(Stream stream, Store store)
+        public async Task GenerateFeedAsync(Stream stream, Store store,Language lang)
         {
             if (stream == null)
                 throw new ArgumentNullException(nameof(stream));
@@ -328,90 +335,79 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry
             var settings = new XmlWriterSettings
             {
                 Encoding = Encoding.UTF8,
-                Indent = true
+                Indent = true,
+                Async = true
             };
 
             var googleShoppingSettings = await _settingService.LoadSettingAsync<GoogleShoppingMultiCountrySettings>(store.Id);
 
-            //language
-            var languageId = 0;
-            var languages = await _languageService.GetAllLanguagesAsync(storeId: store.Id);
-            //if we have only one language, let's use it
-            if (languages.Count == 1)
-            {
-                //let's use the first one
-                var language = languages.FirstOrDefault();
-                languageId = language != null ? language.Id : 0;
-            }
-            //otherwise, use the current one
-            if (languageId == 0)
-                languageId = (await _workContext.GetWorkingLanguageAsync()).Id;
+           
 
             //we load all Google products here using one SQL request (performance optimization)
             var allGoogleProducts = await _googleService.GetAllAsync();
 
             using var writer = XmlWriter.Create(stream, settings);
             //Generate feed according to the following specs: http://www.google.com/support/merchants/bin/answer.py?answer=188494&expand=GB
-            writer.WriteStartDocument();
+           await writer.WriteStartDocumentAsync();
             writer.WriteStartElement("rss");
             writer.WriteAttributeString("version", "2.0");
-            writer.WriteAttributeString("xmlns", "g", null, googleBaseNamespace);
+           await writer.WriteAttributeStringAsync("xmlns", "g", null, googleBaseNamespace);
             writer.WriteStartElement("channel");
             writer.WriteElementString("title", "Google Base feed");
             writer.WriteElementString("link", "http://base.google.com/base/");
             writer.WriteElementString("description", "Information about products");
 
-            var products1 = await _productService.SearchProductsAsync(storeId: store.Id, visibleIndividuallyOnly: true);
-            foreach (var product1 in products1)
+            var products = await _productService.SearchProductsAsync(storeId: store.Id, visibleIndividuallyOnly: true,languageId:lang.Id);
+            foreach (var product in products)
             {
                 var productsToProcess = new List<Product>();
-                switch (product1.ProductType)
+                switch (product.ProductType)
                 {
                     case ProductType.SimpleProduct:
                         {
                             //simple product doesn't have child products
-                            productsToProcess.Add(product1);
+                            productsToProcess.Add(product);
                         }
                         break;
                     case ProductType.GroupedProduct:
                         {
                             //grouped products could have several child products
-                            var associatedProducts = await _productService.GetAssociatedProductsAsync(product1.Id, store.Id);
+                            var associatedProducts = await _productService.GetAssociatedProductsAsync(product.Id, store.Id);
                             productsToProcess.AddRange(associatedProducts);
                         }
                         break;
                     default:
                         continue;
                 }
-                foreach (var product in productsToProcess)
+                foreach (var productToProcess in productsToProcess)
                 {
                     writer.WriteStartElement("item");
 
                     #region Basic Product Information
 
                     //id [id]- An identifier of the item
-                    writer.WriteElementString("g", "id", googleBaseNamespace, product.Id.ToString());
+                   await writer.WriteElementStringAsync("g", "id", googleBaseNamespace, productToProcess.Id.ToString());
 
                     //title [title] - Title of the item
                     writer.WriteStartElement("title");
-                    var title = await _localizationService.GetLocalizedAsync(product, x => x.Name, languageId);
+                    var title = await _localizationService.GetLocalizedAsync(productToProcess, x => x.Name, lang.Id);
                     //title should be not longer than 70 characters
                     if (title.Length > 70)
                         title = title[..70];
-                    writer.WriteCData(title);
-                    writer.WriteEndElement(); // title
+                   await writer.WriteCDataAsync(title);
+                  await  writer.WriteEndElementAsync(); // title
 
                     //description [description] - Description of the item
                     writer.WriteStartElement("description");
-                    var description = await _localizationService.GetLocalizedAsync(product, x => x.FullDescription, languageId);
+                    var description = await _localizationService.GetLocalizedAsync(productToProcess, x => x.FullDescription, lang.Id);
                     if (string.IsNullOrEmpty(description))
-                        description = await _localizationService.GetLocalizedAsync(product, x => x.ShortDescription, languageId);
+                        description = await _localizationService.GetLocalizedAsync(productToProcess, x => x.ShortDescription, lang.Id);
                     if (string.IsNullOrEmpty(description))
-                        description = await _localizationService.GetLocalizedAsync(product, x => x.Name, languageId); //description is required
+                        description = await _localizationService.GetLocalizedAsync(productToProcess, x => x.Name, lang.Id); //description is required
                                                                                                                       //resolving character encoding issues in your data feed
                     description = StripInvalidChars(description, true);
-                    writer.WriteCData(description);
-                    writer.WriteEndElement(); // description
+                   await writer.WriteCDataAsync(description);
+                   await writer.WriteEndElementAsync(); // description
 
                     //google product category [google_product_category] - Google's category of the item
                     //the category of the product according to Google’s product taxonomy. http://www.google.com/support/merchants/bin/answer.py?answer=160081
@@ -424,13 +420,13 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry
                         googleProductCategory = googleShoppingSettings.DefaultGoogleCategory;
                     if (string.IsNullOrEmpty(googleProductCategory))
                         throw new NopException("Default Google category is not set");
-                    writer.WriteStartElement("g", "google_product_category", googleBaseNamespace);
-                    writer.WriteCData(googleProductCategory);
-                    writer.WriteFullEndElement(); // g:google_product_category
+                  await  writer.WriteStartElementAsync("g", "google_product_category", googleBaseNamespace);
+                  await  writer.WriteCDataAsync(googleProductCategory);
+                  await  writer.WriteFullEndElementAsync(); // g:google_product_category
 
                     //product type [product_type] - Your category of the item
                     var defaultProductCategory = (await _categoryService
-                        .GetProductCategoriesByProductIdAsync(product.Id))
+                        .GetProductCategoriesByProductIdAsync(productToProcess.Id))
                         .FirstOrDefault();
                     if (defaultProductCategory != null)
                     {
@@ -438,17 +434,18 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry
                         var category = await _categoryService.GetFormattedBreadCrumbAsync(
                             category: await _categoryService.GetCategoryByIdAsync(defaultProductCategory.CategoryId),
                             separator: ">",
-                            languageId: languageId);
+                            languageId: lang.Id);
                         if (!string.IsNullOrEmpty(category))
                         {
-                            writer.WriteStartElement("g", "product_type", googleBaseNamespace);
-                            writer.WriteCData(category);
-                            writer.WriteFullEndElement(); // g:product_type
+                         await   writer.WriteStartElementAsync("g", "product_type", googleBaseNamespace);
+                          await  writer.WriteCDataAsync(category);
+                          await  writer.WriteFullEndElementAsync(); // g:product_type
                         }
                     }
 
                     //link [link] - URL directly linking to your item's page on your website
-                    var productUrl = GetUrlHelper().RouteUrl("Product", new { SeName = await _urlRecordService.GetSeNameAsync(product) }, await GetHttpProtocolAsync());
+                    var test = await _urlRecordService.GetSeNameAsync(productToProcess, languageId: lang.Id);
+                    var productUrl = GetUrlHelper().RouteUrl("Product", new { SeName = await _urlRecordService.GetSeNameAsync(productToProcess,languageId:lang.Id) }, await GetHttpProtocolAsync());
                     writer.WriteElementString("link", productUrl);
 
                     //image link [image_link] - URL of an image of the item
@@ -456,7 +453,7 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry
                     //up to 10 pictures
                     const int maximumPictures = 10;
                     var storeLocation = _webHelper.GetStoreLocation();
-                    var pictures = await _pictureService.GetPicturesByProductIdAsync(product.Id, maximumPictures);
+                    var pictures = await _pictureService.GetPicturesByProductIdAsync(productToProcess.Id, maximumPictures);
                     for (var i = 0; i < pictures.Count; i++)
                     {
                         var picture = pictures[i];
@@ -467,25 +464,25 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry
                         if (i == 0)
                         {
                             //default image
-                            writer.WriteElementString("g", "image_link", googleBaseNamespace, imageUrl);
+                         await   writer.WriteElementStringAsync("g", "image_link", googleBaseNamespace, imageUrl);
                         }
                         else
                         {
                             //additional image
-                            writer.WriteElementString("g", "additional_image_link", googleBaseNamespace, imageUrl);
+                          await  writer.WriteElementStringAsync("g", "additional_image_link", googleBaseNamespace, imageUrl);
                         }
                     }
                     if (!pictures.Any())
                     {
                         //no picture? submit a default one
                         var imageUrl = await _pictureService.GetDefaultPictureUrlAsync(googleShoppingSettings.ProductPictureSize, storeLocation: storeLocation);
-                        writer.WriteElementString("g", "image_link", googleBaseNamespace, imageUrl);
+                      await  writer.WriteElementStringAsync("g", "image_link", googleBaseNamespace, imageUrl);
                     }
 
                     //condition [condition] - Condition or state of the item
-                    writer.WriteElementString("g", "condition", googleBaseNamespace, "new");
+                  await  writer.WriteElementStringAsync("g", "condition", googleBaseNamespace, "new");
 
-                    writer.WriteElementString("g", "expiration_date", googleBaseNamespace, DateTime.Now.AddDays(googleShoppingSettings.ExpirationNumberOfDays).ToString("yyyy-MM-dd"));
+                  await  writer.WriteElementStringAsync("g", "expiration_date", googleBaseNamespace, DateTime.Now.AddDays(googleShoppingSettings.ExpirationNumberOfDays).ToString("yyyy-MM-dd"));
 
                     #endregion
 
@@ -493,9 +490,9 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry
 
                     //availability [availability] - Availability status of the item
                     var availability = "in stock"; //in stock by default
-                    if (product.ManageInventoryMethod == ManageInventoryMethod.ManageStock
-                        && product.BackorderMode == BackorderMode.NoBackorders
-                        && await _productService.GetTotalStockQuantityAsync(product) <= 0)
+                    if (productToProcess.ManageInventoryMethod == ManageInventoryMethod.ManageStock
+                        && productToProcess.BackorderMode == BackorderMode.NoBackorders
+                        && await _productService.GetTotalStockQuantityAsync(productToProcess) <= 0)
                     {
                         availability = "out of stock";
                     }
@@ -506,24 +503,24 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry
                     //{
                     //    availability = "preorder";
                     //}
-                    writer.WriteElementString("g", "availability", googleBaseNamespace, availability);
+                  await  writer.WriteElementStringAsync("g", "availability", googleBaseNamespace, availability);
 
                     //price [price] - Price of the item
-                    var currency = await GetUsedCurrencyAsync();
+                    var currency =await _currencyService.GetCurrencyByIdAsync(lang.DefaultCurrencyId);
                     decimal finalPriceBase;
                     if (googleShoppingSettings.PricesConsiderPromotions)
                     {
                         var currentCustomer = await _workContext.GetCurrentCustomerAsync();
-                        var minPossiblePrice = (await _priceCalculationService.GetFinalPriceAsync(product, currentCustomer)).finalPrice;
+                        var minPossiblePrice = (await _priceCalculationService.GetFinalPriceAsync(productToProcess, currentCustomer)).finalPrice;
 
-                        if (product.HasTierPrices)
+                        if (productToProcess.HasTierPrices)
                         {
                             //calculate price for the maximum quantity if we have tier prices, and choose minimal
                             minPossiblePrice = Math.Min(minPossiblePrice,
-                                (await _priceCalculationService.GetFinalPriceAsync(product, currentCustomer, quantity: int.MaxValue)).finalPrice);
+                                (await _priceCalculationService.GetFinalPriceAsync(productToProcess, currentCustomer, quantity: int.MaxValue)).finalPrice);
                         }
 
-                        finalPriceBase = (await _taxService.GetProductPriceAsync(product, minPossiblePrice)).price;
+                        finalPriceBase = (await _taxService.GetProductPriceAsync(productToProcess, minPossiblePrice)).price;
                     }
                     else
                     {
@@ -533,8 +530,8 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry
                     //round price now so it matches the product details page
                     price = await _priceCalculationService.RoundPriceAsync(price);
 
-                    writer.WriteElementString("g", "price", googleBaseNamespace,
-                                              price.ToString(new CultureInfo("en-US", false).NumberFormat) + " " +
+                   await writer.WriteElementStringAsync("g", "price", googleBaseNamespace,
+                                              price.ToString(new CultureInfo(lang.LanguageCulture, false).NumberFormat) + " " +
                                               currency.CurrencyCode);
 
                     #endregion
@@ -547,36 +544,36 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry
                     */
 
                     //GTIN [gtin] - GTIN
-                    var gtin = product.Gtin;
+                    var gtin = productToProcess.Gtin;
                     if (!string.IsNullOrEmpty(gtin))
                     {
-                        writer.WriteStartElement("g", "gtin", googleBaseNamespace);
-                        writer.WriteCData(gtin);
-                        writer.WriteFullEndElement(); // g:gtin
+                       await writer.WriteStartElementAsync("g", "gtin", googleBaseNamespace);
+                       await writer.WriteCDataAsync(gtin);
+                       await writer.WriteFullEndElementAsync(); // g:gtin
                     }
 
                     //brand [brand] - Brand of the item
-                    var defaultManufacturer = (await _manufacturerService.GetProductManufacturersByProductIdAsync(product.Id)).FirstOrDefault();
+                    var defaultManufacturer = (await _manufacturerService.GetProductManufacturersByProductIdAsync(productToProcess.Id)).FirstOrDefault();
                     if (defaultManufacturer != null)
                     {
-                        writer.WriteStartElement("g", "brand", googleBaseNamespace);
-                        writer.WriteCData((await _manufacturerService.GetManufacturerByIdAsync(defaultManufacturer.ManufacturerId))?.Name);
-                        writer.WriteFullEndElement(); // g:brand
+                      await  writer.WriteStartElementAsync("g", "brand", googleBaseNamespace);
+                      await  writer.WriteCDataAsync((await _manufacturerService.GetManufacturerByIdAsync(defaultManufacturer.ManufacturerId))?.Name);
+                      await  writer.WriteFullEndElementAsync(); // g:brand
                     }
 
                     //mpn [mpn] - Manufacturer Part Number (MPN) of the item
-                    var mpn = product.ManufacturerPartNumber;
+                    var mpn = productToProcess.ManufacturerPartNumber;
                     if (!string.IsNullOrEmpty(mpn))
                     {
-                        writer.WriteStartElement("g", "mpn", googleBaseNamespace);
-                        writer.WriteCData(mpn);
-                        writer.WriteFullEndElement(); // g:mpn
+                      await  writer.WriteStartElementAsync("g", "mpn", googleBaseNamespace);
+                      await  writer.WriteCDataAsync(mpn);
+                     await   writer.WriteFullEndElementAsync(); // g:mpn
                     }
 
                     //identifier exists [identifier_exists] - Submit custom goods
                     if (googleProduct != null && googleProduct.CustomGoods)
                     {
-                        writer.WriteElementString("g", "identifier_exists", googleBaseNamespace, "FALSE");
+                      await  writer.WriteElementStringAsync("g", "identifier_exists", googleBaseNamespace, "FALSE");
                     }
 
                     #endregion
@@ -590,33 +587,33 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry
                     //gender [gender] - Gender of the item
                     if (googleProduct != null && !string.IsNullOrEmpty(googleProduct.Gender))
                     {
-                        writer.WriteStartElement("g", "gender", googleBaseNamespace);
-                        writer.WriteCData(googleProduct.Gender);
-                        writer.WriteFullEndElement(); // g:gender
+                     await   writer.WriteStartElementAsync("g", "gender", googleBaseNamespace);
+                      await  writer.WriteCDataAsync(googleProduct.Gender);
+                      await  writer.WriteFullEndElementAsync(); // g:gender
                     }
 
                     //age group [age_group] - Target age group of the item
                     if (googleProduct != null && !string.IsNullOrEmpty(googleProduct.AgeGroup))
                     {
-                        writer.WriteStartElement("g", "age_group", googleBaseNamespace);
-                        writer.WriteCData(googleProduct.AgeGroup);
-                        writer.WriteFullEndElement(); // g:age_group
+                      await  writer.WriteStartElementAsync("g", "age_group", googleBaseNamespace);
+                      await  writer.WriteCDataAsync(googleProduct.AgeGroup);
+                      await  writer.WriteFullEndElementAsync(); // g:age_group
                     }
 
                     //color [color] - Color of the item
                     if (googleProduct != null && !string.IsNullOrEmpty(googleProduct.Color))
                     {
-                        writer.WriteStartElement("g", "color", googleBaseNamespace);
-                        writer.WriteCData(googleProduct.Color);
-                        writer.WriteFullEndElement(); // g:color
+                      await  writer.WriteStartElementAsync("g", "color", googleBaseNamespace);
+                      await  writer.WriteCDataAsync(googleProduct.Color);
+                     await   writer.WriteFullEndElementAsync(); // g:color
                     }
 
                     //size [size] - Size of the item
                     if (googleProduct != null && !string.IsNullOrEmpty(googleProduct.Size))
                     {
-                        writer.WriteStartElement("g", "size", googleBaseNamespace);
-                        writer.WriteCData(googleProduct.Size);
-                        writer.WriteFullEndElement(); // g:size
+                      await  writer.WriteStartElementAsync("g", "size", googleBaseNamespace);
+                      await  writer.WriteCDataAsync(googleProduct.Size);
+                      await  writer.WriteFullEndElementAsync(); // g:size
                     }
 
                     #endregion
@@ -643,7 +640,7 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry
                             "kg" => "kg",
                             _ => throw new Exception("Not supported weight. Google accepts the following units: lb, oz, g, kg."),
                         };
-                        writer.WriteElementString("g", "shipping_weight", googleBaseNamespace, string.Format(CultureInfo.InvariantCulture, "{0} {1}", shippingWeight.ToString(new CultureInfo("en-US", false).NumberFormat), weightName));
+                     await   writer.WriteElementStringAsync("g", "shipping_weight", googleBaseNamespace, string.Format(CultureInfo.InvariantCulture, "{0} {1}", shippingWeight.ToString(new CultureInfo(lang.LanguageCulture, false).NumberFormat), weightName));
                     }
 
                     //shipping length [shipping_length] - Length of the item for shipping
@@ -660,11 +657,11 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry
                         {
                             "inches" => "in",
                             //TODO support other dimensions (convert to cm)
-                            _ => throw new Exception("Not supported dimension. Google accepts the following units: in, cm."),//unknown dimension 
+                            _ => "cm", //unknown dimension 
                         };
-                        await writer.WriteElementStringAsync("g", "shipping_length", googleBaseNamespace, string.Format(CultureInfo.InvariantCulture, "{0} {1}", length.ToString(new CultureInfo("en-US", false).NumberFormat), dimensionName));
-                        await writer.WriteElementStringAsync("g", "shipping_width", googleBaseNamespace, string.Format(CultureInfo.InvariantCulture, "{0} {1}", width.ToString(new CultureInfo("en-US", false).NumberFormat), dimensionName));
-                        await writer.WriteElementStringAsync("g", "shipping_height", googleBaseNamespace, string.Format(CultureInfo.InvariantCulture, "{0} {1}", height.ToString(new CultureInfo("en-US", false).NumberFormat), dimensionName));
+                        await writer.WriteElementStringAsync("g", "shipping_length", googleBaseNamespace, string.Format(CultureInfo.InvariantCulture, "{0} {1}", length.ToString(new CultureInfo(lang.LanguageCulture, false).NumberFormat), dimensionName));
+                        await writer.WriteElementStringAsync("g", "shipping_width", googleBaseNamespace, string.Format(CultureInfo.InvariantCulture, "{0} {1}", width.ToString(new CultureInfo(lang.LanguageCulture, false).NumberFormat), dimensionName));
+                        await writer.WriteElementStringAsync("g", "shipping_height", googleBaseNamespace, string.Format(CultureInfo.InvariantCulture, "{0} {1}", height.ToString(new CultureInfo(lang.LanguageCulture, false).NumberFormat), dimensionName));
                     }
 
                     #endregion

@@ -19,5 +19,6 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry.Domains
         public string Size { get; set; }
         public string Material { get; set; }
         public string Pattern { get; set; }
+        public int LanguageId { get; set; }
     }
 }
