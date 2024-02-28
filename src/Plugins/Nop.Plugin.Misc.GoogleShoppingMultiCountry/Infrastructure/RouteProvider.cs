@@ -17,9 +17,7 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry.Infrastructure
         /// <param name="endpointRouteBuilder">Route builder</param>
         public void RegisterRoutes(IEndpointRouteBuilder endpointRouteBuilder)
         {
-            endpointRouteBuilder.MapControllerRoute("Configure",
-                "Admin/GoogleShoppingMultiCountry/Configure",
-                new { controller = "FeedGoogleShopping", action = "Configure" });
+        
 
         }
         /// <summary>

@@ -21,7 +21,10 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry.Data
         public override void Up()
         {
             Create.TableFor<GoogleFeedProductRecord>();
+            Create.TableFor<GoogleTaxonomyRecord>();
+
         }
+   
 
         #endregion
     }

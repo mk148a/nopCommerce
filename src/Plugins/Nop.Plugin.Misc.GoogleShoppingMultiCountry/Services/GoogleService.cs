@@ -14,14 +14,15 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry.Services
         #region Fields
 
         private readonly IRepository<GoogleFeedProductRecord> _gpRepository;
-
+        private readonly IRepository<GoogleTaxonomyRecord> _googleTaxonomyRepository;
         #endregion
 
         #region Ctor
 
-        public GoogleService(IRepository<GoogleFeedProductRecord> gpRepository)
+        public GoogleService(IRepository<GoogleFeedProductRecord> gpRepository, IRepository<GoogleTaxonomyRecord> googleTaxonomyRepository)
         {
             _gpRepository = gpRepository;
+            _googleTaxonomyRepository = googleTaxonomyRepository;
         }
 
         #endregion

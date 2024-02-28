@@ -31,7 +31,7 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry.Controllers
 {
     [AuthorizeAdmin]
     [Area(AreaNames.Admin)]
-    public class FeedGoogleShoppingController : BasePluginController
+    public class GoogleShoppingMultiCountryController : BasePluginController
     {
         #region Fields
 
@@ -57,7 +57,7 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry.Controllers
 
         #region Ctor
 
-        public FeedGoogleShoppingController(ICurrencyService currencyService,
+        public GoogleShoppingMultiCountryController(ICurrencyService currencyService,
             IGenericAttributeService genericAttributeService,
             IGoogleService googleService,
             ILocalizationService localizationService,
@@ -102,7 +102,7 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry.Controllers
         /// Prepare FeedGoogleShoppingModel
         /// </summary>
         /// <param name="model">Model</param>
-        private async Task<FeedGoogleShoppingModel> PrepareModelAsync(FeedGoogleShoppingModel model)
+        private async Task<GoogleShoppingMultiCountryModel> PrepareModelAsync(GoogleShoppingMultiCountryModel model)
         {
             if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManagePlugins))
                 return model;
@@ -116,10 +116,7 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry.Controllers
             model.PassShippingInfoDimensions = googleShoppingSettings.PassShippingInfoDimensions;
             model.PricesConsiderPromotions = googleShoppingSettings.PricesConsiderPromotions;
 
-            //currencies
-            model.CurrencyId = googleShoppingSettings.CurrencyId;
-            foreach (var c in await _currencyService.GetAllCurrenciesAsync())
-                model.AvailableCurrencies.Add(new SelectListItem { Text = c.Name, Value = c.Id.ToString() });
+            
             //Google categories
             model.DefaultGoogleCategory = googleShoppingSettings.DefaultGoogleCategory;
             model.AvailableGoogleCategories.Add(new SelectListItem { Text = "Select a category", Value = "" });
@@ -136,12 +133,13 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry.Controllers
             {
                 foreach (var language in await _languageService.GetAllLanguagesAsync(false, store.Id))
                 {
-                    var localFilePath = _nopFileProvider.Combine(_webHostEnvironment.WebRootPath, "files", "exportimport", store.Id + "-" +"-"+ googleShoppingSettings.StaticFileName);
+                    var localFilePath = _nopFileProvider.Combine(_webHostEnvironment.WebRootPath, "files", "exportimport", store.Id + "-" + language.UniqueSeoCode+"-" + googleShoppingSettings.StaticFileName);
                     if (_nopFileProvider.FileExists(localFilePath))
                         model.GeneratedFiles.Add(new GeneratedFileModel
                         {
                             StoreName = store.Name,
-                            FileUrl = $"{_webHelper.GetStoreLocation(false)}files/exportimport/{store.Id}-{language.UniqueSeoCode}-{googleShoppingSettings.StaticFileName}"
+                            FileUrl = $"{_webHelper.GetStoreLocation(false)}files/exportimport/{store.Id}-{language.UniqueSeoCode}-{googleShoppingSettings.StaticFileName}",
+                            Language = language.Name,
                         });
 
                 }
@@ -153,7 +151,6 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry.Controllers
             model.ActiveStoreScopeConfiguration = storeScope;
             if (storeScope > 0)
             {
-                model.CurrencyId_OverrideForStore = await _settingService.SettingExistsAsync(googleShoppingSettings, x => x.CurrencyId, storeScope);
                 model.DefaultGoogleCategory_OverrideForStore = await _settingService.SettingExistsAsync(googleShoppingSettings, x => x.DefaultGoogleCategory, storeScope);
                 model.PassShippingInfoDimensions_OverrideForStore = await _settingService.SettingExistsAsync(googleShoppingSettings, x => x.PassShippingInfoDimensions, storeScope);
                 model.PassShippingInfoWeight_OverrideForStore = await _settingService.SettingExistsAsync(googleShoppingSettings, x => x.PassShippingInfoWeight, storeScope);
@@ -172,7 +169,7 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry.Controllers
         [Area(AreaNames.Admin)]
         public async Task<IActionResult> Configure()
         {
-            var model = new FeedGoogleShoppingModel();
+            var model = new GoogleShoppingMultiCountryModel();
             try
             {
                 model = await PrepareModelAsync(model);
@@ -192,7 +189,7 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry.Controllers
         [HttpPost]
         [FormValueRequired("save")]
         [AutoValidateAntiforgeryToken]
-        public async Task<IActionResult> Configure(FeedGoogleShoppingModel model)
+        public async Task<IActionResult> Configure(GoogleShoppingMultiCountryModel model)
         {
             if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManagePlugins))
                 return AccessDeniedView();
@@ -211,7 +208,6 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry.Controllers
             googleShoppingSettings.PassShippingInfoWeight = model.PassShippingInfoWeight;
             googleShoppingSettings.PassShippingInfoDimensions = model.PassShippingInfoDimensions;
             googleShoppingSettings.PricesConsiderPromotions = model.PricesConsiderPromotions;
-            googleShoppingSettings.CurrencyId = model.CurrencyId;
             googleShoppingSettings.DefaultGoogleCategory = model.DefaultGoogleCategory;
 
             //_settingService.SaveSetting(_googleShoppingSettings);
@@ -219,7 +215,6 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry.Controllers
             /* We do not clear cache after each setting update.
              * This behavior can increase performance because cached settings will not be cleared 
              * and loaded from database after each update */
-            await _settingService.SaveSettingOverridablePerStoreAsync(googleShoppingSettings, x => x.CurrencyId, model.CurrencyId_OverrideForStore, storeScope, false);
             await _settingService.SaveSettingOverridablePerStoreAsync(googleShoppingSettings, x => x.DefaultGoogleCategory, model.DefaultGoogleCategory_OverrideForStore, storeScope, false);
             await _settingService.SaveSettingOverridablePerStoreAsync(googleShoppingSettings, x => x.PassShippingInfoDimensions, model.PassShippingInfoDimensions_OverrideForStore, storeScope, false);
             await _settingService.SaveSettingOverridablePerStoreAsync(googleShoppingSettings, x => x.PassShippingInfoWeight, model.PassShippingInfoWeight_OverrideForStore, storeScope, false);
@@ -238,7 +233,7 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry.Controllers
         [HttpPost, ActionName("Configure")]
         [FormValueRequired("generate")]
         [AutoValidateAntiforgeryToken]
-        public async Task<IActionResult> GenerateFeed(FeedGoogleShoppingModel model)
+        public async Task<IActionResult> GenerateFeed(GoogleShoppingMultiCountryModel model)
         {
             if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManagePlugins))
                 return AccessDeniedView();

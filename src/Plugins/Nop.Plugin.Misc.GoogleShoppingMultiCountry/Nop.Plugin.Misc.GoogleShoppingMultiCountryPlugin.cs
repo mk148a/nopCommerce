@@ -214,7 +214,7 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry
                 var settings = new GoogleShoppingMultiCountrySettings
                 {
                     PricesConsiderPromotions = false,
-                    ProductPictureSize = 125,
+                    ProductPictureSize = 250,
                     PassShippingInfoWeight = false,
                     PassShippingInfoDimensions = false,
                     StaticFileName = $"googleshoppingmulticountry_{CommonHelper.GenerateRandomDigitCode(10)}.xml",
@@ -298,7 +298,7 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry
         {
             //return _urlHelperFactory.GetUrlHelper(_actionContextAccessor.ActionContext).RouteUrl(AccessiBeDefaults.ConfigurationRouteName);
             //return $"{_webHelper.GetStoreLocation()}Admin/PaymentIyzico/Configure";
-            return _webHelper.GetStoreLocation() + "Admin/MiscGoogleShoppingMultiCountry/Configure";
+            return _webHelper.GetStoreLocation() + "Admin/GoogleShoppingMultiCountry/Configure";
 
 
         }
@@ -520,6 +520,19 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry
 
                     //price [price] - Price of the item
                     var currency =await _currencyService.GetCurrencyByIdAsync(lang.DefaultCurrencyId);
+                    if (currency==null)
+                    {
+                        var currencies =await _currencyService.GetAllCurrenciesAsync(false, store.Id);
+                       var currencyIsAvailableForThisCulture= currencies.Any(x => x.DisplayLocale == lang.LanguageCulture);
+                       if (currencyIsAvailableForThisCulture)
+                       {
+                           currency = currencies.SingleOrDefault(x => x.DisplayLocale == lang.LanguageCulture);
+                       }
+                       else
+                       {
+                           throw new Exception("Please configure your default currencies of your languages");
+                       }
+                    }
                     decimal finalPriceBase;
                     if (googleShoppingSettings.PricesConsiderPromotions)
                     {

@@ -2,7 +2,7 @@
 @using Nop.Plugin.Misc.GoogleShoppingMultiCountry.Models
 @using Nop.Web.Framework.TagHelpers.Shared
 @using Nop.Core.Domain.Common
-@model Nop.Plugin.Misc.GoogleShoppingMultiCountry.Models.FeedGoogleShoppingModel
+@model Nop.Plugin.Misc.GoogleShoppingMultiCountry.Models.GoogleShoppingMultiCountryModel
 @inject AdminAreaSettings adminAreaSettings
 
 @{
@@ -18,7 +18,7 @@
             @await Html.PartialAsync("Table", new DataTablesModel
             {
                 Name = "products-grid",
-                UrlRead = new DataUrl("GoogleProductList", "FeedGoogleShopping", null),
+           UrlRead = new DataUrl("GoogleProductList", "GoogleShoppingMultiCountry", null),
                 Length = Model.GoogleFeedProductSearchModel.PageSize,
            LengthMenu = Model.GoogleFeedProductSearchModel.AvailablePageSizes,
                 ColumnCollection = new List<ColumnProperty>
@@ -77,7 +77,7 @@
 
             <script>
                 function renderColumnEdit(data, type, row, meta) {
-                    return '<button onclick=\"javascript:OpenWindow(\'@Url.Content("~/Admin/FeedGoogleShopping/Edit/")' + data + '?btnId=btnRefresh&formId=google-shopping-form\', 800, 450, true); return false;\" class="btn btn-default"><i class="fa fa-pencil"></i>@T("Admin.Common.Edit")</button>';
+                    return '<button onclick=\"javascript:OpenWindow(\'@Url.Content("~/Admin/GoogleShoppingMultiCountry/Edit/")' + data + '?btnId=btnRefresh&formId=google-shopping-form\', 800, 450, true); return false;\" class="btn btn-default"><i class="fa fa-pencil"></i>@T("Admin.Common.Edit")</button>';
                 }
 
                 @*function renderColumnData(data, type, row, meta) {

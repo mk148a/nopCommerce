@@ -8,11 +8,10 @@ using Nop.Web.Framework.Mvc.ModelBinding;
 
 namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry.Models
 {
-    public record FeedGoogleShoppingModel
+    public record GoogleShoppingMultiCountryModel
     {
-        public FeedGoogleShoppingModel()
+        public GoogleShoppingMultiCountryModel()
         {
-            AvailableCurrencies = new List<SelectListItem>();
             AvailableGoogleCategories = new List<SelectListItem>();
             GeneratedFiles = new List<GeneratedFileModel>();
             GoogleFeedProductSearchModel = new GoogleFeedProductSearchModel();
@@ -24,10 +23,6 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry.Models
         public int ProductPictureSize { get; set; }
         public bool ProductPictureSize_OverrideForStore { get; set; }
 
-        [NopResourceDisplayName("Plugins.Misc.GoogleShoppingMultiCountry.Currency")]
-        public int CurrencyId { get; set; }
-        public IList<SelectListItem> AvailableCurrencies { get; set; }
-        public bool CurrencyId_OverrideForStore { get; set; }
 
         [NopResourceDisplayName("Plugins.Misc.GoogleShoppingMultiCountry.DefaultGoogleCategory")]
         public string DefaultGoogleCategory { get; set; }

@@ -11,5 +11,6 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry.Models
     {
         public string StoreName { get; set; }
         public string FileUrl { get; set; }
+        public string Language { get; set; }
     }
 }
