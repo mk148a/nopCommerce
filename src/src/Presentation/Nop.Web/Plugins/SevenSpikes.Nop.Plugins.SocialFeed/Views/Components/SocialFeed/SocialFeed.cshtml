@@ -1,6 +1,0 @@
-﻿@model IList<SocialFeedModel>
-
-@foreach (var item in Model)
-{
-    await Html.RenderPartialAsync(Views.SocialFeedPanel, item);
-}

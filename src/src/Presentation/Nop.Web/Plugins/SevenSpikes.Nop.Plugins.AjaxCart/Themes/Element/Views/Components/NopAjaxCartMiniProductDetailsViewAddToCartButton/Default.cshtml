@@ -1,5 +1,0 @@
-﻿@model SevenSpikes.Nop.Plugins.AjaxCart.Models.AddProductToCartAjaxButtonModel
-
-<button type="button" id="add-to-cart-button-@Model.ProductId" class="button-1 add-to-cart-button nopAjaxCartProductVariantAddToCartButton miniProductDetailsViewAddToCartButton" data-productId="@Model.ProductId"><span>@Model.ButtonValue</span></button>
-
-@Html.Hidden("addProductVariantToCartUrl", Url.Action("AddProductFromProductDetailsPageToCartAjax", "NopAjaxCartShoppingCart"))
