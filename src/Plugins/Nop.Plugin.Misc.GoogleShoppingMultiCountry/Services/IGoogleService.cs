@@ -22,5 +22,8 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry.Services
         Task UpdateGoogleProductRecordAsync(GoogleFeedProductRecord googleFeedProductRecord);
 
         Task<IList<string>> GetTaxonomyListAsync();
+        Task<string> CreateTaxonomyEntityAsync(); 
+        Task<IList<GoogleTaxonomyRecord>> GetTaxonomyListEntityAsync(); 
+        Task<GoogleTaxonomyRecord> GetByCategoryIdAsync(int categoryId);
     }
 }

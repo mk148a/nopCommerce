@@ -52,6 +52,7 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry.Controllers
         private readonly IWebHelper _webHelper;
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly IWorkContext _workContext;
+        private readonly ICategoryService _categoryService;
 
         #endregion
 
@@ -73,7 +74,8 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry.Controllers
             IWebHelper webHelper,
             IWebHostEnvironment webHostEnvironment,
             IWorkContext workContext,
-            ILanguageService languageService)
+            ILanguageService languageService,
+          ICategoryService categoryService)
         {
             _currencyService = currencyService;
             _genericAttributeService = genericAttributeService;
@@ -92,6 +94,7 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry.Controllers
             _webHostEnvironment = webHostEnvironment;
             _workContext = workContext;
             _languageService = languageService;
+            _categoryService = categoryService;
         }
 
         #endregion
@@ -116,8 +119,11 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry.Controllers
             model.PassShippingInfoDimensions = googleShoppingSettings.PassShippingInfoDimensions;
             model.PricesConsiderPromotions = googleShoppingSettings.PricesConsiderPromotions;
 
-            
+
             //Google categories
+            await _googleService.CreateTaxonomyEntityAsync();
+
+
             model.DefaultGoogleCategory = googleShoppingSettings.DefaultGoogleCategory;
             model.AvailableGoogleCategories.Add(new SelectListItem { Text = "Select a category", Value = "" });
             foreach (var gc in await _googleService.GetTaxonomyListAsync())
@@ -379,6 +385,172 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry.Controllers
 
             return View("~/Plugins/Nop.Plugin.Misc.GoogleShoppingMultiCountry/Views/Edit.cshtml", model);
         }
+
+
+
+        #region CategoriesGoogleCategoriesMapping
+
+        [HttpPost]
+        [AutoValidateAntiforgeryToken]
+        public async Task<IActionResult> GoogleCategoryList(GoogleFeedCategorySearchModel searchModel)
+        {
+            var storeId = await _storeContext.GetActiveStoreScopeConfigurationAsync();
+          
+          
+            var categories = await _categoryService.GetAllCategoriesAsync("",storeId:storeId,
+                pageIndex: searchModel.Page - 1,
+                pageSize: searchModel.PageSize,
+                showHidden: false);
+            //prepare list model
+            var model = await new GoogleFeedCategoryListModel().PrepareToGridAsync(searchModel, categories, () =>
+            {
+                return categories.SelectAwait(async category =>
+                {
+                    var gModel = new GoogleFeedCategoryModel
+                    {
+                        CategoryId = category.Id,
+                        CategoryName = category.Name
+                    };
+                    var googleCategory = await _googleService.GetByCategoryIdAsync(category.Id);
+                    if (googleCategory != null)
+                    {
+                        gModel.GoogleCategory = googleCategory.Name;
+                        gModel.GoogleCategoryId = googleCategory.GoogleTaxonomyId;
+                       
+                    }
+                    return gModel;
+                });
+            });
+
+            return Json(model);
+        }
+
+        private async Task<GoogleFeedCategoryMappingModel> PrepareCategoryMappingModelAsync(GoogleFeedCategoryMappingModel model)
+        {
+            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManagePlugins))
+                return model;
+
+            //load settings for a chosen store scope
+            var storeScope = await _storeContext.GetActiveStoreScopeConfigurationAsync();
+            var googleShoppingSettings = await _settingService.LoadSettingAsync<GoogleShoppingMultiCountrySettings>(storeScope);
+
+            //Google and Nopcommerce categories
+            var googleCategories=   await _googleService.GetTaxonomyListEntityAsync();
+            var categories = await _categoryService.GetAllCategoriesAsync(storeScope);
+
+            model.Categories= categories;
+
+
+            model.GoogleFeedCategoryListSearchModel.SetGridPageSize(model.GoogleFeedCategoryListSearchModel.PageSize);
+
+
+
+        
+        
+
+            
+
+            return model;
+        }
+
+
+        [HttpPost, ActionName("Configure")]
+        [FormValueRequired("mapCategories")]
+        [AutoValidateAntiforgeryToken]
+        public async Task<IActionResult> MapCategories()
+        {
+            var model = new GoogleFeedCategoryMappingModel();
+            try
+            {
+               
+                model = await PrepareCategoryMappingModelAsync(model);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+
+            }
+
+
+            return View("~/Plugins/Nop.Plugin.Misc.GoogleShoppingMultiCountry/Views/_MapCategories.cshtml", model);
+        }
+
+
+
+
+        public async Task<IActionResult> EditMapCategories(int id)
+        {
+            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageShippingSettings))
+                return AccessDeniedView();
+
+            var googleProduct = await _googleService.GetByProductIdAsync(id);
+
+            var model = new GoogleFeedProductModel
+            {
+                ProductId = id
+            };
+
+            if (googleProduct == null)
+                return View("~/Plugins/Nop.Plugin.Misc.GoogleShoppingMultiCountry/Views/Edit.cshtml", model);
+
+            model = new GoogleFeedProductModel
+            {
+                Id = googleProduct.Id,
+                ProductId = googleProduct.ProductId,
+                Color = googleProduct.Color,
+                AgeGroup = googleProduct.AgeGroup,
+                CustomGoods = googleProduct.CustomGoods,
+                Gender = googleProduct.Gender,
+                GoogleSize = googleProduct.Size,
+                GoogleCategory = googleProduct.Taxonomy,
+                LanguageId = googleProduct.LanguageId
+            };
+
+            return View("~/Plugins/Nop.Plugin.Misc.GoogleShoppingMultiCountry/Views/Edit.cshtml", model);
+        }
+
+        [HttpPost]
+        [AutoValidateAntiforgeryToken]
+        public async Task<IActionResult> EditMapCategories(GoogleFeedProductModel model)
+        {
+            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManagePlugins))
+                return AccessDeniedView();
+
+            var googleProduct = await _googleService.GetByProductIdAsync(model.ProductId);
+            if (googleProduct != null)
+            {
+                googleProduct.Taxonomy = model.GoogleCategory;
+                googleProduct.Gender = model.Gender;
+                googleProduct.AgeGroup = model.AgeGroup;
+                googleProduct.Color = model.Color;
+                googleProduct.Size = model.GoogleSize;
+                googleProduct.CustomGoods = model.CustomGoods;
+                googleProduct.LanguageId = model.LanguageId;
+                await _googleService.UpdateGoogleProductRecordAsync(googleProduct);
+            }
+            else
+            {
+                //insert
+                googleProduct = new GoogleFeedProductRecord
+                {
+                    ProductId = model.ProductId,
+                    Taxonomy = model.GoogleCategory,
+                    Gender = model.Gender,
+                    AgeGroup = model.AgeGroup,
+                    Color = model.Color,
+                    Size = model.GoogleSize,
+                    CustomGoods = model.CustomGoods,
+                    LanguageId = model.LanguageId
+                };
+                await _googleService.InsertGoogleProductRecordAsync(googleProduct);
+            }
+
+            ViewBag.RefreshPage = true;
+
+            return View("~/Plugins/Nop.Plugin.Misc.GoogleShoppingMultiCountry/Views/Edit.cshtml", model);
+        }
+
+        #endregion
 
         #endregion
     }

@@ -263,7 +263,8 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry
                     ["Plugins.Misc.GoogleShoppingMultiCountry.Products.CustomGoods.Hint"] = "Custom goods (no identifier exists).",
                     ["Plugins.Misc.GoogleShoppingMultiCountry.SuccessResult"] = "Google Shopping feed has been successfully generated.",
                     ["Plugins.Misc.GoogleShoppingMultiCountry.StaticFilePath"] = "Generated file path (static)",
-                    ["Plugins.Misc.GoogleShoppingMultiCountry.StaticFilePath.Hint"] = "A file path of the generated file. It's static for your store and can be shared with the Google Shopping service."
+                    ["Plugins.Misc.GoogleShoppingMultiCountry.StaticFilePath.Hint"] = "A file path of the generated file. It's static for your store and can be shared with the Google Shopping service.",
+                    ["Plugins.Misc.GoogleShoppingMultiCountry.Products.CategoryName"] = "Category"
 
                 });
 

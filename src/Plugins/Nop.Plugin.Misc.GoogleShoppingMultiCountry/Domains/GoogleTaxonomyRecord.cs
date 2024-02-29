@@ -12,6 +12,7 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry.Domains
     {
         public string Name { get; set; }
         public int ParentId { get; set; }
+        public int GoogleTaxonomyId { get; set; }
         public virtual ICollection<GoogleTaxonomyRecord> SubCategories { get; set; }
 
     }

@@ -10,7 +10,7 @@ using Nop.Plugin.Misc.GoogleShoppingMultiCountry.Domains;
 
 namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry.Data
 {
-    [NopMigration("2024/01/01 12:00:00", "Feed.GoogleShopping base schema", MigrationProcessType.Installation)]
+    [NopMigration("2024/01/01 12:00:00", "Misc.GoogleShoppingMultiCountry base schema", MigrationProcessType.Installation)]
     public class SchemaMigration : AutoReversingMigration
     {
         #region Methods
@@ -22,7 +22,7 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry.Data
         {
             Create.TableFor<GoogleFeedProductRecord>();
             Create.TableFor<GoogleTaxonomyRecord>();
-
+            Create.TableFor<CategoryGoogleTaxonomyRecordMapping>();
         }
    
 
