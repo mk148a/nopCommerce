@@ -1,6 +1,11 @@
-﻿@model Nop.Plugin.Misc.GoogleShoppingMultiCountry.Models.GoogleShoppingMultiCountryModel
+﻿@using Microsoft.AspNetCore.Mvc.Routing
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using Nop.Core
+@using Nop.Web.Framework.TagHelpers.Admin
+@model Nop.Plugin.Misc.GoogleShoppingMultiCountry.Models.GoogleShoppingMultiCountryModel
 
 @await Component.InvokeAsync("StoreScopeConfiguration")
+@inject  IWebHelper _webHelper;
 
 <div class="card-body">
     <div class="card card-default">
@@ -81,7 +86,16 @@
                     &nbsp;
                 </div>
                 <div class="col-md-9">
-                    <input type="submit" name="mapCategories" class="btn bg-red" value="MapGoogleCategories" />
+                    @{
+                        var storeLoc = _webHelper.GetStoreLocation();
+                        var sdsd = storeLoc.Remove(storeLoc.Length-1) + @Url.Action("MapCategories", "GoogleShoppingMultiCountry");
+                       
+                        Console.WriteLine(sdsd);
+                    }
+                    }
+                    <input type="button" name="mapCategories" class="btn bg-red" value="MapGoogleCategories" onclick="javascript:OpenWindow('@sdsd')" />
+                    @*                     <input type="submit" name="mapCategories" class="btn bg-red" value="MapGoogleCategories" onclick="javascript:OpenWindow(\'@Url.Content("~/Admin/GoogleShoppingMultiCountry/MapGoogleCategories/")'" />
+ *@
                     <input type="submit" name="save" class="btn bg-blue" value="@T("Admin.Common.Save")"/>
                     <input type="submit" name="generate" class="btn bg-green" value="@T("Plugins.Misc.GoogleShoppingMultiCountry.Generate")"/>
                 </div>

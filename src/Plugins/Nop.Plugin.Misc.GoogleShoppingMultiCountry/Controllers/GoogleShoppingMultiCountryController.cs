@@ -454,8 +454,7 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry.Controllers
         }
 
 
-        [HttpPost, ActionName("Configure")]
-        [FormValueRequired("mapCategories")]
+        [HttpGet, ActionName("MapCategories")]
         [AutoValidateAntiforgeryToken]
         public async Task<IActionResult> MapCategories()
         {
@@ -483,30 +482,31 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry.Controllers
             if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageShippingSettings))
                 return AccessDeniedView();
 
-            var googleProduct = await _googleService.GetByProductIdAsync(id);
+            var googleCategoryMapping = await _googleService.GetGoogleTaxonomyRecordMappingByCategoryIdAsync(id);
+            var googleCategory = await _googleService.GetByCategoryIdAsync(id);
+            var category = await _categoryService.GetCategoryByIdAsync(id);
 
-            var model = new GoogleFeedProductModel
+            var model = new GoogleFeedCategoryModel
             {
-                ProductId = id
+                CategoryId = id,
+                CategoryName = category.Name
             };
 
-            if (googleProduct == null)
-                return View("~/Plugins/Nop.Plugin.Misc.GoogleShoppingMultiCountry/Views/Edit.cshtml", model);
+            if (googleCategory == null)
+                return View("~/Plugins/Nop.Plugin.Misc.GoogleShoppingMultiCountry/Views/EditMapCategories.cshtml", model);
 
-            model = new GoogleFeedProductModel
+            
+            model = new GoogleFeedCategoryModel
             {
-                Id = googleProduct.Id,
-                ProductId = googleProduct.ProductId,
-                Color = googleProduct.Color,
-                AgeGroup = googleProduct.AgeGroup,
-                CustomGoods = googleProduct.CustomGoods,
-                Gender = googleProduct.Gender,
-                GoogleSize = googleProduct.Size,
-                GoogleCategory = googleProduct.Taxonomy,
-                LanguageId = googleProduct.LanguageId
+                Id = googleCategory.Id,
+                CategoryId = googleCategoryMapping.CategoryId,
+                CategoryName = category.Name,
+                GoogleCategory = googleCategory.Name,
+                GoogleCategoryId = googleCategory.Id
+              
             };
 
-            return View("~/Plugins/Nop.Plugin.Misc.GoogleShoppingMultiCountry/Views/Edit.cshtml", model);
+            return View("~/Plugins/Nop.Plugin.Misc.GoogleShoppingMultiCountry/Views/EditMapCategories.cshtml", model);
         }
 
         [HttpPost]

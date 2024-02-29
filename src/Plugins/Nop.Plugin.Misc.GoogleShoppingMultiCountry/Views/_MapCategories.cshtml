@@ -7,7 +7,7 @@
 </p>
 
 @{
-    Layout = "_ConfigurePlugin";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminPopupLayout.cshtml";
     // <link rel="stylesheet" href="~/Plugins/Feed.GoogleShopping/Content/styles.css" />
 }
 
@@ -17,34 +17,43 @@
             @T("Plugins.Feed.GoogleShopping.OverrideInstructions")
 
             @await Html.PartialAsync("Table", new DataTablesModel
-       {
-           Name = "categories-grid",
-           UrlRead = new DataUrl("GoogleCategoryList", "GoogleShoppingMultiCountry", null),
-           Length = Model.GoogleFeedCategoryListSearchModel.PageSize,
-           LengthMenu = Model.GoogleFeedCategoryListSearchModel.AvailablePageSizes,
-           ColumnCollection = new List<ColumnProperty>
             {
-            new ColumnProperty(nameof(GoogleFeedCategoryModel.CategoryName))
-            {
-            Title = T("Plugins.Misc.GoogleShoppingMultiCountry.Products.CategoryName").Text,
-            Width = "300"
-            },
-            new ColumnProperty(nameof(GoogleFeedCategoryModel.GoogleCategory))
-            {
-            Title = T("Plugins.Feed.GoogleShopping.Products.GoogleCategory").Text,
-            Width = "100"
-            },
-            new ColumnProperty(nameof(GoogleFeedCategoryModel.GoogleCategoryId))
-            {
-            Title = ("Google Category Id"),
-            Width = "100"
+                Name = "categories-grid",
+                UrlRead = new DataUrl("GoogleCategoryList", "GoogleShoppingMultiCountry", null),
+                Length = Model.GoogleFeedCategoryListSearchModel.PageSize,
+                LengthMenu = Model.GoogleFeedCategoryListSearchModel.AvailablePageSizes,
+                ColumnCollection = new List<ColumnProperty>
+                {
+                    new ColumnProperty(nameof(GoogleFeedCategoryModel.CategoryName))
+                    {
+                        Title = T("Plugins.Misc.GoogleShoppingMultiCountry.Products.CategoryName").Text,
+                        Width = "300"
+                    },
+                    new ColumnProperty(nameof(GoogleFeedCategoryModel.GoogleCategory))
+                    {
+                        Title = T("Plugins.Feed.GoogleShopping.Products.GoogleCategory").Text,
+                        Width = "100"
+                    },
+                    new ColumnProperty(nameof(GoogleFeedCategoryModel.GoogleCategoryId))
+                    {
+                        Title = ("Google Category Id"),
+                        Width = "100"
+                    },
+                    new ColumnProperty(nameof(GoogleFeedCategoryModel.CategoryId))
+                    {
+                        Title = T("Admin.Common.Edit").Text,
+                        Width = "50",
+                        ClassName = NopColumnClassDefaults.Button,
+                        Render = new RenderCustom("renderColumnEdit")
+                    }
+                }
             }
-            }
-       })
+            
+            )
 
             <script>
                 function renderColumnEdit(data, type, row, meta) {
-                    return '<button onclick=\"javascript:OpenWindow(\'@Url.Content("~/Admin/GoogleShoppingMultiCountry/Edit/")' + data + '?btnId=btnRefresh&formId=google-shopping-form\', 800, 450, true); return false;\" class="btn btn-default"><i class="fa fa-pencil"></i>@T("Admin.Common.Edit")</button>';
+                    return '<button onclick=\"javascript:OpenWindow(\'@Url.Content("~/Admin/GoogleShoppingMultiCountry/EditMapCategories/")' + data + '?btnId=btnRefresh&formId=google-shopping-form\', 800, 450, true); return false;\" class="btn btn-default"><i class="fa fa-pencil"></i>@T("Admin.Common.Edit")</button>';
                 }
 
                 @*function renderColumnData(data, type, row, meta) {

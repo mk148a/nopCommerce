@@ -1,4 +1,4 @@
-﻿@model Nop.Plugin.Misc.GoogleShoppingMultiCountry.Models.GoogleFeedProductModel
+﻿@model Nop.Plugin.Misc.GoogleShoppingMultiCountry.Models.GoogleFeedCategoryModel
 
 @{
     Layout = "~/Areas/Admin/Views/Shared/_AdminPopupLayout.cshtml";
@@ -21,7 +21,7 @@
 
     <div class="content">
         <div class="form-horizontal">
-            @await Html.PartialAsync("~/Plugins/Nop.Plugin.Misc.GoogleShoppingMultiCountry/Views/_Update.cshtml", Model)
+            @await Html.PartialAsync("~/Plugins/Nop.Plugin.Misc.GoogleShoppingMultiCountry/Views/UpdateMapCategories.cshtml", Model)
         </div>
     </div>
 </form>

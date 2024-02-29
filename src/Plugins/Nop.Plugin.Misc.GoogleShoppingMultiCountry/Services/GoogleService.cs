@@ -199,8 +199,27 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry.Services
             var result=(await _googleTaxonomyRepository.GetByIdAsync(record.GoogleTaxonomyRecordId));
             return result;
         }
+        public virtual async Task<CategoryGoogleTaxonomyRecordMapping> GetGoogleTaxonomyRecordMappingByCategoryIdAsync(int categoryId)
+        {
+            if (categoryId == 0)
+                return null;
 
+            var query = from gp in _categoryGoogleTaxonomyRecordMappingRepository.Table
+                where gp.CategoryId == categoryId
+                orderby gp.Id
+                select gp;
+            var record = await query.FirstOrDefaultAsync();
+            if (record == null)
+                return null;
 
-        #endregion
+            return record;
+        }
+
+       
     }
+
+
+
+#endregion
 }
+
