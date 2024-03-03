@@ -26,7 +26,7 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry.Models
 
         [NopResourceDisplayName("Plugins.Misc.GoogleShoppingMultiCountry.Products.GoogleCategory")]
         public string GoogleCategory { get; set; }
-        [NopResourceDisplayName("Plugins.Misc.GoogleShoppingMultiCountry.Products.GoogleCategory")]
+        [NopResourceDisplayName("Plugins.Misc.GoogleShoppingMultiCountry.Products.GoogleCategoryId")]
         public int GoogleCategoryId { get; set; }
 
 

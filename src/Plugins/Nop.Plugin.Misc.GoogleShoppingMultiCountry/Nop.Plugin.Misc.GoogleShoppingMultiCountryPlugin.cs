@@ -249,6 +249,8 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry
                     ["Plugins.Misc.GoogleShoppingMultiCountry.Products.ProductName.Hint"] = "Product Name",
                     ["Plugins.Misc.GoogleShoppingMultiCountry.Products.GoogleCategory"] = "Google Category",
                     ["Plugins.Misc.GoogleShoppingMultiCountry.Products.GoogleCategory.Hint"] = "Product category according to the Google product taxonomy.",
+                    ["Plugins.Misc.GoogleShoppingMultiCountry.Products.GoogleCategoryId"] = "Google Category Id",
+                    ["Plugins.Misc.GoogleShoppingMultiCountry.Products.GoogleCategory.Hint"] = "Product category Id according to the Google product taxonomy.",
                     ["Plugins.Misc.GoogleShoppingMultiCountry.Products.Gender"] = "Gender",
                     ["Plugins.Misc.GoogleShoppingMultiCountry.Products.Gender.Hint"] = "Gender of the people for whom the product is intended.",
                     ["Plugins.Misc.GoogleShoppingMultiCountry.Products.AgeGroup"] = "Age group",

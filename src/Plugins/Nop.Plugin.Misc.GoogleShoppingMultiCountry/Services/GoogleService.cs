@@ -184,6 +184,43 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry.Services
 
             return result;
         }
+
+        public virtual string GetFullTaxonomyNameByTaxonomyId(int taxonomyId)
+        {
+            string result = "";
+            var query = from gp in _googleTaxonomyRepository.Table
+                where gp.GoogleTaxonomyId == taxonomyId
+                        orderby gp.Id
+                        select gp;
+
+            var thisTaxonomy= query.FirstOrDefault();
+            result = thisTaxonomy.Name;
+
+            if (thisTaxonomy != null)
+            {
+                
+                while (thisTaxonomy.ParentId!=0)
+                {
+                    query = from gp in _googleTaxonomyRepository.Table
+                        where gp.GoogleTaxonomyId == thisTaxonomy.ParentId
+                            orderby gp.Id
+                        select gp;
+                    thisTaxonomy = query.FirstOrDefault();
+                    if (thisTaxonomy!=null)
+                    {
+                        result = thisTaxonomy.Name + ">" + result;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                  
+                }
+            }
+
+            return result;
+
+        }
   public virtual async Task<GoogleTaxonomyRecord> GetByCategoryIdAsync(int categoryId)
         {
             if (categoryId == 0)
@@ -196,9 +233,27 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry.Services
             var record = await query.FirstOrDefaultAsync();
             if (record == null)
                 return null;
-            var result=(await _googleTaxonomyRepository.GetByIdAsync(record.GoogleTaxonomyRecordId));
-            return result;
+          
+
+            var query1 = from gp in _googleTaxonomyRepository.Table
+                where gp.GoogleTaxonomyId == record.GoogleTaxonomyRecordId
+                         orderby gp.Id
+                select gp;
+            var record1 = await query1.FirstOrDefaultAsync();
+            return record1;
+        }   
+  public virtual async Task<IList<CategoryGoogleTaxonomyRecordMapping>> GetGoogleTaxonomyRecordMappingsAsync()
+  {
+
+      var query = _categoryGoogleTaxonomyRecordMappingRepository.GetAll();
+          
+           
+            if (query == null)
+                return null;
+
+            return query;
         }
+
         public virtual async Task<CategoryGoogleTaxonomyRecordMapping> GetGoogleTaxonomyRecordMappingByCategoryIdAsync(int categoryId)
         {
             if (categoryId == 0)
@@ -215,7 +270,21 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry.Services
             return record;
         }
 
-       
+        public virtual async Task InsertCategoryGoogleTaxonomyRecordMappingAsync(CategoryGoogleTaxonomyRecordMapping categoryGoogleTaxonomyRecordMapping)
+        {
+            if (categoryGoogleTaxonomyRecordMapping == null)
+                throw new ArgumentNullException(nameof(categoryGoogleTaxonomyRecordMapping));
+
+            await _categoryGoogleTaxonomyRecordMappingRepository.InsertAsync(categoryGoogleTaxonomyRecordMapping);
+        }
+
+        public virtual async Task UpdateCategoryGoogleTaxonomyRecordMappingAsync(CategoryGoogleTaxonomyRecordMapping categoryGoogleTaxonomyRecordMapping)
+        {
+            if (categoryGoogleTaxonomyRecordMapping == null)
+                throw new ArgumentNullException(nameof(categoryGoogleTaxonomyRecordMapping));
+
+            await _categoryGoogleTaxonomyRecordMappingRepository.UpdateAsync(categoryGoogleTaxonomyRecordMapping);
+        }
     }
 
 

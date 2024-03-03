@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc;
 using Nop.Core.Domain.Stores;
 using Nop.Core.Infrastructure;
@@ -26,6 +25,9 @@ using Nop.Web.Framework.Controllers;
 using Nop.Web.Framework.Mvc.Filters;
 using Nop.Web.Framework;
 using Nop.Web.Framework.Models.Extensions;
+using JsonResult = Microsoft.AspNetCore.Mvc.JsonResult;
+using SelectListItem = Microsoft.AspNetCore.Mvc.Rendering.SelectListItem;
+
 
 namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry.Controllers
 {
@@ -192,7 +194,7 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry.Controllers
 
         [AuthorizeAdmin]
         [Area(AreaNames.Admin)]
-        [HttpPost]
+        [Microsoft.AspNetCore.Mvc.HttpPost]
         [FormValueRequired("save")]
         [AutoValidateAntiforgeryToken]
         public async Task<IActionResult> Configure(GoogleShoppingMultiCountryModel model)
@@ -236,7 +238,7 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry.Controllers
             return await Configure();
         }
 
-        [HttpPost, ActionName("Configure")]
+        [Microsoft.AspNetCore.Mvc.HttpPost, Microsoft.AspNetCore.Mvc.ActionName("Configure")]
         [FormValueRequired("generate")]
         [AutoValidateAntiforgeryToken]
         public async Task<IActionResult> GenerateFeed(GoogleShoppingMultiCountryModel model)
@@ -275,7 +277,7 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry.Controllers
             return await Configure(model);
         }
 
-        [HttpPost]
+        [Microsoft.AspNetCore.Mvc.HttpPost]
         [AutoValidateAntiforgeryToken]
         public async Task<IActionResult> GoogleProductList(GoogleFeedProductSearchModel searchModel)
         {
@@ -345,7 +347,7 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry.Controllers
             return View("~/Plugins/Nop.Plugin.Misc.GoogleShoppingMultiCountry/Views/Edit.cshtml", model);
         }
 
-        [HttpPost]
+        [Microsoft.AspNetCore.Mvc.HttpPost]
         [AutoValidateAntiforgeryToken]
         public async Task<IActionResult> Edit(GoogleFeedProductModel model)
         {
@@ -390,7 +392,7 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry.Controllers
 
         #region CategoriesGoogleCategoriesMapping
 
-        [HttpPost]
+        [Microsoft.AspNetCore.Mvc.HttpPost]
         [AutoValidateAntiforgeryToken]
         public async Task<IActionResult> GoogleCategoryList(GoogleFeedCategorySearchModel searchModel)
         {
@@ -437,10 +439,10 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry.Controllers
             //Google and Nopcommerce categories
             var googleCategories=   await _googleService.GetTaxonomyListEntityAsync();
             var categories = await _categoryService.GetAllCategoriesAsync(storeScope);
-
+            var categoryTaxonomyMappings = await _googleService.GetGoogleTaxonomyRecordMappingsAsync();
             model.Categories= categories;
 
-
+            model.CategoryGoogleTaxonomyRecordMappings = categoryTaxonomyMappings;
             model.GoogleFeedCategoryListSearchModel.SetGridPageSize(model.GoogleFeedCategoryListSearchModel.PageSize);
 
 
@@ -453,8 +455,22 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry.Controllers
             return model;
         }
 
+        [Microsoft.AspNetCore.Mvc.HttpPost, Microsoft.AspNetCore.Mvc.ActionName("SearchGoogleTaxonomyPrefixAsync")]
+        [AutoValidateAntiforgeryToken]
+        public async Task<JsonResult> SearchGoogleTaxonomyPrefixAsync(string Prefix)
+        {
+            //Note : you can bind same list from database
+            var taxonomyList=await _googleService.GetTaxonomyListEntityAsync();
+            //Searching records from list using LINQ query
+            var Taxonomies = (from N in taxonomyList
+                        where N.Name.ToLower().Contains(Prefix.ToLower())
+                              select new { N.Name, N.GoogleTaxonomyId, parentTaxonomy =  _googleService.GetFullTaxonomyNameByTaxonomyId(N.GoogleTaxonomyId) });
 
-        [HttpGet, ActionName("MapCategories")]
+            return Json(Taxonomies, new Newtonsoft.Json.JsonSerializerSettings());
+        }
+
+
+        [Microsoft.AspNetCore.Mvc.HttpGet, Microsoft.AspNetCore.Mvc.ActionName("MapCategories")]
         [AutoValidateAntiforgeryToken]
         public async Task<IActionResult> MapCategories()
         {
@@ -489,65 +505,60 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry.Controllers
             var model = new GoogleFeedCategoryModel
             {
                 CategoryId = id,
-                CategoryName = category.Name
+              
             };
+            if (category!=null)
+            {
+                model.CategoryName = category.Name;
+            }
 
             if (googleCategory == null)
                 return View("~/Plugins/Nop.Plugin.Misc.GoogleShoppingMultiCountry/Views/EditMapCategories.cshtml", model);
 
-            
-            model = new GoogleFeedCategoryModel
+            if (category != null)
             {
-                Id = googleCategory.Id,
-                CategoryId = googleCategoryMapping.CategoryId,
-                CategoryName = category.Name,
-                GoogleCategory = googleCategory.Name,
-                GoogleCategoryId = googleCategory.Id
-              
-            };
+                model = new GoogleFeedCategoryModel
+                {
+                    Id = googleCategory.Id,
+                    CategoryId = googleCategoryMapping.CategoryId,
+                    CategoryName = category.Name,
+                    GoogleCategory = googleCategory.Name,
+                    GoogleCategoryId = googleCategory.Id
+                };
+            }
 
             return View("~/Plugins/Nop.Plugin.Misc.GoogleShoppingMultiCountry/Views/EditMapCategories.cshtml", model);
         }
 
-        [HttpPost]
+        [Microsoft.AspNetCore.Mvc.HttpPost]
         [AutoValidateAntiforgeryToken]
-        public async Task<IActionResult> EditMapCategories(GoogleFeedProductModel model)
+        public async Task<IActionResult> EditMapCategories(GoogleFeedCategoryModel model)
         {
             if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManagePlugins))
                 return AccessDeniedView();
 
-            var googleProduct = await _googleService.GetByProductIdAsync(model.ProductId);
-            if (googleProduct != null)
+            var categoryGoogleTaxonomyRecordMapping = await _googleService.GetGoogleTaxonomyRecordMappingByCategoryIdAsync(model.CategoryId);
+
+            if (categoryGoogleTaxonomyRecordMapping != null)
             {
-                googleProduct.Taxonomy = model.GoogleCategory;
-                googleProduct.Gender = model.Gender;
-                googleProduct.AgeGroup = model.AgeGroup;
-                googleProduct.Color = model.Color;
-                googleProduct.Size = model.GoogleSize;
-                googleProduct.CustomGoods = model.CustomGoods;
-                googleProduct.LanguageId = model.LanguageId;
-                await _googleService.UpdateGoogleProductRecordAsync(googleProduct);
+                categoryGoogleTaxonomyRecordMapping.GoogleTaxonomyRecordId = model.GoogleCategoryId;
+                categoryGoogleTaxonomyRecordMapping.CategoryId = model.CategoryId;
+                await _googleService.UpdateCategoryGoogleTaxonomyRecordMappingAsync(categoryGoogleTaxonomyRecordMapping);
             }
             else
             {
                 //insert
-                googleProduct = new GoogleFeedProductRecord
+                categoryGoogleTaxonomyRecordMapping = new CategoryGoogleTaxonomyRecordMapping
                 {
-                    ProductId = model.ProductId,
-                    Taxonomy = model.GoogleCategory,
-                    Gender = model.Gender,
-                    AgeGroup = model.AgeGroup,
-                    Color = model.Color,
-                    Size = model.GoogleSize,
-                    CustomGoods = model.CustomGoods,
-                    LanguageId = model.LanguageId
+                    CategoryId = model.CategoryId,
+                    GoogleTaxonomyRecordId = model.GoogleCategoryId
                 };
-                await _googleService.InsertGoogleProductRecordAsync(googleProduct);
+                await _googleService.InsertCategoryGoogleTaxonomyRecordMappingAsync(categoryGoogleTaxonomyRecordMapping);
             }
 
             ViewBag.RefreshPage = true;
 
-            return View("~/Plugins/Nop.Plugin.Misc.GoogleShoppingMultiCountry/Views/Edit.cshtml", model);
+            return View("~/Plugins/Nop.Plugin.Misc.GoogleShoppingMultiCountry/Views/EditMapCategories.cshtml", model);
         }
 
         #endregion
