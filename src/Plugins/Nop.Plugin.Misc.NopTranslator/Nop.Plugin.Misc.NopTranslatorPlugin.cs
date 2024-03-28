@@ -74,8 +74,8 @@ namespace Nop.Plugin.Misc.NopTranslator
         /// </summary>
         public override string GetConfigurationPageUrl()
         {
-            //return _urlHelperFactory.GetUrlHelper(_actionContextAccessor.ActionContext).RouteUrl(AccessiBeDefaults.ConfigurationRouteName);
-            return "";
+            return $"{_webHelper.GetStoreLocation()}Admin/NopTranslator/Configure";
+           
         }
 
 
