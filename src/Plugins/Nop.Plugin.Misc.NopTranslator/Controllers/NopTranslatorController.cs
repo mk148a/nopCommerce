@@ -6,9 +6,13 @@ using Nop.Core;
 using Nop.Plugin.Misc.NopTranslator.Models;
 using Nop.Services.Security;
 using Nop.Web.Framework.Controllers;
+using Nop.Web.Framework.Mvc.Filters;
+using Nop.Web.Framework;
 
 namespace Nop.Plugin.Misc.NopTranslator.Controllers;
-
+[AuthorizeAdmin]
+[Area(AreaNames.Admin)]
+[AutoValidateAntiforgeryToken]
 public class NopTranslatorController : Controller
 {
     // GET
