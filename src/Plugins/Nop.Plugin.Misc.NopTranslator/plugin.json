@@ -1,11 +1,11 @@
 ﻿{
-  "Group": "",
-  "FriendlyName": "",
-  "SystemName": "",
+  "Group": "Genius Software",
+  "FriendlyName": "Nop Product And Content Translator",
+  "SystemName": "Nop.Plugin.Misc.NopTranslator",
   "Version": "1.00",
   "SupportedVersions": [ "4.50" ],
-  "Author": "Author Name",
+  "Author": "Genius Software",
   "DisplayOrder": 1,
   "FileName": "Nop.Plugin.Misc.NopTranslator.dll",
-  "Description": ""
+  "Description": "This plugin allow translate product,categories and other contens to website languages"
 }
