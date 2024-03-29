@@ -15,9 +15,9 @@ namespace Nop.Plugin.Misc.NopTranslator.Infrastructure
         /// <param name="endpointRouteBuilder">Route builder</param>
         public void RegisterRoutes(IEndpointRouteBuilder endpointRouteBuilder)
         {
-            endpointRouteBuilder.MapControllerRoute("Plugin.Misc.NopTranslator.Configure",
-                "Admin/NopTranslator/Configure",
-                new { controller = "NopTranslator", action = "Configure" });
+            //endpointRouteBuilder.MapControllerRoute("Plugin.Misc.NopTranslator.Configure",
+            //    "Admin/NopTranslator/Configure",
+            //    new { controller = "NopTranslator", action = "Configure" });
 
           
         }

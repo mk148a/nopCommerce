@@ -1,4 +1,37 @@
-﻿
+﻿@model Nop.Plugin.Misc.NopTranslator.Models.ConfigurationModel
 @{
     Layout = "_ConfigurePlugin";
 }
+
+@await Component.InvokeAsync("StoreScopeConfiguration")
+<form asp-controller="NopTranslator" asp-action="Configure" method="post" autocomplete="off">
+<div class="cards-group">
+    <div class="card card-default">
+        <div class="card-body">
+            <p>
+                <h5>"Instruction is here"</h5>
+                <br />
+            </p>
+            <hr />
+            <p>Header is Here!</p>
+            <div class="form-group row">
+                <div class="col-md-3">
+                    <nop-override-store-checkbox asp-for="ApiUrl_OverrideForStore" asp-input="ApiUrl" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                    <nop-label asp-for="ApiUrl" />
+                </div>
+                <div class="col-md-9">
+                    <nop-editor asp-for="ApiUrl" asp-required="false" />
+                </div>
+            </div>
+            <hr />
+          
+       
+            <div class="form-group row">
+                <div class="col-md-9 offset-md-3">
+                    <button type="submit" name="save" class="btn btn-primary">Translate Product</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</form>
