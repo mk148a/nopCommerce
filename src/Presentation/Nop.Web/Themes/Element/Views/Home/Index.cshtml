@@ -1,9 +1,14 @@
 ﻿@using Nop.Core.Domain.Seo
+@inject Nop.Core.IWebHelper webHelper
 @inject SeoSettings seoSettings
 
 @{
     Layout = "_ColumnsOne";
-
+ if (seoSettings.CanonicalUrlsEnabled)
+ {
+     var homePageUrl = Url.RouteUrl("HomePage", new {}, webHelper.GetCurrentRequestProtocol());
+     NopHtml.AddCanonicalUrlParts(homePageUrl, seoSettings.QueryStringInCanonicalUrlsEnabled);
+ }
     //title
     if (!string.IsNullOrEmpty(seoSettings.HomepageTitle))
     {

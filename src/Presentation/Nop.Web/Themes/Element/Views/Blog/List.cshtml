@@ -1,4 +1,7 @@
 ﻿@model BlogPostListModel
+@using Nop.Core.Domain.Seo
+@inject Nop.Core.IWebHelper webHelper
+@inject SeoSettings seoSettings
 @{
     Layout = "_ColumnsTwo";
 
@@ -6,6 +9,11 @@
     NopHtml.AddTitleParts(T("PageTitle.Blog").Text);
     //page class
     NopHtml.AppendPageCssClassParts("html-blog-page");
+	 if (seoSettings.CanonicalUrlsEnabled)
+ {
+     var homePageUrl = Url.RouteUrl("Blog", new {}, webHelper.GetCurrentRequestProtocol());
+     NopHtml.AddCanonicalUrlParts(homePageUrl, seoSettings.QueryStringInCanonicalUrlsEnabled);
+ }
 }
 @section left {
     @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.LeftSideColumnBlogBefore, additionalData = Model })
