@@ -1,4 +1,7 @@
 ﻿@model RegisterModel
+@using Nop.Core.Domain.Seo
+@inject Nop.Core.IWebHelper webHelper
+@inject SeoSettings seoSettings
 @{
     Layout = "_ColumnsOne";
 
@@ -6,6 +9,12 @@
     NopHtml.AddTitleParts(T("PageTitle.Register").Text);
     //page class
     NopHtml.AppendPageCssClassParts("html-registration-page");
+			 if (seoSettings.CanonicalUrlsEnabled)
+ {
+     var homePageUrl = Url.RouteUrl("Register", new {}, webHelper.GetCurrentRequestProtocol());
+     NopHtml.AddCanonicalUrlParts(homePageUrl, seoSettings.QueryStringInCanonicalUrlsEnabled);
+ }
+}
 }
 
 <form asp-route="Register" asp-route-returnurl="@Context.Request.Query["ReturnUrl"]" method="post" autocomplete="off">

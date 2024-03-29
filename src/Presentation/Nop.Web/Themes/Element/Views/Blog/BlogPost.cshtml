@@ -1,5 +1,8 @@
 ﻿@inject Nop.Services.Html.IHtmlFormatter htmlFormatter
 @model BlogPostModel
+@using Nop.Core.Domain.Seo
+@inject Nop.Core.IWebHelper webHelper
+@inject SeoSettings seoSettings
 @{
     Layout = "_ColumnsTwo";
 
@@ -10,6 +13,11 @@
     NopHtml.AddMetaKeywordParts(Model.MetaKeywords);
     //page class
     NopHtml.AppendPageCssClassParts("html-blogpost-page");
+						 if (seoSettings.CanonicalUrlsEnabled)
+ {
+     var homePageUrl = Url.RouteUrl("BlogPost", new {}, webHelper.GetCurrentRequestProtocol());
+     NopHtml.AddCanonicalUrlParts(homePageUrl, seoSettings.QueryStringInCanonicalUrlsEnabled);
+ }
 }
 @section left {
     @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.LeftSideColumnBlogBefore, additionalData = Model })
