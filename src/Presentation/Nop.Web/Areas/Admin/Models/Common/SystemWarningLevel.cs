@@ -1,14 +1,12 @@
-﻿namespace Nop.Web.Areas.Admin.Models.Common
+﻿namespace Nop.Web.Areas.Admin.Models.Common;
+
+/// <summary>
+/// Represents a level of warning
+/// </summary>
+public enum SystemWarningLevel
 {
-    /// <summary>
-    /// Represents a level of warning
-    /// </summary>
-    public enum SystemWarningLevel
-    {
-        Pass,
-        Recommendation,
-        CopyrightRemovalKey,
-        Warning,
-        Fail
-    }
+    Pass,
+    Recommendation,
+    Warning,
+    Fail
 }
