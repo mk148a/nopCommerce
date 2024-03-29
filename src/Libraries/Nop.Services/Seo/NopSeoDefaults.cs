@@ -68,7 +68,7 @@ namespace Nop.Services.Seo
         /// <summary>
         /// Gets a max number of URLs in the sitemap file. At now each provided sitemap file must have no more than 50000 URLs
         /// </summary>
-        public static int SitemapMaxUrlNumber => 50000;
+        public static int SitemapMaxUrlNumber => 200;
 
         #endregion
 
