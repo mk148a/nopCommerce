@@ -15,5 +15,5 @@ public partial record ProductsByTagModel : BaseNopEntityModel
         public string MetaKeywords { get; set; }
         public string MetaDescription { get; set; }
         public CatalogProductsModel CatalogProductsModel { get; set; }
-    }
+    
 }

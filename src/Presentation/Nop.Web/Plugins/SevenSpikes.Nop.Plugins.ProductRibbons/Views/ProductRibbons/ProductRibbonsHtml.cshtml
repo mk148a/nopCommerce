@@ -6,7 +6,7 @@
     {
         if (productRibbon.CategoryPageRibbon != null && productRibbon.CategoryPageRibbon.Enabled)
         {
-            <a href="@Url.RouteUrl("Product", new { SeName = productRibbon.CategoryPageRibbon.ProductSeName })" class="ribbon-position @productRibbon.CategoryPageRibbon.Position" data-productribbonid="@productRibbon.CategoryPageRibbon.ProductRibbonId" data-productid="@productRibbon.CategoryPageRibbon.ProductId">
+            <a href="@(Url.RouteUrl<Product>( new { SeName = productRibbon.CategoryPageRibbon.ProductSeName }))" class="ribbon-position @productRibbon.CategoryPageRibbon.Position" data-productribbonid="@productRibbon.CategoryPageRibbon.ProductRibbonId" data-productid="@productRibbon.CategoryPageRibbon.ProductId">
                 <div class="product-ribbon @productRibbon.CategoryPageRibbon.Name.ToLower().Trim().Replace(" ", "-")" style="@productRibbon.CategoryPageRibbon.ContainerStyle">
                     @{ await Html.RenderPartialAsync("_BasePageRibbonHtml", productRibbon.CategoryPageRibbon); } 
                 </div>

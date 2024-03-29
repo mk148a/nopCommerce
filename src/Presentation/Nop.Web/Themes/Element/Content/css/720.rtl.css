@@ -202,6 +202,7 @@
 
 .product-list .item-box {
 	display: table;
+	table-layout: fixed;
     float: none;
     width: 100%;
     margin: 0 0 50px !important; /*important because of default nth-child margins*/

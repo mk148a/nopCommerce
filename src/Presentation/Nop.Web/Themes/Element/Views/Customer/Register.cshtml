@@ -1,4 +1,5 @@
 ﻿@model RegisterModel
+
 @{
     Layout = "_ColumnsOne";
 
@@ -14,6 +15,7 @@
             <h1>@T("Account.Register")</h1>
         </div>
         <div class="page-body">
+            @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.RegisterTop, additionalData = Model })
             <div asp-validation-summary="ModelOnly" class="message-error"></div>
             <div class="fieldset">
                 <div class="title">
@@ -141,10 +143,10 @@
                 </div>
             }
             @if (Model.StreetAddressEnabled ||
-                Model.StreetAddress2Enabled || 
-                Model.ZipPostalCodeEnabled || 
-                Model.CityEnabled || 
-                Model.CountyEnabled || 
+                Model.StreetAddress2Enabled ||
+                Model.ZipPostalCodeEnabled ||
+                Model.CityEnabled ||
+                Model.CountyEnabled ||
                 Model.CountryEnabled)
             {
                 <div class="fieldset">
@@ -381,7 +383,7 @@
                     }
                     else
                     {
-                        <a class="read" id="read-privacyinfo" href="@Url.RouteUrl("Topic", new {SeName = await Html.GetTopicSeNameAsync("privacyinfo") })">@T("Account.Fields.AcceptPrivacyPolicy.Read")</a>
+                        <a class="read" id="read-privacyinfo" href="@Url.RouteTopicUrl("privacyinfo")">@T("Account.Fields.AcceptPrivacyPolicy.Read")</a>
                     }
                 </div>
             }
@@ -413,8 +415,9 @@
                 <button type="submit" name="register-button" id="register-button" class="button-1 register-next-step-button">@T("Account.Register.Button")</button>
             </div>
             <div class="external-authentication">
-                @await Component.InvokeAsync("ExternalMethods", "ExternalAuthentication")
+                @await Component.InvokeAsync(typeof(ExternalMethodsViewComponent), "ExternalAuthentication")
             </div>
+            @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.RegisterBottom, additionalData = Model })
         </div>
     </div>
 </form>

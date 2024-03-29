@@ -67,7 +67,7 @@ public static partial class NopSeoDefaults
     /// <summary>
     /// Gets a max number of URLs in the sitemap file. At now each provided sitemap file must have no more than 50000 URLs
     /// </summary>
-    public static int SitemapMaxUrlNumber => 50000;
+    public static int SitemapMaxUrlNumber => 500;
 
     /// <summary>
     /// Gets the name of the sitemap directory

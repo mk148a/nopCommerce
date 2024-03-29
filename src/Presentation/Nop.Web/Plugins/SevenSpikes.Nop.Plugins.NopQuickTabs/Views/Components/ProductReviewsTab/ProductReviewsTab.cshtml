@@ -1,6 +1,11 @@
 ﻿@model Nop.Web.Models.Catalog.ProductReviewsModel
 
 @inject Nop.Services.Html.IHtmlFormatter htmlFormatter
+@inject CaptchaSettings captchaSettings
+
+@{
+    var publicKey = captchaSettings.ReCaptchaPublicKey ?? string.Empty;
+}
 
 <div id="updateTargetId" class="product-reviews-page">
     @if (Model.AddProductReview.SuccessfullyAdded)
@@ -87,6 +92,11 @@
 
                 @if (Model.AddProductReview.DisplayCaptcha)
                 {
+                    if (captchaSettings.CaptchaType == CaptchaType.ReCaptchaV3)
+                    {
+                        <input type="hidden" id="reviews-captcha-v3-enabled" value="true" />
+                        <input type="hidden" id="captcha-public-key" value="@publicKey" />
+                    }
                     <nop-captcha />
                 }
 

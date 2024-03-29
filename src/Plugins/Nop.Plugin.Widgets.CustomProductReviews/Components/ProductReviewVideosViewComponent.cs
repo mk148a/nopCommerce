@@ -18,6 +18,8 @@ using Nop.Services.Localization;
 using Nop.Core.Domain.Media;
 using DocumentFormat.OpenXml.Bibliography;
 using Nop.Plugin.Widgets.CustomProductReviews.Domains;
+using CustomProductReviewsVideo = Nop.Plugin.Widgets.CustomProductReviews.Domains.CustomProductReviewsVideo;
+using Nop.Plugin.Widgets.CustomProductReviews.Models;
 
 namespace Nop.Plugin.Widgets.CustomProductReviews.Components
 {
@@ -31,7 +33,7 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Components
         private readonly CustomProductReviewsSettings _customProductReviewsSettings;
         private readonly IProductService _productService;
         private readonly IProductModelFactory _productModelFactory;
-        private readonly IVideoService _videoService;
+        private readonly Services.ICustomProductReviewsVideoService _videoService;
         private readonly ICustomProductReviewMappingService _customProductReviewMappingService;
         private readonly ILocalizationService _localizationService;
         private readonly MediaSettings _mediaSettings;
@@ -42,7 +44,7 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Components
 
         #region Ctor
 
-        public ProductReviewVideos(CustomProductReviewsSettings customProductReviewsSettings, IProductService productService, IProductModelFactory productModelFactory,IVideoService videoService, ICustomProductReviewMappingService customProductReviewMappingService, ILocalizationService localizationService, MediaSettings mediaSettings)
+        public ProductReviewVideos(CustomProductReviewsSettings customProductReviewsSettings, IProductService productService, IProductModelFactory productModelFactory,Services.ICustomProductReviewsVideoService videoService, ICustomProductReviewMappingService customProductReviewMappingService, ILocalizationService localizationService, MediaSettings mediaSettings)
         {
             //_accessiBeService = accessiBeService;
             _customProductReviewsSettings = customProductReviewsSettings;
@@ -93,8 +95,8 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Components
             {
                 model = (ProductReviewModel)additionalData;
             }
-            List<Video> reviewVidList = new List<Video>();
-            List<VideoModel> videoModelList = new List<VideoModel>();
+            List<CustomProductReviewsVideo> reviewVidList = new List<CustomProductReviewsVideo>();
+            List<CustomProductReviewsVideoModel> videoModelList = new List<CustomProductReviewsVideoModel>();
             var reviewMappings= await _customProductReviewMappingService.GetCustomProductReviewMappingByProductReviewIdAsync(model.Id);
            if (reviewMappings == null)
            {
@@ -127,7 +129,7 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Components
                     (imageUrl, video) = await _videoService.GetVideoUrlAsync(video, defaultPictureSize, false);
                     (fullSizeImageUrl, video) = await _videoService.GetVideoUrlAsync(video, defaultPictureSize, false);
 
-                    var videoModel = new VideoModel()
+                    var videoModel = new CustomProductReviewsVideoModel()
                     {
                         ImageUrl = imageUrl,
                         FullSizeImageUrl = fullSizeImageUrl,

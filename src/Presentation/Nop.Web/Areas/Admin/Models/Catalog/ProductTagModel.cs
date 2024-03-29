@@ -45,5 +45,4 @@ public partial record ProductTagLocalizedModel : ILocalizedLocaleModel
         public string MetaDescription { get; set; }
         [NopResourceDisplayName("Admin.Catalog.ProductTags.Fields.MetaKeywords")]
         public string MetaKeywords { get; set; }
-    }
 }

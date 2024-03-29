@@ -10,7 +10,7 @@
 }
 @section AccountNavigation
 {
-    @await Component.InvokeAsync("CustomerNavigation", new { selectedTabId = CustomerNavigationEnum.VendorInfo })
+    @await Component.InvokeAsync(typeof(CustomerNavigationViewComponent), new { selectedTabId = CustomerNavigationEnum.VendorInfo })
 }
 <form asp-route="CustomerVendorInfo" method="post" enctype="multipart/form-data">
     <div class="page account-page vendorinfo-page">

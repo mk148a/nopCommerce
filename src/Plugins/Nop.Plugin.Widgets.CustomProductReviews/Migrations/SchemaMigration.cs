@@ -27,7 +27,7 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Migrations
         public override void Up() {
             try
             {
-                Create.TableFor<Video>();
+                Create.TableFor<CustomProductReviewsVideo>();
             Create.TableFor<CustomProductReviewMapping>();
             Create.TableFor<VideoBinary>();
             }

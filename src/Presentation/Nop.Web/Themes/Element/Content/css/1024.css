@@ -946,6 +946,7 @@
 	position: absolute;
 	bottom: -100px;
 	left: 0;
+	z-index: 1;
 	width: 100%;
 	height: 100px; /*fixed height required, depending on padding*/
 	margin: 0;
@@ -1013,6 +1014,9 @@
 }
 .product-grid .item-box button:hover span {
 	opacity: 1;
+}
+.product-grid .swiper-pagination {
+	display: none !important;
 }
 
 .home-page-category-grid {

@@ -27,7 +27,7 @@
     <div class="content">
         <div class="text">
             <span>@T("EUCookieLaw.Description2")</span>
-            <a class="learn-more" href="@Url.RouteUrl("Topic", new { SeName = await Html.GetTopicSeNameAsync("privacyinfo") })">@T("EUCookieLaw.LearnMore")</a>
+            <a class="learn-more" href="@Url.RouteTopicUrl("privacyinfo")">@T("EUCookieLaw.LearnMore")</a>
         </div>
         <div class="buttons">
             <button type="button" class="ok-button button-1" id="eu-cookie-ok">@T("Common.OK")</button>

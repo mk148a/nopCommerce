@@ -1,8 +1,8 @@
 ﻿using Nop.Web.Framework.Models;
 
-namespace Nop.Web.Models.Media
+namespace Nop.Plugin.Widgets.CustomProductReviews.Models
 {
-    public partial record VideoModel : BaseNopModel
+    public partial record CustomProductReviewsVideoModel : BaseNopModel
     {
         public string ImageUrl { get; set; }
 

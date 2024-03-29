@@ -22,6 +22,7 @@ using Nop.Core;
 using Nop.Core.Domain.Cms;
 using Nop.Core.Infrastructure;
 using Nop.Plugin.Widgets.CustomCustomProductReviews.Services;
+using Nop.Plugin.Widgets.CustomProductReviews.Components;
 using Nop.Services.Cms;
 using Nop.Services.Configuration;
 using Nop.Services.Localization;
@@ -34,7 +35,7 @@ namespace Nop.Plugin.Widgets.CustomProductReviews
     /// <summary>
     /// Rename this file and change to the correct type
     /// </summary>
-    public class CustomProductReviewsPlugin : BasePlugin,IWidgetPlugin
+    public class CustomProductReviewsPlugin : BasePlugin, IWidgetPlugin
     {
 
 
@@ -113,12 +114,15 @@ namespace Nop.Plugin.Widgets.CustomProductReviews
         /// </summary>
         /// <param name="widgetZone">Name of the widget zone</param>
         /// <returns>View component name</returns>
-        public string GetWidgetViewComponentName(string widgetZone)
+        public Type GetWidgetViewComponent(string widgetZone)
         {
-            if (widgetZone == null)
-                throw new ArgumentNullException(nameof(widgetZone));
+            
+            ArgumentNullException.ThrowIfNull(widgetZone);
 
-            return "CustomProductReviews";
+            if (widgetZone.Equals(PublicWidgetZones.ProductDetailsBottom)|| widgetZone.Equals(_customProdutReviewSettings.WidgetZone))
+                return typeof(CustomProductReviewsViewComponent);
+
+            return null;
         }
 
 
@@ -258,6 +262,8 @@ namespace Nop.Plugin.Widgets.CustomProductReviews
 
             await base.UninstallAsync();
         }
+
+      
 
         #endregion
 

@@ -5,7 +5,13 @@
 
 .picture-thumbs {
 	position: relative;
-}	
+}
+.picture-thumbs-list {
+    display: none; /*hide thumbs until slick slider is loaded*/
+}
+.picture-thumbs .slick-initialized {
+    display: block; /*show thumbs after slick slider is loaded*/
+}
 .picture-thumbs .slick-slider {
 	position: static;
 	width: 300px;

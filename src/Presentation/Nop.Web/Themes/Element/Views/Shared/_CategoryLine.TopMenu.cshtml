@@ -1,9 +1,11 @@
 ﻿@model TopMenuModel.CategoryLineModel
 
+@using Nop.Core.Domain.Catalog
+
 <li>
     @if (Model.Category.SubCategories.Count > 0)
     {
-        <a class="with-subcategories" href="@Url.RouteUrl("Category", new { SeName = Model.Category.SeName })">@Model.Category.Name</a>
+        <a class="with-subcategories" href="@(Url.RouteUrl<Category>(new { SeName = Model.Category.SeName }))">@Model.Category.Name</a>
         <div class="plus-button"></div>
         <div class="sublist-wrap">
             <ul class="sublist">
@@ -27,11 +29,11 @@
     {
         if (Model.Category.NumberOfProducts.HasValue)
         {
-            <a href="@Url.RouteUrl("Category", new { SeName = Model.Category.SeName })">@Model.Category.Name @T("Categories.TotalProducts", Model.Category.NumberOfProducts.Value)</a>
+            <a href="@(Url.RouteUrl<Category>(new { SeName = Model.Category.SeName }))">@Model.Category.Name @T("Categories.TotalProducts", Model.Category.NumberOfProducts.Value)</a>
         }
         else
         {
-            <a href="@Url.RouteUrl("Category", new { SeName = Model.Category.SeName })">@Model.Category.Name</a>
+            <a href="@(Url.RouteUrl<Category>(new { SeName = Model.Category.SeName }))">@Model.Category.Name</a>
         }
     }
 </li>

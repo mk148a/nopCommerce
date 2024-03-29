@@ -21,7 +21,7 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Mapping.Builders
                 .WithColumn(nameof(CustomProductReviewMapping.DisplayOrder)).AsInt32().Nullable()
                 .WithColumn(nameof(CustomProductReviewMapping.ProductReviewId)).AsInt32().ForeignKey<ProductReview>()
                 .WithColumn(nameof(CustomProductReviewMapping.PictureId)).AsInt32().ForeignKey<Picture>().Nullable()
-                .WithColumn(nameof(CustomProductReviewMapping.VideoId)).AsInt32().ForeignKey<Video>().Nullable();
+                .WithColumn(nameof(CustomProductReviewMapping.VideoId)).AsInt32().ForeignKey<Domains.CustomProductReviewsVideo>().Nullable();
         }
 
         #endregion

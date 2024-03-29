@@ -1,4 +1,5 @@
 ﻿@using SevenSpikes.Nop.Plugins.MegaMenu.Models
+@using Nop.Core.Domain.Topics
 
 @model MenuItemTopicModel
 
@@ -22,10 +23,9 @@
                 </li>
                 @foreach (var topic in Model.Topics)
                 {
-                    <li><a href="@Url.RouteUrl("Topic", new { topic.SeName })"><span>@topic.Title</span></a></li>
+                    <li><a href="@(Url.RouteUrl<Topic>(new { SeName = topic.SeName }))"><span>@topic.Title</span></a></li>
                 }
             </ul>
         </div>
     }
-
 </li>

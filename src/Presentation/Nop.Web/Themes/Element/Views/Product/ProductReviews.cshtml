@@ -1,29 +1,35 @@
 ﻿@model ProductReviewsModel
 
+@using Nop.Core.Domain.Catalog
+@using Nop.Web.Areas.Admin.Infrastructure.Mapper.Extensions
+@using Nop.Web.Areas.Admin.Models.Catalog
+@using Nop.Web.Framework.TagHelpers.Public
+@using Nop.Web.Framework.TagHelpers.Shared
+@using InputTagHelper = Microsoft.AspNetCore.Mvc.TagHelpers.InputTagHelper
+@using LabelTagHelper = Microsoft.AspNetCore.Mvc.TagHelpers.LabelTagHelper
+@using TextAreaTagHelper = Microsoft.AspNetCore.Mvc.TagHelpers.TextAreaTagHelper
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+
 @inject Nop.Services.Html.IHtmlFormatter htmlFormatter
+@inject Nop.Services.Catalog.IProductService _productService
 
 @{
     Layout = "_ColumnsOne";
-
+    var product = await _productService.GetProductByIdAsync(Model.ProductId);
+    var productModel = product.ToModel<ProductModel>();
     //title
-    NopHtml.AddTitleParts(Model.ProductName);
+    NopHtml.AddTitleParts(product.Name);
     NopHtml.AddTitleParts(T("PageTitle.ProductReviews").Text);
     //page class
     NopHtml.AppendPageCssClassParts("html-product-reviews-page");
 }
 <div class="page product-reviews-page">
     <div class="page-title">
-        <h1>@T("Reviews.ProductReviewsFor") <a href="@Url.RouteUrl("Product", new { SeName = Model.ProductSeName })">@Model.ProductName</a></h1>
+        <h1>@T("Reviews.ProductReviewsFor") <a href="@(Url.RouteUrl<Product>(new { SeName = productModel.SeName }))">@product.Name</a></h1>
     </div>
     <div class="page-body">
-        @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.ProductReviewsPageTop, additionalData = Model })
-        @if (Model.AddProductReview.SuccessfullyAdded)
-        {
-            <div class="result">
-                @Model.AddProductReview.Result
-            </div>
-        }
-        else if (!Model.AddProductReview.CanAddNewReview)
+        @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.ProductReviewsPageTop, additionalData = Model })
+        @if (!Model.AddProductReview.CanAddNewReview)
         {
             <div class="result review-already-added">
                 @T("Reviews.AlreadyAddedProductReviews")
@@ -190,7 +196,7 @@
                                 @Html.Raw(htmlFormatter.FormatText(review.ReviewText, false, true, false, false, false, false))
                             </div>
                             @await Html.PartialAsync("_ProductReviewHelpfulness", review.Helpfulness)
-                            @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.ProductReviewsPageInsideReview, additionalData = review })
+                            @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.ProductReviewsPageInsideReview, additionalData = review })
                             @if (!string.IsNullOrEmpty(review.ReplyText))
                             {
                                 <div class="reply">
@@ -207,6 +213,6 @@
                 }
             </div>
         }
-        @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.ProductReviewsPageBottom, additionalData = Model })
+        @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.ProductReviewsPageBottom, additionalData = Model })
     </div>
 </div>

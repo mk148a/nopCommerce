@@ -89,13 +89,13 @@ else if (Model.Vendors.Count > 0)
     <div class="instant-search-item" data-url="${ data.CustomProperties.Url }">
         <a href="${ data.CustomProperties.Url }">
             <div class="img-block">
-                <img src="${ data.DefaultPictureModel.ImageUrl }" alt="${ data.Name }" title="${ data.Name }" style="border: none">
+                <img src="${ data.PictureModels[0].ImageUrl }" alt="${ data.Name }" title="${ data.Name }" style="border: none">
             </div>
             <div class="detail">
                 <div class="title">${ data.Name }</div>
                 @if (Model.ShowSku)
                 {
-                    <div class="sku"># var sku = ""; if (data.CustomProperties.Sku != null) { sku = "@T("Products.Sku"): " + data.CustomProperties.Sku } # #= sku #</div>
+                    <div class="sku"># var sku = ""; if (data.Sku != null) { sku = "@T("Products.Sku"): " + data.Sku } # #= sku #</div>
                 }
                 <div class="price"># var price = ""; if (data.ProductPrice.Price) { price = data.ProductPrice.Price } # #= price #</div>           
             </div>

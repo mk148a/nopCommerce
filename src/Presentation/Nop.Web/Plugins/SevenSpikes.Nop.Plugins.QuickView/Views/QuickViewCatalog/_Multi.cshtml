@@ -16,7 +16,7 @@
                 <!--product pictures-->
                 @await Component.InvokeAsync("NopQuickViewProductPictures", new { model = Model })
                 <div class="links-panel">
-                    <a href="@Url.RouteUrl("Product", new { SeName = Model.SeName })" class="link-to-product-page"><span>@T("SevenSpikes.QuickView.Public.GoToProductPageLink")</span></a>
+                    <a href="@(Url.RouteUrl<Product>( new { SeName = Model.SeName }))" class="link-to-product-page"><span>@T("SevenSpikes.QuickView.Public.GoToProductPageLink")</span></a>
                 </div>
             </div>
             <div class="overview">
@@ -30,7 +30,7 @@
                                 @if (!String.IsNullOrWhiteSpace(item.DefaultPictureModel.ImageUrl))
                                 {
                                     <div class="variant-picture">
-                                        <a href="@Url.RouteUrl("Product", new { SeName = Model.SeName })">
+                                        <a href="@(Url.RouteUrl<Product>( new { SeName = Model.SeName }))">
                                             <img alt="@item.DefaultPictureModel.AlternateText" src="@item.DefaultPictureModel.ImageUrl" />
                                         </a>
                                     </div>
@@ -39,7 +39,7 @@
                                     @if (!String.IsNullOrWhiteSpace(item.Name))
                                     {
                                         <div class="variant-name">
-                                            <a href="@Url.RouteUrl("Product", new { SeName = Model.SeName })">@item.Name</a>
+                                            <a href="@(Url.RouteUrl<Product>( new { SeName = Model.SeName }))">@item.Name</a>
                                         </div>
                                     }
                                     @{

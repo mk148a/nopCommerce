@@ -1,27 +1,20 @@
-﻿@inject IThemeContext themeContext
-@{
-    var themeName =await themeContext.GetWorkingThemeNameAsync();
-}
-@model CategoryModel
-@using Nop.Core.Domain.Common;
-@using Nop.Core.Domain.Seo;
-@using Nop.Web.Models.Catalog;
-@using Nop.Core;
-@using Nop.Services.Configuration;
+﻿@model CategoryModel
 
-@inject Nop.Core.IWebHelper webHelper
-@inject IStoreContext storeContext
-@inject ISettingService settingService
+@using Nop.Core
+@using Nop.Core.Domain.Catalog
+@using Nop.Core.Domain.Common
+@using Nop.Core.Domain.Seo
+@using Nop.Services.Configuration
+@using Nop.Web.Models.Catalog
+
 @inject CommonSettings commonSettings
-@inject SeoSettings seoSettings
+@inject ISettingService settingService
+@inject IStoreContext storeContext
 @inject IViewComponentSelector viewComponentSelector
+@inject Nop.Core.IWebHelper webHelper
+@inject SeoSettings seoSettings
 
-@if (Model !=null)
-{
-    //Lancelot Fix:Call the owl.carousel css and js for sub-category slider view
-    NopHtml.AppendCssFileParts($"~/Themes/{themeName}/Content/css/owl.carousel.css");
-    NopHtml.AppendScriptParts(ResourceLocation.Footer, $"~/Themes/{themeName}/Content/scripts/owl.carousel.js");
-
+@{
     Layout = "_ColumnsTwo";
 
     //title
@@ -34,7 +27,7 @@
 
     if (seoSettings.CanonicalUrlsEnabled)
     {
-        var categoryUrl = Url.RouteUrl("Category", new { SeName = Model.SeName }, webHelper.GetCurrentRequestProtocol()).ToLowerInvariant();
+        var categoryUrl = Url.RouteUrl<Category>(new { SeName = Model.SeName }, webHelper.GetCurrentRequestProtocol()).ToLowerInvariant();
         NopHtml.AddCanonicalUrlParts(categoryUrl, seoSettings.QueryStringInCanonicalUrlsEnabled);
     }
 
@@ -54,7 +47,7 @@
     {
         subCategoriesPerRowClassName = "two-per-row";
     }
-
+}
 
 @section Breadcrumb
 {
@@ -75,12 +68,12 @@
                         {
                             <strong class="current-item" itemprop="name">@cat.Name</strong>
                             <span itemprop="item" itemscope itemtype="http://schema.org/Thing"
-                                  id="@Url.RouteUrl("Category", new {SeName = cat.SeName})">
+                                  id="@(Url.RouteUrl<Category>(new { SeName = cat.SeName }))">
                             </span>
                         }
                         else
                         {
-                            <a href="@Url.RouteUrl("Category", new { SeName = cat.SeName })" title="@cat.Name" itemprop="item">
+                            <a href="@(Url.RouteUrl<Category>(new { SeName = cat.SeName }))" title="@cat.Name" itemprop="item">
                                 <span itemprop="name">@cat.Name</span>
                             </a>
                             <span class="delimiter">@breadcrumbDelimiter</span>
@@ -91,7 +84,7 @@
                 }
             </ul>
         </div>
-        @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.CategoryDetailsAfterBreadcrumb, additionalData = Model })
+        @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.CategoryDetailsAfterBreadcrumb, additionalData = Model })
     }
 }
 @section CategoryManufacturerVendorMovedPageTitle {
@@ -103,8 +96,8 @@
     <div class="page-body">
         @*description + subcategories + featured products, to be rendered in _ColumnsTwo*@
         @section CategoryManufacturerVendorMovedContent
-            {
-            @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.CategoryDetailsTop, additionalData = Model })
+        {
+            @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.CategoryDetailsTop, additionalData = Model })
             @if (!string.IsNullOrWhiteSpace(Model.Description))
             {
                 <div class="category-description">
@@ -112,22 +105,22 @@
                 </div>
             }
 
-            @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.CategoryDetailsBeforeSubcategories, additionalData = Model })
+            @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.CategoryDetailsBeforeSubcategories, additionalData = Model })
             @if (Model.SubCategories.Count > 0)
             {
                 <div class="category-grid sub-category-grid @subCategoriesPerRowClassName">
-                    <div class="item-grid owl-carousel owl-theme">
+                    <div class="item-grid">
                         @foreach (var item in Model.SubCategories)
                         {
                             <div class="item-box">
                                 <div class="sub-category-item">
                                     <h2 class="title">
-                                        <a href="@Url.RouteUrl("Category", new { SeName = item.SeName })" title="@item.PictureModel.Title">
+                                        <a href="@(Url.RouteUrl<Category>(new { SeName = item.SeName }))" title="@item.PictureModel.Title">
                                             @item.Name
                                         </a>
                                     </h2>
                                     <div class="picture">
-                                        <a href="@Url.RouteUrl("Category", new { SeName = item.SeName })" title="@item.PictureModel.Title">
+                                        <a href="@(Url.RouteUrl<Category>(new { SeName = item.SeName }))" title="@item.PictureModel.Title">
                                             @if (viewComponentSelector.SelectComponent("LazyLoadImage") != null)
                                             {
                                                 @await Component.InvokeAsync("LazyLoadImage", new (string Key, string Value)[]
@@ -148,9 +141,8 @@
                         }
                     </div>
                 </div>
-                   
             }
-            @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.CategoryDetailsBeforeFeaturedProducts, additionalData = Model })
+            @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.CategoryDetailsBeforeFeaturedProducts, additionalData = Model })
             @if (Model.FeaturedProducts.Count > 0)
             {
                 <div class="product-grid featured-product-grid">
@@ -167,17 +159,17 @@
                     </div>
                 </div>
             }
-            @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.CategoryDetailsAfterFeaturedProducts, additionalData = Model })
+            @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.CategoryDetailsAfterFeaturedProducts, additionalData = Model })
         }
 
         @section CatalogFilters {
-            @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.CategoryDetailsBeforeFilters, additionalData = Model })
+            @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.CategoryDetailsBeforeFilters, additionalData = Model })
             @await Html.PartialAsync("_CatalogFilters", Model.CatalogProductsModel)
         }
 
         @await Html.PartialAsync("_CatalogSelectors", Model.CatalogProductsModel)
 
-        @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.CategoryDetailsBeforeProductList, additionalData = Model })
+        @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.CategoryDetailsBeforeProductList, additionalData = Model })
 
         @{
             var catalogProductsViewData = new ViewDataDictionary(ViewData);
@@ -185,33 +177,6 @@
         }
 
         @await Html.PartialAsync("_CatalogProducts", Model.CatalogProductsModel, catalogProductsViewData)
-        @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.CategoryDetailsBottom, additionalData = Model })
+        @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.CategoryDetailsBottom, additionalData = Model })
     </div>
 </div>
- <script asp-location="Footer">
-
-
-                var owl = $('.owl-carousel');
-        owl.owlCarousel({
-            items:3,
-            loop:true,
-            margin:10,
-            autoplay:true,
-            autoplayTimeout:3000,
-            autoplayHoverPause:true,
-            responsive: {
-                            0: {
-                                items: 1
-                            },
-                            481: {
-
-                                items: 2
-                            },
-                            769: {
-                                items: 3
-                            }
-                        }
-        });
-
-    </script>
-}
