@@ -56,7 +56,6 @@
     <Folder Include="Areas\Admin\Models\" />
     <Folder Include="Extensions\" />
     <Folder Include="Factories\" />
-    <Folder Include="Services\" />
   </ItemGroup>
 
   <ItemGroup>

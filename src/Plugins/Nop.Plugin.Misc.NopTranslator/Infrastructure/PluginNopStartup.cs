@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Nop.Core.Infrastructure;
+using Nop.Plugin.Misc.NopTranslator.Services;
 
 namespace Nop.Plugin.Misc.NopTranslator.Infrastructure
 {
@@ -10,13 +10,10 @@ namespace Nop.Plugin.Misc.NopTranslator.Infrastructure
     {
         public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
         {
-            services.Configure<RazorViewEngineOptions>(options =>
-            {
-                options.ViewLocationExpanders.Add(new ViewLocationExpander());
-            });
-
+           
             //register services and interfaces
-            //services.AddScoped<CustomModelFactory, ICustomerModelFactory>();
+            services.AddScoped<ITranslateService,TranslateService>();
+
         }
 
         public void Configure(IApplicationBuilder application)
