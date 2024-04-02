@@ -421,9 +421,9 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry
                     //var googleProduct = _googleService.GetByProductId(product.Id);
                     var googleProduct = allGoogleProducts.FirstOrDefault(x => x.ProductId == product.Id);
                     if (googleProduct != null)
-                        googleProductCategory = googleProduct.Taxonomy;
+                        googleProductCategory = googleProduct.Taxonomy; //Todo:Buraya taxonomy Id alma özelliği ekle
                     if (string.IsNullOrEmpty(googleProductCategory))
-                        googleProductCategory = googleShoppingSettings.DefaultGoogleCategory;
+                        googleProductCategory = googleShoppingSettings.DefaultGoogleCategoryId;
                     if (string.IsNullOrEmpty(googleProductCategory))
                         throw new NopException("Default Google category is not set");
                   await  writer.WriteStartElementAsync("g", "google_product_category", googleBaseNamespace);

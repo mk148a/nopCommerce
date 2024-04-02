@@ -125,8 +125,8 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry.Controllers
             //Google categories
             await _googleService.CreateTaxonomyEntityAsync();
 
-
             model.DefaultGoogleCategory = googleShoppingSettings.DefaultGoogleCategory;
+            model.DefaultGoogleCategoryId = googleShoppingSettings.DefaultGoogleCategory.Split(";").First();
             model.AvailableGoogleCategories.Add(new SelectListItem { Text = "Select a category", Value = "" });
             foreach (var gc in await _googleService.GetTaxonomyListAsync())
                 model.AvailableGoogleCategories.Add(new SelectListItem { Text = gc, Value = gc });
@@ -160,6 +160,7 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry.Controllers
             if (storeScope > 0)
             {
                 model.DefaultGoogleCategory_OverrideForStore = await _settingService.SettingExistsAsync(googleShoppingSettings, x => x.DefaultGoogleCategory, storeScope);
+                model.DefaultGoogleCategoryId_OverrideForStore = await _settingService.SettingExistsAsync(googleShoppingSettings, x => x.DefaultGoogleCategoryId, storeScope);
                 model.PassShippingInfoDimensions_OverrideForStore = await _settingService.SettingExistsAsync(googleShoppingSettings, x => x.PassShippingInfoDimensions, storeScope);
                 model.PassShippingInfoWeight_OverrideForStore = await _settingService.SettingExistsAsync(googleShoppingSettings, x => x.PassShippingInfoWeight, storeScope);
                 model.PricesConsiderPromotions_OverrideForStore = await _settingService.SettingExistsAsync(googleShoppingSettings, x => x.PricesConsiderPromotions, storeScope);
@@ -217,6 +218,7 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry.Controllers
             googleShoppingSettings.PassShippingInfoDimensions = model.PassShippingInfoDimensions;
             googleShoppingSettings.PricesConsiderPromotions = model.PricesConsiderPromotions;
             googleShoppingSettings.DefaultGoogleCategory = model.DefaultGoogleCategory;
+            googleShoppingSettings.DefaultGoogleCategoryId = model.DefaultGoogleCategoryId;
 
             //_settingService.SaveSetting(_googleShoppingSettings);
 
@@ -224,6 +226,7 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry.Controllers
              * This behavior can increase performance because cached settings will not be cleared 
              * and loaded from database after each update */
             await _settingService.SaveSettingOverridablePerStoreAsync(googleShoppingSettings, x => x.DefaultGoogleCategory, model.DefaultGoogleCategory_OverrideForStore, storeScope, false);
+            await _settingService.SaveSettingOverridablePerStoreAsync(googleShoppingSettings, x => x.DefaultGoogleCategoryId, model.DefaultGoogleCategoryId_OverrideForStore, storeScope, false);
             await _settingService.SaveSettingOverridablePerStoreAsync(googleShoppingSettings, x => x.PassShippingInfoDimensions, model.PassShippingInfoDimensions_OverrideForStore, storeScope, false);
             await _settingService.SaveSettingOverridablePerStoreAsync(googleShoppingSettings, x => x.PassShippingInfoWeight, model.PassShippingInfoWeight_OverrideForStore, storeScope, false);
             await _settingService.SaveSettingOverridablePerStoreAsync(googleShoppingSettings, x => x.PricesConsiderPromotions, model.PricesConsiderPromotions_OverrideForStore, storeScope, false);

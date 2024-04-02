@@ -26,8 +26,10 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry.Models
 
         [NopResourceDisplayName("Plugins.Misc.GoogleShoppingMultiCountry.DefaultGoogleCategory")]
         public string DefaultGoogleCategory { get; set; }
+        public string DefaultGoogleCategoryId { get; set; }
         public IList<SelectListItem> AvailableGoogleCategories { get; set; }
         public bool DefaultGoogleCategory_OverrideForStore { get; set; }
+        public bool DefaultGoogleCategoryId_OverrideForStore { get; set; }
 
         [NopResourceDisplayName("Plugins.Misc.GoogleShoppingMultiCountry.PassShippingInfoWeight")]
         public bool PassShippingInfoWeight { get; set; }

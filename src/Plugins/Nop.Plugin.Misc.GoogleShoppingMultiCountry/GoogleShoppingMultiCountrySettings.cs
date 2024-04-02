@@ -33,7 +33,7 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry
         /// Default Google category
         /// </summary>
         public string DefaultGoogleCategory { get; set; }
-
+        public string DefaultGoogleCategoryId { get; set; }
         /// <summary>
         /// Static file name of the feed
         /// </summary>
