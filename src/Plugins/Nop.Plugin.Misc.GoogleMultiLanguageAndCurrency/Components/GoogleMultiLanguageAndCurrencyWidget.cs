@@ -63,6 +63,7 @@ namespace Nop.Plugin.Misc.GoogleMultiLanguageAndCurrency.Components
             var stopwatch = new Stopwatch();
             stopwatch.Start();
             var model = new GoogleMultiLanguageAndCurrencysModel();
+            string currentUrl = "";
             try
             {
                 var storeScope = await _storeContext.GetActiveStoreScopeConfigurationAsync();
@@ -85,7 +86,7 @@ namespace Nop.Plugin.Misc.GoogleMultiLanguageAndCurrency.Components
                     var controllerName = data.Values["controller"] as string;
 
                     var pathBase = Url.ActionContext.HttpContext.Request.PathBase;
-                    var currentUrl = await GetHttpProtocolAsync() + "://" + HttpContext.Request.Host.Value + HttpContext.Request.Path+ HttpContext.Request.QueryString;
+                     currentUrl = await GetHttpProtocolAsync() + "://" + HttpContext.Request.Host.Value + HttpContext.Request.Path+ HttpContext.Request.QueryString;
                     pathBase = HttpContext.Request.PathBase;
 
                     //Extract server and path from url
@@ -260,6 +261,10 @@ namespace Nop.Plugin.Misc.GoogleMultiLanguageAndCurrency.Components
             }
 
             }
+            catch (Exception ex)
+            {
+                _logger.LogCritical(DateTime.Now + "-" + "GoogleMultiLanguageAndCurrency error:"+ex.Message+Environment.NewLine+ex.StackTrace);
+            }
             finally
             {
                 stopwatch.Stop();
@@ -268,7 +273,7 @@ namespace Nop.Plugin.Misc.GoogleMultiLanguageAndCurrency.Components
                 if (elapsedTime > 100)
                 {
                     // Gecikme 100 ms'den fazlaysa bir uyarı günlüğü kaydedin.
-                    _logger.LogWarning($"Widget gecikti: {elapsedTime} ms");
+                    _logger.LogWarning(DateTime.Now+"-"+ $"Widget gecikti: {elapsedTime} ms"+" url:"+ currentUrl);
                 }
             }
 
