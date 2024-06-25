@@ -201,3 +201,4 @@ src/Presentation/Nop.Web/wwwroot/lib_npm/cldr-data/main/*
 src/packages/*
 src/Tests/Nop.Tests/Connections.resx
 /src/Presentation/Nop.Web
+/Presentation/Nop.Web/Plugins/Nop.Plugin.Widgets.NopQuickTabsBugFix/refs
