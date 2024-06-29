@@ -48,6 +48,7 @@ namespace Nop.Plugin.Widgets.NopQuickTabsBugFix
 
         public async Task<IList<string>> GetWidgetZonesAsync()
         {
+            //return await Task.FromResult<IList<string>>(new List<string> { "ProductTabs" });
             return await Task.FromResult<IList<string>>(new List<string> {  });
 
         }

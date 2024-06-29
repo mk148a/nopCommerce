@@ -55,7 +55,7 @@
     <div id="quickTabs" class="productTabs @additionalClass"
          data-ajaxEnabled="@settings.EnableAjax.ToString().ToLowerInvariant()"
          data-productReviewsAddNewUrl="@Url.Action("ProductReviewsTabAddNew", "ProductTab", new { id = Model.ProductId})"
-         data-productContactUsUrl="@Url.Action("ProductContactUsTabAddNew", "ProductTab", new { id = Model.ProductId})"
+         data-productContactUsUrl="@Url.Action("ProductContactUsAddNew", "NopQuickTabsBugFixs", new { id = Model.ProductId})"
          data-couldNotLoadTabErrorMessage="@T("SevenSpikes.NopQuickTabs.Client.Tabs.CouldNotLoadTabErrorMessage").ToString()">
         @await Html.PartialAsync(productTabsPartialView)
     </div>

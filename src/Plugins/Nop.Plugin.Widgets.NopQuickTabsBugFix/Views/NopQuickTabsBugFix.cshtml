@@ -5,7 +5,14 @@
 @inject SeoSettings seoSettings
 
 
-    @if (!Model.SuccessfullySent && !string.IsNullOrEmpty(Model.Result))
+@if (Model == null)
+    {
+        <div class="message-error">"Malformed Error"</div>
+            
+
+         
+    }
+else if (!Model.SuccessfullySent && !string.IsNullOrEmpty(Model.Result))
     {
         <div class="message-error">@Model.Result</div>
     }
