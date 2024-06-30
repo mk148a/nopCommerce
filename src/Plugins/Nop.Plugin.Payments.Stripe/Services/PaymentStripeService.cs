@@ -20,6 +20,7 @@ namespace Nop.Plugin.Payments.Stripe.Services
         private readonly IGenericAttributeService _genericAttributeService;
         private readonly IStateProvinceService _stateProvinceService;
 
+
         #endregion
 
         #region Ctor
@@ -108,13 +109,14 @@ namespace Nop.Plugin.Payments.Stripe.Services
             billingAddres.City = billingAddress.City;
             billingAddres.ZipCode = billingAddress.ZipPostalCode;
             billingAddres.State = "Other";
+            billingAddres.Id=billingAddress.Id;
             if (billingState!=null)
             {
                 billingAddres.State = billingState.Abbreviation;
 
             }
             
-            billingAddres.Country = country.ThreeLetterIsoCode;
+            billingAddres.Country = country.TwoLetterIsoCode;
 
 
             Address shippingAddres = new Address();
@@ -126,6 +128,7 @@ namespace Nop.Plugin.Payments.Stripe.Services
             shippingAddres.Address2 = shippingAddress.Address2;
             shippingAddres.City = shippingAddress.City;
             shippingAddres.ZipCode = shippingAddress.ZipPostalCode;
+            shippingAddres.Id=shippingAddress.Id;
            
             shippingAddres.State = "Other";
             if (shippingState!=null)
@@ -133,7 +136,7 @@ namespace Nop.Plugin.Payments.Stripe.Services
                 shippingAddres.State = shippingState.Abbreviation;
 
             }
-                shippingAddres.Country = shippingAddressCountry.ThreeLetterIsoCode;
+                shippingAddres.Country = shippingAddressCountry.TwoLetterIsoCode;
             
 
 

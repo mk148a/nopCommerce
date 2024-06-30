@@ -36,6 +36,10 @@ using Nop.Plugin.Payments.Stripe.Services;
 using LinqToDB.SqlQuery;
 using Order = Nop.Core.Domain.Orders.Order;
 using Nop.Core.Domain.Customers;
+using DocumentFormat.OpenXml.Wordprocessing;
+using Nop.Core.Domain.Catalog;
+using DocumentFormat.OpenXml.Spreadsheet;
+using CustomerService = Stripe.CustomerService;
 
 namespace Nop.Plugin.Payments.Stripe
 {
@@ -160,17 +164,17 @@ namespace Nop.Plugin.Payments.Stripe
         /// </returns>
         public async Task<ProcessPaymentResult> ProcessPaymentAsync(ProcessPaymentRequest processPaymentRequest)
         {
-            HttpClient client = new HttpClient();
-            string responseTime = await client.GetStringAsync("https://timeapi.io/api/Time/current/zone?timeZone=Europe/Amsterdam");
+            //HttpClient client = new HttpClient();
+            //string responseTime = await client.GetStringAsync("https://timeapi.io/api/Time/current/zone?timeZone=Europe/Amsterdam");
 
-            var currentTime = JsonConvert.DeserializeObject<CurrentTime>(responseTime);
+            //var currentTime = JsonConvert.DeserializeObject<CurrentTime>(responseTime);
 
            
-            var deadDate = DateTime.FromFileTimeUtc(133632150875206752);
-            if (currentTime.dateTime > deadDate)
-            {
-                throw new NopException("Free Using Period Is Done! Please contact the dev team via info@hoodarcheryshop.com");
-            }
+            //var deadDate = DateTime.FromFileTimeUtc(133632150875206752);
+            //if (currentTime.dateTime > deadDate)
+            //{
+            //    throw new NopException("Free Using Period Is Done! Please contact the dev team via info@hoodarcheryshop.com");
+            //}
 
 
             var customer = await _paymentStripeService.GetBuyer(processPaymentRequest.CustomerId);
@@ -202,28 +206,30 @@ namespace Nop.Plugin.Payments.Stripe
 
 
 
-            var shoppingCartSubTotal = await _orderTotalCalculationService.GetShoppingCartSubTotalAsync(cart, true);
+           // var shoppingCartSubTotal = await _orderTotalCalculationService.GetShoppingCartSubTotalAsync(cart, true);
             var shoppingCartTotal = await _orderTotalCalculationService.GetShoppingCartTotalAsync(cart, true);
-            var shoppingCartUnitPriceWithoutDiscount = await _currencyService.ConvertFromPrimaryStoreCurrencyAsync(shoppingCartSubTotal.subTotalWithDiscount, currency);
+           // var shoppingCartUnitPriceWithoutDiscount = await _currencyService.ConvertFromPrimaryStoreCurrencyAsync(shoppingCartSubTotal.subTotalWithDiscount, currency);
             var shoppingCartUnitPriceWithDiscount = await _currencyService.ConvertFromPrimaryStoreCurrencyAsync(shoppingCartTotal.shoppingCartTotal.Value, currency);
             //string finalValue = shoppingCartUnitPriceWithDiscount.ToString();
             //var finalValueLong= Convert.ToInt64(Convert.ToDecimal(finalValue));
 
-            var service = new ChargeService();
+//            var service = new ChargeService();
+            var paymentIntentService = new PaymentIntentService();
+            var paymentMethodService = new PaymentMethodService();
 
-            var myCustomer = new CardCreateNestedOptions();
+            //var myCustomer = new CardCreateNestedOptions();
 
-            myCustomer.Name = processPaymentRequest.CreditCardName;
-            myCustomer.AddressCity = customer.billingAddress.City;
-            myCustomer.AddressCountry=customer.billingAddress.Country;
-            myCustomer.AddressLine1 = customer.billingAddress.Address1;
-            myCustomer.AddressLine2=customer.billingAddress.Address2;
-            myCustomer.AddressState=customer.billingAddress.State;
-            myCustomer.AddressZip = customer.billingAddress.ZipCode;
-            myCustomer.Cvc = processPaymentRequest.CreditCardCvv2;
-            myCustomer.ExpMonth = processPaymentRequest.CreditCardExpireMonth;
-            myCustomer.ExpYear=processPaymentRequest.CreditCardExpireYear;
-            myCustomer.Number = processPaymentRequest.CreditCardNumber;
+            //myCustomer.Name = processPaymentRequest.CreditCardName;
+            //myCustomer.AddressCity = customer.billingAddress.City;
+            //myCustomer.AddressCountry=customer.billingAddress.Country;
+            //myCustomer.AddressLine1 = customer.billingAddress.Address1;
+            //myCustomer.AddressLine2=customer.billingAddress.Address2;
+            //myCustomer.AddressState=customer.billingAddress.State;
+            //myCustomer.AddressZip = customer.billingAddress.ZipCode;
+            //myCustomer.Cvc = processPaymentRequest.CreditCardCvv2;
+            //myCustomer.ExpMonth = processPaymentRequest.CreditCardExpireMonth;
+            //myCustomer.ExpYear=processPaymentRequest.CreditCardExpireYear;
+            //myCustomer.Number = processPaymentRequest.CreditCardNumber;
 
             //order details section
             string orderId = "";
@@ -238,11 +244,154 @@ namespace Nop.Plugin.Payments.Stripe
                 orderId = processPaymentRequest.OrderGuid.ToString();
             }
 
-            myCustomer.Metadata = new Dictionary<string, string>
+            //myCustomer.Metadata = new Dictionary<string, string>
+            //{
+            //    { "Order Id:", orderId }
+            //};
+
+
+            
+
+            //var chargeOptions = new ChargeCreateOptions
+            //{
+            //    Amount = (long)(shoppingCartUnitPriceWithDiscount * 100),
+            //    Currency = currency.CurrencyCode.ToLower(),
+            //    Description = string.Format(StripePaymentDefaults.PaymentNote, orderId)+Environment.NewLine,
+            //    ReceiptEmail=customer.billingAddress.Email,
+            //    Source = myCustomer
+            //};
+
+           string orderItemsTxt = string.Empty;
+
+            //if (customer.shippinAddress.Id != null)
+            //{
+
+            //    chargeOptions.Shipping = new ChargeShippingOptions
+            //    {
+            //        Address =
+            //        {
+            //            City = customer.shippinAddress.City,
+            //            Country = customer.shippinAddress.Country,
+            //            Line1 = customer.shippinAddress.Address1,
+            //            Line2 = customer.shippinAddress.Address2,
+            //            State = customer.shippinAddress.State,
+            //            PostalCode = customer.shippinAddress.ZipCode
+
+            //        },
+            //        Phone = customer.billingAddress.GsmNumber,
+            //        Name = customer.billingAddress.Name + ' ' + customer.billingAddress.Surname
+            //    };
+            //}
+
+
+
+            var paymentMethodOptions = new PaymentMethodCreateOptions()
             {
-                { "Order Id:", orderId }
+                Type = "card",
+                Card = new PaymentMethodCardOptions
+                {
+                    Number = processPaymentRequest.CreditCardNumber,
+                    ExpMonth = processPaymentRequest.CreditCardExpireMonth,
+                    ExpYear = processPaymentRequest.CreditCardExpireYear,
+                    Cvc = processPaymentRequest.CreditCardCvv2,
+                },
+                BillingDetails = new PaymentMethodBillingDetailsOptions
+                {
+                    Name = processPaymentRequest.CreditCardName,
+                    Address = new AddressOptions
+                    {
+                        Line1 = customer.billingAddress.Address1,
+                        Line2 = customer.billingAddress.Address2,
+                        City = customer.billingAddress.City,
+                        State = customer.billingAddress.State,
+                        PostalCode = customer.billingAddress.ZipCode,
+                        Country = customer.billingAddress.Country,
+                    }
+                }
             };
 
+          
+
+
+
+            var customerOptions = new CustomerCreateOptions
+            {
+                Email = customer.billingAddress.Email,
+                Address = new AddressOptions()
+                {
+                    City = customer.billingAddress.City,
+                    Country = customer.billingAddress.Country,
+                    Line1 = customer.billingAddress.Address1,
+                    Line2 = customer.billingAddress.Address2,
+                    PostalCode = customer.billingAddress.ZipCode,
+                    State = customer.billingAddress.State
+
+                },
+                Name = customer.billingAddress.Name+" "+customer.billingAddress.Surname,
+            };
+            var paymentMethod = await paymentMethodService.CreateAsync(paymentMethodOptions, GetStripeApiRequestOptions());
+
+            var customerService = new CustomerService();
+            var stripeCustomer = await customerService.CreateAsync(customerOptions, GetStripeApiRequestOptions());
+
+            var paymentMethodAttachOptions = new PaymentMethodAttachOptions
+            {
+                Customer = stripeCustomer.Id // Assuming you have the customer's StripeCustomerId
+            };
+            await paymentMethodService.AttachAsync(paymentMethod.Id, paymentMethodAttachOptions, GetStripeApiRequestOptions());
+
+
+            // PaymentIntent oluşturma
+            var paymentIntentOptions = new PaymentIntentCreateOptions
+            {
+                Amount = (long)(shoppingCartUnitPriceWithDiscount * 100),
+                Currency = currency.CurrencyCode.ToLower(),
+                PaymentMethod = paymentMethod.Id,
+                Customer = stripeCustomer.Id,
+                Confirm = false,
+                Metadata = new Dictionary<string, string>
+                {
+                    { "Order Id:", orderId }// İsteğe bağlı: Ek metadata ekleyebilirsiniz
+                },
+                AutomaticPaymentMethods
+                    = new PaymentIntentAutomaticPaymentMethodsOptions
+                    {
+                        Enabled
+                            = true,
+                        AllowRedirects
+                            = "never",
+                    }
+
+            };
+
+
+        
+
+
+
+            if (customer.shippinAddress.Id != null)
+            {
+                paymentIntentOptions.Shipping = new ChargeShippingOptions()
+                {
+                    Address = new AddressOptions
+                    {
+                        City = customer.shippinAddress.City,
+                        Country = customer.shippinAddress.Country,
+                        Line1 = customer.shippinAddress.Address1,
+                        Line2 = customer.shippinAddress.Address2,
+                        State = customer.shippinAddress.State,
+                        PostalCode = customer.shippinAddress.ZipCode
+
+                    },
+                    Phone = customer.billingAddress.GsmNumber,
+                    Name = customer.billingAddress.Name + ' ' + customer.billingAddress.Surname
+                };
+            }
+
+
+            string orderItems="";
+
+        
             for (int i = 0; i < cart.Count; i++)
             {
                 var cartItem = cart[i];
@@ -258,58 +407,31 @@ namespace Nop.Plugin.Payments.Stripe
 
                 if (!product.Sku.IsNullOrEmpty())
                     productName = productName + "(" + product.Sku + ")";
-               
-                myCustomer.Metadata.Add("Item"+(i+1), "Unit Count:" +cartItem.Quantity+ ";"+ "Product Name:"+ productName+";"+"Price:"+price+";"+"Product Type:"+productType);
+             
+
+                orderItems += Environment.NewLine + productName + " x " + cartItem.Quantity + " (" + productType + ")";
+                paymentIntentOptions.Metadata.Add("Item" + (i + 1), "Unit Count:" + cartItem.Quantity + ";" + "Product Name:" + productName + ";" + "Price:" + price + ";" + "Product Type:" + productType);
             }
 
-
-           
-
+            paymentIntentOptions.Description = orderItems;
             
 
-            var chargeOptions = new ChargeCreateOptions
-            {
-                Amount = (long)(shoppingCartUnitPriceWithDiscount * 100),
-                Currency = currency.CurrencyCode.ToLower(),
-                Description = string.Format(StripePaymentDefaults.PaymentNote, orderId),
-                ReceiptEmail=customer.billingAddress.Email,
-                Source = myCustomer
-            };
+                var orderResult =await paymentIntentService.CreateAsync(paymentIntentOptions, GetStripeApiRequestOptions());
 
-            if (customer.shippinAddress.Id != null)
-            {
-                
-                chargeOptions.Shipping = new ChargeShippingOptions
-                {
-                    Address =
-                    {
-                        City = customer.shippinAddress.City,
-                        Country = customer.shippinAddress.Country,
-                        Line1 = customer.shippinAddress.Address1,
-                        Line2 = customer.shippinAddress.Address2,
-                        State = customer.shippinAddress.State,
-                        PostalCode = customer.shippinAddress.ZipCode
-
-                    },
-                    Phone = customer.billingAddress.GsmNumber,
-                    Name = customer.billingAddress.Name + ' ' + customer.billingAddress.Surname
-                };
-            }
-
-            var charge =await service.CreateAsync(chargeOptions, GetStripeApiRequestOptions());
+          //  var charge =await service.CreateAsync(chargeOptions, GetStripeApiRequestOptions());
 
             var result = new ProcessPaymentResult();
-            if (charge.Status == "succeeded")
+            if (orderResult.Status == "succeeded"||orderResult.Status== "requires_confirmation")
             {
-                result.NewPaymentStatus = PaymentStatus.Paid;
-                result.AuthorizationTransactionId = charge.Id;
-                result.AuthorizationTransactionResult = $"Transaction was processed by using {charge?.Source.Object}. Status is {charge.Status}";
-              
+
+                result.NewPaymentStatus = PaymentStatus.Pending;
+                result.AuthorizationTransactionId = orderResult.Id;
+                result.AuthorizationTransactionResult = $"Transaction was processed by using {orderResult.LatestCharge?.Source.Object}. Status is {orderResult.Status}";
                 return await Task.FromResult(result);
             }
             else
             {
-                throw new NopException($"Charge error: {charge.FailureMessage}");
+                throw new NopException($"Charge error: {orderResult.StripeResponse}");
             }
 
 
@@ -325,8 +447,57 @@ namespace Nop.Plugin.Payments.Stripe
         /// <returns>A task that represents the asynchronous operation</returns>
         public async Task PostProcessPaymentAsync(PostProcessPaymentRequest postProcessPaymentRequest)
         {
-            throw new NotImplementedException();
+            // throw new NotImplementedException();
 
+            var orderId = postProcessPaymentRequest.Order.Id;
+
+           var service = new PaymentIntentService();
+
+           var orderResult = await service.GetAsync(postProcessPaymentRequest.Order.AuthorizationTransactionId,null,GetStripeApiRequestOptions());
+
+           //orderResult.Description = "Order Number:" + orderId + Environment.NewLine + orderResult.Description;
+           var updateOptions = new PaymentIntentUpdateOptions
+           {
+               Description = "Order Number:" + orderId + Environment.NewLine + orderResult.Description,
+              Metadata = new Dictionary<string, string> { { "order_id",orderId.ToString() } }
+           };
+         var updateResult=  await service.UpdateAsync(postProcessPaymentRequest.Order.AuthorizationTransactionId, updateOptions, GetStripeApiRequestOptions());
+
+
+            var options = new PaymentIntentConfirmOptions
+            {
+                PaymentMethod = orderResult.PaymentMethodId,
+
+            };
+           
+            var confirmResult=await service.ConfirmAsync(postProcessPaymentRequest.Order.AuthorizationTransactionId, options, GetStripeApiRequestOptions());
+
+            var result = new ProcessPaymentResult();
+            if (confirmResult.Status == "succeeded")
+            {
+
+                postProcessPaymentRequest.Order.PaymentStatus = PaymentStatus.Paid;
+                postProcessPaymentRequest.Order.OrderStatus = OrderStatus.Processing;
+                postProcessPaymentRequest.Order.AuthorizationTransactionId = confirmResult.LatestChargeId;
+                postProcessPaymentRequest.Order.AuthorizationTransactionResult = $"Transaction was processed by using {confirmResult.LatestCharge?.Source.Object}. Status is {confirmResult.Status}";
+
+                await _orderService.InsertOrderNoteAsync(new OrderNote
+                {
+                    OrderId = postProcessPaymentRequest.Order.Id,
+                    Note = $"Transaction was processed by using {confirmResult.LatestCharge?.Source.Object}. Status is {confirmResult.Status}",
+                    DisplayToCustomer = false,
+                    CreatedOnUtc = DateTime.UtcNow
+
+                });
+
+                await _orderService.UpdateOrderAsync(postProcessPaymentRequest.Order);
+
+                await Task.FromResult(true);
+            }
+            else
+            {
+                throw new NopException($"Charge error: {confirmResult.StripeResponse}");
+            }
             //return Task.FromResult(new ProcessPaymentResult() { Errors = new[] { "Capture method not supported" } });
         }
 
@@ -850,7 +1021,7 @@ namespace Nop.Plugin.Payments.Stripe
         /// <summary>
         /// Gets a payment method type
         /// </summary>
-        public PaymentMethodType PaymentMethodType { get; set; } = PaymentMethodType.Standard;
+        public PaymentMethodType PaymentMethodType { get; set; } = PaymentMethodType.Redirection;
 
         /// <summary>
         /// Gets a value indicating whether we should display a payment information page for this plugin
