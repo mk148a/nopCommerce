@@ -7,67 +7,69 @@
     Layout = "";
 }
 
-@inject IWorkContext _workContext;
-@inject ICurrencyService currencyService;
-@inject IWebHelper webHelper;
+<h2>Payment Info</h2>
 
-@if (Model.PaymentResult == false)
-{
-    @Html.Raw(Model.Html)
-}
-else
-{
-    <div id="payment-request-button">
-        <!-- A Stripe Element will be inserted here. -->
-    </div>
-    <p id="message"></p>
+<div id="payment-request-button"></div>
+<p id="message"></p>
+
+@section Scripts {
     <script src="https://js.stripe.com/v3/"></script>
     <script>
-        var stripe = Stripe('YOUR_STRIPE_PUBLIC_KEY');
-        var paymentRequest = stripe.paymentRequest({
-            country: 'US',
-            currency: 'usd',
-            total: {
-                label: 'Total',
-                amount: @Model.OrderTotal
-            },
-            requestPayerName: true,
-            requestPayerEmail: true,
-        });
+        document.addEventListener("DOMContentLoaded", async function () {
+            var stripe = Stripe('@Model.StripePublishableKey');
 
-        var elements = stripe.elements();
-        var prButton = elements.create('paymentRequestButton', {
-            paymentRequest: paymentRequest,
-        });
-
-        // Check the availability of the Payment Request API first.
-        paymentRequest.canMakePayment().then(function(result) {
-            if (result) {
-                prButton.mount('#payment-request-button');
-            } else {
-                document.getElementById('payment-request-button').style.display = 'none';
-            }
-        });
-
-        paymentRequest.on('paymentmethod', function(ev) {
-            // Confirm the PaymentIntent without handling potential next actions (yet).
-            fetch('/Plugins/PaymentStripeApplePay/ConfirmPayment', {
+            var response = await fetch('@Url.Action("CreatePaymentIntent", "PaymentStripeApplePay")', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    payment_method_id: ev.paymentMethod.id,
-                    payment_intent_id: '@Model.PaymentIntentId',
-                }),
-            }).then(function(response) {
-                return response.json();
-            }).then(function(confirmResult) {
-                if (confirmResult.error) {
-                    ev.complete('fail');
-                    document.getElementById('message').innerText = confirmResult.error.message;
+                headers: { 'Content-Type': 'application/json' }
+            });
+
+            var data = await response.json();
+            var clientSecret = data.clientSecret;
+
+            var elements = stripe.elements();
+            var paymentRequest = stripe.paymentRequest({
+                country: 'US',
+                currency: 'usd',
+                total: {
+                    label: 'Total',
+                    amount: @Model.OrderTotal * 100, // Total amount in cents
+                },
+                requestPayerName: true,
+                requestPayerEmail: true,
+            });
+
+            var prButton = elements.create('paymentRequestButton', {
+                paymentRequest: paymentRequest,
+            });
+
+            paymentRequest.canMakePayment().then(function (result) {
+                if (result) {
+                    prButton.mount('#payment-request-button');
                 } else {
-                    ev.complete('success');
-                    window.location.href = confirmResult.redirect_url;
+                    document.getElementById('payment-request-button').style.display = 'none';
+                    document.getElementById('message').innerText = 'Apple Pay is not available.';
                 }
+            });
+
+            paymentRequest.on('paymentmethod', function (ev) {
+                fetch('@Url.Action("ConfirmPayment", "PaymentStripeApplePay")', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        paymentMethodId: ev.paymentMethod.id,
+                        paymentIntentId: clientSecret
+                    })
+                }).then(function (response) {
+                    return response.json();
+                }).then(function (confirmResult) {
+                    if (confirmResult.error) {
+                        ev.complete('fail');
+                        document.getElementById('message').innerText = confirmResult.error.message;
+                    } else {
+                        ev.complete('success');
+                        document.getElementById('message').innerText = 'Payment succeeded!';
+                    }
+                });
             });
         });
     </script>

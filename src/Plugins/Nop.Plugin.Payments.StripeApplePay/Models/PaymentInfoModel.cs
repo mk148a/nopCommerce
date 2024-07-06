@@ -11,14 +11,14 @@ namespace Nop.Plugin.Payments.StripeApplePay.Models
         {
         }
 
-        // Apple Pay işlemleri için gerekli alanlar
         [NopResourceDisplayName("Payment.OrderTotal")]
         public decimal OrderTotal { get; set; }
 
         [NopResourceDisplayName("Payment.PaymentIntentId")]
         public string PaymentIntentId { get; set; }
 
+        public string StripePublishableKey { get; set; }
         public string Html { get; set; }
-        public bool PaymentResult = true;
+        public bool PaymentResult { get; set; } = true;
     }
 }

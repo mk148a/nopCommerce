@@ -36,871 +36,117 @@ namespace Nop.Plugin.Payments.StripeApplePay
     /// </summary>
     public class StripeApplePayPlugin : BasePlugin, IPaymentMethod
     {
-        #region Fields
-
-        private readonly ILocalizationService _localizationService;
-        private readonly IPaymentService _paymentService;
-        private readonly ISettingService _settingService;
-        private readonly IWebHelper _webHelper;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly CurrencySettings _currencySettings;
-        private readonly IShoppingCartService _shoppingCartService;
-        private readonly IPriceCalculationService _priceCalculationService;
-        private readonly IOrderTotalCalculationService _orderTotalCalculationService;
-        private readonly IAddressService _addressService;
-        private readonly IProductService _productService;
-        private readonly ITaxService _taxService;
-        private readonly ICurrencyService _currencyService;
-        private readonly IWorkContext _workContext;
-        private readonly ICategoryService _categoryService;
-        private readonly ILogger _logger;
-        private readonly IScheduleTaskService _scheduleTaskService;
-        private readonly IOrderService _orderService;
-        private readonly ILanguageService _languageService;
-        private readonly StripeApplePayPaymentSettings _stripePaymentSettings;
-        private readonly ICountryService _countryService;
-        private readonly IStateProvinceService _iStateProvinceService;
-        private readonly IPaymentStripeApplePayService _paymentStripeApplePayService;
+        private readonly IWebHelper _webHelper;
 
-
-
-        #endregion
-
-        #region Ctor
-
-        public StripeApplePayPlugin(
-            ILocalizationService localizationService,
-            IPaymentService paymentService,
-
-            ISettingService settingService,
-            IWebHelper webHelper,
-            IHttpContextAccessor httpContextAccessor,
-            StripeApplePayPaymentSettings stripePaymentSettings,
-            CurrencySettings currencySettings,
-            IShoppingCartService shoppingCartService,
-            ICustomerService customerService,
-            IPriceCalculationService priceCalculationService,
-            IOrderTotalCalculationService orderTotalCalculationService,
-            IAddressService addressService,
-            IProductService productService,
-            ITaxService taxService,
-            ICurrencyService currencyService,
-            IWorkContext workContext,
-            ICategoryService categoryService,
-            ILogger logger,
-            IScheduleTaskService scheduleTaskService,
-            IOrderService orderService,
-            ILanguageService languageService,
-            IPaymentStripeApplePayService paymentStripeApplePayService
-        )
+        public StripeApplePayPlugin(IHttpContextAccessor httpContextAccessor, IWebHelper webHelper)
         {
-            _localizationService = localizationService;
-            _paymentService = paymentService;
-            _settingService = settingService;
-            _webHelper = webHelper;
             _httpContextAccessor = httpContextAccessor;
-            _stripePaymentSettings = stripePaymentSettings;
-            _currencySettings = currencySettings;
-            _shoppingCartService = shoppingCartService;
-            _priceCalculationService = priceCalculationService;
-            _orderTotalCalculationService = orderTotalCalculationService;
-            _addressService = addressService;
-            _productService = productService;
-            _taxService = taxService;
-            _currencyService = currencyService;
-            _workContext = workContext;
-            _categoryService = categoryService;
-            _logger = logger;
-            _scheduleTaskService = scheduleTaskService;
-            _orderService = orderService;
-            _languageService = languageService;
-            _paymentStripeApplePayService = paymentStripeApplePayService;
-
-
+            _webHelper = webHelper;
         }
 
-        #endregion
-
-
-        #region Methods
-
-
-        /// <summary>
-        /// Set up for a call to the Stripe API
-        /// </summary>
-        /// <returns></returns>
-        private RequestOptions GetStripeApiRequestOptions()
-        {
-            return new RequestOptions
-            {
-                ApiKey = _stripePaymentSettings.SecretKey,
-                IdempotencyKey = Guid.NewGuid().ToString()
-            };
-        }
-
-        /// <summary>
-        /// Process a payment
-        /// </summary>
-        /// <param name="processPaymentRequest">Payment info required for an order processing</param>
-        /// <returns>
-        /// A task that represents the asynchronous operation
-        /// The task result contains the process payment result
-        /// </returns>
         public async Task<ProcessPaymentResult> ProcessPaymentAsync(ProcessPaymentRequest processPaymentRequest)
         {
-            //HttpClient client = new HttpClient();
-            //string responseTime = await client.GetStringAsync("https://timeapi.io/api/Time/current/zone?timeZone=Europe/Amsterdam");
-
-            //var currentTime = JsonConvert.DeserializeObject<CurrentTime>(responseTime);
-
-
-            //var deadDate = DateTime.FromFileTimeUtc(133632150875206752);
-            //if (currentTime.dateTime > deadDate)
-            //{
-            //    throw new NopException("Free Using Period Is Done! Please contact the dev team via info@hoodarcheryshop.com");
-            //}
-
-
-            var customer = await _paymentStripeApplePayService.GetBuyer(processPaymentRequest.CustomerId);
-
-      
-            if (customer == null || customer.Id.IsNullOrEmpty())
-                throw new Exception("No Valid Customer Found!");
-
-            var cart = await _shoppingCartService.GetShoppingCartAsync(customer.Customer, ShoppingCartType.ShoppingCart, processPaymentRequest.StoreId);
-            if (!cart.Any())
-                throw new Exception("No Product Found in Your Cart!");
-
-
-            if (customer.billingAddress.Address1.IsNullOrEmpty())
-                throw new NopException("Customer billing address not set!");
-
-
-            if (customer.shippinAddress.Address1.IsNullOrEmpty())
-                throw new NopException("Customer shipping address not set!");
-
-            var currency = await _workContext.GetWorkingCurrencyAsync();
-
-            //var currenctLanguage = await _workContext.GetWorkingLanguageAsync();
-
-
-
-           
-            var shoppingCartTotal = await _orderTotalCalculationService.GetShoppingCartTotalAsync(cart, true);
-            // var shoppingCartUnitPriceWithoutDiscount = await _currencyService.ConvertFromPrimaryStoreCurrencyAsync(shoppingCartSubTotal.subTotalWithDiscount, currency);
-            var shoppingCartUnitPriceWithDiscount = await _currencyService.ConvertFromPrimaryStoreCurrencyAsync(shoppingCartTotal.shoppingCartTotal.Value, currency);
-      
-
-            var paymentIntentService = new PaymentIntentService();
-            var paymentMethodService = new PaymentMethodService();
-
-
-            //order details section
-            string orderId = "";
-
-            var order = await _orderService.GetOrderByGuidAsync(processPaymentRequest.OrderGuid);
-            if (order != null)
-            {
-                orderId = order.Id.ToString();
-            }
-            else
-            {
-                orderId = processPaymentRequest.OrderGuid.ToString();
-            }
-
-          
-
-            string orderItemsTxt = string.Empty;
-
-            //if (customer.shippinAddress.Id != null)
-            //{
-
-            //    chargeOptions.Shipping = new ChargeShippingOptions
-            //    {
-            //        Address =
-            //        {
-            //            City = customer.shippinAddress.City,
-            //            Country = customer.shippinAddress.Country,
-            //            Line1 = customer.shippinAddress.Address1,
-            //            Line2 = customer.shippinAddress.Address2,
-            //            State = customer.shippinAddress.State,
-            //            PostalCode = customer.shippinAddress.ZipCode
-
-            //        },
-            //        Phone = customer.billingAddress.GsmNumber,
-            //        Name = customer.billingAddress.Name + ' ' + customer.billingAddress.Surname
-            //    };
-            //}
-
-
-
-            var paymentMethodOptions = new PaymentMethodCreateOptions()
-            {
-                Type = "card",
-                Card = new PaymentMethodCardOptions
-                {
-                    Number = processPaymentRequest.CreditCardNumber,
-                    ExpMonth = processPaymentRequest.CreditCardExpireMonth,
-                    ExpYear = processPaymentRequest.CreditCardExpireYear,
-                    Cvc = processPaymentRequest.CreditCardCvv2,
-                },
-                BillingDetails = new PaymentMethodBillingDetailsOptions
-                {
-                    Name = processPaymentRequest.CreditCardName,
-                    Address = new AddressOptions
-                    {
-                        Line1 = customer.billingAddress.Address1,
-                        Line2 = customer.billingAddress.Address2,
-                        City = customer.billingAddress.City,
-                        State = customer.billingAddress.State,
-                        PostalCode = customer.billingAddress.ZipCode,
-                        Country = customer.billingAddress.Country,
-                    }
-                }
-            };
-
-
-
-
-
-            var customerOptions = new CustomerCreateOptions
-            {
-                Email = customer.billingAddress.Email,
-                Address = new AddressOptions()
-                {
-                    City = customer.billingAddress.City,
-                    Country = customer.billingAddress.Country,
-                    Line1 = customer.billingAddress.Address1,
-                    Line2 = customer.billingAddress.Address2,
-                    PostalCode = customer.billingAddress.ZipCode,
-                    State = customer.billingAddress.State
-
-                },
-                Name = customer.billingAddress.Name + " " + customer.billingAddress.Surname,
-            };
-            var paymentMethod = await paymentMethodService.CreateAsync(paymentMethodOptions, GetStripeApiRequestOptions());
-
-            var customerService = new CustomerService();
-            var stripeCustomer = await customerService.CreateAsync(customerOptions, GetStripeApiRequestOptions());
-
-            var paymentMethodAttachOptions = new PaymentMethodAttachOptions
-            {
-                Customer = stripeCustomer.Id // Assuming you have the customer's StripeCustomerId
-            };
-            await paymentMethodService.AttachAsync(paymentMethod.Id, paymentMethodAttachOptions, GetStripeApiRequestOptions());
-
-
-            // PaymentIntent oluşturma
-            var paymentIntentOptions = new PaymentIntentCreateOptions
-            {
-                Amount = (long)(shoppingCartUnitPriceWithDiscount * 100),
-                Currency = currency.CurrencyCode.ToLower(),
-                PaymentMethod = paymentMethod.Id,
-                Customer = stripeCustomer.Id,
-                Confirm = false,
-                Metadata = new Dictionary<string, string>
-                {
-                    { "Order Id:", orderId }// İsteğe bağlı: Ek metadata ekleyebilirsiniz
-                },
-                AutomaticPaymentMethods
-                    = new PaymentIntentAutomaticPaymentMethodsOptions
-                    {
-                        Enabled
-                            = true,
-                        AllowRedirects
-                            = "never",
-                    }
-
-            };
-
-
-
-
-
-
-            if (customer.shippinAddress.Id != null)
-            {
-                paymentIntentOptions.Shipping = new ChargeShippingOptions()
-                {
-                    Address = new AddressOptions
-                    {
-                        City = customer.shippinAddress.City,
-                        Country = customer.shippinAddress.Country,
-                        Line1 = customer.shippinAddress.Address1,
-                        Line2 = customer.shippinAddress.Address2,
-                        State = customer.shippinAddress.State,
-                        PostalCode = customer.shippinAddress.ZipCode
-
-                    },
-                    Phone = customer.billingAddress.GsmNumber,
-                    Name = customer.billingAddress.Name + ' ' + customer.billingAddress.Surname
-                };
-            }
-
-
-            string orderItems = "";
-
-
-            for (int i = 0; i < cart.Count; i++)
-            {
-                var cartItem = cart[i];
-                var product = await _productService.GetProductByIdAsync(cartItem.ProductId);
-                var price = (await _shoppingCartService.GetUnitPriceAsync(cartItem, true)).unitPrice;
-                var productName = product.Name;
-                string productType = "Virtual- Shipping Not Required ";
-                if (product.IsShipEnabled)
-                {
-                    productType = "PHYSICAL - Shipping Required";
-                }
-
-
-                if (!product.Sku.IsNullOrEmpty())
-                    productName = productName + "(" + product.Sku + ")";
-
-
-                orderItems += Environment.NewLine + productName + " x " + cartItem.Quantity + " (" + productType + ")";
-                paymentIntentOptions.Metadata.Add("Item" + (i + 1), "Unit Count:" + cartItem.Quantity + ";" + "Product Name:" + productName + ";" + "Price:" + price + ";" + "Product Type:" + productType);
-            }
-
-            paymentIntentOptions.Description = orderItems;
-
-
-            var orderResult = await paymentIntentService.CreateAsync(paymentIntentOptions, GetStripeApiRequestOptions());
-
-            //  var charge =await service.CreateAsync(chargeOptions, GetStripeApiRequestOptions());
-
             var result = new ProcessPaymentResult();
-            if (orderResult.Status == "succeeded" || orderResult.Status == "requires_confirmation")
+
+            try
             {
+                StripeConfiguration.ApiKey = "your-secret-key"; // Replace with your actual Stripe secret key
+
+                var paymentIntentService = new PaymentIntentService();
+
+                var options = new PaymentIntentCreateOptions
+                {
+                    Amount = (long)(processPaymentRequest.OrderTotal * 100), // Total amount in cents
+                    Currency = "usd",
+                    PaymentMethodTypes = new List<string> { "card", "apple_pay" },
+                };
+
+                var intent = await paymentIntentService.CreateAsync(options);
 
                 result.NewPaymentStatus = PaymentStatus.Pending;
-                result.AuthorizationTransactionId = orderResult.Id;
-                result.AuthorizationTransactionResult = $"Transaction was processed by using {orderResult.LatestCharge?.Source.Object}. Status is {orderResult.Status}";
-                return await Task.FromResult(result);
+                result.AuthorizationTransactionId = intent.Id;
+                result.AuthorizationTransactionResult = $"PaymentIntent created with ID: {intent.Id}";
+                processPaymentRequest.CustomValues.Add("StripePaymentIntentId", intent.Id);
             }
-            else
+            catch (Exception ex)
             {
-                throw new NopException($"Charge error: {orderResult.StripeResponse}");
+                result.AddError(ex.Message);
             }
 
-
-
+            return result;
         }
 
-
-
-        /// <summary>
-        /// Post process payment (used by payment gateways that require redirecting to a third-party URL)
-        /// </summary>
-        /// <param name="postProcessPaymentRequest">Payment info required for an order processing</param>
-        /// <returns>A task that represents the asynchronous operation</returns>
         public async Task PostProcessPaymentAsync(PostProcessPaymentRequest postProcessPaymentRequest)
         {
-            // throw new NotImplementedException();
+            var httpContext = _httpContextAccessor.HttpContext;
+            var form = await httpContext.Request.ReadFormAsync();
+            var paymentIntentId = form["payment_intent_id"];
 
-            var orderId = postProcessPaymentRequest.Order.Id;
+            var paymentIntentService = new PaymentIntentService();
+            var paymentIntent = await paymentIntentService.GetAsync(paymentIntentId);
 
-            var service = new PaymentIntentService();
-
-            var orderResult = await service.GetAsync(postProcessPaymentRequest.Order.AuthorizationTransactionId, null, GetStripeApiRequestOptions());
-
-            //orderResult.Description = "Order Number:" + orderId + Environment.NewLine + orderResult.Description;
-            var updateOptions = new PaymentIntentUpdateOptions
+            if (paymentIntent.Status == "succeeded")
             {
-                Description = "Order Number:" + orderId + Environment.NewLine + orderResult.Description,
-                Metadata = new Dictionary<string, string> { { "order_id", orderId.ToString() } }
-            };
-            var updateResult = await service.UpdateAsync(postProcessPaymentRequest.Order.AuthorizationTransactionId, updateOptions, GetStripeApiRequestOptions());
-
-
-            var options = new PaymentIntentConfirmOptions
-            {
-                PaymentMethod = orderResult.PaymentMethodId,
-
-            };
-
-            var confirmResult = await service.ConfirmAsync(postProcessPaymentRequest.Order.AuthorizationTransactionId, options, GetStripeApiRequestOptions());
-
-            var result = new ProcessPaymentResult();
-            if (confirmResult.Status == "succeeded")
-            {
-
                 postProcessPaymentRequest.Order.PaymentStatus = PaymentStatus.Paid;
-                postProcessPaymentRequest.Order.OrderStatus = OrderStatus.Processing;
-                postProcessPaymentRequest.Order.AuthorizationTransactionId = confirmResult.LatestChargeId;
-                postProcessPaymentRequest.Order.AuthorizationTransactionResult = $"Transaction was processed by using {confirmResult.LatestCharge?.Source.Object}. Status is {confirmResult.Status}";
-
-                await _orderService.InsertOrderNoteAsync(new OrderNote
-                {
-                    OrderId = postProcessPaymentRequest.Order.Id,
-                    Note = $"Transaction was processed by using {confirmResult.LatestCharge?.Source.Object}. Status is {confirmResult.Status}",
-                    DisplayToCustomer = false,
-                    CreatedOnUtc = DateTime.UtcNow
-
-                });
-
-                await _orderService.UpdateOrderAsync(postProcessPaymentRequest.Order);
-
-                await Task.FromResult(true);
+                postProcessPaymentRequest.Order.OrderStatus = OrderStatus.Complete;
+                postProcessPaymentRequest.Order.AuthorizationTransactionId = paymentIntent.Id;
+                postProcessPaymentRequest.Order.AuthorizationTransactionResult = $"PaymentIntent succeeded with ID: {paymentIntent.Id}";
             }
             else
             {
-                throw new NopException($"Charge error: {confirmResult.StripeResponse}");
+                throw new NopException($"PaymentIntent failed with status: {paymentIntent.Status}");
             }
-            //return Task.FromResult(new ProcessPaymentResult() { Errors = new[] { "Capture method not supported" } });
         }
 
-        /// <summary>
-        /// Returns a value indicating whether payment method should be hidden during checkout
-        /// </summary>
-        /// <param name="cart">Shopping cart</param>
-        /// <returns>
-        /// A task that represents the asynchronous operation
-        /// The task result contains the rue - hide; false - display.
-        /// </returns>
-        public Task<bool> HidePaymentMethodAsync(IList<ShoppingCartItem> cart)
-        {
-            //you can put any logic here
-            //for example, hide this payment method if all products in the cart are downloadable
-            //or hide this payment method if current customer is from certain country
-            return Task.FromResult(false);
-        }
-
-        /// <summary>
-        /// Captures payment
-        /// </summary>
-        /// <param name="capturePaymentRequest">Capture payment request</param>
-        /// <returns>
-        /// A task that represents the asynchronous operation
-        /// The task result contains the capture payment result
-        /// </returns>
-        public Task<CapturePaymentResult> CaptureAsync(CapturePaymentRequest capturePaymentRequest)
-        {
-            return Task.FromResult(new CapturePaymentResult { Errors = new[] { "Capture method not supported" } });
-        }
-
-        /// <summary>
-        /// Refunds a payment
-        /// </summary>
-        /// <param name="refundPaymentRequest">Request</param>
-        /// <returns>
-        /// A task that represents the asynchronous operation
-        /// The task result contains the result
-        /// </returns>
-        public async Task<RefundPaymentResult> RefundAsync(RefundPaymentRequest refundPaymentRequest)
-        {
-            var result = new RefundPaymentResult();
-
-            var currency = await _currencyService.GetCurrencyByCodeAsync(refundPaymentRequest.Order.CustomerCurrencyCode);
-
-            var convertedCurrency = await _currencyService.ConvertFromPrimaryStoreCurrencyAsync(refundPaymentRequest.AmountToRefund, currency);
-            if (!refundPaymentRequest.IsPartialRefund)
-            {
-                var service = new RefundService();
-
-                var refundOpt = new RefundCreateOptions();
-
-                refundOpt.Charge = refundPaymentRequest.Order.AuthorizationTransactionId.ToString();
-
-                var refund = await service.CreateAsync(refundOpt, GetStripeApiRequestOptions());
-
-
-                if (refund.Status == "succeeded")
-                {
-                    result.NewPaymentStatus = PaymentStatus.Refunded;
-                    try
-                    {
-
-
-                        var resTxt = "Refund Id:" + refund.Id + Environment.NewLine +
-                                     "Balance Transaction Id:" + refund.BalanceTransactionId + Environment.NewLine +
-                                     "Amount:" + refund.Amount / 100 + refund.Currency;
-                        List<string> PaymentInformation = new()
-                        {
-                            resTxt
-
-                        };
-                        //order note
-                        await _orderService.InsertOrderNoteAsync(new OrderNote
-                        {
-                            OrderId = refundPaymentRequest.Order.Id,
-                            Note = string.Join(" | ", PaymentInformation),
-                            DisplayToCustomer = false,
-                            CreatedOnUtc = DateTime.UtcNow
-
-                        });
-
-                        try
-                        {
-                            refundPaymentRequest.Order.OrderStatus = OrderStatus.Cancelled;
-                            await _orderService.UpdateOrderAsync(refundPaymentRequest.Order);
-                        }
-                        catch (Exception e)
-                        {
-                            Console.WriteLine(e);
-
-                        }
-
-
-                    }
-                    catch
-                    {
-
-                    }
-                }
-                else
-                {
-                    result.Errors.Add(refund.FailureReason);
-                }
-            }
-            else
-            {
-                var service = new RefundService();
-
-                var refundOpt = new RefundCreateOptions();
-                refundOpt.Amount = (long)(convertedCurrency * 100);
-                refundOpt.Charge = refundPaymentRequest.Order.AuthorizationTransactionId.ToString();
-
-
-
-                var refund = await service.CreateAsync(refundOpt, GetStripeApiRequestOptions());
-
-                if (refund.Status == "succeeded")
-                {
-                    result.NewPaymentStatus = PaymentStatus.PartiallyRefunded;
-                    try
-                    {
-
-
-
-
-
-                        List<string> PaymentInformation = new List<string>();
-                        PaymentInformation.Add("Refund Id:" + refund.Id);
-                        PaymentInformation.Add("Balance Transaction Id:" + refund.BalanceTransactionId);
-                        PaymentInformation.Add("Amount:" + refund.Amount / 100 + refund.Currency);
-                        //order note
-                        await _orderService.InsertOrderNoteAsync(new OrderNote
-                        {
-                            OrderId = refundPaymentRequest.Order.Id,
-                            Note = string.Join(" | ", PaymentInformation),
-                            DisplayToCustomer = false,
-                            CreatedOnUtc = DateTime.UtcNow
-                        });
-
-
-
-
-
-
-                    }
-                    catch
-                    {
-
-                    }
-                }
-                else
-                {
-                    result.Errors.Add(refund.FailureReason);
-                }
-            }
-
-            return await Task.FromResult(result);
-        }
-
-        /// <summary>
-        /// Voids a payment
-        /// </summary>
-        /// <param name="voidPaymentRequest">Request</param>
-        /// <returns>
-        /// A task that represents the asynchronous operation
-        /// The task result contains the result
-        /// </returns>
-        public async Task<VoidPaymentResult> VoidAsync(VoidPaymentRequest voidPaymentRequest)
-        {
-            var result = new VoidPaymentResult();
-            var service = new RefundService();
-
-            var refundOpt = new RefundCreateOptions();
-            refundOpt.Charge = voidPaymentRequest.Order.AuthorizationTransactionId.ToString();
-
-
-
-
-            var refund = await service.CreateAsync(refundOpt, GetStripeApiRequestOptions());
-
-            if (refund.Status == "succeeded")
-            {
-                result.NewPaymentStatus = PaymentStatus.Voided;
-                try
-                {
-
-
-
-
-
-                    List<string> PaymentInformation = new List<string>();
-                    PaymentInformation.Add("Refund Id:" + refund.Id);
-                    PaymentInformation.Add("Balance Transaction Id:" + refund.BalanceTransactionId);
-                    PaymentInformation.Add("Amount:" + refund.Amount);
-                    //order note
-                    await _orderService.InsertOrderNoteAsync(new OrderNote
-                    {
-                        OrderId = voidPaymentRequest.Order.Id,
-                        Note = string.Join(" | ", PaymentInformation),
-                        DisplayToCustomer = false,
-                        CreatedOnUtc = DateTime.UtcNow
-                    });
-
-
-
-
-
-
-                }
-                catch
-                {
-
-                }
-            }
-            else
-            {
-                result.Errors.Add(refund.FailureReason);
-            }
-
-            return await Task.FromResult(result);
-        }
-
-        /// <summary>
-        /// Process recurring payment
-        /// </summary>
-        /// <param name="processPaymentRequest">Payment info required for an order processing</param>
-        /// <returns>
-        /// A task that represents the asynchronous operation
-        /// The task result contains the process payment result
-        /// </returns>
-        public Task<ProcessPaymentResult> ProcessRecurringPaymentAsync(ProcessPaymentRequest processPaymentRequest)
-        {
-            return Task.FromResult(new ProcessPaymentResult { Errors = new[] { "Process Recurring Payment not supported" } });
-        }
-
-        /// <summary>
-        /// Gets additional handling fee
-        /// </summary>
-        /// <returns>
-        /// A task that represents the asynchronous operation
-        /// The task result contains the additional handling fee
-        /// </returns>
-        public async Task<decimal> GetAdditionalHandlingFeeAsync(IList<ShoppingCartItem> cart)
-        {
-
-            return await _orderTotalCalculationService.CalculatePaymentAdditionalFeeAsync(cart, _stripePaymentSettings.AdditionalFee, _stripePaymentSettings.AdditionalFeePercentage);
-        }
-
-        /// <summary>
-        /// Cancels a recurring payment
-        /// </summary>
-        /// <param name="cancelPaymentRequest">Request</param>
-        /// <returns>
-        /// A task that represents the asynchronous operation
-        /// The task result contains the result
-        /// </returns>
-        public Task<CancelRecurringPaymentResult> CancelRecurringPaymentAsync(CancelRecurringPaymentRequest cancelPaymentRequest)
-        {
-            //always success
-            return Task.FromResult(new CancelRecurringPaymentResult());
-        }
-
-        /// <summary>
-        /// Gets a value indicating whether customers can complete a payment after order is placed but not completed (for redirection payment methods)
-        /// </summary>
-        /// <param name="order">Order</param>
-        /// <returns>
-        /// A task that represents the asynchronous operation
-        /// The task result contains the result
-        /// </returns>
-        public Task<bool> CanRePostProcessPaymentAsync(Order order)
-        {
-            if (order == null)
-                throw new ArgumentNullException(nameof(order));
-
-            //it's not a redirection payment method. So we always return false
-            return Task.FromResult(false);
-        }
-        private bool IsStripeTokenID(string token)
-        {
-            return token.StartsWith("tok_");
-        }
-
-        /// <summary>
-        /// Validate payment form
-        /// </summary>
-        /// <param name="form">The parsed form values</param>
-        /// <returns>
-        /// A task that represents the asynchronous operation
-        /// The task result contains the list of validating errors
-        /// </returns>
-
-        /// <summary>
-        /// Get payment information
-        /// </summary>
-        /// <param name="form">The parsed form values</param>
-        /// <returns>
-        /// A task that represents the asynchronous operation
-        /// The task result contains the payment info holder
-        /// </returns>
-        public async Task<ProcessPaymentRequest> GetPaymentInfoAsync(IFormCollection form)
-        {
-            var paymentRequest = new ProcessPaymentRequest();
-
-            if (form.TryGetValue("stripeToken", out StringValues stripeToken) && !StringValues.IsNullOrEmpty(stripeToken))
-                paymentRequest.CustomValues.Add(await _localizationService.GetResourceAsync("Plugins.Payments.Stripe.Fields.StripeToken.Key"), stripeToken.ToString());
-
-            paymentRequest.CreditCardType = form["CreditCardType"];
-            paymentRequest.CreditCardName = form["CardholderName"];
-            paymentRequest.CreditCardNumber = form["CardNumber"];
-            paymentRequest.CreditCardExpireMonth = int.Parse(form["ExpireMonth"]);
-            paymentRequest.CreditCardExpireYear = int.Parse(form["ExpireYear"]);
-            paymentRequest.CreditCardCvv2 = form["CardCode"];
-
-            return paymentRequest;
-        }
-
-        /// <summary>
-        /// Gets a configuration page URL
-        /// </summary>
-        public override string GetConfigurationPageUrl()
-        {
-            return $"{_webHelper.GetStoreLocation()}Admin/PaymentStripe/Configure";
-        }
-
-        /// <summary>
-        /// Gets a name of a view component for displaying plugin in public store ("payment info" checkout step)
-        /// </summary>
-        /// <returns>View component name</returns>
-        public string GetPublicViewComponentName()
-        {
-            return StripeApplePayPaymentDefaults.ViewComponentName;
-        }
-
-        /// <summary>
-        /// Install the plugin
-        /// </summary>
-        /// <returns>A task that represents the asynchronous operation</returns>
         public override async Task InstallAsync()
         {
-            //locales
-            bool languageInstalled = false;
-            var languages = await _languageService.GetAllLanguagesAsync();
-            Language enLanguage = null;
-            Language trLanguage = null;
-            if (languages.Count > 0)
-            {
-                foreach (var language in languages)
-                {
-                    if (language.UniqueSeoCode == "en")
-                    {
-                        enLanguage = language;
-                    }
-                    else if (language.UniqueSeoCode == "tr")
-                    {
-                        trLanguage = language;
-                    }
-
-                }
-            }
-
-
-
-
-
-
-            if (enLanguage != null)
-            {
-                await _localizationService.AddOrUpdateLocaleResourceAsync(new Dictionary<string, string>
-                {
-                    ["Plugins.Payments.Stripe.Instructions"] = "You can edit the settings of your Stripe virtual pos integration.",
-                    ["Plugins.Payments.Stripe.PaymentMethodDescription"] = "Payment by Credit/Debit card",
-                    ["Plugins.Payments.Stripe.AccountInfo"] = "Define Your Stripe Api Information",
-                    ["Plugins.Payments.Stripe.Fields.PublishableKey"] = "PublishableKey Api Key",
-                    ["Plugins.Payments.Stripe.Fields.PublishableKey.Hint"] = "Enter your PublishableKey Api Key information on your Stripe control panel.",
-                    ["Plugins.Payments.Stripe.Fields.SecretKey"] = "Api Secret Key",
-                    ["Plugins.Payments.Stripe.Fields.SecretKey.Hint"] = "Enter your Api Secret information on your Stripe control panel.",
-                    ["Plugins.Payments.Stripe.VirtualPosInfo"] = "Define Your Stripe Payment Settings",
-                    ["Plugins.Payments.Stripe.Fields.IsCardStorage"] = "Store Card Information",
-                    ["Plugins.Payments.Stripe.Fields.IsCardStorage.Hint"] = "This option stores the first six digits and the last four digits of the credit card information transmitted by Stripe in the database (not sent to any third party processors).",
-                    ["Plugins.Payments.Stripe.Fields.PaymentFailed"] = "Payment Failed",
-                    ["Plugins.Payments.Stripe.Fields.PaymentErrors"] = "Payment Errors",
-                    ["Plugins.Payments.Stripe.Fields.refundIdTxt"] = "Stripe Refund Id : ",
-                    ["Plugins.Payments.Stripe.Fields.transactionIdTxt"] = "Transaction Id : ",
-                    ["Plugins.Payments.Stripe.Fields.refundAmountTxt"] = "Refund Amount : ",
-                    ["Plugins.Payments.Stripe.Fields.PaymentFailed.Order"] = "Payment Failed. Order Number #",
-                    ["Plugins.Payments.Stripe.Fields.Fraoud.Fail"] = "The payment was not accepted because the fraud risk of the transaction is high. Order #",
-                    ["Plugins.Payments.Stripe.Fields.Fraoud.Review"] = "Since there is a Fraud risk related to the transaction, the payment has been taken under review. Order #",
-                    ["Plugins.Payments.Stripe.Fields.Order.NotFound"] = "Order Not Found! Order #"
-                }, enLanguage.Id);
-                languageInstalled = true;
-            }
-
-
-
-            if (languageInstalled == false)
-            {
-                //Default Fields
-                await _localizationService.AddOrUpdateLocaleResourceAsync(new Dictionary<string, string>
-                {
-                    ["Plugins.Payments.Stripe.Instructions"] = "You can edit the settings of your Stripe virtual pos integration.",
-                    ["Plugins.Payments.Stripe.PaymentMethodDescription"] = "Payment by Credit/Debit card",
-                    ["Plugins.Payments.Stripe.AccountInfo"] = "Define Your Stripe Api Information",
-                    ["Plugins.Payments.Stripe.Fields.PublishableKey"] = "PublishableKey Api Key",
-                    ["Plugins.Payments.Stripe.Fields.PublishableKey.Hint"] = "Enter your PublishableKey Api Key information on your Stripe control panel.",
-                    ["Plugins.Payments.Stripe.Fields.SecretKey"] = "Api Secret Key",
-                    ["Plugins.Payments.Stripe.Fields.SecretKey.Hint"] = "Enter your Api Secret information on your Stripe control panel.",
-                    ["Plugins.Payments.Stripe.VirtualPosInfo"] = "Define Your Stripe Payment Settings",
-                    ["Plugins.Payments.Stripe.Fields.IsCardStorage"] = "Store Card Information",
-                    ["Plugins.Payments.Stripe.Fields.IsCardStorage.Hint"] = "This option stores the first six digits and the last four digits of the credit card information transmitted by Stripe in the database (not sent to any third party processors).",
-                    ["Plugins.Payments.Stripe.Fields.PaymentFailed"] = "Payment Failed",
-                    ["Plugins.Payments.Stripe.Fields.PaymentErrors"] = "Payment Errors",
-                    ["Plugins.Payments.Stripe.Fields.refundIdTxt"] = "Stripe Refund Id : ",
-                    ["Plugins.Payments.Stripe.Fields.transactionIdTxt"] = "Transaction Id : ",
-                    ["Plugins.Payments.Stripe.Fields.refundAmountTxt"] = "Refund Amount : ",
-                    ["Plugins.Payments.Stripe.Fields.PaymentFailed.Order"] = "Payment Failed. Order Number #",
-                    ["Plugins.Payments.Stripe.Fields.Fraoud.Fail"] = "The payment was not accepted because the fraud risk of the transaction is high. Order #",
-                    ["Plugins.Payments.Stripe.Fields.Fraoud.Review"] = "Since there is a Fraud risk related to the transaction, the payment has been taken under review. Order #",
-                    ["Plugins.Payments.Stripe.Fields.Order.NotFound"] = "Order Not Found! Order #"
-                });
-            }
-
-
             await base.InstallAsync();
         }
 
-        /// <summary>
-        /// Uninstall the plugin
-        /// </summary>
-        /// <returns>A task that represents the asynchronous operation</returns>
         public override async Task UninstallAsync()
         {
-            //settings
-            await _settingService.DeleteSettingAsync<StripeApplePayPaymentSettings>();
-
-            //locales
-            await _localizationService.DeleteLocaleResourcesAsync("Plugins.Payments.Stripe");
-
             await base.UninstallAsync();
         }
 
-        /// <summary>
-        /// Gets a payment method description that will be displayed on checkout pages in the public store
-        /// </summary>
-        /// <remarks>
-        /// return description of this payment method to be display on "payment method" checkout step. good practice is to make it localizable
-        /// for example, for a redirection payment method, description may be like this: "You will be redirected to PayPal site to complete the payment"
-        /// </remarks>
-        /// <returns>A task that represents the asynchronous operation</returns>
-        public async Task<string> GetPaymentMethodDescriptionAsync()
+        public Task<bool> HidePaymentMethodAsync(IList<ShoppingCartItem> cart)
         {
-            return await _localizationService.GetResourceAsync("Plugins.Payments.Stripe.PaymentMethodDescription");
+            throw new NotImplementedException();
+        }
+
+        public Task<decimal> GetAdditionalHandlingFeeAsync(IList<ShoppingCartItem> cart)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<CapturePaymentResult> CaptureAsync(CapturePaymentRequest capturePaymentRequest)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<RefundPaymentResult> RefundAsync(RefundPaymentRequest refundPaymentRequest)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<VoidPaymentResult> VoidAsync(VoidPaymentRequest voidPaymentRequest)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<ProcessPaymentResult> ProcessRecurringPaymentAsync(ProcessPaymentRequest processPaymentRequest)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<CancelRecurringPaymentResult> CancelRecurringPaymentAsync(CancelRecurringPaymentRequest cancelPaymentRequest)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> CanRePostProcessPaymentAsync(Order order)
+        {
+            throw new NotImplementedException();
         }
 
         public Task<IList<string>> ValidatePaymentFormAsync(IFormCollection form)
@@ -908,45 +154,35 @@ namespace Nop.Plugin.Payments.StripeApplePay
             throw new NotImplementedException();
         }
 
-        #endregion
+        public Task<ProcessPaymentRequest> GetPaymentInfoAsync(IFormCollection form)
+        {
+            throw new NotImplementedException();
+        }
 
-        #region Properties
+        public string GetPublicViewComponentName()
+        {
+            throw new NotImplementedException();
+        }
 
-        /// <summary>
-        /// Gets a value indicating whether capture is supported
-        /// </summary>
-        public bool SupportCapture => false;
+        public Task<string> GetPaymentMethodDescriptionAsync()
+        {
+            throw new NotImplementedException();
+        }
 
-        /// <summary>
-        /// Gets a value indicating whether partial refund is supported
-        /// </summary>
-        public bool SupportPartiallyRefund => true;
-
-        /// <summary>
-        /// Gets a value indicating whether refund is supported
-        /// </summary>
-        public bool SupportRefund => true;
-
-        /// <summary>
-        /// Gets a value indicating whether void is supported
-        /// </summary>
-        public bool SupportVoid => true;
-
-        /// <summary>
-        /// Gets a recurring payment type of payment method
-        /// </summary>
-        public RecurringPaymentType RecurringPaymentType => RecurringPaymentType.NotSupported;
-
-        /// <summary>
-        /// Gets a payment method type
-        /// </summary>
-        public PaymentMethodType PaymentMethodType { get; set; } = PaymentMethodType.Redirection;
-
-        /// <summary>
-        /// Gets a value indicating whether we should display a payment information page for this plugin
-        /// </summary>
         public bool SkipPaymentInfo => false;
 
-        #endregion
+        public string PaymentMethodDescription => "Pay with Apple Pay using Stripe.";
+
+        public bool SupportCapture => throw new NotImplementedException();
+
+        public bool SupportPartiallyRefund => throw new NotImplementedException();
+
+        public bool SupportRefund => throw new NotImplementedException();
+
+        public bool SupportVoid => throw new NotImplementedException();
+
+        public RecurringPaymentType RecurringPaymentType => throw new NotImplementedException();
+
+        public PaymentMethodType PaymentMethodType => throw new NotImplementedException();
     }
 }
