@@ -1,0 +1,74 @@
+﻿@using Nop.Services.Directory
+@using Nop.Web.Framework.TagHelpers.Shared
+@using Nop.Core
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model Nop.Plugin.Payments.StripeApplePay.Models.PaymentInfoModel
+@{
+    Layout = "";
+}
+
+@inject IWorkContext _workContext;
+@inject ICurrencyService currencyService;
+@inject IWebHelper webHelper;
+
+@if (Model.PaymentResult == false)
+{
+    @Html.Raw(Model.Html)
+}
+else
+{
+    <div id="payment-request-button">
+        <!-- A Stripe Element will be inserted here. -->
+    </div>
+    <p id="message"></p>
+    <script src="https://js.stripe.com/v3/"></script>
+    <script>
+        var stripe = Stripe('YOUR_STRIPE_PUBLIC_KEY');
+        var paymentRequest = stripe.paymentRequest({
+            country: 'US',
+            currency: 'usd',
+            total: {
+                label: 'Total',
+                amount: @Model.OrderTotal
+            },
+            requestPayerName: true,
+            requestPayerEmail: true,
+        });
+
+        var elements = stripe.elements();
+        var prButton = elements.create('paymentRequestButton', {
+            paymentRequest: paymentRequest,
+        });
+
+        // Check the availability of the Payment Request API first.
+        paymentRequest.canMakePayment().then(function(result) {
+            if (result) {
+                prButton.mount('#payment-request-button');
+            } else {
+                document.getElementById('payment-request-button').style.display = 'none';
+            }
+        });
+
+        paymentRequest.on('paymentmethod', function(ev) {
+            // Confirm the PaymentIntent without handling potential next actions (yet).
+            fetch('/Plugins/PaymentStripeApplePay/ConfirmPayment', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    payment_method_id: ev.paymentMethod.id,
+                    payment_intent_id: '@Model.PaymentIntentId',
+                }),
+            }).then(function(response) {
+                return response.json();
+            }).then(function(confirmResult) {
+                if (confirmResult.error) {
+                    ev.complete('fail');
+                    document.getElementById('message').innerText = confirmResult.error.message;
+                } else {
+                    ev.complete('success');
+                    window.location.href = confirmResult.redirect_url;
+                }
+            });
+        });
+    </script>
+}
