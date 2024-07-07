@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Nop.Core.Infrastructure;
+using Nop.Plugin.Payments.StripeApplePay.Services;
 
 namespace Nop.Plugin.Payments.StripeApplePay.Infrastructure
 {
@@ -17,6 +18,7 @@ namespace Nop.Plugin.Payments.StripeApplePay.Infrastructure
 
             //register services and interfaces
             //services.AddScoped<CustomModelFactory, ICustomerModelFactory>();
+            services.AddScoped<IPaymentStripeApplePayService, PaymentStripeApplePayService>();
         }
 
         public void Configure(IApplicationBuilder application)

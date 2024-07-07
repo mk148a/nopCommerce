@@ -3,11 +3,11 @@
     Layout = "_ConfigurePlugin";
 }
 
-<link rel="stylesheet" href="~/Plugins/Nop.Plugin.Payments.StripeApplePay/Content/css/StripeAdminStyle.min.css" />
+
 
 @await Component.InvokeAsync("StoreScopeConfiguration")
 
-<form asp-controller="PaymentStripe" asp-action="Configure" method="post" autocomplete="off">
+<form asp-controller="PaymentStripeApplePay" asp-action="Configure" method="post" autocomplete="off">
     <div class="cards-group">
         <div class="card card-default">
             <div class="card-body">
