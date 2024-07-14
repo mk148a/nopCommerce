@@ -1,115 +1,66 @@
 ﻿@model Nop.Plugin.Payments.StripeApplePay.Models.PaymentInfoModel
 
-@{
-    NopHtml.AddScriptParts(ResourceLocation.Head, "~/Plugins/Nop.Plugin.Payments.StripeApplePay/Contents/stripe.js");
-}
-<style type="text/css">
-    .StripeElement {
-        background-color: white;
-        height: 40px;
-        padding: 10px 12px;
-        border-radius: 4px;
-        border: 1px solid transparent;
-        box-shadow: 0 1px 3px 0 #e6ebf1;
-        -webkit-transition: box-shadow 150ms ease;
-        transition: box-shadow 150ms ease;
-    }
 
-    .StripeElement--focus {
-        box-shadow: 0 1px 3px 0 #cfd7df;
-    }
-
-    .StripeElement--invalid {
-        border-color: #fa755a;
-    }
-
-    .StripeElement--webkit-autofill {
-        background-color: #fefde5 !important;
-    }
-</style>
+<!script async src="https://js.stripe.com/v3/"></!script>
+<div id="payment-request-button"></div>
+<p id="message"></p>
 
 <script>
     $(document).ready(function () {
-        $.getScript('https://js.stripe.com/v3/', function () {
+        var stripe = Stripe('@Model.StripePublishableKey');
 
-            var stripe = Stripe('@Model.StripePublishableKey');
+        var paymentRequest = stripe.paymentRequest({
+            country: 'US',
+            currency: 'usd',
+            total: {
+                label: 'Total',
+                amount: @Model.OrderTotal * 100 // Total amount in cents
+            },
+            requestPayerName: true,
+            requestPayerEmail: true,
+            requestPayerPhone: true
+        });
 
-            $.ajax({
-                url: '@Url.Action("CreatePaymentIntent", "PaymentStripeApplePay")',
+        var elements = stripe.elements();
+        var prButton = elements.create('paymentRequestButton', {
+            paymentRequest: paymentRequest
+        });
+
+        paymentRequest.canMakePayment().then(function (result) {
+            if (result) {
+                prButton.mount('#payment-request-button');
+            } else {
+                document.getElementById('payment-request-button').style.display = 'none';
+                document.getElementById('message').innerText = 'Google Pay or Apple Pay is not available on this device.';
+            }
+        });
+
+        paymentRequest.on('paymentmethod', function (ev) {
+            fetch('@Url.Action("AuthorizePayment", "PaymentStripeApplePay")', {
                 method: 'POST',
-                contentType: 'application/json',
-                success: function (data) {
-                    var clientSecret = data.clientSecret;
-
-                    var elements = stripe.elements();
-                    var paymentRequest = stripe.paymentRequest({
-                        country: 'US',
-                        currency: 'usd',
-                        total: {
-                            label: 'Total',
-                            amount: @Model.OrderTotal * 100, // Total amount in cents
-                        },
-                        requestPayerName: true,
-                        requestPayerEmail: true,
-                    });
-
-                    var prButton = elements.create('paymentRequestButton', {
-                        paymentRequest: paymentRequest,
-                    });
-
-                    paymentRequest.canMakePayment().then(function (result) {
-                        if (result) {
-                            prButton.mount('#payment-request-button');
-                        } else {
-                            $('#payment-request-button').hide();
-                            $('#message').text('Apple Pay is not available.');
-                        }
-                    });
-
-                    paymentRequest.on('paymentmethod', function (ev) {
-                        $.ajax({
-                            url: '@Url.Action("ConfirmPayment", "PaymentStripeApplePay")',
-                            method: 'POST',
-                            contentType: 'application/json',
-                            data: JSON.stringify({
-                                paymentMethodId: ev.paymentMethod.id,
-                                paymentIntentId: clientSecret
-                            }),
-                            success: function (confirmResult) {
-                                if (confirmResult.error) {
-                                    ev.complete('fail');
-                                    $('#message').text(confirmResult.error.message);
-                                } else {
-                                    ev.complete('success');
-                                    $('#message').text('Payment succeeded!');
-                                }
-                            }
-                        });
-                    });
-                },
-                error: function (error) {
-                    $('#message').text('Error creating payment intent: ' + error.responseText);
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    paymentMethodId: ev.paymentMethod.id,
+                    amount: @Model.OrderTotal * 100,
+                    currency: 'usd'
+                })
+            }).then(function (response) {
+                return response.json();
+            }).then(function (paymentIntent) {
+                if (paymentIntent.error) {
+                    ev.complete('fail');
+                    document.getElementById('message').innerText = paymentIntent.error.message;
+                } else {
+                    document.getElementById('PaymentIntentId').value = paymentIntent.id;
+                    ev.complete('success');
+                    document.getElementById('message').innerText = 'Payment authorized, please confirm your order.';
                 }
             });
         });
     });
-
 </script>
 
-<input type="hidden" asp-for="@Model.StripePublishableKey"/>
+<input type="hidden" id="PaymentMethodId" name="PaymentMethodId" />
+<input type="hidden" id="PaymentIntentId" name="PaymentIntentId" />
 
-
-<form action="/charge" method="post" id="payment-form">
-    <div class="form-row">
-        <label for="card-element">
-            Credit or debit card
-        </label>
-        <div id="card-element">
-            <!-- A Stripe Element will be inserted here. -->
-        </div>
-
-        <!-- Used to display form errors. -->
-        <div id="card-errors" role="alert"></div>
-    </div>
-
-</form>
+@NopHtml.GenerateScripts(ResourceLocation.Footer)

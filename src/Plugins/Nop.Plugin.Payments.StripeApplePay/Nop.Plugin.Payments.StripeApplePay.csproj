@@ -70,7 +70,7 @@
 
   <ItemGroup>
     <Reference Include="Stripe.net">
-      <HintPath>..\..\..\..\..\..\..\User Data\Masaustu\stripe-dotnet-45.1.0\Stripe.net.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\..\User Data\Masaustu\Stripe.net.dll</HintPath>
     </Reference>
   </ItemGroup>
  

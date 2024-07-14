@@ -16,7 +16,7 @@ namespace Nop.Plugin.Payments.StripeApplePay
         /// <summary>
         /// Name of the view component to display plugin in public store
         /// </summary>
-        public const string ViewComponentName = "PaymentStripeApplePay";
+        public const string ViewComponentName = "StripeApplePay";
 
         /// <summary>
         /// User agent used for requesting Stripe services
