@@ -141,18 +141,45 @@ namespace Nop.Plugin.Payments.StripeApplePay.Controllers
 
             var paymentIntentOptions = new PaymentIntentCreateOptions
             {
-                Amount = (long)(request.OrderTotal * 100), // Order total amount in cents
-                Currency = "usd",
+                Amount = (long)(request.OrderTotal ), // Order total amount in cents
+                Currency = request.Currency,
                 PaymentMethodTypes = new List<string> { "card" },
             };
 
-            var paymentIntent = await paymentIntentService.CreateAsync(paymentIntentOptions);
+            var paymentIntent = await paymentIntentService.CreateAsync(paymentIntentOptions, GetStripeApiRequestOptions());
 
             return Json(new { success = true, id = paymentIntent.Id, clientSecret = paymentIntent.ClientSecret });
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> CancelPaymentIntent(string paymentIntentId)
+        {
+            try
+            {
+                if (paymentIntentId==null)
+                {
+                    return Json(new { success = false, error = "paymentIntentId is null" });
+                }
+                var storeScope = await _storeContext.GetActiveStoreScopeConfigurationAsync();
+                var stripePaymentSettings = await _settingService.LoadSettingAsync<StripeApplePayPaymentSettings>(storeScope);
+
+                StripeConfiguration.ApiKey = stripePaymentSettings.SecretKey;
+
+                var paymentIntentService = new PaymentIntentService();
+                var paymentIntent = await paymentIntentService.CancelAsync(paymentIntentId,null, GetStripeApiRequestOptions());
+
+                return Json(new { success = true, paymentIntentId = paymentIntent.Id });
+            }
+            catch (StripeException e)
+            {
+                return Json(new { success = false, error = e.Message });
+            }
         }
         public class CreatePaymentIntentRequest
         {
             public decimal OrderTotal { get; set; }
+            public string Currency { get; set; }
         }
 
         //this method allows pass the paymentIntentId and PaymentMetodId to my website processpayment method

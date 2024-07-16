@@ -1,97 +1,52 @@
 ﻿@model Nop.Plugin.Payments.StripeApplePay.Models.PaymentInfoModel
 
-<style type="text/css">
-    .StripeElement {
-        background-color: white;
-        height: 40px;
-        padding: 10px 12px;
-        border-radius: 4px;
-        border: 1px solid transparent;
-        box-shadow: 0 1px 3px 0 #e6ebf1;
-        -webkit-transition: box-shadow 150ms ease;
-        transition: box-shadow 150ms ease;
-    }
-
-    .StripeElement--focus {
-        box-shadow: 0 1px 3px 0 #cfd7df;
-    }
-
-    .StripeElement--invalid {
-        border-color: #fa755a;
-    }
-
-    .StripeElement--webkit-autofill {
-        background-color: #fefde5 !important;
-    }
-</style>
-
 <script>
     $(document).ready(function () {
         $.getScript('https://js.stripe.com/v3/', function () {
             var stripe = Stripe('@Model.StripePublishableKey');
+            var elements = stripe.elements();
 
-            $.ajax({
-                url: '@Url.Action("CreatePaymentIntent", "PaymentStripeApplePay")',
-                method: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify({ OrderTotal: @Model.OrderTotal }),
-                success: function (data) {
-                    var clientSecret = data.clientSecret;
-                    var pIntentId = data.id;
-
-                    var elements = stripe.elements();
-                    var paymentRequest = stripe.paymentRequest({
-                        country: 'US',
-                        currency: 'usd',
-                        total: {
-                            label: 'Total',
-                            amount: @Model.OrderTotal * 100 // Total amount in cents
-                        },
-                        requestPayerName: true,
-                        requestPayerEmail: true,
-                    });
-
-                    var prButton = elements.create('paymentRequestButton', {
-                        paymentRequest: paymentRequest
-                    });
-
-                    paymentRequest.canMakePayment().then(function (result) {
-                        if (result) {
-                            prButton.mount('#payment-request-button');
-                        } else {
-                            $('#payment-request-button').hide();
-                            $('#message').text('Apple Pay or Google Pay is not available.');
-                        }
-                    });
-
-                    paymentRequest.on('paymentmethod', function (ev) {
-                        // console.log("Event Object:", ev); // Tüm ev nesnesini konsola yazdır
-                        // console.log("PaymentMethod ID:", ev.paymentMethod.id); // PaymentMethod ID'yi konsola yazdır
-                        // console.log("PaymentMethod ID:", clientSecret); // PaymentMethod ID'yi konsola yazdır
-                        $.ajax({
-                            url: '@Url.Action("ConfirmPayment", "PaymentStripeApplePay")',
-                            method: 'POST',
-                            contentType: 'application/json',
-                            data: JSON.stringify({ PaymentMethodId: ev.paymentMethod.id, PaymentIntentId: pIntentId }),
-                            success: function (data) {
-
-                            },
-                            error: function (error) {
-                                $('#message').text('Error creating payment intent: ' + error.message);
-                            }
-                        });
-                        ev.complete('success');
-                    });
+            var paymentRequest = stripe.paymentRequest({
+                country: '@Model.Country',
+                currency: '@Model.Currency',
+                total: {
+                    label: 'Total',
+                    amount: Math.round(@Model.OrderTotal) // Total amount in cents
                 },
-                error: function (error) {
-                    $('#message').text('Error creating payment intent: ' + error.responseText);
+                requestPayerName: true,
+                requestPayerEmail: true,
+            });
+
+            var prButton = elements.create('paymentRequestButton', {
+                paymentRequest: paymentRequest
+            });
+
+            paymentRequest.canMakePayment().then(function (result) {
+                if (result) {
+                    prButton.mount('#payment-request-button');
+                } else {
+                    $('#payment-request-button').hide();
+                    $('#message').text('Apple Pay or Google Pay is currently unavailable. Please use Safari for Apple Pay or Chrome for Google Pay. Or add a payment method to your browser. For example, you can save a card in Chrome, add a card to your Google Pay account, or add a card to your Wallet for Safari.');
                 }
+            });
+
+            paymentRequest.on('cancel', function () {
+                // handle cancel event
+            });
+
+            paymentRequest.on('paymentmethod', function (ev) {
+                $('#PaymentMethodId').val(ev.paymentMethod.id);
+                ev.complete('success');
+                $('#payment-request-button').hide();
+                $('#message').text('Your payment method has been successfully selected. Please proceed to complete your order to finalize the payment.');
             });
         });
     });
 </script>
 
-
+<input type="hidden" id="PaymentMethodId" asp-for="PaymentMethodId" name="PaymentMethodId" />
 
 <div id="payment-request-button"></div>
-<p id="message"></p>
+<div id="messages">
+    <p id="message"></p>
+</div>

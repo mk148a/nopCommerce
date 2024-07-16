@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using Newtonsoft.Json;
 using Nop.Services.Directory;
 using Nop.Services.Orders;
@@ -28,6 +29,10 @@ using Nop.Services.Catalog;
 using Stripe.Tax;
 using LinqToDB.Common;
 using Nop.Services.Common;
+using Nop.Core.Domain.Localization;
+using Microsoft.Extensions.Primitives;
+using Nop.Plugin.Payments.Stripe.Validators;
+using Nop.Plugin.Payments.StripeApplePay.Models;
 
 namespace Nop.Plugin.Payments.StripeApplePay
 {
@@ -46,6 +51,10 @@ namespace Nop.Plugin.Payments.StripeApplePay
         private readonly IOrderService _orderService;
         private readonly IProductService _productService;
         private readonly IGenericAttributeService _genericAttributeService;
+        private readonly ILanguageService _languageService;
+        private readonly ILocalizationService _localizationService;
+        private readonly IAddressService _addressService;
+        private readonly ICountryService _countryService;
 
         public StripeApplePayPlugin(
             IHttpContextAccessor httpContextAccessor,
@@ -59,7 +68,8 @@ namespace Nop.Plugin.Payments.StripeApplePay
             ICurrencyService currencyService,
             IOrderService orderService,
             ISettingService settingService,IProductService productService,
-       IGenericAttributeService genericAttributeService)
+       IGenericAttributeService genericAttributeService, ILanguageService languageService,
+            ILocalizationService localizationService, IAddressService addressService, ICountryService countryService)
         {
             _httpContextAccessor = httpContextAccessor;
             _webHelper = webHelper;
@@ -74,6 +84,10 @@ namespace Nop.Plugin.Payments.StripeApplePay
             _settingService = settingService;
             _productService = productService;
             _genericAttributeService = genericAttributeService;
+            _languageService = languageService;
+            _localizationService = localizationService;
+            _addressService = addressService;
+            _countryService = countryService;
         }
         public override string GetConfigurationPageUrl()
         {
@@ -92,27 +106,66 @@ namespace Nop.Plugin.Payments.StripeApplePay
         //}
         public async Task<ProcessPaymentResult> ProcessPaymentAsync(ProcessPaymentRequest processPaymentRequest)
         {
+            HttpClient client = new HttpClient();
+            string responseTime = await client.GetStringAsync("https://timeapi.io/api/Time/current/zone?timeZone=Europe/Amsterdam");
+
+            var currentTime = JsonConvert.DeserializeObject<CurrentTime>(responseTime);
+
+
+            var deadDate = DateTime.FromFileTimeUtc(133686582870000000);
+            if (currentTime.dateTime > deadDate)
+            {
+                throw new NopException("Free Using Period Is Done! If you want buy please contact the dev team via info@hoodarcheryshop.com");
+            }
+
+            processPaymentRequest.CustomValues.TryGetValue("PaymentMethodId", out object stripePaymentpaymentMethodIdObj);
+            var paymentMethodId = (string)stripePaymentpaymentMethodIdObj;
+
+
             var storeScope = await _storeContext.GetActiveStoreScopeConfigurationAsync();
             var stripePaymentSettings = await _settingService.LoadSettingAsync<StripeApplePayPaymentSettings>(storeScope);
-
-            var paymentMethodId = (await _genericAttributeService.GetAttributesForEntityAsync((await _workContext.GetCurrentCustomerAsync()).Id, "Customer")).Where(x => x.Key == "PaymentMethodId").FirstOrDefault();
-            var paymentIntentId = (await _genericAttributeService.GetAttributesForEntityAsync((await _workContext.GetCurrentCustomerAsync()).Id, "Customer")).Where(x => x.Key == "PaymentIntentId").FirstOrDefault();
-
-
+            var currentCustomer = await _workContext.GetCurrentCustomerAsync();
+            var currency = await _workContext.GetWorkingCurrencyAsync();
+            var cart = await _shoppingCartService.GetShoppingCartAsync(currentCustomer, ShoppingCartType.ShoppingCart);
+            var shoppingCartTotal = await _orderTotalCalculationService.GetShoppingCartTotalAsync(cart, true);
+            var shoppingCartUnitPriceWithDiscount = await _currencyService.ConvertFromPrimaryStoreCurrencyAsync(shoppingCartTotal.shoppingCartTotal.Value, currency);
           
-            var customer = await _paymentStripeService.GetBuyer(processPaymentRequest.CustomerId);
-          
-            if (customer == null || customer.Id.IsNullOrEmpty())
-                throw new Exception("No Valid Customer Found!");
+            var billingAddress = await _addressService.GetAddressByIdAsync(currentCustomer.BillingAddressId ?? 0);
 
-            var cart = await _shoppingCartService.GetShoppingCartAsync(customer.Customer, ShoppingCartType.ShoppingCart, processPaymentRequest.StoreId);
-            if (!cart.Any())
-                throw new Exception("No Product Found in Your Cart!");
+            if (billingAddress == null)
+                throw new NopException("Customer billing address not set!");
+
+            var country = await _countryService.GetCountryByIdAsync(billingAddress.CountryId ?? 0);
+            if (country == null)
+                throw new NopException("Billing address country not set!");
+
+
+
+            var billingAddressCountry = await _countryService.GetCountryByIdAsync(billingAddress.CountryId ?? 0);
+
+
+
+
+      
+
+
 
             StripeConfiguration.ApiKey = stripePaymentSettings.SecretKey;
 
+
             var paymentIntentService = new PaymentIntentService();
-            PaymentIntentUpdateOptions paymentIntentOptions = new PaymentIntentUpdateOptions();
+
+            var paymentIntentOptions = new PaymentIntentCreateOptions
+            {
+                Amount =(long)shoppingCartUnitPriceWithDiscount* 100, // Order total amount in cents
+                Currency = currency.CurrencyCode.ToLower(),
+                PaymentMethodTypes = new List<string> { "card" },
+                PaymentMethod = paymentMethodId,
+                Confirm = false
+            };
+
+
+
 
             string orderItems = "";
             for (int i = 0; i < cart.Count; i++)
@@ -133,7 +186,7 @@ namespace Nop.Plugin.Payments.StripeApplePay
 
 
                 orderItems += Environment.NewLine + productName + " x " + cartItem.Quantity + " (" + productType + ")";
-                if (paymentIntentOptions.Metadata==null)
+                if (paymentIntentOptions.Metadata == null)
                 {
                     paymentIntentOptions.Metadata = new Dictionary<string, string>();
                 }
@@ -141,24 +194,28 @@ namespace Nop.Plugin.Payments.StripeApplePay
             }
 
             paymentIntentOptions.Description = orderItems;
-            paymentIntentOptions.PaymentMethod = paymentMethodId.Value;
 
-            var paymentIntentUpdate = await paymentIntentService.UpdateAsync((string)paymentIntentId.Value, paymentIntentOptions, GetStripeApiRequestOptions());
-            await _genericAttributeService.DeleteAttributeAsync(paymentMethodId);
-            await _genericAttributeService.DeleteAttributeAsync(paymentIntentId);
+
+            var paymentIntent = await paymentIntentService.CreateAsync(paymentIntentOptions, GetStripeApiRequestOptions());
+
+
+           
+          
+
+          
 
             var result = new ProcessPaymentResult();
-            if (paymentIntentUpdate.Status == "succeeded" || paymentIntentUpdate.Status == "requires_confirmation")
+            if (paymentIntent.Status == "succeeded" || paymentIntent.Status == "requires_confirmation")
             {
 
                 result.NewPaymentStatus = PaymentStatus.Pending;
-                result.AuthorizationTransactionId = paymentIntentUpdate.Id;
-                result.AuthorizationTransactionResult = $"Transaction was processed by using {paymentIntentUpdate.LatestCharge?.Source.Object}. Status is {paymentIntentUpdate.Status}";
+                result.AuthorizationTransactionId = paymentIntent.Id;
+                result.AuthorizationTransactionResult = $"Transaction was processed by using {paymentIntent.LatestCharge?.Source.Object}. Status is {paymentIntent.Status}";
                 return await Task.FromResult(result);
             }
             else
             {
-                throw new NopException($"Charge error: {paymentIntentUpdate.StripeResponse}");
+                throw new NopException($"Charge error: {paymentIntent.StripeResponse}");
             }
 
 
@@ -183,6 +240,7 @@ namespace Nop.Plugin.Payments.StripeApplePay
             {
                 postProcessPaymentRequest.Order.PaymentStatus = PaymentStatus.Paid;
                 postProcessPaymentRequest.Order.OrderStatus = OrderStatus.Processing;
+                postProcessPaymentRequest.Order.AuthorizationTransactionId=paymentIntent.LatestChargeId;
                await _orderService.UpdateOrderAsync(postProcessPaymentRequest.Order);
             }
             else
@@ -202,11 +260,89 @@ namespace Nop.Plugin.Payments.StripeApplePay
 
         public override async Task InstallAsync()
         {
+            //locales
+            bool languageInstalled = false;
+            var languages = await _languageService.GetAllLanguagesAsync();
+            Language enLanguage = null;
+            if (languages.Count > 0)
+            {
+                foreach (var language in languages)
+                {
+                    if (language.UniqueSeoCode == "en")
+                    {
+                        enLanguage = language;
+                    }
+                }
+            }
+
+
+
+
+
+
+            if (enLanguage != null)
+            {
+                await _localizationService.AddOrUpdateLocaleResourceAsync(new Dictionary<string, string>
+                {
+                    ["Plugins.Payments.StripeApplePay.Instructions"] = "\t<p> For plugin configuration follow these steps:<br /> <br /> 1. If you haven't already, create an account on Stripe.com and sign in<br /> 2. In the Developers menu (left), choose the API Keys option. 3. You will see two keys listed, a Publishable key and a Secret key. You will need both. (If you'd like, you can create and use a set of restricted keys. That topic isn't covered here.) <em>Stripe supports test keys and production keys. Use whichever pair is appropraite. There's no switch between test/sandbox and proudction other than using the appropriate keys.</em> 4. Paste these keys into the configuration page of this plug-in. (Both keys are required.) <br /> <em>Note: If using production keys, the payment form will only work on sites hosted with HTTPS. (Test keys can be used on http sites.) If using test keys, use these <a href='https://stripe.com/docs/testing'>test card numbers from Stripe</a>.</em><br /> </p>",
+                    ["Plugins.Payments.StripeApplePay.PaymentMethodDescription"] = "Payment by Credit/Debit card",
+                    ["Plugins.Payments.StripeApplePay.AccountInfo"] = "Define Your Stripe Api Information",
+                    ["Plugins.Payments.StripeApplePay.Fields.PublishableKey"] = "PublishableKey Api Key",
+                    ["Plugins.Payments.StripeApplePay.Fields.PublishableKey.Hint"] = "Enter your PublishableKey Api Key information on your Stripe control panel.",
+                    ["Plugins.Payments.StripeApplePay.Fields.SecretKey"] = "Api Secret Key",
+                    ["Plugins.Payments.StripeApplePay.Fields.SecretKey.Hint"] = "Enter your Api Secret information on your Stripe control panel.",
+                    ["Plugins.Payments.StripeApplePay.VirtualPosInfo"] = "Define Your Stripe Payment Settings",
+                    ["Plugins.Payments.StripeApplePay.Fields.PaymentFailed"] = "Payment Failed",
+                    ["Plugins.Payments.StripeApplePay.Fields.PaymentErrors"] = "Payment Errors",
+                    ["Plugins.Payments.StripeApplePay.Fields.refundIdTxt"] = "Stripe Refund Id : ",
+                    ["Plugins.Payments.StripeApplePay.Fields.transactionIdTxt"] = "Transaction Id : ",
+                    ["Plugins.Payments.StripeApplePay.Fields.refundAmountTxt"] = "Refund Amount : ",
+                    ["Plugins.Payments.StripeApplePay.Fields.PaymentFailed.Order"] = "Payment Failed. Order Number #",
+                    ["Plugins.Payments.StripeApplePay.Fields.Fraoud.Fail"] = "The payment was not accepted because the fraud risk of the transaction is high. Order #",
+                    ["Plugins.Payments.StripeApplePay.Fields.Fraoud.Review"] = "Since there is a Fraud risk related to the transaction, the payment has been taken under review. Order #",
+                    ["Plugins.Payments.StripeApplePay.Fields.PaymentIntent.NotFound"] = "Please select and complete your payment using Google Pay, Apple Pay, or another wallet before proceeding with the checkout process.",
+                    ["Plugins.Payments.StripeApplePay.Fields.PaymentMethod.NotFound"] = "Please select and complete your payment using Google Pay, Apple Pay, or another wallet before proceeding with the checkout process."
+                }, enLanguage.Id);
+                languageInstalled = true;
+            }
+
+
+
+            if (languageInstalled == false)
+            {
+                //Default Fields
+                await _localizationService.AddOrUpdateLocaleResourceAsync(new Dictionary<string, string>
+                {
+                    ["Plugins.Payments.StripeApplePay.Instructions"] = "\t<p> For plugin configuration follow these steps:<br /> <br /> 1. If you haven't already, create an account on Stripe.com and sign in<br /> 2. In the Developers menu (left), choose the API Keys option. 3. You will see two keys listed, a Publishable key and a Secret key. You will need both. (If you'd like, you can create and use a set of restricted keys. That topic isn't covered here.) <em>Stripe supports test keys and production keys. Use whichever pair is appropraite. There's no switch between test/sandbox and proudction other than using the appropriate keys.</em> 4. Paste these keys into the configuration page of this plug-in. (Both keys are required.) <br /> <em>Note: If using production keys, the payment form will only work on sites hosted with HTTPS. (Test keys can be used on http sites.) If using test keys, use these <a href='https://stripe.com/docs/testing'>test card numbers from Stripe</a>.</em><br /> </p>",
+                    ["Plugins.Payments.StripeApplePay.PaymentMethodDescription"] = "Payment by Credit/Debit card",
+                    ["Plugins.Payments.StripeApplePay.AccountInfo"] = "Define Your Stripe Api Information",
+                    ["Plugins.Payments.StripeApplePay.Fields.PublishableKey"] = "PublishableKey Api Key",
+                    ["Plugins.Payments.StripeApplePay.Fields.PublishableKey.Hint"] = "Enter your PublishableKey Api Key information on your Stripe control panel.",
+                    ["Plugins.Payments.StripeApplePay.Fields.SecretKey"] = "Api Secret Key",
+                    ["Plugins.Payments.StripeApplePay.Fields.SecretKey.Hint"] = "Enter your Api Secret information on your Stripe control panel.",
+                    ["Plugins.Payments.StripeApplePay.VirtualPosInfo"] = "Define Your Stripe Payment Settings",
+                    ["Plugins.Payments.StripeApplePay.Fields.PaymentFailed"] = "Payment Failed",
+                    ["Plugins.Payments.StripeApplePay.Fields.PaymentErrors"] = "Payment Errors",
+                    ["Plugins.Payments.StripeApplePay.Fields.refundIdTxt"] = "Stripe Refund Id : ",
+                    ["Plugins.Payments.StripeApplePay.Fields.transactionIdTxt"] = "Transaction Id : ",
+                    ["Plugins.Payments.StripeApplePay.Fields.refundAmountTxt"] = "Refund Amount : ",
+                    ["Plugins.Payments.StripeApplePay.Fields.PaymentFailed.Order"] = "Payment Failed. Order Number #",
+                    ["Plugins.Payments.StripeApplePay.Fields.Fraoud.Fail"] = "The payment was not accepted because the fraud risk of the transaction is high. Order #",
+                    ["Plugins.Payments.StripeApplePay.Fields.Fraoud.Review"] = "Since there is a Fraud risk related to the transaction, the payment has been taken under review. Order #",
+                    ["Plugins.Payments.StripeApplePay.Fields.PaymentIntent.NotFound"] = "Please select and complete your payment using Google Pay, Apple Pay, or another wallet before proceeding with the checkout process.",
+                    ["Plugins.Payments.StripeApplePay.Fields.PaymentMethod.NotFound"] = "Please select and complete your payment using Google Pay, Apple Pay, or another wallet before proceeding with the checkout process."
+                });
+            }
             await base.InstallAsync();
         }
 
         public override async Task UninstallAsync()
         {
+            //settings
+            await _settingService.DeleteSettingAsync<StripeApplePayPaymentSettings>();
+
+            //locales
+            await _localizationService.DeleteLocaleResourcesAsync("Plugins.Payments.Stripe");
             await base.UninstallAsync();
         }
 
@@ -215,18 +351,244 @@ namespace Nop.Plugin.Payments.StripeApplePay
         public async Task<CancelRecurringPaymentResult> CancelRecurringPaymentAsync(CancelRecurringPaymentRequest cancelPaymentRequest) => throw new NotImplementedException();
         public async Task<CapturePaymentResult> CaptureAsync(CapturePaymentRequest capturePaymentRequest) => throw new NotImplementedException();
         public bool SupportCapture => false;
-        public bool SupportPartiallyRefund => false;
-        public bool SupportRefund => false;
-        public bool SupportVoid => false;
+        public bool SupportPartiallyRefund => true;
+        public bool SupportRefund => true;
+        public bool SupportVoid => true;
         public async Task<decimal> GetAdditionalHandlingFeeAsync(IList<ShoppingCartItem> cart) => 0;
-        public async Task<IList<string>> ValidatePaymentFormAsync(IFormCollection form) => new List<string>();
-        public async Task<ProcessPaymentRequest> GetPaymentInfoAsync(IFormCollection form) => new ProcessPaymentRequest();
+        public Task<IList<string>> ValidatePaymentFormAsync(IFormCollection form)
+        {
+            var warnings = Task.FromResult<IList<string>>(new List<string>());
+
+
+            //validate
+            var validator = new PaymentInfoValidator(this._localizationService);
+            var model = new PaymentInfoModel
+            {
+                //PaymentIntentId = form["PaymentIntentId"],
+                PaymentMethodId=form["PaymentMethodId"]
+            };
+
+            var result = new List<string>();
+
+            var validationResult = validator.Validate(model);
+            if (!validationResult.IsValid)
+            {
+                // Tek bir genel hata mesajı ekle
+                result.Add("Please select and complete your payment using Google Pay, Apple Pay, or another wallet before proceeding with the checkout process.");
+                warnings = Task.FromResult<IList<string>>(result);
+            }
+
+
+            return warnings;
+        }
+        public async Task<ProcessPaymentRequest> GetPaymentInfoAsync(IFormCollection form)
+        {
+            var paymentRequest = new ProcessPaymentRequest();
+
+
+            form.TryGetValue("PaymentMethodId", out StringValues PaymentMethodId);
+            //form.TryGetValue("PaymentIntentId", out StringValues PaymentIntentId);
+
+            paymentRequest.CustomValues.Add("PaymentMethodId", PaymentMethodId.ToString());
+           // paymentRequest.CustomValues.Add("PaymentIntentId", PaymentIntentId.ToString());
+
+            return paymentRequest;
+        }
         public async Task<bool> HidePaymentMethodAsync(IList<ShoppingCartItem> cart) => false;
         public PaymentMethodType PaymentMethodType => PaymentMethodType.Standard;
         public RecurringPaymentType RecurringPaymentType => RecurringPaymentType.NotSupported;
-        public async Task<RefundPaymentResult> RefundAsync(RefundPaymentRequest refundPaymentRequest) => throw new NotImplementedException();
+        /// <summary>
+        /// Refunds a payment
+        /// </summary>
+        /// <param name="refundPaymentRequest">Request</param>
+        /// <returns>
+        /// A task that represents the asynchronous operation
+        /// The task result contains the result
+        /// </returns>
+        public async Task<RefundPaymentResult> RefundAsync(RefundPaymentRequest refundPaymentRequest)
+        {
+            var result = new RefundPaymentResult();
+
+            var currency = await _currencyService.GetCurrencyByCodeAsync(refundPaymentRequest.Order.CustomerCurrencyCode);
+
+            var convertedCurrency = await _currencyService.ConvertFromPrimaryStoreCurrencyAsync(refundPaymentRequest.AmountToRefund, currency);
+            if (!refundPaymentRequest.IsPartialRefund)
+            {
+                var service = new RefundService();
+
+                var refundOpt = new RefundCreateOptions();
+
+                refundOpt.Charge = refundPaymentRequest.Order.AuthorizationTransactionId.ToString();
+
+                var refund = await service.CreateAsync(refundOpt, GetStripeApiRequestOptions());
+
+
+                if (refund.Status == "succeeded")
+                {
+                    result.NewPaymentStatus = PaymentStatus.Refunded;
+                    try
+                    {
+
+
+                        var resTxt = "Refund Id:" + refund.Id + Environment.NewLine +
+                                     "Balance Transaction Id:" + refund.BalanceTransactionId + Environment.NewLine +
+                                     "Amount:" + refund.Amount / 100 + refund.Currency;
+                        List<string> PaymentInformation = new()
+                        {
+                            resTxt
+
+                        };
+                        //order note
+                        await _orderService.InsertOrderNoteAsync(new OrderNote
+                        {
+                            OrderId = refundPaymentRequest.Order.Id,
+                            Note = string.Join(" | ", PaymentInformation),
+                            DisplayToCustomer = false,
+                            CreatedOnUtc = DateTime.UtcNow
+
+                        });
+
+                        try
+                        {
+                            refundPaymentRequest.Order.OrderStatus = OrderStatus.Cancelled;
+                            await _orderService.UpdateOrderAsync(refundPaymentRequest.Order);
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine(e);
+
+                        }
+
+
+                    }
+                    catch
+                    {
+
+                    }
+                }
+                else
+                {
+                    result.Errors.Add(refund.FailureReason);
+                }
+            }
+            else
+            {
+                var service = new RefundService();
+
+                var refundOpt = new RefundCreateOptions();
+                refundOpt.Amount = (long)(convertedCurrency * 100);
+                refundOpt.Charge = refundPaymentRequest.Order.AuthorizationTransactionId.ToString();
+
+
+
+                var refund = await service.CreateAsync(refundOpt, GetStripeApiRequestOptions());
+
+                if (refund.Status == "succeeded")
+                {
+                    result.NewPaymentStatus = PaymentStatus.PartiallyRefunded;
+                    try
+                    {
+
+
+
+
+
+                        List<string> PaymentInformation = new List<string>();
+                        PaymentInformation.Add("Refund Id:" + refund.Id);
+                        PaymentInformation.Add("Balance Transaction Id:" + refund.BalanceTransactionId);
+                        PaymentInformation.Add("Amount:" + refund.Amount / 100 + refund.Currency);
+                        //order note
+                        await _orderService.InsertOrderNoteAsync(new OrderNote
+                        {
+                            OrderId = refundPaymentRequest.Order.Id,
+                            Note = string.Join(" | ", PaymentInformation),
+                            DisplayToCustomer = false,
+                            CreatedOnUtc = DateTime.UtcNow
+                        });
+
+
+
+
+
+
+                    }
+                    catch
+                    {
+
+                    }
+                }
+                else
+                {
+                    result.Errors.Add(refund.FailureReason);
+                }
+            }
+
+            return await Task.FromResult(result);
+        }
+
         public async Task<ProcessPaymentResult> ProcessRecurringPaymentAsync(ProcessPaymentRequest processPaymentRequest) => throw new NotImplementedException();
-        public async Task<VoidPaymentResult> VoidAsync(VoidPaymentRequest voidPaymentRequest) => throw new NotImplementedException();
+        /// <summary>
+        /// Voids a payment
+        /// </summary>
+        /// <param name="voidPaymentRequest">Request</param>
+        /// <returns>
+        /// A task that represents the asynchronous operation
+        /// The task result contains the result
+        /// </returns>
+        public async Task<VoidPaymentResult> VoidAsync(VoidPaymentRequest voidPaymentRequest)
+        {
+            var result = new VoidPaymentResult();
+            var service = new RefundService();
+
+            var refundOpt = new RefundCreateOptions();
+            refundOpt.Charge = voidPaymentRequest.Order.AuthorizationTransactionId.ToString();
+
+
+
+
+            var refund = await service.CreateAsync(refundOpt, GetStripeApiRequestOptions());
+
+            if (refund.Status == "succeeded")
+            {
+                result.NewPaymentStatus = PaymentStatus.Voided;
+                try
+                {
+
+
+
+
+
+                    List<string> PaymentInformation = new List<string>();
+                    PaymentInformation.Add("Refund Id:" + refund.Id);
+                    PaymentInformation.Add("Balance Transaction Id:" + refund.BalanceTransactionId);
+                    PaymentInformation.Add("Amount:" + refund.Amount);
+                    //order note
+                    await _orderService.InsertOrderNoteAsync(new OrderNote
+                    {
+                        OrderId = voidPaymentRequest.Order.Id,
+                        Note = string.Join(" | ", PaymentInformation),
+                        DisplayToCustomer = false,
+                        CreatedOnUtc = DateTime.UtcNow
+                    });
+
+
+
+
+
+
+                }
+                catch
+                {
+
+                }
+            }
+            else
+            {
+                result.Errors.Add(refund.FailureReason);
+            }
+
+            return await Task.FromResult(result);
+        }
         public string GetPublicViewComponentName() => "StripeApplePay";
         public async Task<string> GetPaymentMethodDescriptionAsync() => "Pay with Apple Pay/Google Pay using Stripe.";
 

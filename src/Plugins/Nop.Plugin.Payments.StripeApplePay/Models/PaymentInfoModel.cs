@@ -12,41 +12,20 @@ namespace Nop.Plugin.Payments.StripeApplePay.Models
         {
         }
 
-        [NopResourceDisplayName("Payment.SelectCreditCard")]
-        public string CreditCardType { get; set; }
-
-        [NopResourceDisplayName("Payment.SelectCreditCard")]
-        public IList<SelectListItem> CreditCardTypes { get; set; } = new List<SelectListItem>();
-
-        [NopResourceDisplayName("Payment.CardholderName")]
-        public string CardholderName { get; set; }
-
         [NopResourceDisplayName("Payment.CardNumber")]
         public string CardNumber { get; set; }
 
-        [NopResourceDisplayName("Payment.ExpirationDate")]
-        public string ExpireMonth { get; set; }
-
-        [NopResourceDisplayName("Payment.ExpirationDate")]
-        public string ExpireYear { get; set; }
-
-        public IList<SelectListItem> ExpireMonths { get; set; } = new List<SelectListItem>();
-
-        public IList<SelectListItem> ExpireYears { get; set; } = new List<SelectListItem>();
-
-        [NopResourceDisplayName("Payment.CardCode")]
-        public string CardCode { get; set; }
 
         public string StripeToken { get; set; }
-
-        public string Html { get; set; }
-
-        public bool PaymentResult { get; set; } = true;
 
         public decimal OrderTotal { get; set; }
 
         public string StripePublishableKey { get; set; }
+        public string Currency { get; set; }
+        public string Country { get; set; }
 
-      
+        public string PaymentMethodId { get; set; }
+
+
     }
 }
