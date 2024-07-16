@@ -155,6 +155,7 @@ namespace Nop.Plugin.Payments.StripeApplePay.Controllers
             public decimal OrderTotal { get; set; }
         }
 
+        //this method allows pass the paymentIntentId and PaymentMetodId to my website processpayment method
         [HttpPost]
         public async Task<IActionResult> ConfirmPayment([FromBody] ConfirmPaymentRequest request)
         {
