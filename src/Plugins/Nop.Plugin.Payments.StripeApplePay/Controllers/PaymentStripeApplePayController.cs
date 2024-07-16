@@ -19,7 +19,10 @@ using System.Collections.Generic;
 using System;
 using System.Linq;
 using Nop.Core.Domain.Payments;
+using Nop.Core.Http.Extensions;
 using Nop.Services.Directory;
+using Nop.Services.Payments;
+using Nop.Services.Common;
 
 namespace Nop.Plugin.Payments.StripeApplePay.Controllers
 {
@@ -36,6 +39,7 @@ namespace Nop.Plugin.Payments.StripeApplePay.Controllers
         private readonly IWorkContext _workContext;
         private readonly ICurrencyService _currencyService;
         private readonly IOrderService _orderService;
+        private readonly IGenericAttributeService _genericAttributeService;
 
         public PaymentStripeApplePayController(
             StripeApplePayPaymentSettings stripePaymentSettings,
@@ -46,7 +50,7 @@ namespace Nop.Plugin.Payments.StripeApplePay.Controllers
             ILocalizationService localizationService,
             IShoppingCartService shoppingCartService,
             IOrderTotalCalculationService orderTotalCalculationService,
-            IWorkContext workContext, ICurrencyService currencyService, IOrderService orderService)
+            IWorkContext workContext, ICurrencyService currencyService, IOrderService orderService, IGenericAttributeService genericAttributeService)
         {
             _stripePaymentSettings = stripePaymentSettings;
             _settingService = settingService;
@@ -59,6 +63,7 @@ namespace Nop.Plugin.Payments.StripeApplePay.Controllers
             _workContext = workContext;
             _currencyService = currencyService;
             _orderService = orderService;
+            _genericAttributeService= genericAttributeService;
         }
 
         [AuthorizeAdmin]
@@ -122,6 +127,16 @@ namespace Nop.Plugin.Payments.StripeApplePay.Controllers
         [HttpPost]
         public async Task<IActionResult> CreatePaymentIntent([FromBody] CreatePaymentIntentRequest request)
         {
+            if (request == null)
+            {
+                return BadRequest("Invalid request payload");
+            }
+
+            var storeScope = await _storeContext.GetActiveStoreScopeConfigurationAsync();
+            var stripePaymentSettings = await _settingService.LoadSettingAsync<StripeApplePayPaymentSettings>(storeScope);
+
+            StripeConfiguration.ApiKey = stripePaymentSettings.SecretKey;
+
             var paymentIntentService = new PaymentIntentService();
 
             var paymentIntentOptions = new PaymentIntentCreateOptions
@@ -131,69 +146,44 @@ namespace Nop.Plugin.Payments.StripeApplePay.Controllers
                 PaymentMethodTypes = new List<string> { "card" },
             };
 
-            var paymentIntent = await paymentIntentService.CreateAsync(paymentIntentOptions, GetStripeApiRequestOptions());
+            var paymentIntent = await paymentIntentService.CreateAsync(paymentIntentOptions);
 
-            return Json(new { clientSecret = paymentIntent.ClientSecret, paymentIntentId = paymentIntent.Id });
+            return Json(new { success = true, id = paymentIntent.Id, clientSecret = paymentIntent.ClientSecret });
         }
         public class CreatePaymentIntentRequest
         {
             public decimal OrderTotal { get; set; }
-            public Guid OrderGuid { get; set; }
         }
 
         [HttpPost]
         public async Task<IActionResult> ConfirmPayment([FromBody] ConfirmPaymentRequest request)
         {
-            var paymentIntentService = new PaymentIntentService();
-            var paymentIntent = await paymentIntentService.ConfirmAsync(request.PaymentIntentId, new PaymentIntentConfirmOptions
+            try
             {
-                PaymentMethod = request.PaymentMethodId
-            }, GetStripeApiRequestOptions());
 
-            if (paymentIntent.Status == "succeeded")
-            {
-                // Order işlem sonrası işlemlerini burada yapabilirsiniz
-                var order = await _orderService.GetOrderByGuidAsync(request.OrderGuid);
-                if (order != null)
-                {
-                    order.PaymentStatus = PaymentStatus.Paid;
-                    order.OrderStatus = OrderStatus.Processing;
-                    await _orderService.UpdateOrderAsync(order);
-                }
+          
+            var paymentIntentId = request.PaymentIntentId;
+            var paymentMethodId = request.PaymentMethodId;
+
+
+            await _genericAttributeService.SaveAttributeAsync<string>(await _workContext.GetCurrentCustomerAsync(),
+                "PaymentIntentId", paymentIntentId);
+
+            await _genericAttributeService.SaveAttributeAsync<string>(await _workContext.GetCurrentCustomerAsync(),
+                "PaymentMethodId", paymentMethodId);
+
+          
+
 
                 return Json(new { success = true });
             }
-            else
+            catch (Exception e)
             {
-                return Json(new { success = false, error = paymentIntent.LastPaymentError?.Message ?? "Payment failed." });
+                return Json(new { success = false,message=e.Message });
             }
+           
         }
-        [HttpPost]
-        public async Task<IActionResult> AuthorizePayment([FromBody] AuthorizePaymentRequest request)
-        {
-            var paymentIntentService = new PaymentIntentService();
-            var paymentIntent = await paymentIntentService.CreateAsync(new PaymentIntentCreateOptions
-            {
-                Amount = request.Amount,
-                Currency = request.Currency,
-                PaymentMethod = request.PaymentMethodId,
-                ConfirmationMethod = "manual",
-                Confirm = true,
-            });
-
-            if (paymentIntent.Status == "requires_action")
-            {
-                return Json(new { success = true, id = paymentIntent.Id, clientSecret = paymentIntent.ClientSecret });
-            }
-            else if (paymentIntent.Status == "succeeded")
-            {
-                return Json(new { success = true, id = paymentIntent.Id });
-            }
-            else
-            {
-                return Json(new { success = false, error = paymentIntent.LastPaymentError?.Message ?? "Payment failed." });
-            }
-        }
+  
         private RequestOptions GetStripeApiRequestOptions()
         {
             return new RequestOptions
@@ -215,6 +205,6 @@ namespace Nop.Plugin.Payments.StripeApplePay.Controllers
     {
         public string PaymentMethodId { get; set; }
         public string PaymentIntentId { get; set; }
-        public Guid OrderGuid { get; set; }
+      
     }
 }

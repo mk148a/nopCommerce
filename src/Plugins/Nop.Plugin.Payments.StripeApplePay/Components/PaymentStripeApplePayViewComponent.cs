@@ -7,6 +7,8 @@ using Nop.Web.Framework.Components;
 using System.Threading.Tasks;
 using Nop.Core.Domain.Orders;
 using Nop.Plugin.Payments.StripeApplePay.Models;
+using System.Linq;
+using System.Net;
 
 namespace Nop.Plugin.Payments.StripeApplePay.Components
 {
@@ -45,6 +47,12 @@ namespace Nop.Plugin.Payments.StripeApplePay.Components
                 StripePublishableKey = stripePaymentSettings.PublishableKey
             };
 
+
+            if (this.Request.Method != WebRequestMethods.Http.Get)
+            {
+                var form = this.Request.Form;
+                model.CardNumber = form["PaymentIntentId"];
+            }
             return View("~/Plugins/Nop.Plugin.Payments.StripeApplePay/Views/PaymentInfo.cshtml", model);
         }
     }

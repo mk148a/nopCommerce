@@ -47,6 +47,6 @@ namespace Nop.Plugin.Payments.StripeApplePay.Models
 
         public string StripePublishableKey { get; set; }
 
-        public Guid OrderGuid { get; set; }
+      
     }
 }

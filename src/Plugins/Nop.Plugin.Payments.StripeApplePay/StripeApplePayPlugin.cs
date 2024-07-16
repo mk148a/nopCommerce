@@ -24,6 +24,10 @@ using Nop.Services.Cms;
 using Nop.Web.Framework.Infrastructure;
 using DocumentFormat.OpenXml.EMMA;
 using Nop.Core.Http.Extensions;
+using Nop.Services.Catalog;
+using Stripe.Tax;
+using LinqToDB.Common;
+using Nop.Services.Common;
 
 namespace Nop.Plugin.Payments.StripeApplePay
 {
@@ -35,10 +39,13 @@ namespace Nop.Plugin.Payments.StripeApplePay
         private readonly IOrderTotalCalculationService _orderTotalCalculationService;
         private readonly IStoreContext _storeContext;
         private readonly IWorkContext _workContext;
+        private readonly ISettingService _settingService;
         private readonly IPaymentStripeApplePayService _paymentStripeService;
         private readonly StripeApplePayPaymentSettings _stripePaymentSettings;
         private readonly ICurrencyService _currencyService;
         private readonly IOrderService _orderService;
+        private readonly IProductService _productService;
+        private readonly IGenericAttributeService _genericAttributeService;
 
         public StripeApplePayPlugin(
             IHttpContextAccessor httpContextAccessor,
@@ -50,7 +57,9 @@ namespace Nop.Plugin.Payments.StripeApplePay
             IPaymentStripeApplePayService paymentStripeService,
             StripeApplePayPaymentSettings stripePaymentSettings,
             ICurrencyService currencyService,
-            IOrderService orderService)
+            IOrderService orderService,
+            ISettingService settingService,IProductService productService,
+       IGenericAttributeService genericAttributeService)
         {
             _httpContextAccessor = httpContextAccessor;
             _webHelper = webHelper;
@@ -62,6 +71,9 @@ namespace Nop.Plugin.Payments.StripeApplePay
             _stripePaymentSettings = stripePaymentSettings;
             _currencyService = currencyService;
             _orderService = orderService;
+            _settingService = settingService;
+            _productService = productService;
+            _genericAttributeService = genericAttributeService;
         }
         public override string GetConfigurationPageUrl()
         {
@@ -80,36 +92,98 @@ namespace Nop.Plugin.Payments.StripeApplePay
         //}
         public async Task<ProcessPaymentResult> ProcessPaymentAsync(ProcessPaymentRequest processPaymentRequest)
         {
-            var paymentIntentId = processPaymentRequest.CustomValues.ContainsKey("PaymentIntentId")
-                ? processPaymentRequest.CustomValues["PaymentIntentId"].ToString()
-                : string.Empty;
+            var storeScope = await _storeContext.GetActiveStoreScopeConfigurationAsync();
+            var stripePaymentSettings = await _settingService.LoadSettingAsync<StripeApplePayPaymentSettings>(storeScope);
+
+            var paymentMethodId = (await _genericAttributeService.GetAttributesForEntityAsync((await _workContext.GetCurrentCustomerAsync()).Id, "Customer")).Where(x => x.Key == "PaymentMethodId").FirstOrDefault();
+            var paymentIntentId = (await _genericAttributeService.GetAttributesForEntityAsync((await _workContext.GetCurrentCustomerAsync()).Id, "Customer")).Where(x => x.Key == "PaymentIntentId").FirstOrDefault();
+
+
+          
+            var customer = await _paymentStripeService.GetBuyer(processPaymentRequest.CustomerId);
+          
+            if (customer == null || customer.Id.IsNullOrEmpty())
+                throw new Exception("No Valid Customer Found!");
+
+            var cart = await _shoppingCartService.GetShoppingCartAsync(customer.Customer, ShoppingCartType.ShoppingCart, processPaymentRequest.StoreId);
+            if (!cart.Any())
+                throw new Exception("No Product Found in Your Cart!");
+
+            StripeConfiguration.ApiKey = stripePaymentSettings.SecretKey;
 
             var paymentIntentService = new PaymentIntentService();
-            var paymentIntent = await paymentIntentService.GetAsync(paymentIntentId);
+            PaymentIntentUpdateOptions paymentIntentOptions = new PaymentIntentUpdateOptions();
 
-            var result = new ProcessPaymentResult
+            string orderItems = "";
+            for (int i = 0; i < cart.Count; i++)
             {
-                NewPaymentStatus = PaymentStatus.Pending,
-                AuthorizationTransactionId = paymentIntent.Id,
-                AuthorizationTransactionResult = "Authorized"
-            };
+                var cartItem = cart[i];
+                var product = await _productService.GetProductByIdAsync(cartItem.ProductId);
+                var price = (await _shoppingCartService.GetUnitPriceAsync(cartItem, true)).unitPrice;
+                var productName = product.Name;
+                string productType = "Virtual- Shipping Not Required ";
+                if (product.IsShipEnabled)
+                {
+                    productType = "PHYSICAL - Shipping Required";
+                }
 
-            return result;
+
+                if (!product.Sku.IsNullOrEmpty())
+                    productName = productName + "(" + product.Sku + ")";
+
+
+                orderItems += Environment.NewLine + productName + " x " + cartItem.Quantity + " (" + productType + ")";
+                if (paymentIntentOptions.Metadata==null)
+                {
+                    paymentIntentOptions.Metadata = new Dictionary<string, string>();
+                }
+                paymentIntentOptions.Metadata.Add("Item" + (i + 1), "Unit Count:" + cartItem.Quantity + ";" + "Product Name:" + productName + ";" + "Price:" + price + ";" + "Product Type:" + productType);
+            }
+
+            paymentIntentOptions.Description = orderItems;
+            paymentIntentOptions.PaymentMethod = paymentMethodId.Value;
+
+            var paymentIntentUpdate = await paymentIntentService.UpdateAsync((string)paymentIntentId.Value, paymentIntentOptions, GetStripeApiRequestOptions());
+            await _genericAttributeService.DeleteAttributeAsync(paymentMethodId);
+            await _genericAttributeService.DeleteAttributeAsync(paymentIntentId);
+
+            var result = new ProcessPaymentResult();
+            if (paymentIntentUpdate.Status == "succeeded" || paymentIntentUpdate.Status == "requires_confirmation")
+            {
+
+                result.NewPaymentStatus = PaymentStatus.Pending;
+                result.AuthorizationTransactionId = paymentIntentUpdate.Id;
+                result.AuthorizationTransactionResult = $"Transaction was processed by using {paymentIntentUpdate.LatestCharge?.Source.Object}. Status is {paymentIntentUpdate.Status}";
+                return await Task.FromResult(result);
+            }
+            else
+            {
+                throw new NopException($"Charge error: {paymentIntentUpdate.StripeResponse}");
+            }
+
+
+
+
+
         }
     
 
         public async Task PostProcessPaymentAsync(PostProcessPaymentRequest postProcessPaymentRequest)
         {
             var paymentIntentId = postProcessPaymentRequest.Order.AuthorizationTransactionId;
+            var storeScope = await _storeContext.GetActiveStoreScopeConfigurationAsync();
+            var stripePaymentSettings = await _settingService.LoadSettingAsync<StripeApplePayPaymentSettings>(storeScope);
+
+            StripeConfiguration.ApiKey = stripePaymentSettings.SecretKey;
 
             var paymentIntentService = new PaymentIntentService();
-            var paymentIntent = await paymentIntentService.ConfirmAsync(paymentIntentId, new PaymentIntentConfirmOptions());
+            var paymentIntent = await paymentIntentService.ConfirmAsync(paymentIntentId,null, GetStripeApiRequestOptions());
 
             if (paymentIntent.Status == "succeeded")
             {
                 postProcessPaymentRequest.Order.PaymentStatus = PaymentStatus.Paid;
                 postProcessPaymentRequest.Order.OrderStatus = OrderStatus.Processing;
-                await _orderService.UpdateOrderAsync(postProcessPaymentRequest.Order);
+               await _orderService.UpdateOrderAsync(postProcessPaymentRequest.Order);
             }
             else
             {
@@ -154,7 +228,7 @@ namespace Nop.Plugin.Payments.StripeApplePay
         public async Task<ProcessPaymentResult> ProcessRecurringPaymentAsync(ProcessPaymentRequest processPaymentRequest) => throw new NotImplementedException();
         public async Task<VoidPaymentResult> VoidAsync(VoidPaymentRequest voidPaymentRequest) => throw new NotImplementedException();
         public string GetPublicViewComponentName() => "StripeApplePay";
-        public async Task<string> GetPaymentMethodDescriptionAsync() => "Pay with Apple Pay using Stripe.";
+        public async Task<string> GetPaymentMethodDescriptionAsync() => "Pay with Apple Pay/Google Pay using Stripe.";
 
       
 
