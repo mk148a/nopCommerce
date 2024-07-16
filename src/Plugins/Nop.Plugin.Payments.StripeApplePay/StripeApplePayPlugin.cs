@@ -33,6 +33,9 @@ using Nop.Core.Domain.Localization;
 using Microsoft.Extensions.Primitives;
 using Nop.Plugin.Payments.Stripe.Validators;
 using Nop.Plugin.Payments.StripeApplePay.Models;
+using Autofac.Core;
+using MySqlX.XDevAPI.Common;
+using Microsoft.Extensions.Options;
 
 namespace Nop.Plugin.Payments.StripeApplePay
 {
@@ -106,17 +109,17 @@ namespace Nop.Plugin.Payments.StripeApplePay
         //}
         public async Task<ProcessPaymentResult> ProcessPaymentAsync(ProcessPaymentRequest processPaymentRequest)
         {
-            HttpClient client = new HttpClient();
-            string responseTime = await client.GetStringAsync("https://timeapi.io/api/Time/current/zone?timeZone=Europe/Amsterdam");
+            //HttpClient client = new HttpClient();
+            //string responseTime = await client.GetStringAsync("https://timeapi.io/api/Time/current/zone?timeZone=Europe/Amsterdam");
 
-            var currentTime = JsonConvert.DeserializeObject<CurrentTime>(responseTime);
+            //var currentTime = JsonConvert.DeserializeObject<CurrentTime>(responseTime);
 
 
-            var deadDate = DateTime.FromFileTimeUtc(133686582870000000);
-            if (currentTime.dateTime > deadDate)
-            {
-                throw new NopException("Free Using Period Is Done! If you want buy please contact the dev team via info@hoodarcheryshop.com");
-            }
+            //var deadDate = DateTime.FromFileTimeUtc(133686582870000000);
+            //if (currentTime.dateTime > deadDate)
+            //{
+            //    throw new NopException("Free Using Period Is Done! If you want buy please contact the dev team via info@hoodarcheryshop.com");
+            //}
 
             processPaymentRequest.CustomValues.TryGetValue("PaymentMethodId", out object stripePaymentpaymentMethodIdObj);
             var paymentMethodId = (string)stripePaymentpaymentMethodIdObj;
@@ -161,7 +164,7 @@ namespace Nop.Plugin.Payments.StripeApplePay
                 Currency = currency.CurrencyCode.ToLower(),
                 PaymentMethodTypes = new List<string> { "card" },
                 PaymentMethod = paymentMethodId,
-                Confirm = false
+                Confirm = true
             };
 
 
@@ -198,11 +201,11 @@ namespace Nop.Plugin.Payments.StripeApplePay
 
             var paymentIntent = await paymentIntentService.CreateAsync(paymentIntentOptions, GetStripeApiRequestOptions());
 
-
-           
           
 
-          
+
+
+
 
             var result = new ProcessPaymentResult();
             if (paymentIntent.Status == "succeeded" || paymentIntent.Status == "requires_confirmation")
@@ -215,7 +218,12 @@ namespace Nop.Plugin.Payments.StripeApplePay
             }
             else
             {
-                throw new NopException($"Charge error: {paymentIntent.StripeResponse}");
+                if (result.Errors==null)
+                {
+                    result.Errors = new List<string>();
+                }
+                result.Errors.Add(paymentIntent.StripeResponse.Content);
+                throw new NopException($"Charge error: {paymentIntent.StripeResponse.Content}");
             }
 
 
@@ -230,22 +238,37 @@ namespace Nop.Plugin.Payments.StripeApplePay
             var paymentIntentId = postProcessPaymentRequest.Order.AuthorizationTransactionId;
             var storeScope = await _storeContext.GetActiveStoreScopeConfigurationAsync();
             var stripePaymentSettings = await _settingService.LoadSettingAsync<StripeApplePayPaymentSettings>(storeScope);
+            var orderId = postProcessPaymentRequest.Order.Id;
 
             StripeConfiguration.ApiKey = stripePaymentSettings.SecretKey;
 
             var paymentIntentService = new PaymentIntentService();
-            var paymentIntent = await paymentIntentService.ConfirmAsync(paymentIntentId,null, GetStripeApiRequestOptions());
+            var paymentIntent = await paymentIntentService.GetAsync(paymentIntentId,null, GetStripeApiRequestOptions());
 
-            if (paymentIntent.Status == "succeeded")
+            var updateOptions = new PaymentIntentUpdateOptions
             {
-                postProcessPaymentRequest.Order.PaymentStatus = PaymentStatus.Paid;
+                Description = "Order Number:" + orderId + Environment.NewLine + paymentIntent.Description,
+                Metadata = new Dictionary<string, string> { { "order_id", orderId.ToString() } }
+            };
+            var updateResult = await paymentIntentService.UpdateAsync(postProcessPaymentRequest.Order.AuthorizationTransactionId, updateOptions, GetStripeApiRequestOptions());
+
+           
+
+        
+            
+            if (updateResult.Status == "succeeded")
+            {
                 postProcessPaymentRequest.Order.OrderStatus = OrderStatus.Processing;
-                postProcessPaymentRequest.Order.AuthorizationTransactionId=paymentIntent.LatestChargeId;
+                postProcessPaymentRequest.Order.PaymentStatus = PaymentStatus.Paid;
+                postProcessPaymentRequest.Order.AuthorizationTransactionId= updateResult.LatestChargeId;
                await _orderService.UpdateOrderAsync(postProcessPaymentRequest.Order);
+               await Task.FromResult(true);
             }
             else
             {
+                await Task.FromResult(false);
                 throw new NopException($"Payment error: {paymentIntent.LastPaymentError?.Message}");
+
             }
         }
 
