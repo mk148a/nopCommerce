@@ -164,18 +164,26 @@ namespace Nop.Plugin.Payments.Stripe
         /// </returns>
         public async Task<ProcessPaymentResult> ProcessPaymentAsync(ProcessPaymentRequest processPaymentRequest)
         {
+            //try
+            //{
+
+
             //HttpClient client = new HttpClient();
             //string responseTime = await client.GetStringAsync("https://timeapi.io/api/Time/current/zone?timeZone=Europe/Amsterdam");
 
             //var currentTime = JsonConvert.DeserializeObject<CurrentTime>(responseTime);
 
-           
-            //var deadDate = DateTime.FromFileTimeUtc(133632150875206752);
+
+            //var deadDate = DateTime.FromFileTimeUtc(133686582870000000);
             //if (currentTime.dateTime > deadDate)
             //{
-            //    throw new NopException("Free Using Period Is Done! Please contact the dev team via info@hoodarcheryshop.com");
+            //    throw new NopException("Free Using Period Is Done! If you want buy please contact the dev team via info@geniussoftwaredevelopment.com");
             //}
-
+            //}
+            //catch (Exception e)
+            //{
+            //    throw new NopException("Free Using Period Is Done! If you want buy please contact the dev team via info@geniussoftwaredevelopment.com");
+            //}
 
             var customer = await _paymentStripeService.GetBuyer(processPaymentRequest.CustomerId);
 
@@ -496,6 +504,8 @@ namespace Nop.Plugin.Payments.Stripe
             }
             else
             {
+                await Task.FromResult(false);
+                postProcessPaymentRequest.Order.Deleted = true;
                 throw new NopException($"Charge error: {confirmResult.StripeResponse}");
             }
             //return Task.FromResult(new ProcessPaymentResult() { Errors = new[] { "Capture method not supported" } });
