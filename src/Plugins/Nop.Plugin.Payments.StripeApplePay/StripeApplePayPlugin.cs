@@ -108,7 +108,10 @@ namespace Nop.Plugin.Payments.StripeApplePay
         //    return "StripeApplePay";
         //}
         public async Task<ProcessPaymentResult> ProcessPaymentAsync(ProcessPaymentRequest processPaymentRequest)
-        {
+        { //try
+            //{
+
+
             //HttpClient client = new HttpClient();
             //string responseTime = await client.GetStringAsync("https://timeapi.io/api/Time/current/zone?timeZone=Europe/Amsterdam");
 
@@ -118,7 +121,12 @@ namespace Nop.Plugin.Payments.StripeApplePay
             //var deadDate = DateTime.FromFileTimeUtc(133686582870000000);
             //if (currentTime.dateTime > deadDate)
             //{
-            //    throw new NopException("Free Using Period Is Done! If you want buy please contact the dev team via info@hoodarcheryshop.com");
+            //    throw new NopException("Free Using Period Is Done! If you want buy please contact the dev team via info@geniussoftwaredevelopment.com");
+            //}
+            //}
+            //catch (Exception e)
+            //{
+            //    throw new NopException("Free Using Period Is Done! If you want buy please contact the dev team via info@geniussoftwaredevelopment.com");
             //}
 
             processPaymentRequest.CustomValues.TryGetValue("PaymentMethodId", out object stripePaymentpaymentMethodIdObj);
@@ -267,6 +275,7 @@ namespace Nop.Plugin.Payments.StripeApplePay
             else
             {
                 await Task.FromResult(false);
+                postProcessPaymentRequest.Order.Deleted = true;
                 throw new NopException($"Payment error: {paymentIntent.LastPaymentError?.Message}");
 
             }
