@@ -4,6 +4,7 @@
 @inject Nop.Web.Factories.IProductModelFactory _productModelFactory
 @inject Nop.Services.Catalog.IProductService _productService
 
+
 @{ 
     var isAssociatedProduct = ViewData.ContainsKey("isAccessoryOrSparePartFor");
     var productUrl = isAssociatedProduct && ViewData.ContainsKey("parentURL")
@@ -55,15 +56,26 @@
             var product = await _productService.GetProductByIdAsync(Model.Id);
             var ProductReviewModel = new ProductReviewsModel();
             var ReviewsModel = await _productModelFactory.PrepareProductReviewsModelAsync(ProductReviewModel, product);
-        
+          
             @foreach (var productReview in ReviewsModel.Items)
             {
+               
                 <div itemprop="review" itemscope itemtype="http://schema.org/Review">
                     <div itemprop="author" itemtype="https://schema.org/Person" itemscope>
                         <meta itemprop="name" content="@productReview.CustomerName" />
 
                         <meta itemprop="url" content="@Url.RouteUrl("ProductReviews", new { productId = Model.ProductReviewOverview.ProductId })"/>
                     </div>
+                    <div itemprop="reviewRating" itemscope itemtype="http://schema.org/Rating">
+                        <meta itemprop="ratingValue" content="@productReview.Rating"/>
+                    </div>
+                    @try
+                    {
+                        var productRevv = await _productService.GetProductReviewByIdAsync(productReview.Id);
+                        <meta itemprop="datePublished" content="@productRevv.CreatedOnUtc.ToString("yyyy-MM-dd")" />
+
+                    }catch{}
+                    <meta itemprop="reviewBody" content="@productReview.ReviewText" />
                 </div>
             }
         }
