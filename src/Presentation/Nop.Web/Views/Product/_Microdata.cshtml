@@ -1,6 +1,8 @@
 ﻿@model ProductDetailsModel
 
 @inject Nop.Core.IWebHelper webHelper
+@inject Nop.Web.Factories.IProductModelFactory _productModelFactory
+@inject Nop.Services.Catalog.IProductService _productService
 
 @{ 
     var isAssociatedProduct = ViewData.ContainsKey("isAccessoryOrSparePartFor");
@@ -46,10 +48,34 @@
         <meta itemprop="priceValidUntil" content="@Model.AvailableEndDate"/>
         <meta itemprop="availability" content="http://schema.org/@(Model.InStock ? "InStock" : "OutOfStock")" />
     </div>
-    <div itemprop="review" itemscope itemtype="http://schema.org/Review">
-        <meta itemprop="author" content="ALL"/>
-        <meta itemprop="url" content="@Url.RouteUrl("ProductReviews", new { productId = Model.ProductReviewOverview.ProductId })"/>
-    </div>
+    @if (Model.ProductReviewOverview.TotalReviews > 0)
+    {
+        try
+        {
+            var product = await _productService.GetProductByIdAsync(Model.Id);
+            var ProductReviewModel = new ProductReviewsModel();
+            var ReviewsModel = await _productModelFactory.PrepareProductReviewsModelAsync(ProductReviewModel, product);
+        
+            @foreach (var productReview in ReviewsModel.Items)
+            {
+                <div itemprop="review" itemscope itemtype="http://schema.org/Review">
+                    <div itemprop="author" itemtype="https://schema.org/Person" itemscope>
+                        <meta itemprop="name" content="@productReview.CustomerName" />
+
+                        <meta itemprop="url" content="@Url.RouteUrl("ProductReviews", new { productId = Model.ProductReviewOverview.ProductId })"/>
+                    </div>
+                </div>
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+           
+        }
+        
+       
+    }
+    
     @foreach (var product in Model.AssociatedProducts)
     {
         var viewDataDictionary = new ViewDataDictionary(ViewData);
