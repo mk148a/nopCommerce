@@ -6,7 +6,7 @@ namespace Nop.Plugin.Payments.StripeApplePay.Models
     {
         public Customer Customer { get; set; }
         public string Id { get; set; }
-        public Address shippinAddress { get; set; }
+        public Address? shippinAddress { get; set; }
         public Address billingAddress { get; set; }
         public string Ip { get; set; }
         public string RegistrationDate { get; set; }
