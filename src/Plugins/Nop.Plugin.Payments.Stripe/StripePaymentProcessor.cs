@@ -205,8 +205,8 @@ namespace Nop.Plugin.Payments.Stripe
                 throw new NopException("Customer billing address not set!");
 
          
-            if (customer.shippinAddress.Address1.IsNullOrEmpty())
-                throw new NopException("Customer shipping address not set!");
+            //if (customer.shippinAddress.Address1.IsNullOrEmpty())
+            //    throw new NopException("Customer shipping address not set!");
 
             var currency = await _workContext.GetWorkingCurrencyAsync();
 
@@ -377,7 +377,7 @@ namespace Nop.Plugin.Payments.Stripe
 
 
 
-            if (customer.shippinAddress.Id != null)
+            if (customer.shippinAddress != null)
             {
                 paymentIntentOptions.Shipping = new ChargeShippingOptions()
                 {
