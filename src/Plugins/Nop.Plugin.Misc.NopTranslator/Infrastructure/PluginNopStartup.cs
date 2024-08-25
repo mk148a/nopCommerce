@@ -13,7 +13,7 @@ namespace Nop.Plugin.Misc.NopTranslator.Infrastructure
            
             //register services and interfaces
             services.AddScoped<ITranslateService,TranslateService>();
-
+            services.AddSingleton<ITranslationProgressService, TranslationProgressService>();
         }
 
         public void Configure(IApplicationBuilder application)
