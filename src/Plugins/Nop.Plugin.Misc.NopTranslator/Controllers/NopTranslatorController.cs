@@ -36,15 +36,16 @@ public class NopTranslatorController : BasePluginController
 
     
     private IServiceScopeFactory _serviceScopeFactory;
-  
+    private readonly ITranslationProgressService _translationProgressService;
 
     #endregion
 
     public NopTranslatorController(
-        IServiceScopeFactory serviceScopeFactory)
+        IServiceScopeFactory serviceScopeFactory, ITranslationProgressService translationProgressService)
     {
         
         _serviceScopeFactory = serviceScopeFactory;
+        _translationProgressService = translationProgressService;
 
     }
 
@@ -78,5 +79,12 @@ public class NopTranslatorController : BasePluginController
         });
         process.Start();
         return await Configure();
+    }
+
+    [HttpGet]
+    public JsonResult GetTranslationProgress()
+    {
+        var progress = _translationProgressService.GetProgress();
+        return Json(progress);
     }
 }

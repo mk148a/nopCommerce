@@ -5,33 +5,82 @@
 
 @await Component.InvokeAsync("StoreScopeConfiguration")
 <form asp-controller="NopTranslator" asp-action="Configure" method="post" autocomplete="off">
-<div class="cards-group">
-    <div class="card card-default">
-        <div class="card-body">
-            <p>
-                <h5>"Instruction is here"</h5>
-                <br />
-            </p>
-            <hr />
-            <p>Header is Here!</p>
-            <div class="form-group row">
-                <div class="col-md-3">
-                    <nop-override-store-checkbox asp-for="ApiUrl_OverrideForStore" asp-input="ApiUrl" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
-                    <nop-label asp-for="ApiUrl" />
+    <div class="cards-group">
+        <div class="card card-default">
+            <div class="card-body">
+                <p>
+                    <h5>"Instruction is here"</h5>
+                    <br />
+                </p>
+                <hr />
+                <p>Header is Here!</p>
+                <div class="form-group row">
+                    <div class="col-md-3">
+                        <nop-override-store-checkbox asp-for="ApiUrl_OverrideForStore" asp-input="ApiUrl" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                        <nop-label asp-for="ApiUrl" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="ApiUrl" asp-required="false" />
+                    </div>
                 </div>
-                <div class="col-md-9">
-                    <nop-editor asp-for="ApiUrl" asp-required="false" />
+                <hr />
+
+                <!-- İlerleme durumu gösterimi için yeni bölüm -->
+                <div class="form-group row">
+                    <div class="col-md-3">
+                        <label for="progressPercentage">Translation Progress:</label>
+                    </div>
+                    <div class="col-md-9">
+                        <p id="progressPercentage">0%</p>
+                        <p id="currentProduct">Current Product: None</p>
+                        <p id="startTime">Start Time: Not started</p>
+                        <p id="estimatedEndTime">Estimated End Time: Calculating...</p>
+                    </div>
                 </div>
-            </div>
-            <hr />
-          
-       
-            <div class="form-group row">
-                <div class="col-md-9 offset-md-3">
-                    <button type="submit" name="save" class="btn btn-primary">Translate Product</button>
+
+                <hr />
+
+                <div class="form-group row">
+                    <div class="col-md-9 offset-md-3">
+                        <button type="submit" name="save" class="btn btn-primary">Translate Product</button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 </form>
+
+<script>
+    function updateProgress() {
+        $.get('/Admin/NopTranslator/GetTranslationProgress', function (data) {
+            if (data && data.PercentageComplete !== undefined && data.CurrentProduct) {
+                $('#progressPercentage').text(data.PercentageComplete + '%');
+                $('#currentProduct').text('Current Product: ' + data.CurrentProduct);
+
+                if (data.StartTime) {
+                    const startTime = new Date(data.StartTime);
+                    const currentTime = new Date();
+                    const elapsedTime = (currentTime - startTime) / 1000; // Geçen süre (saniye)
+                    const estimatedTotalTime = elapsedTime * 100 / data.PercentageComplete; // Toplam tahmini süre
+                    const remainingTime = estimatedTotalTime - elapsedTime; // Kalan süre
+                    const estimatedEndTime = new Date(currentTime.getTime() + remainingTime * 1000);
+
+                    $('#startTime').text('Start Time: ' + startTime.toLocaleTimeString());
+                    $('#estimatedEndTime').text('Estimated End Time: ' + estimatedEndTime.toLocaleTimeString());
+                }
+            } else {
+                $('#progressPercentage').text('No data');
+                $('#currentProduct').text('No product');
+            }
+
+            setTimeout(updateProgress, 1000);
+        }).fail(function () {
+            $('#progressPercentage').text('Error');
+            $('#currentProduct').text('Error');
+        });
+    }
+
+    $(document).ready(function () {
+        updateProgress();
+    });
+</script>
