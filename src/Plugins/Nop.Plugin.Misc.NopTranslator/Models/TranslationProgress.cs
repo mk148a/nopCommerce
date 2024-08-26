@@ -10,7 +10,10 @@ namespace Nop.Plugin.Misc.NopTranslator.Models
     {
         public int PercentageComplete { get; set; }
         public string CurrentProduct { get; set; }
-        public DateTime StartTime { get; set; }  // Çevirinin başladığı zaman
+        public DateTime? StartTime { get; set; }
+        public List<TranslationError> Errors { get; set; } = new List<TranslationError>(); // Hatalı ürünleri kaydetmek için
+        public bool IsRunning { get; set; } // Yeni eklenen durum
     }
 }
+
 

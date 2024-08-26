@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Nop.Plugin.Misc.NopTranslator.Models;
 
 namespace Nop.Plugin.Misc.NopTranslator.Services
@@ -25,6 +22,27 @@ namespace Nop.Plugin.Misc.NopTranslator.Services
         public void UpdateStartTime(DateTime startTime)
         {
             _progress.StartTime = startTime;
+            _progress.IsRunning = true; // Çeviri işlemi başlatıldı
+        }
+
+        public void LogError(int productId, string productName, string errorMessage)
+        {
+            _progress.Errors.Add(new TranslationError
+            {
+                ProductId = productId,
+                ProductName = productName,
+                ErrorMessage = errorMessage
+            });
+        }
+
+        public void StopProgress()
+        {
+            _progress.IsRunning = false; // Çeviri işlemi durduruldu veya tamamlandı
+        }
+
+        public void ClearProgress()
+        {
+            _progress = new TranslationProgress();
         }
     }
 }

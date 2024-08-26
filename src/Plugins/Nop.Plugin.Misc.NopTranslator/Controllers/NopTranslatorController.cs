@@ -24,6 +24,7 @@ using LinqToDB.Common;
 using System.Threading;
 using Microsoft.Extensions.DependencyInjection;
 using Nop.Plugin.Misc.NopTranslator.Services;
+using System.Collections.Generic;
 
 namespace Nop.Plugin.Misc.NopTranslator.Controllers;
 
@@ -62,22 +63,47 @@ public class NopTranslatorController : BasePluginController
         return View("~/Plugins/Nop.Plugin.Misc.NopTranslator/Views/Configure.cshtml", model);
     }
 
-   
 
     [HttpPost]
-    public async Task<IActionResult> Configure(ConfigurationModel model)
+    public IActionResult RetryTranslation([FromBody] List<int> productIds)
     {
-        //Get current store and active languages
+        // Arka planda çalışacak işlem
         var process = new Thread(delegate ()
         {
             using (var scope = _serviceScopeFactory.CreateScope())
             {
-                var reportingService = scope.ServiceProvider.GetService<ITranslateService>();
-                var result = reportingService.TranslateProducts();
-                Console.WriteLine(result.Result);
+                var translationService = scope.ServiceProvider.GetService<ITranslateService>();
+                var result = translationService.RetryTranslateProducts(productIds).Result;
+                Console.WriteLine(result); // İşlemin sonucunu konsola yazdır
             }
         });
-        process.Start();
+
+        process.Start(); // İşlemi başlat
+        return Ok("Translation process started."); // Kullanıcıya işlem başladığını bildir
+    }
+    [HttpPost]
+    public async Task<IActionResult> Configure(ConfigurationModel model)
+    {
+        using (var scope = _serviceScopeFactory.CreateScope())
+        {
+            var reportingService = scope.ServiceProvider.GetService<ITranslateService>();
+            var progressService = scope.ServiceProvider.GetService<ITranslationProgressService>();
+
+            var process = new Thread(delegate ()
+            {
+                try
+                {
+                    var result = reportingService.TranslateProducts().Result;
+                    // Sonuçları ViewBag'de tutmuyoruz çünkü Thread içinde çalışıyoruz.
+                }
+                finally
+                {
+                    progressService.StopProgress(); // İşlem tamamlandığında durdur
+                }
+            });
+
+            process.Start();
+        }
         return await Configure();
     }
 
