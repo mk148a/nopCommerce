@@ -20,6 +20,8 @@ using System.Threading.Tasks;
 using Nop.Web.Areas.Admin.Factories;
 using LinqToDB.Common;
 using System.Text.RegularExpressions;
+using DocumentFormat.OpenXml.Presentation;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Nop.Plugin.Misc.NopTranslator.Services
 {
@@ -33,6 +35,7 @@ namespace Nop.Plugin.Misc.NopTranslator.Services
         private ILanguageService _languageService;
         private readonly IStoreContext _storeContext;
         private readonly ITranslationProgressService _translationProgressService;
+     
 
         #endregion
 
@@ -102,34 +105,165 @@ namespace Nop.Plugin.Misc.NopTranslator.Services
 
             return -1;
         }
+
+        public async Task<string> RetryTranslateProducts(List<int> productIds)
+        {
+            string resultText = "";
+
+            var store = await _storeContext.GetCurrentStoreAsync();
+            var storeScope = await _storeContext.GetActiveStoreScopeConfigurationAsync();
+            var activeLanguages =
+                (await _languageService.GetAllLanguagesAsync(false, storeScope)).Where(x => x.Published = true);
+
+            var productsList = await _productService.GetProductsByIdsAsync(productIds.ToArray());
+
+            _translationProgressService.UpdateStartTime(DateTime.UtcNow);
+            int i = 0;
+            foreach (var product in productsList)
+            {
+                i++;
+                Console.WriteLine("%" + (((double)i / (double)productsList.Count) * 100).ToString("0.00"));
+                int percentageComplete = (int)(((double)i / (double)productsList.Count) * 100);
+                _translationProgressService.UpdateProgress(percentageComplete, product.Name);
+                var productModel = new ProductModel();
+
+                productModel = await _productModelFactory.PrepareProductModelAsync(productModel, product);
+
+                foreach (var activeLanguage in activeLanguages)
+                {
+                    bool isLanguageActive = productModel.Locales.Any(x => x.LanguageId == activeLanguage.Id);
+                    if (isLanguageActive)
+                    {
+                        var productModelLocale = productModel.Locales.Single(x => x.LanguageId == activeLanguage.Id);
+                        if (productModelLocale.FullDescription.IsNullOrEmpty() ||
+                            productModelLocale.ShortDescription.IsNullOrEmpty() || productModelLocale.Name.IsNullOrEmpty())
+                        {
+                            string twoLetterLangCode = activeLanguage.LanguageCulture.Split("-")[0];
+
+                            TranslateRequest request = new TranslateRequest
+                            {
+                                Source = "auto",
+                                Target = twoLetterLangCode,
+                                Text = product.Name
+                            };
+
+                            await Task.Delay(500); // Her istekten sonra 500ms bekle
+                            var result = await Translate(request);
+
+                            if (!result.translation.IsNullOrEmpty())
+                            {
+                                var translatedName = result.translation;
+
+                                request.Text = product.ShortDescription;
+                                await Task.Delay(500);
+                                result = await Translate(request);
+
+                                if (!result.translation.IsNullOrEmpty())
+                                {
+                                    var translatedShortDescription = result.translation;
+
+                                    request.Text = product.FullDescription;
+                                    await Task.Delay(500);
+                                    var translatedFullDescription = await TranslateLargeText(request);
+
+                                    if (!translatedFullDescription.IsNullOrEmpty())
+                                    {
+                                        productModelLocale.Name = translatedName;
+                                        productModelLocale.ShortDescription = translatedShortDescription;
+                                        productModelLocale.FullDescription = translatedFullDescription;
+
+                                        int index = productModel.Locales.IndexOf(
+                                            productModel.Locales.Single(x => x.LanguageId == activeLanguage.Id));
+
+                                        if (index != -1)
+                                            productModel.Locales[index] = productModelLocale;
+                                    }
+                                    else
+                                    {
+                                        resultText += Environment.NewLine + product.Name +
+                                                      " named product not translated because FullDescription not translated";
+                                    }
+                                }
+                                else
+                                {
+                                    resultText += Environment.NewLine + product.Name +
+                                                  " named product not translated because ShortDescription not translated";
+                                }
+                            }
+                            else
+                            {
+                                resultText += Environment.NewLine + product.Name +
+                                              " named product not translated because ProductName not translated";
+                            }
+                        }
+                        else
+                        {
+                            resultText += Environment.NewLine + product.Name +
+                                          " named product not translated because ProductName or Descriptions not empty";
+                        }
+                    }
+
+                    await UpdateLocalesAsync(product, productModel);
+                }
+            }
+
+            return resultText;
+        }
         public async Task<TranslateResponse> Translate(TranslateRequest request)
         {
+         
             TranslateResponse result = new TranslateResponse();
             var url = "http://localhost:3000/api/v1/translate";
 
             var requestBody = new { source = request.Source, target = request.Target, text = request.Text };
             var json = JsonConvert.SerializeObject(requestBody);
 
-            var httpClient = new HttpClient();
-            var maxRetries = 3;
-
-            for (int retry = 0; retry < maxRetries; retry++)
+            using (var httpClient = new HttpClient { Timeout = TimeSpan.FromSeconds(10) })
             {
-                var response = await httpClient.PostAsync(url, new StringContent(json, Encoding.UTF8, "application/json"));
+                var maxRetries = 3;
 
-                if (response.IsSuccessStatusCode)
+                for (int retry = 0; retry < maxRetries; retry++)
                 {
-                    var responseContent = await response.Content.ReadAsStringAsync();
-                    result = JsonConvert.DeserializeObject<TranslateResponse>(responseContent);
-                    break; // Başarılı olursa döngüden çık
-                }
-                else
-                {
-                    var errorMessage = await response.Content.ReadAsStringAsync();
-                    Console.WriteLine(errorMessage);
-                    await Task.Delay(2000); // 2 saniye bekle ve yeniden dene
+                    try
+                    {
+                        var response = await httpClient.PostAsync(url, new StringContent(json, Encoding.UTF8, "application/json"));
+                        var responseContent = await response.Content.ReadAsStringAsync();
+
+                        if (response.IsSuccessStatusCode)
+                        {
+                            // Başarılı bir yanıt, sonucu işle
+                            result = JsonConvert.DeserializeObject<TranslateResponse>(responseContent);
+                            break; // Başarılı olursa döngüden çık
+                        }
+                        else
+                        {
+                            // Yanıt bir hata içeriyor, tüm hata detaylarını logla
+                            var errorResponse = JsonConvert.DeserializeObject<TranslateErrorResponse>(responseContent);
+
+                            _translationProgressService.LogError(request.ProductId, request.ProductName, $"Error: {errorResponse.Error}, Details: {errorResponse.Details}");
+                        }
+                    }
+                    catch (HttpRequestException ex)
+                    {
+                        // Ağ hatası veya başka bir HTTP isteği hatası
+                        _translationProgressService.LogError(request.ProductId, request.ProductName, $"Request error: {ex.Message}");
+                    }
+                    catch (TaskCanceledException ex)
+                    {
+                        // Timeout durumunda
+                        _translationProgressService.LogError(request.ProductId, request.ProductName, $"Timeout error: {ex.Message}");
+                    }
+                    catch (Exception ex)
+                    {
+                        // Diğer hatalar
+                        _translationProgressService.LogError(request.ProductId, request.ProductName, $"Unexpected error: {ex.Message}");
+                    }
+
+                    // Hata durumunda belirli bir süre bekleyip yeniden dene
+                    await Task.Delay(2000);
                 }
             }
+
 
             return result;
         }
@@ -148,7 +282,8 @@ namespace Nop.Plugin.Misc.NopTranslator.Services
                 }
                 else
                 {
-                    throw new Exception("Translation failed for chunk.");
+                    // Hata durumunda exception fırlat
+                    throw new Exception($"Translation failed for chunk: {chunk}");
                 }
             }
 
@@ -190,130 +325,123 @@ namespace Nop.Plugin.Misc.NopTranslator.Services
         }
 
         #endregion
-        public async Task<string> TranslateProducts()
+        public async Task<List<TranslationResult>> TranslateProducts()
         {
-            string resultText = "";
+            var translationResults = new List<TranslationResult>();
 
-            var store = await _storeContext.GetCurrentStoreAsync();
-            var storeScope = await _storeContext.GetActiveStoreScopeConfigurationAsync();
-            var activeLanguages =
-                (await _languageService.GetAllLanguagesAsync(false, storeScope)).Where(x => x.Published = true);
-
-            //Get all active products by current store
-            var productsList = await _productService.SearchProductsAsync(
-                categoryIds: null,
-                showHidden: false,
-                storeId: storeScope
-            );
-
-
-            _translationProgressService.UpdateStartTime(DateTime.UtcNow);
-            int i = 0;
-            foreach (var product in productsList)
+            try
             {
-                i++;
-                Console.WriteLine("%" + (((double)i / (double)productsList.Count) * 100).ToString("0.00"));
-                // İşlem durumunu güncelle
-                int percentageComplete = (int)(((double)i / (double)productsList.Count) * 100);
-                _translationProgressService.UpdateProgress(percentageComplete, product.Name);
-                var productModel = new ProductModel();
+                _translationProgressService.UpdateStartTime(DateTime.UtcNow);
+                _translationProgressService.UpdateProgress(0, null);
 
-                //Prepare Product Model for add localized product fields and slugs
-                productModel = await _productModelFactory.PrepareProductModelAsync(productModel, product);
+                var storeScope = await _storeContext.GetActiveStoreScopeConfigurationAsync();
+                var activeLanguages = (await _languageService.GetAllLanguagesAsync(false, storeScope))
+                                       .Where(x => x.Published)
+                                       .ToList();
 
-                foreach (var activeLanguage in activeLanguages)
+                var productsList = await _productService.SearchProductsAsync(
+                    categoryIds: null,
+                    showHidden: false,
+                    storeId: storeScope
+                );
+
+                int totalProducts = productsList.Count;
+                int i = 0;
+
+                foreach (var product in productsList)
                 {
-                    bool isLanguageActive = productModel.Locales.Any(x => x.LanguageId == activeLanguage.Id);
-                    if (isLanguageActive)
+                    i++;
+                    int percentageComplete = (int)(((double)i / totalProducts) * 100);
+                    _translationProgressService.UpdateProgress(percentageComplete, product.Name);
+
+                    var translationResult = new TranslationResult
                     {
-                        var productModelLocale = productModel.Locales.Single(x => x.LanguageId == activeLanguage.Id);
-                        if (productModelLocale.FullDescription.IsNullOrEmpty() ||
-                            productModelLocale.ShortDescription.IsNullOrEmpty() || productModelLocale.Name.IsNullOrEmpty())
+                        ProductId = product.Id,
+                        ProductName = product.Name
+                    };
+
+                    var needsTranslation = false;
+
+                    foreach (var language in activeLanguages)
+                    {
+                        var name = await _localizedEntityService.GetLocalizedValueAsync(language.Id, product.Id, "Product", "Name");
+                        var shortDescription = await _localizedEntityService.GetLocalizedValueAsync(language.Id, product.Id, "Product", "ShortDescription");
+                        var fullDescription = await _localizedEntityService.GetLocalizedValueAsync(language.Id, product.Id, "Product", "FullDescription");
+
+                        if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(shortDescription) || string.IsNullOrEmpty(fullDescription))
                         {
-                            //get language cultures first two letters
-                            string twoLetterLangCode = activeLanguage.LanguageCulture.Split("-")[0];
+                            needsTranslation = true;
 
-
-                            TranslateRequest request = new TranslateRequest();
-                            request.Source = "auto";
-                            request.Target = twoLetterLangCode;
-                            request.Text = product.Name;
-                            // Hız sınırlama için gecikme
-                            await Task.Delay(500); // Her istekten sonra 500ms bekle
-                            var result = await Translate(request);
-
-
-                            if (!result.translation.IsNullOrEmpty())
+                            // Çeviri işlemi
+                            // Örnek:
+                            var translateRequest = new TranslateRequest
                             {
-                                var translatedName = result.translation;
+                                Source = "auto",
+                                Target = language.LanguageCulture.Split('-')[0], // Örneğin "en"
+                                Text = product.Name
+                            };
 
-                                request.Text = product.ShortDescription;
-                                // Hız sınırlama için gecikme
-                                await Task.Delay(500); // Her istekten sonra 500ms bekle
-                                result = await Translate(request);
+                            var translationResultName = await Translate(translateRequest);
 
-                                if (!result.translation.IsNullOrEmpty())
-                                {
-                                    var translatedShortDescription = result.translation;
-
-                                    request.Text = product.FullDescription;
-                                    // Hız sınırlama için gecikme
-                                    await Task.Delay(500); // Her istekten sonra 500ms bekle
-                                    var translatedFullDescription  = await TranslateLargeText(request);
-
-                                    if (!translatedFullDescription.IsNullOrEmpty())
-                                    {
-                                       
-
-                                        //Add the Product Model Locale
-
-                                        productModelLocale.Name = translatedName;
-                                        productModelLocale.ShortDescription = translatedShortDescription;
-                                        productModelLocale.FullDescription = translatedFullDescription;
-
-                                        int index = productModel.Locales.IndexOf(
-                                            productModel.Locales.Single(x => x.LanguageId == activeLanguage.Id));
-
-                                        if (index != -1)
-                                            productModel.Locales[index] = productModelLocale;
-                                    }
-                                    else
-                                    {
-                                        resultText += Environment.NewLine + product.Name +
-                                                      " named product not translated because FullDescription not translated";
-                                    }
-                                }
-                                else
-                                {
-                                    resultText += Environment.NewLine + product.Name +
-                                                  " named product not translated because ShortDescription not translated";
-                                }
-
-
-
+                            if (!string.IsNullOrEmpty(translationResultName.translation))
+                            {
+                                await _localizedEntityService.SaveLocalizedValueAsync(product, p => p.Name, translationResultName.translation, language.Id);
                             }
                             else
                             {
-                                resultText += Environment.NewLine + product.Name +
-                                              " named product not translated because ProductName not translated";
+                                _translationProgressService.LogError(product.Id, product.Name, $"Name translation failed for {language.Name}");
+                                continue; // Bir sonraki dile geç
                             }
 
+                            translateRequest.Text = product.ShortDescription;
+                            var translationResultShortDesc = await Translate(translateRequest);
 
+                            if (!string.IsNullOrEmpty(translationResultShortDesc.translation))
+                            {
+                                await _localizedEntityService.SaveLocalizedValueAsync(product, p => p.ShortDescription, translationResultShortDesc.translation, language.Id);
+                            }
+                            else
+                            {
+                                _translationProgressService.LogError(product.Id, product.Name, $"Short Description translation failed for {language.Name}");
+                                continue; // Bir sonraki dile geç
+                            }
+
+                            translateRequest.Text = product.FullDescription;
+                            var translationResultFullDesc = await TranslateLargeText(translateRequest);
+
+                            if (!string.IsNullOrEmpty(translationResultFullDesc))
+                            {
+                                await _localizedEntityService.SaveLocalizedValueAsync(product, p => p.FullDescription, translationResultFullDesc, language.Id);
+                            }
+                            else
+                            {
+                                _translationProgressService.LogError(product.Id, product.Name, $"Full Description translation failed for {language.Name}");
+                                continue; // Bir sonraki dile geç
+                            }
                         }
                         else
                         {
-                            resultText += Environment.NewLine + product.Name +
-                                          " named product not translated because ProductName or Descriptions not empty";
+                            // Ürün zaten bu dile çevrilmişse, çeviri dilini kaydet
+                            translationResult.TranslatedLanguages.Add(language.Name);
                         }
                     }
 
-                    await UpdateLocalesAsync(product, productModel);
-
-
+                    if (!needsTranslation)
+                    {
+                        // Ürün zaten tamamen çevrilmişse, bunu listeye ekle
+                        translationResults.Add(translationResult);
+                    }
                 }
-            }
 
-            return resultText;
+                _translationProgressService.StopProgress();
+                return translationResults;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Translation process failed: {ex.Message}");
+                _translationProgressService.StopProgress();
+                throw;
+            }
         }
 
 

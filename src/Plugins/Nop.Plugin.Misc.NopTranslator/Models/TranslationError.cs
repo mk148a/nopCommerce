@@ -6,12 +6,10 @@ using System.Threading.Tasks;
 
 namespace Nop.Plugin.Misc.NopTranslator.Models
 {
-    public class TranslateRequest
+    public class TranslationError
     {
-        public string Source { get; set; }
-        public string Target { get; set; }
-        public string Text { get; set; }
-        public string ProductName { get; set; }
         public int ProductId { get; set; }
+        public string ProductName { get; set; }
+        public string ErrorMessage { get; set; }
     }
 }

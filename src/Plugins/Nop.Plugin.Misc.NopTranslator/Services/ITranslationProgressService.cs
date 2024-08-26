@@ -12,5 +12,10 @@ namespace Nop.Plugin.Misc.NopTranslator.Services
         TranslationProgress GetProgress();
         void UpdateProgress(int percentage, string currentProduct);
         void UpdateStartTime(DateTime startTime);  // Yeni metod
+        void ClearProgress();
+        void LogError(int productId, string productName, string errorMessage);
+        void StopProgress();
+
+
     }
 }
