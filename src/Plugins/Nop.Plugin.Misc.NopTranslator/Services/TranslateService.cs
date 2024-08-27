@@ -21,7 +21,10 @@ using Nop.Web.Areas.Admin.Factories;
 using LinqToDB.Common;
 using System.Text.RegularExpressions;
 using DocumentFormat.OpenXml.Presentation;
+using HtmlAgilityPack;
 using Microsoft.AspNetCore.Mvc;
+using Nop.Core.Domain.Localization;
+
 
 namespace Nop.Plugin.Misc.NopTranslator.Services
 {
@@ -57,54 +60,11 @@ namespace Nop.Plugin.Misc.NopTranslator.Services
         #endregion
 
         #region Methods
-        #region MyRegion
 
-        public List<string> SplitHtmlText(string htmlText, int maxChunkSize = 4000)
-        {
-            List<string> chunks = new List<string>();
-            int currentIndex = 0;
 
-            while (currentIndex < htmlText.Length)
-            {
-                int nextChunkSize = Math.Min(maxChunkSize, htmlText.Length - currentIndex);
-                string nextChunk = GetNextChunk(htmlText, currentIndex, nextChunkSize);
-                chunks.Add(nextChunk);
-                currentIndex += nextChunk.Length;
-            }
 
-            return chunks;
-        }
 
-        private string GetNextChunk(string htmlText, int startIndex, int chunkSize)
-        {
-            // Chunking işlemini daha küçük parçalara bölerek yapıyoruz
-            int endIndex = startIndex + chunkSize;
 
-            if (endIndex >= htmlText.Length)
-                return htmlText.Substring(startIndex);
-
-            // Sonraki bölümü güvenli bir yerden kesmek için en yakın noktalama işaretini arıyoruz
-            int lastSafeBreak = FindLastSafeBreak(htmlText, startIndex, endIndex);
-
-            if (lastSafeBreak == -1)
-                return htmlText.Substring(startIndex, chunkSize);
-
-            return htmlText.Substring(startIndex, lastSafeBreak - startIndex + 1);
-        }
-
-        private int FindLastSafeBreak(string htmlText, int startIndex, int endIndex)
-        {
-            // Noktalama işaretlerini, HTML taglerini ve boşlukları güvenli kırılma noktaları olarak kullanıyoruz
-            string pattern = @"[.!?](?!</)|(</p>)|(</div>)";
-            MatchCollection matches = Regex.Matches(htmlText.Substring(startIndex, endIndex - startIndex), pattern, RegexOptions.RightToLeft);
-
-            if (matches.Count > 0)
-            {
-                return startIndex + matches[0].Index + matches[0].Length - 1;
-            }
-
-            return -1;
-        }
 
         public async Task<string> RetryTranslateProducts(List<int> productIds)
         {
@@ -112,95 +72,93 @@ namespace Nop.Plugin.Misc.NopTranslator.Services
 
             var store = await _storeContext.GetCurrentStoreAsync();
             var storeScope = await _storeContext.GetActiveStoreScopeConfigurationAsync();
-            var activeLanguages =
-                (await _languageService.GetAllLanguagesAsync(false, storeScope)).Where(x => x.Published = true);
+            var activeLanguages = (await _languageService.GetAllLanguagesAsync(false, storeScope)).Where(x => x.Published).ToList();
 
             var productsList = await _productService.GetProductsByIdsAsync(productIds.ToArray());
 
             _translationProgressService.UpdateStartTime(DateTime.UtcNow);
             int i = 0;
+
             foreach (var product in productsList)
             {
                 i++;
                 Console.WriteLine("%" + (((double)i / (double)productsList.Count) * 100).ToString("0.00"));
                 int percentageComplete = (int)(((double)i / (double)productsList.Count) * 100);
                 _translationProgressService.UpdateProgress(percentageComplete, product.Name);
-                var productModel = new ProductModel();
 
-                productModel = await _productModelFactory.PrepareProductModelAsync(productModel, product);
+                // HTML içeriğini bir kere dictionary olarak oluştur
+                var htmlContentDictionary = await ParseHtmlToList(product.FullDescription);
+
+                var productModel = await _productModelFactory.PrepareProductModelAsync(new ProductModel(), product);
 
                 foreach (var activeLanguage in activeLanguages)
                 {
-                    bool isLanguageActive = productModel.Locales.Any(x => x.LanguageId == activeLanguage.Id);
-                    if (isLanguageActive)
+                    var productModelLocale = productModel.Locales.SingleOrDefault(x => x.LanguageId == activeLanguage.Id);
+                    if (productModelLocale != null &&
+                        (productModelLocale.FullDescription.IsNullOrEmpty() ||
+                         productModelLocale.ShortDescription.IsNullOrEmpty() ||
+                         productModelLocale.Name.IsNullOrEmpty()))
                     {
-                        var productModelLocale = productModel.Locales.Single(x => x.LanguageId == activeLanguage.Id);
-                        if (productModelLocale.FullDescription.IsNullOrEmpty() ||
-                            productModelLocale.ShortDescription.IsNullOrEmpty() || productModelLocale.Name.IsNullOrEmpty())
+                        string twoLetterLangCode = activeLanguage.LanguageCulture.Split('-')[0];
+
+                        TranslateRequest request = new TranslateRequest
                         {
-                            string twoLetterLangCode = activeLanguage.LanguageCulture.Split("-")[0];
+                            Source = "auto",
+                            Target = twoLetterLangCode,
+                            Text = product.Name
+                        };
 
-                            TranslateRequest request = new TranslateRequest
+                        await Task.Delay(500); // Her istekten sonra 500ms bekle
+                        var nameTranslationResult = await Translate(request);
+
+                        if (!nameTranslationResult.translation.IsNullOrEmpty())
+                        {
+                            var translatedName = nameTranslationResult.translation;
+
+                            request.Text = product.ShortDescription;
+                            await Task.Delay(500);
+                            var shortDescTranslationResult = await Translate(request);
+
+                            if (!shortDescTranslationResult.translation.IsNullOrEmpty())
                             {
-                                Source = "auto",
-                                Target = twoLetterLangCode,
-                                Text = product.Name
-                            };
+                                var translatedShortDescription = shortDescTranslationResult.translation;
 
-                            await Task.Delay(500); // Her istekten sonra 500ms bekle
-                            var result = await Translate(request);
+                                // HTML içeriğini 4000 karakter limitine göre parçalara ayır ve çevir
+                                var translatedFullDescription = await TranslateHtmlContentInChunks(htmlContentDictionary, request);
 
-                            if (!result.translation.IsNullOrEmpty())
-                            {
-                                var translatedName = result.translation;
-
-                                request.Text = product.ShortDescription;
-                                await Task.Delay(500);
-                                result = await Translate(request);
-
-                                if (!result.translation.IsNullOrEmpty())
+                                if (!translatedFullDescription.IsNullOrEmpty())
                                 {
-                                    var translatedShortDescription = result.translation;
+                                    productModelLocale.Name = translatedName;
+                                    productModelLocale.ShortDescription = translatedShortDescription;
+                                    productModelLocale.FullDescription = translatedFullDescription;
 
-                                    request.Text = product.FullDescription;
-                                    await Task.Delay(500);
-                                    var translatedFullDescription = await TranslateLargeText(request);
+                                    int index = productModel.Locales.IndexOf(productModelLocale);
 
-                                    if (!translatedFullDescription.IsNullOrEmpty())
-                                    {
-                                        productModelLocale.Name = translatedName;
-                                        productModelLocale.ShortDescription = translatedShortDescription;
-                                        productModelLocale.FullDescription = translatedFullDescription;
-
-                                        int index = productModel.Locales.IndexOf(
-                                            productModel.Locales.Single(x => x.LanguageId == activeLanguage.Id));
-
-                                        if (index != -1)
-                                            productModel.Locales[index] = productModelLocale;
-                                    }
-                                    else
-                                    {
-                                        resultText += Environment.NewLine + product.Name +
-                                                      " named product not translated because FullDescription not translated";
-                                    }
+                                    if (index != -1)
+                                        productModel.Locales[index] = productModelLocale;
                                 }
                                 else
                                 {
                                     resultText += Environment.NewLine + product.Name +
-                                                  " named product not translated because ShortDescription not translated";
+                                                  " named product not translated because FullDescription not translated";
                                 }
                             }
                             else
                             {
                                 resultText += Environment.NewLine + product.Name +
-                                              " named product not translated because ProductName not translated";
+                                              " named product not translated because ShortDescription not translated";
                             }
                         }
                         else
                         {
                             resultText += Environment.NewLine + product.Name +
-                                          " named product not translated because ProductName or Descriptions not empty";
+                                          " named product not translated because ProductName not translated";
                         }
+                    }
+                    else
+                    {
+                        resultText += Environment.NewLine + product.Name +
+                                      " named product not translated because ProductName or Descriptions not empty";
                     }
 
                     await UpdateLocalesAsync(product, productModel);
@@ -209,6 +167,7 @@ namespace Nop.Plugin.Misc.NopTranslator.Services
 
             return resultText;
         }
+
         public async Task<TranslateResponse> Translate(TranslateRequest request)
         {
          
@@ -267,28 +226,13 @@ namespace Nop.Plugin.Misc.NopTranslator.Services
 
             return result;
         }
-        public async Task<string> TranslateLargeText(TranslateRequest request)
-        {
-            var chunks = SplitHtmlText(request.Text, 4000);
-            StringBuilder translatedText = new StringBuilder();
+     
+        
 
-            foreach (var chunk in chunks)
-            {
-                request.Text = chunk;
-                var result = await Translate(request);
-                if (!string.IsNullOrEmpty(result.translation))
-                {
-                    translatedText.Append(result.translation);
-                }
-                else
-                {
-                    // Hata durumunda exception fırlat
-                    throw new Exception($"Translation failed for chunk: {chunk}");
-                }
-            }
 
-            return translatedText.ToString();
-        }
+
+
+    
         protected virtual async Task UpdateLocalesAsync(Product product, ProductModel model)
         {
             foreach (var localized in model.Locales)
@@ -324,7 +268,6 @@ namespace Nop.Plugin.Misc.NopTranslator.Services
             }
         }
 
-        #endregion
         public async Task<List<TranslationResult>> TranslateProducts()
         {
             var translationResults = new List<TranslationResult>();
@@ -339,13 +282,14 @@ namespace Nop.Plugin.Misc.NopTranslator.Services
                                        .Where(x => x.Published)
                                        .ToList();
 
-                var productsList = await _productService.SearchProductsAsync(
+                var productsListPage = await _productService.SearchProductsAsync(
                     categoryIds: null,
                     showHidden: false,
                     storeId: storeScope
                 );
 
-                int totalProducts = productsList.Count;
+                var productsList = productsListPage.Where(x => x.Sku == "thumbring1");
+                int totalProducts = productsList.Count();
                 int i = 0;
 
                 foreach (var product in productsList)
@@ -362,6 +306,9 @@ namespace Nop.Plugin.Misc.NopTranslator.Services
 
                     var needsTranslation = false;
 
+                    // HTML içeriğini bir kere dictionary olarak oluştur
+                    var parsedHtmlContent = await ParseHtmlToList(product.FullDescription);
+
                     foreach (var language in activeLanguages)
                     {
                         var name = await _localizedEntityService.GetLocalizedValueAsync(language.Id, product.Id, "Product", "Name");
@@ -373,7 +320,6 @@ namespace Nop.Plugin.Misc.NopTranslator.Services
                             needsTranslation = true;
 
                             // Çeviri işlemi
-                            // Örnek:
                             var translateRequest = new TranslateRequest
                             {
                                 Source = "auto",
@@ -406,12 +352,12 @@ namespace Nop.Plugin.Misc.NopTranslator.Services
                                 continue; // Bir sonraki dile geç
                             }
 
-                            translateRequest.Text = product.FullDescription;
-                            var translationResultFullDesc = await TranslateLargeText(translateRequest);
+                            // FullDescription için çeviri işlemi
+                            var translatedFullDescription = await TranslateHtmlContentInChunks(parsedHtmlContent, translateRequest);
 
-                            if (!string.IsNullOrEmpty(translationResultFullDesc))
+                            if (!string.IsNullOrEmpty(translatedFullDescription))
                             {
-                                await _localizedEntityService.SaveLocalizedValueAsync(product, p => p.FullDescription, translationResultFullDesc, language.Id);
+                                await _localizedEntityService.SaveLocalizedValueAsync(product, p => p.FullDescription, translatedFullDescription, language.Id);
                             }
                             else
                             {
@@ -444,6 +390,151 @@ namespace Nop.Plugin.Misc.NopTranslator.Services
             }
         }
 
+        #region Helper Methods
+        public async Task<string> TranslateHtmlContentInChunks(List<HtmlElement> htmlParts, TranslateRequest translateRequest)
+        {
+            var chunkBuilder = new StringBuilder();
+            var translatedContent = new StringBuilder();
+            var currentChunkSize = 0;
+
+            foreach (var element in htmlParts)
+            {
+                // İçeriği metin veya alt elemanlar olarak ayrıştır
+                var elementContent = ConvertContentToString(element.Content);
+
+                // Çeviri için parçalara ayırma
+                if (element.Translate && !string.IsNullOrWhiteSpace(elementContent))
+                {
+                    if (currentChunkSize + elementContent.Length > 4000)
+                    {
+                        // Mevcut chunk'ı translate et
+                        translateRequest.Text = chunkBuilder.ToString();
+                        var translationResult = await Translate(translateRequest);
+                        translatedContent.Append(translationResult.translation);
+
+                        // Yeni bir chunk başlat
+                        chunkBuilder.Clear();
+                        currentChunkSize = 0;
+                    }
+
+                    chunkBuilder.Append(element.OpenTag);
+                    chunkBuilder.Append(elementContent);
+                    chunkBuilder.Append(element.CloseTag);
+                    currentChunkSize += elementContent.Length;
+                }
+                else
+                {
+                    // Çevrilmemesi gereken HTML yapılarını direkt ekle
+                    translatedContent.Append(element.OpenTag);
+                    translatedContent.Append(elementContent);
+                    translatedContent.Append(element.CloseTag);
+                }
+            }
+
+            // Kalan chunk'ı translate et
+            if (currentChunkSize > 0)
+            {
+                translateRequest.Text = chunkBuilder.ToString();
+                var translationResult = await Translate(translateRequest);
+                translatedContent.Append(translationResult.translation);
+            }
+
+            return translatedContent.ToString();
+        }
+
+        private string ConvertContentToString(object content)
+        {
+            if (content is string strContent)
+            {
+                return strContent;
+            }
+            else if (content is List<HtmlElement> childElements)
+            {
+                var stringBuilder = new StringBuilder();
+                foreach (var childElement in childElements)
+                {
+                    stringBuilder.Append(childElement.OpenTag);
+                    stringBuilder.Append(ConvertContentToString(childElement.Content));
+                    stringBuilder.Append(childElement.CloseTag);
+                }
+                return stringBuilder.ToString();
+            }
+            return string.Empty;
+        }
+
+        private List<HtmlElement> ParseNode(HtmlNode node)
+        {
+            var htmlParts = new List<HtmlElement>();
+
+            if (node.NodeType == HtmlNodeType.Element)
+            {
+                var htmlElement = new HtmlElement
+                {
+                    OpenTag = $"<{node.Name}{GetAttributesString(node)}>",
+                    CloseTag = node.Name.Equals("img", StringComparison.OrdinalIgnoreCase) ||
+                               node.Name.Equals("iframe", StringComparison.OrdinalIgnoreCase) ||
+                               node.Name.Equals("video", StringComparison.OrdinalIgnoreCase) ||
+                               HtmlNode.IsEmptyElement(node.Name) ? "" : $"</{node.Name}>",
+                    Translate = true // Varsayılan olarak çevrilecek
+                };
+
+                if (node.HasChildNodes)
+                {
+                    var childParts = new List<HtmlElement>();
+                    foreach (var child in node.ChildNodes)
+                    {
+                        childParts.AddRange(ParseNode(child));
+                    }
+                    htmlElement.Content = childParts;
+                }
+                else
+                {
+                    htmlElement.Content = node.InnerText;
+                }
+
+                htmlParts.Add(htmlElement);
+            }
+            else if (node.NodeType == HtmlNodeType.Text)
+            {
+                var textContent = node.InnerText.Trim();
+                if (!string.IsNullOrEmpty(textContent))
+                {
+                    htmlParts.Add(new HtmlElement
+                    {
+                        OpenTag = "",
+                        Content = textContent,
+                        CloseTag = "",
+                        Translate = true
+                    });
+                }
+            }
+
+            return htmlParts;
+        }
+
+        private string GetAttributesString(HtmlNode node)
+        {
+            var attributes = node.Attributes.Select(attr => $"{attr.Name}=\"{attr.Value}\"");
+            return attributes.Any() ? " " + string.Join(" ", attributes) : string.Empty;
+        }
+
+
+        public async Task<List<HtmlElement>> ParseHtmlToList(string htmlContent)
+        {
+            var doc = new HtmlDocument();
+            doc.LoadHtml(htmlContent);
+
+            // DocumentNode'dan başlayarak tüm HTML öğelerini parse et
+            var htmlParts = ParseNode(doc.DocumentNode);
+
+            return htmlParts;
+        }
+
+
+
+
+
+        #endregion
 
         #endregion
     }
