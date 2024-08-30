@@ -64,6 +64,12 @@
     </PackageReference>
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="HtmlParserLibrary">
+      <HintPath>C:\Users\Murat\source\repos\HtmlParserLibrary\bin\Debug\net8.0\HtmlParserLibrary.dll</HintPath>
+    </Reference>
+  </ItemGroup>
  
   <!-- This target execute after "Build" target -->
   <Target Name="NopTarget" AfterTargets="Build">
