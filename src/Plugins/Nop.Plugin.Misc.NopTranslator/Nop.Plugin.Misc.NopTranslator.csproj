@@ -67,7 +67,7 @@
 
   <ItemGroup>
     <Reference Include="HtmlParserLibrary">
-      <HintPath>C:\Users\Murat\source\repos\HtmlParserLibrary\bin\Debug\net8.0\HtmlParserLibrary.dll</HintPath>
+      <HintPath>C:\Users\Murat\source\repos\HtmlParserLibrary\bin\Debug\net6.0\HtmlParserLibrary.dll</HintPath>
     </Reference>
   </ItemGroup>
  
