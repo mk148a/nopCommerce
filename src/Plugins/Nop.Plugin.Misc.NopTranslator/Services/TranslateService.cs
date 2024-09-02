@@ -20,8 +20,10 @@ using System.Threading.Tasks;
 using Nop.Web.Areas.Admin.Factories;
 using LinqToDB.Common;
 using System.Text.RegularExpressions;
+using System.Xml.Linq;
 using DocumentFormat.OpenXml.Presentation;
 using HtmlAgilityPack;
+using HtmlParserLibrary;
 using Microsoft.AspNetCore.Mvc;
 using Nop.Core.Domain.Localization;
 
@@ -87,9 +89,21 @@ namespace Nop.Plugin.Misc.NopTranslator.Services
                 _translationProgressService.UpdateProgress(percentageComplete, product.Name);
 
                 // HTML içeriğini bir kere dictionary olarak oluştur
-                var htmlContentDictionary = await ParseHtmlToList(product.FullDescription);
+                var parsedHtmlContent = await ParseHtmlToList(product.FullDescription);
+                var translationGroups = parsedHtmlContent
+                    .Select(element => new List<Dictionary<string, object>>
+                    {
+                        new Dictionary<string, object>
+                        {
+                            { "type", element.Type },
+                            { "attributes", element.Attributes },
+                            { "isEditable", element.IsEditable },
+                            { "content", element.Content }
+                        }
+                    })
+                    .ToList();
 
-                var translationGroups = CreateTranslationGroups(htmlContentDictionary); // Gruplama işlemi
+               
                 var productModel = await _productModelFactory.PrepareProductModelAsync(new ProductModel(), product);
 
                 foreach (var activeLanguage in activeLanguages)
@@ -272,6 +286,7 @@ namespace Nop.Plugin.Misc.NopTranslator.Services
         public async Task<List<TranslationResult>> TranslateProducts()
         {
             var translationResults = new List<TranslationResult>();
+            var parser = new HtmlParser(); // Yeni HtmlParser sınıfını başlatın
 
             try
             {
@@ -307,13 +322,15 @@ namespace Nop.Plugin.Misc.NopTranslator.Services
 
                     var needsTranslation = false;
 
-                    // HTML içeriğini bir kere dictionary olarak oluştur
-                    var parsedHtmlContent = await ParseHtmlToList(product.FullDescription);
+                    // HTML içeriğini JSON olarak işleyin
+                    var parsedJson = parser.ConvertHtmlToJson(product.FullDescription);
 
-                    // Çeviriye hazır dictionary grupları oluştur
-                    var translationGroups = CreateTranslationGroups(parsedHtmlContent);
+                   
+                    var processedList = parser.ProcessJsonData(parsedJson);
+                    var translatedChunks = new List<string>();
 
-
+                 
+                 
                     foreach (var language in activeLanguages)
                     {
                         var name = await _localizedEntityService.GetLocalizedValueAsync(language.Id, product.Id, "Product", "Name");
@@ -357,12 +374,37 @@ namespace Nop.Plugin.Misc.NopTranslator.Services
                                 continue; // Bir sonraki dile geç
                             }
 
-                            // FullDescription için çeviri işlemi
-                            var translatedFullDescription = await TranslateHtmlContentInChunks(translationGroups, translateRequest);
-
-                            if (!string.IsNullOrEmpty(translatedFullDescription))
+                           
+                            foreach (var text in processedList)
                             {
-                                await _localizedEntityService.SaveLocalizedValueAsync(product, p => p.FullDescription, translatedFullDescription, language.Id);
+                                translateRequest.Text = text;
+
+                                var translationResultText = await Translate(translateRequest);
+
+                                if (!string.IsNullOrEmpty(translationResultText.translation))
+                                {
+                                    translatedChunks.Add(translationResultText.translation);
+                                }
+                                else
+                                {
+                                    _translationProgressService.LogError(product.Id, product.Name, $"Translation failed for {text}");
+                                    continue; // Bir sonraki dile geç
+                                }
+                            }
+
+                            
+                            // Çevrilmiş JSON'u eski JSON'a update edin
+                            var editedChunks = parser.ParseEditedContent(string.Join("", translatedChunks));
+                            var updatedJson = parser.UpdateJsonWithEditedContent(parsedJson, editedChunks);
+
+                            var finalHtml = parser.ConvertJsonToHtml(updatedJson);
+
+
+
+
+                            if (!string.IsNullOrEmpty(finalHtml))
+                            {
+                                await _localizedEntityService.SaveLocalizedValueAsync(product, p => p.FullDescription, finalHtml, language.Id);
                             }
                             else
                             {
@@ -565,186 +607,47 @@ namespace Nop.Plugin.Misc.NopTranslator.Services
             var attributes = node.Attributes.Select(attr => $"{attr.Name}=\"{attr.Value}\"");
             return attributes.Any() ? " " + string.Join(" ", attributes) : string.Empty;
         }
-
-        private List<Dictionary<string, object>> ParseNode(HtmlNode node)
+        public class HtmlElement
         {
-            var htmlParts = new List<Dictionary<string, object>>();
-
-            if (node.NodeType == HtmlNodeType.Element)
-            {
-                var htmlElement = new Dictionary<string, object>
-        {
-            { "openTag", $"<{node.Name}{GetAttributesString(node)}>" },
-            { "closeTag", node.Name.Equals("img", StringComparison.OrdinalIgnoreCase) ||
-                           node.Name.Equals("iframe", StringComparison.OrdinalIgnoreCase) ||
-                           node.Name.Equals("video", StringComparison.OrdinalIgnoreCase) ||
-                           HtmlNode.IsEmptyElement(node.Name) ? "" : $"</{node.Name}>" },
-            { "translate", true } // Varsayılan olarak çevrilecek
-        };
-
-                if (node.HasChildNodes)
-                {
-                    var childParts = new List<Dictionary<string, object>>();
-                    foreach (var child in node.ChildNodes)
-                    {
-                        // Tablo hücrelerini ve başlıklarını çeviriye dahil et
-                        if (child.Name == "td" || child.Name == "th")
-                        {
-                            childParts.AddRange(ParseNode(child));
-                        }
-                        else
-                        {
-                            // Diğer tablo öğelerini (satır, gövde vb.) çeviriye dahil etme
-                            var childDict = new Dictionary<string, object>
-                    {
-                        { "openTag", $"<{child.Name}{GetAttributesString(child)}>" },
-                        { "closeTag", child.Name.Equals("img", StringComparison.OrdinalIgnoreCase) ||
-                                       child.Name.Equals("iframe", StringComparison.OrdinalIgnoreCase) ||
-                                       child.Name.Equals("video", StringComparison.OrdinalIgnoreCase) ||
-                                       HtmlNode.IsEmptyElement(child.Name) ? "" : $"</{child.Name}>" },
-                        { "translate", false }
-                    };
-
-                            if (child.HasChildNodes)
-                            {
-                                childDict["content"] = ParseNode(child);
-                            }
-                            else
-                            {
-                                if (child.NodeType == HtmlNodeType.Text)
-                                {
-                                    var textContent = child.InnerText.Trim(); // child düğümünün InnerText'ini kullan
-
-                                    // Check if the text content is not empty or whitespace
-                                    if (!string.IsNullOrWhiteSpace(textContent))
-                                    {
-                                        // Text düğümünün özelliklerini childDict'e ata
-                                        childDict["openTag"] = "";
-                                        childDict["closeTag"] = "";
-                                        childDict["translate"] = true;
-                                        childDict["content"] = textContent;
-                                    }
-                                    else
-                                    {
-                                        // Boş veya sadece boşluk içeren metin düğümlerini yok say
-                                        continue;
-                                    }
-                                }
-                                else
-                                {
-                                    childDict["content"] = child.InnerText;
-                                }
-                            }
-
-                            childParts.Add(childDict);
-                        }
-                    }
-                    htmlElement["content"] = childParts;
-                }
-                else
-                {
-                    htmlElement["content"] = node.InnerText;
-                }
-
-                // Çevirilmemesi gereken etiketler için "translate" değerini false yap
-                if (node.Name == "img" || node.Name == "script" || node.Name == "style" ||
-                    node.Name == "video" || node.Name == "meta" || node.Name == "iframe" ||
-                    node.Name == "tr" || node.Name == "tbody")
-                {
-                    htmlElement["translate"] = false;
-                }
-
-                htmlParts.Add(htmlElement);
-            }
-            else if (node.NodeType == HtmlNodeType.Text)
-            {
-                var textContent = node.InnerText.Trim();
-
-                // Check if the text content is not empty or whitespace
-                if (!string.IsNullOrWhiteSpace(textContent))
-                {
-                    htmlParts.Add(new Dictionary<string, object>
-            {
-                { "openTag", "" },
-                { "content", textContent },
-                { "closeTag", "" },
-                { "translate", true }
-            });
-                }
-            }
-
-            return htmlParts;
+            public string Type { get; set; }
+            public Dictionary<string, string> Attributes { get; set; }
+            public bool IsEditable { get; set; }
+            public List<object> Content { get; set; } // İçerik string veya başka HTML elementleri olabilir
         }
-        public async Task<List<Dictionary<string, object>>> ParseHtmlToList(string htmlContent)
+        private bool IsEditableElement(XElement element)
+        {
+            string[] nonEditableTags = { "img", "video", "meta", "script", "style" };
+            return !nonEditableTags.Contains(element.Name.LocalName.ToLower());
+        }
+        private HtmlElement ConvertNodeToHtmlElement(XElement element)
+        {
+
+            return new HtmlElement
+            {
+                Type = element.Name.LocalName,
+                Attributes = element.Attributes().ToDictionary(attr => attr.Name.LocalName, attr => attr.Value),
+                IsEditable = IsEditableElement(element),
+                Content = element.Nodes().Select(node =>
+                        node is XElement
+                            ? (object)ConvertNodeToHtmlElement((XElement)node) // Alt elemanları da HtmlElement olarak dönüştür
+                            : (object)node.ToString() // Text içerikler string olarak kalır
+                ).ToList()
+            };
+        }
+
+        public async Task<List<HtmlElement>> ParseHtmlToList(string htmlContent)
         {
             var doc = new HtmlDocument();
             doc.LoadHtml(htmlContent);
 
-            // DocumentNode'un altındaki ilk çocuk düğümden başlayarak ayrıştır
-            var htmlParts = new List<Dictionary<string, object>>();
-            if (doc.DocumentNode.HasChildNodes)
-            {
-                foreach (var child in doc.DocumentNode.ChildNodes)
-                {
-                    htmlParts.AddRange(ParseNode(child));
-                }
-            }
+            var elements = doc.DocumentNode.Descendants()
+                .Select(node => ConvertNodeToHtmlElement(XElement.Parse(node.OuterHtml)))
+                .ToList();
 
-            return htmlParts;
+            return elements;
         }
 
-        private List<List<Dictionary<string, object>>> CreateTranslationGroups(List<Dictionary<string, object>> htmlParts)
-        {
-            var translationGroups = new List<List<Dictionary<string, object>>>();
-            var currentGroup = new List<Dictionary<string, object>>();
-            var currentChunkSize = 0;
 
-            foreach (var element in htmlParts)
-            {
-                // Tüm içeriğin boyutunu hesapla (alt öğeler dahil)
-                var elementSize = CalculateElementSize(element);
-
-                if ((bool)element["translate"] && !string.IsNullOrWhiteSpace(ConvertContentToString(element["content"])))
-                {
-                    // Tablo hücrelerini ayrı bir grup olarak ele al
-                    if (((string)element["openTag"]).StartsWith("<td") || ((string)element["openTag"]).StartsWith("<th"))
-                    {
-                        translationGroups.Add(new List<Dictionary<string, object>> { element });
-                        continue;
-                    }
-
-                    if (currentChunkSize + elementSize > 4000 || elementSize > 4000)
-                    {
-                        translationGroups.Add(currentGroup);
-                        currentGroup = new List<Dictionary<string, object>>();
-                        currentChunkSize = 0;
-                    }
-
-                    currentGroup.Add(element);
-                    currentChunkSize += elementSize;
-                }
-                else
-                {
-                    // Çevrilmeyecek öğeleri doğrudan yeni bir gruba ekleyin
-                    translationGroups.Add(new List<Dictionary<string, object>> { element });
-                }
-            }
-
-            if (currentGroup.Any())
-            {
-                translationGroups.Add(currentGroup);
-            }
-
-            return translationGroups;
-        }
-
-        private int CalculateElementSize(Dictionary<string, object> element)
-        {
-            var contentSize = ConvertContentToString(element["content"]).Length;
-            var openTagSize = ((string)element["openTag"]).Length;
-            var closeTagSize = ((string)element["closeTag"]).Length;
-            return contentSize + openTagSize + closeTagSize;
-        }
 
 
         #endregion
