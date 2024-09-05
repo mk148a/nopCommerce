@@ -26,6 +26,8 @@ using HtmlAgilityPack;
 using HtmlParserLibrary;
 using Microsoft.AspNetCore.Mvc;
 using Nop.Core.Domain.Localization;
+using System.Web;
+using Org.BouncyCastle.Asn1.X509;
 
 
 namespace Nop.Plugin.Misc.NopTranslator.Services
@@ -298,13 +300,15 @@ namespace Nop.Plugin.Misc.NopTranslator.Services
                                        .Where(x => x.Published)
                                        .ToList();
 
-                var productsListPage = await _productService.SearchProductsAsync(
+                var productsList = await _productService.SearchProductsAsync(
                     categoryIds: null,
                     showHidden: false,
                     storeId: storeScope
                 );
 
-                var productsList = productsListPage.Where(x => x.Sku == "thumbring1");
+
+
+               
                 int totalProducts = productsList.Count();
                 int i = 0;
 
@@ -323,16 +327,17 @@ namespace Nop.Plugin.Misc.NopTranslator.Services
                     var needsTranslation = false;
 
                     // HTML içeriğini JSON olarak işleyin
-                    var parsedJson = parser.ConvertHtmlToJson(product.FullDescription);
+                    var parsedJson = parser.ConvertHtmlToJson(HttpUtility.HtmlDecode(product.FullDescription));
 
                    
                     var processedList = parser.ProcessJsonData(parsedJson);
-                    var translatedChunks = new List<string>();
 
                  
                  
                     foreach (var language in activeLanguages)
                     {
+                        var translatedChunks = new List<string>();
+
                         var name = await _localizedEntityService.GetLocalizedValueAsync(language.Id, product.Id, "Product", "Name");
                         var shortDescription = await _localizedEntityService.GetLocalizedValueAsync(language.Id, product.Id, "Product", "ShortDescription");
                         var fullDescription = await _localizedEntityService.GetLocalizedValueAsync(language.Id, product.Id, "Product", "FullDescription");
@@ -348,7 +353,10 @@ namespace Nop.Plugin.Misc.NopTranslator.Services
                                 Target = language.LanguageCulture.Split('-')[0], // Örneğin "en"
                                 Text = product.Name
                             };
-
+                            if (translateRequest.Target=="nn")
+                            {
+                                translateRequest.Target = "no";
+                            }
                             var translationResultName = await Translate(translateRequest);
 
                             if (!string.IsNullOrEmpty(translationResultName.translation))
@@ -397,7 +405,7 @@ namespace Nop.Plugin.Misc.NopTranslator.Services
                             var editedChunks = parser.ParseEditedContent(string.Join("", translatedChunks));
                             var updatedJson = parser.UpdateJsonWithEditedContent(parsedJson, editedChunks);
 
-                            var finalHtml = parser.ConvertJsonToHtml(updatedJson);
+                            var finalHtml = HttpUtility.HtmlDecode(parser.ConvertJsonToHtml(updatedJson));
 
 
 
@@ -409,6 +417,15 @@ namespace Nop.Plugin.Misc.NopTranslator.Services
                             else
                             {
                                 _translationProgressService.LogError(product.Id, product.Name, $"Full Description translation failed for {language.Name}");
+                                try
+                                {
+                                    Console.WriteLine("NopTranslator Error:" + product.Id + "/" + product.Name + "/" + $"Full Description translation failed for {language.Name}");
+
+                                }
+                                catch 
+                                {
+                                   
+                                }
                                 continue; // Bir sonraki dile geç
                             }
                         }

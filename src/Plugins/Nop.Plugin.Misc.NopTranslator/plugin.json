@@ -2,7 +2,7 @@
   "Group": "Genius Software",
   "FriendlyName": "Nop Product And Content Translator",
   "SystemName": "Nop.Plugin.Misc.NopTranslator",
-  "Version": "1.00",
+  "Version": "1.10",
   "SupportedVersions": [ "4.50" ],
   "Author": "Genius Software",
   "DisplayOrder": 1,
