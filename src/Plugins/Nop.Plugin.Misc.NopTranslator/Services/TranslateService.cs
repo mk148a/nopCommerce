@@ -332,8 +332,8 @@ namespace Nop.Plugin.Misc.NopTranslator.Services
                    
                     var processedList = parser.ProcessJsonData(parsedJson);
 
-                 
-                 
+                    var productModel = await _productModelFactory.PrepareProductModelAsync(new ProductModel(), product);
+
                     foreach (var language in activeLanguages)
                     {
                         var translatedChunks = new List<string>();
@@ -413,6 +413,8 @@ namespace Nop.Plugin.Misc.NopTranslator.Services
                             if (!string.IsNullOrEmpty(finalHtml))
                             {
                                 await _localizedEntityService.SaveLocalizedValueAsync(product, p => p.FullDescription, finalHtml, language.Id);
+                                await UpdateLocalesAsync(product, productModel);
+
                             }
                             else
                             {
