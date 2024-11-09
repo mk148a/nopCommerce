@@ -1037,6 +1037,20 @@ namespace Nop.Services.Messages
             var orderUrl = await RouteUrlAsync(order.StoreId, "OrderDetails", new { orderId = order.Id });
             tokens.Add(new Token("Order.OrderURLForCustomer", orderUrl, true));
 
+            // Ürün İnceleme Bağlantılarını Oluşturmak İçin Token Ekleme
+            var productReviewLinks = new StringBuilder();
+            foreach (var orderItem in await _orderService.GetOrderItemsAsync(order.Id))
+            {
+                var product = await _productService.GetProductByIdAsync(orderItem.ProductId);
+                if (product != null)
+                {
+                    // Ürün inceleme linkini oluştur
+                    var reviewUrl = $"{(await _storeContext.GetCurrentStoreAsync()).Url}productreviews/{product.Id}";
+                    productReviewLinks.AppendFormat("<a href='{0}'>{1}</a><br />", reviewUrl, WebUtility.HtmlEncode(product.Name));
+                }
+            }
+            tokens.Add(new Token("Order.ProductReviewLinks", productReviewLinks.ToString(), true));
+
             //event notification
             await _eventPublisher.EntityTokensAddedAsync(order, tokens);
         }
