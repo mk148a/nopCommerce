@@ -1,6 +1,7 @@
-﻿@using SevenSpikes.Nop.Plugins.NopQuickTabs.Models;
-
-@model ContactUsModel
+﻿@model ContactUsModel
+@using Nop.Core.Domain.Seo
+@inject Nop.Core.IWebHelper webHelper
+@inject SeoSettings seoSettings
 
 <div id="contact-us-tab" class="contact-page write-review">
     @if (!Model.SuccessfullySent && !string.IsNullOrEmpty(Model.Result))
