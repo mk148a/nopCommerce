@@ -1,4 +1,5 @@
 ﻿@model RegisterModel
+
 @{
     Layout = "_ColumnsOne";
 
@@ -13,6 +14,7 @@
         <h1>@T("Account.Register")</h1>
     </div>
     <div class="page-body">
+        @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.RegisterTop, additionalData = Model })
         <form asp-route="Register" asp-route-returnurl="@Context.Request.Query["ReturnUrl"]" method="post" autocomplete="off">
             <div asp-validation-summary="ModelOnly" class="message-error"></div>
             <div class="fieldset">
@@ -33,6 +35,13 @@
                                     <input type="radio" asp-for="Gender" value="F" checked="@(Model.Gender == "F")" id="gender-female" />
                                     <label class="forcheckbox" for="gender-female">@T("Account.Fields.Gender.Female")</label>
                                 </span>
+                                @if (Model.NeutralGenderEnabled)
+                                {
+                                    <span class="Neutral">
+                                        <input type="radio" asp-for="Gender" value="N" checked="@(Model.Gender == "N")" id="gender-neutral" />
+                                        <label class="forcheckbox" for="gender-neutral">@T("Account.Fields.Gender.Neutral")</label>
+                                    </span>
+                                }
                             </div>
                         </div>
                     }
@@ -142,11 +151,11 @@
                 </div>
             }
             @if (Model.StreetAddressEnabled ||
-             Model.StreetAddress2Enabled ||
-             Model.ZipPostalCodeEnabled ||
-             Model.CityEnabled ||
-             Model.CountyEnabled ||
-             Model.CountryEnabled)
+                Model.StreetAddress2Enabled ||
+                Model.ZipPostalCodeEnabled ||
+                Model.CityEnabled ||
+                Model.CountyEnabled ||
+                Model.CountryEnabled)
             {
                 <div class="fieldset">
                     <div class="title">
@@ -354,7 +363,7 @@
                         @if (Model.AcceptPrivacyPolicyEnabled)
                         {
                             <script asp-location="Footer">
-                                $(document).ready(function() {
+                                $(function() {
                                     $('#register-button').on('click', function() {
                                         if ($('#accept-consent').is(':checked')) {
                                             //do some stuff
@@ -374,7 +383,7 @@
                                 {
                                     <span class="read" id="read-privacyinfo">@T("Account.Fields.AcceptPrivacyPolicy.Read")</span>
                                     <script asp-location="Footer">
-                                    $(document).ready(function() {
+                                    $(function() {
                                         $('#read-privacyinfo').on('click',
                                             function(e) {
                                                 displayPopupContentFromUrl(
@@ -386,7 +395,7 @@
                                 }
                                 else
                                 {
-                                    <a class="read" id="read-privacyinfo" href="@Url.RouteUrl("Topic", new { SeName = await Html.GetTopicSeNameAsync("privacyinfo") })">@T("Account.Fields.AcceptPrivacyPolicy.Read")</a>
+                                    <a class="read" id="read-privacyinfo" href="@Url.RouteTopicUrl("privacyinfo")">@T("Account.Fields.AcceptPrivacyPolicy.Read")</a>
                                 }
                             </div>
                         }
@@ -398,7 +407,7 @@
                                 if (consent.IsRequired)
                                 {
                                     <script asp-location="Footer">
-                                    $(document).ready(function() {
+                                    $(function() {
                                         $('#register-button').on('click', function() {
                                             if ($('#consent@(consent.Id)').is(':checked')) {
                                                     //do some stuff
@@ -428,7 +437,8 @@
             </div>
         </form>
         <div class="external-authentication">
-            @await Component.InvokeAsync("ExternalMethods", "ExternalAuthentication")
+            @await Component.InvokeAsync(typeof(ExternalMethodsViewComponent), "ExternalAuthentication")
         </div>
+        @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.RegisterBottom, additionalData = Model })
     </div>
 </div>

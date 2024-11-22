@@ -132,6 +132,9 @@
   <LocaleResource Name="StoreInformation">
     <Value>商店信息</Value>
   </LocaleResource>
+  <LocaleResource Name="SubscribeNewsletters">
+    <Value>订阅 nopCommerce 简讯</Value>
+  </LocaleResource>
   <LocaleResource Name="Title">
     <Value>nopCommerce 安装</Value>
   </LocaleResource>

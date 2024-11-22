@@ -1,197 +1,130 @@
-﻿using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Http;
 
-namespace Nop.Services.Media.RoxyFileman
+namespace Nop.Services.Media.RoxyFileman;
+
+/// <summary>
+/// RoxyFileman service interface
+/// </summary>
+public partial interface IRoxyFilemanService
 {
+    #region Configuration
+
     /// <summary>
-    /// RoxyFileman service interface
+    /// Initial service configuration
     /// </summary>
-    public interface IRoxyFilemanService
-    {
-        #region Configuration
+    /// <param name="pathBase">The base path for the current request</param>
+    /// <returns>A task that represents the asynchronous operation</returns>
+    Task ConfigureAsync(string pathBase);
 
-        /// <summary>
-        /// Initial service configuration
-        /// </summary>
-        /// <returns>A task that represents the asynchronous operation</returns>
-        Task ConfigureAsync();
+    #endregion
 
-        /// <summary>
-        /// Gets a configuration file path
-        /// </summary>
-        string GetConfigurationFilePath();
+    #region Directories
 
-        /// <summary>
-        /// Create configuration file for RoxyFileman
-        /// </summary>
-        /// <returns>A task that represents the asynchronous operation</returns>
-        Task CreateConfigurationAsync();
+    /// <summary>
+    /// Copy the directory
+    /// </summary>
+    /// <param name="sourcePath">Path to the source directory</param>
+    /// <param name="destinationPath">Path to the destination directory</param>
+    void CopyDirectory(string sourcePath, string destinationPath);
 
-        #endregion
+    /// <summary>
+    /// Create the new directory
+    /// </summary>
+    /// <param name="parentDirectoryPath">Path to the parent directory</param>
+    /// <param name="name">Name of the new directory</param>
+    void CreateDirectory(string parentDirectoryPath, string name);
 
-        #region Directories
+    /// <summary>
+    /// Delete the directory
+    /// </summary>
+    /// <param name="path">Path to the directory</param>
+    void DeleteDirectory(string path);
 
-        /// <summary>
-        /// Copy the directory
-        /// </summary>
-        /// <param name="sourcePath">Path to the source directory</param>
-        /// <param name="destinationPath">Path to the destination directory</param>
-        /// <returns>A task that represents the asynchronous operation</returns>
-        Task CopyDirectoryAsync(string sourcePath, string destinationPath);
+    /// <summary>
+    /// Download the directory from the server as a zip archive
+    /// </summary>
+    /// <param name="path">Path to the directory</param>
+    byte[] DownloadDirectory(string path);
 
-        /// <summary>
-        /// Create the new directory
-        /// </summary>
-        /// <param name="parentDirectoryPath">Path to the parent directory</param>
-        /// <param name="name">Name of the new directory</param>
-        /// <returns>A task that represents the asynchronous operation</returns>
-        Task CreateDirectoryAsync(string parentDirectoryPath, string name);
+    /// <summary>
+    /// Get all available directories as a directory tree
+    /// </summary>
+    /// <param name="type">Type of the file</param>
+    /// <returns>List of directories</returns>
+    IEnumerable<object> GetDirectoryList(string type);
 
-        /// <summary>
-        /// Delete the directory
-        /// </summary>
-        /// <param name="path">Path to the directory</param>
-        /// <returns>A task that represents the asynchronous operation</returns>
-        Task DeleteDirectoryAsync(string path);
+    /// <summary>
+    /// Move the directory
+    /// </summary>
+    /// <param name="sourcePath">Path to the source directory</param>
+    /// <param name="destinationPath">Path to the destination directory</param>
+    void MoveDirectory(string sourcePath, string destinationPath);
 
-        /// <summary>
-        /// Download the directory from the server as a zip archive
-        /// </summary>
-        /// <param name="path">Path to the directory</param>
-        /// <returns>A task that represents the asynchronous operation</returns>
-        Task DownloadDirectoryAsync(string path);
+    /// <summary>
+    /// Rename the directory
+    /// </summary>
+    /// <param name="sourcePath">Path to the source directory</param>
+    /// <param name="newName">New name of the directory</param>
+    void RenameDirectory(string sourcePath, string newName);
 
-        /// <summary>
-        /// Get all available directories as a directory tree
-        /// </summary>
-        /// <param name="type">Type of the file</param>
-        /// <returns>A task that represents the asynchronous operation</returns>
-        Task GetDirectoriesAsync(string type);
+    #endregion
 
-        /// <summary>
-        /// Move the directory
-        /// </summary>
-        /// <param name="sourcePath">Path to the source directory</param>
-        /// <param name="destinationPath">Path to the destination directory</param>
-        /// <returns>A task that represents the asynchronous operation</returns>
-        Task MoveDirectoryAsync(string sourcePath, string destinationPath);
+    #region Files
 
-        /// <summary>
-        /// Rename the directory
-        /// </summary>
-        /// <param name="sourcePath">Path to the source directory</param>
-        /// <param name="newName">New name of the directory</param>
-        /// <returns>A task that represents the asynchronous operation</returns>
-        Task RenameDirectoryAsync(string sourcePath, string newName);
+    /// <summary>
+    /// Get filename and read-only content stream
+    /// </summary>
+    /// <param name="path">Path to the file</param>
+    (Stream stream, string name) GetFileStream(string path);
 
-        #endregion
+    /// <summary>
+    /// Copy the file
+    /// </summary>
+    /// <param name="sourcePath">Path to the source file</param>
+    /// <param name="destinationPath">Path to the destination file</param>
+    void CopyFile(string sourcePath, string destinationPath);
 
-        #region Files
+    /// <summary>
+    /// Get binary image thumbnail data
+    /// </summary>
+    /// <param name="path">Path to the image</param>
+    /// <param name="contentType">The resulting MIME type</param>
+    byte[] CreateImageThumbnail(string path, string contentType);
 
-        /// <summary>
-        /// Copy the file
-        /// </summary>
-        /// <param name="sourcePath">Path to the source file</param>
-        /// <param name="destinationPath">Path to the destination file</param>
-        /// <returns>A task that represents the asynchronous operation</returns>
-        Task CopyFileAsync(string sourcePath, string destinationPath);
+    /// <summary>
+    /// Delete the file
+    /// </summary>
+    /// <param name="path">Path to the file</param>
+    void DeleteFile(string path);
 
-        /// <summary>
-        /// Delete the file
-        /// </summary>
-        /// <param name="path">Path to the file</param>
-        /// <returns>A task that represents the asynchronous operation</returns>
-        Task DeleteFileAsync(string path);
+    /// <summary>
+    /// Get files in the passed directory
+    /// </summary>
+    /// <param name="directoryPath">Path to the files directory</param>
+    /// <param name="type">Type of the files</param>
+    IEnumerable<object> GetFiles(string directoryPath, string type);
 
-        /// <summary>
-        /// Download the file from the server
-        /// </summary>
-        /// <param name="path">Path to the file</param>
-        /// <returns>A task that represents the asynchronous operation</returns>
-        Task DownloadFileAsync(string path);
+    /// <summary>
+    /// Move the file
+    /// </summary>
+    /// <param name="sourcePath">Path to the source file</param>
+    /// <param name="destinationPath">Path to the destination file</param>
+    void MoveFile(string sourcePath, string destinationPath);
 
-        /// <summary>
-        /// Get files in the passed directory
-        /// </summary>
-        /// <param name="directoryPath">Path to the files directory</param>
-        /// <param name="type">Type of the files</param>
-        /// <returns>A task that represents the asynchronous operation</returns>
-        Task GetFilesAsync(string directoryPath, string type);
+    /// <summary>
+    /// Rename the file
+    /// </summary>
+    /// <param name="sourcePath">Path to the source file</param>
+    /// <param name="newName">New name of the file</param>
+    void RenameFile(string sourcePath, string newName);
 
-        /// <summary>
-        /// Move the file
-        /// </summary>
-        /// <param name="sourcePath">Path to the source file</param>
-        /// <param name="destinationPath">Path to the destination file</param>
-        /// <returns>A task that represents the asynchronous operation</returns>
-        Task MoveFileAsync(string sourcePath, string destinationPath);
+    /// <summary>
+    /// Upload files to a directory on passed path
+    /// </summary>
+    /// <param name="directoryPath">Path to directory to upload files</param>
+    /// <param name="files">Files sent with the HttpRequest</param>
+    /// <returns>A task that represents the asynchronous operation</returns>
+    Task UploadFilesAsync(string directoryPath, IEnumerable<IFormFile> files);
 
-        /// <summary>
-        /// Rename the file
-        /// </summary>
-        /// <param name="sourcePath">Path to the source file</param>
-        /// <param name="newName">New name of the file</param>
-        /// <returns>A task that represents the asynchronous operation</returns>
-        Task RenameFileAsync(string sourcePath, string newName);
-
-        /// <summary>
-        /// Upload files to a directory on passed path
-        /// </summary>
-        /// <param name="directoryPath">Path to directory to upload files</param>
-        /// <returns>A task that represents the asynchronous operation</returns>
-        Task UploadFilesAsync(string directoryPath);
-
-        #endregion
-
-        #region Images
-
-        /// <summary>
-        /// Create the thumbnail of the image and write it to the response
-        /// </summary>
-        /// <param name="path">Path to the image</param>
-        /// <returns>A task that represents the asynchronous operation</returns>
-        Task CreateImageThumbnailAsync(string path);
-
-        /// <summary>
-        /// Flush all images on disk
-        /// </summary>
-        /// <param name="removeOriginal">Specifies whether to delete original images</param>
-        /// <returns>A task that represents the asynchronous operation</returns>
-        Task FlushAllImagesOnDiskAsync(bool removeOriginal = true);
-
-        /// <summary>
-        /// Flush images on disk
-        /// </summary>
-        /// <param name="directoryPath">Directory path to flush images</param>
-        /// <returns>A task that represents the asynchronous operation</returns>
-        Task FlushImagesOnDiskAsync(string directoryPath);
-
-        #endregion
-
-        #region Others
-
-        /// <summary>
-        /// Get the string to write an error response
-        /// </summary>
-        /// <param name="message">Additional message</param>
-        /// <returns>String to write to the response</returns>
-        string GetErrorResponse(string message = null);
-
-        /// <summary>
-        /// Get the language resource value
-        /// </summary>
-        /// <param name="key">Language resource key</param>
-        /// <returns>
-        /// A task that represents the asynchronous operation
-        /// The task result contains the language resource value
-        /// </returns>
-        Task<string> GetLanguageResourceAsync(string key);
-
-        /// <summary>
-        /// Whether the request is made with ajax 
-        /// </summary>
-        /// <returns>True or false</returns>
-        bool IsAjaxRequest();
-
-        #endregion
-    }
+    #endregion
 }

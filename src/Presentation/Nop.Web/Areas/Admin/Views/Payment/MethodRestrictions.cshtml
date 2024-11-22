@@ -19,7 +19,7 @@
             <div class="form-horizontal">
                 <div class="form-horizontal">
                     <div class="cards-group">
-                        @await Component.InvokeAsync("AdminWidget", new { widgetZone = AdminWidgetZones.PaymentMethodRestrictionsTop, additionalData = Model })
+                        @await Component.InvokeAsync(typeof(AdminWidgetViewComponent), new { widgetZone = AdminWidgetZones.PaymentMethodRestrictionsTop, additionalData = Model })
                         <div class="card card-default">
                             <div class="card-body">
                                 <div class="row v-center margin-b-5">
@@ -33,22 +33,22 @@
                                             <i class="far fa-save"></i>
                                             @T("Admin.Common.Save")
                                         </button>
-                                        @await Component.InvokeAsync("AdminWidget", new { widgetZone = AdminWidgetZones.PaymentsListButtons, additionalData = Model })
+                                        @await Component.InvokeAsync(typeof(AdminWidgetViewComponent), new { widgetZone = AdminWidgetZones.PaymentsListButtons, additionalData = Model })
                                     </div>
                                 </div>
 
-                                @if (Model.PaymentMethodRestriction.AvailablePaymentMethods.Count == 0)
+                                @if (!Model.PaymentMethodRestriction.AvailablePaymentMethods.Any())
                                 {
                                     <text>No payment methods installed</text>
                                 }
-                                else if (Model.PaymentMethodRestriction.AvailableCountries.Count == 0)
+                                else if (!Model.PaymentMethodRestriction.AvailableCountries.Any())
                                 {
                                     <text>No countries available</text>
                                 }
                                 else
                                 {
                                     <script>
-                                $(document).ready(function () {
+                                $(function() {
                                     @foreach (var pm in Model.PaymentMethodRestriction.AvailablePaymentMethods)
                                     {
                                         var systemNameWithoutDot = pm.SystemName.Replace(".", "");
@@ -98,7 +98,7 @@
                                 }
                             </div>
                         </div>
-                        @await Component.InvokeAsync("AdminWidget", new { widgetZone = AdminWidgetZones.PaymentMethodRestrictionsBottom, additionalData = Model })
+                        @await Component.InvokeAsync(typeof(AdminWidgetViewComponent), new { widgetZone = AdminWidgetZones.PaymentMethodRestrictionsBottom, additionalData = Model })
                     </div>
                 </div>
             </div>

@@ -1,4 +1,7 @@
 ﻿@model SubmitReturnRequestModel
+
+@using Nop.Core.Domain.Catalog
+
 @{
     Layout = "_ColumnsOne";
 
@@ -50,7 +53,7 @@
                                 {
                                     <tr>
                                         <td class="product">
-                                            <a href="@Url.RouteUrl("Product", new { SeName = item.ProductSeName })">@item.ProductName</a>
+                                            <a href="@(Url.RouteUrl<Product>(new { SeName = item.ProductSeName }))">@item.ProductName</a>
                                             @if (!string.IsNullOrEmpty(item.AttributeInfo))
                                             {
                                                 <div class="attributes">
@@ -155,7 +158,7 @@
                                     </div>
                                 </script>
                                 <script asp-location="Footer">
-                                    $(document).ready(function() {
+                                    $(function() {
                                         $("#@(controlId)uploader").fineUploader({
                                             request: {
                                                 endpoint: '@(Url.RouteUrl("UploadFileReturnRequest"))'

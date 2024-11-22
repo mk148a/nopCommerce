@@ -132,6 +132,9 @@
   <LocaleResource Name="StoreInformation">
     <Value>Informasi Toko</Value>
   </LocaleResource>
+  <LocaleResource Name="SubscribeNewsletters">
+    <Value>Berlangganan newsletter nopCommerce</Value>
+  </LocaleResource>
   <LocaleResource Name="Title">
     <Value>Pemasangan nopCommerce</Value>
   </LocaleResource>

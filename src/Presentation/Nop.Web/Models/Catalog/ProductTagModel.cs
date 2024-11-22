@@ -1,10 +1,10 @@
 ﻿using Nop.Web.Framework.Models;
 
-namespace Nop.Web.Models.Catalog
+namespace Nop.Web.Models.Catalog;
+
+public partial record ProductTagModel : BaseNopEntityModel
 {
-    public partial record ProductTagModel : BaseNopEntityModel
-    {
-        public string Name { get; set; }
+    public string Name { get; set; }
 
         public string SeName { get; set; }
         //product tag seo update by Lancelot

@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Net.Http;
+﻿using System.Globalization;
 using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Nop.Core;
 using Nop.Core.Domain;
@@ -60,36 +54,36 @@ namespace Nop.Services.Installation
     {
         #region Fields
 
-        private readonly INopDataProvider _dataProvider;
-        private readonly INopFileProvider _fileProvider;
-        private readonly IRepository<ActivityLogType> _activityLogTypeRepository;
-        private readonly IRepository<Address> _addressRepository;
-        private readonly IRepository<Category> _categoryRepository;
-        private readonly IRepository<CategoryTemplate> _categoryTemplateRepository;
-        private readonly IRepository<Country> _countryRepository;
-        private readonly IRepository<Currency> _currencyRepository;
-        private readonly IRepository<Customer> _customerRepository;
-        private readonly IRepository<CustomerRole> _customerRoleRepository;
-        private readonly IRepository<DeliveryDate> _deliveryDateRepository;
-        private readonly IRepository<EmailAccount> _emailAccountRepository;
-        private readonly IRepository<Language> _languageRepository;
-        private readonly IRepository<Manufacturer> _manufacturerRepository;
-        private readonly IRepository<ManufacturerTemplate> _manufacturerTemplateRepository;
-        private readonly IRepository<MeasureDimension> _measureDimensionRepository;
-        private readonly IRepository<MeasureWeight> _measureWeightRepository;
-        private readonly IRepository<Product> _productRepository;
-        private readonly IRepository<ProductAttribute> _productAttributeRepository;
-        private readonly IRepository<ProductAvailabilityRange> _productAvailabilityRangeRepository;
-        private readonly IRepository<ProductTag> _productTagRepository;
-        private readonly IRepository<ProductTemplate> _productTemplateRepository;
-        private readonly IRepository<SpecificationAttribute> _specificationAttributeRepository;
-        private readonly IRepository<SpecificationAttributeOption> _specificationAttributeOptionRepository;
-        private readonly IRepository<StateProvince> _stateProvinceRepository;
-        private readonly IRepository<Store> _storeRepository;
-        private readonly IRepository<TaxCategory> _taxCategoryRepository;
-        private readonly IRepository<TopicTemplate> _topicTemplateRepository;
-        private readonly IRepository<UrlRecord> _urlRecordRepository;
-        private readonly IWebHelper _webHelper;
+        protected readonly INopDataProvider _dataProvider;
+        protected readonly INopFileProvider _fileProvider;
+        protected readonly IRepository<ActivityLogType> _activityLogTypeRepository;
+        protected readonly IRepository<Address> _addressRepository;
+        protected readonly IRepository<Category> _categoryRepository;
+        protected readonly IRepository<CategoryTemplate> _categoryTemplateRepository;
+        protected readonly IRepository<Country> _countryRepository;
+        protected readonly IRepository<Currency> _currencyRepository;
+        protected readonly IRepository<Customer> _customerRepository;
+        protected readonly IRepository<CustomerRole> _customerRoleRepository;
+        protected readonly IRepository<DeliveryDate> _deliveryDateRepository;
+        protected readonly IRepository<EmailAccount> _emailAccountRepository;
+        protected readonly IRepository<Language> _languageRepository;
+        protected readonly IRepository<Manufacturer> _manufacturerRepository;
+        protected readonly IRepository<ManufacturerTemplate> _manufacturerTemplateRepository;
+        protected readonly IRepository<MeasureDimension> _measureDimensionRepository;
+        protected readonly IRepository<MeasureWeight> _measureWeightRepository;
+        protected readonly IRepository<Product> _productRepository;
+        protected readonly IRepository<ProductAttribute> _productAttributeRepository;
+        protected readonly IRepository<ProductAvailabilityRange> _productAvailabilityRangeRepository;
+        protected readonly IRepository<ProductTag> _productTagRepository;
+        protected readonly IRepository<ProductTemplate> _productTemplateRepository;
+        protected readonly IRepository<SpecificationAttribute> _specificationAttributeRepository;
+        protected readonly IRepository<SpecificationAttributeOption> _specificationAttributeOptionRepository;
+        protected readonly IRepository<StateProvince> _stateProvinceRepository;
+        protected readonly IRepository<Store> _storeRepository;
+        protected readonly IRepository<TaxCategory> _taxCategoryRepository;
+        protected readonly IRepository<TopicTemplate> _topicTemplateRepository;
+        protected readonly IRepository<UrlRecord> _urlRecordRepository;
+        protected readonly IWebHelper _webHelper;
 
         #endregion
 
@@ -243,8 +237,7 @@ namespace Nop.Services.Installation
         protected virtual async Task<string> ValidateSeNameAsync<T>(T entity, string seName) where T : BaseEntity
         {
             //duplicate of ValidateSeName method of \Nop.Services\Seo\UrlRecordService.cs (we cannot inject it here)
-            if (entity == null)
-                throw new ArgumentNullException(nameof(entity));
+            ArgumentNullException.ThrowIfNull(entity);
 
             //validation
             var okChars = "abcdefghijklmnopqrstuvwxyz1234567890 _-";
@@ -268,7 +261,7 @@ namespace Nop.Services.Installation
             //max length
             seName = CommonHelper.EnsureMaximumLength(seName, NopSeoDefaults.SearchEngineNameLength);
 
-            //ensure this sename is not reserved yet
+            //ensure this seName is not reserved yet
             var i = 2;
             var tempSeName = seName;
             while (true)
@@ -305,9 +298,13 @@ namespace Nop.Services.Installation
             var storeUrl = _webHelper.GetStoreLocation();
             var stores = new List<Store>
             {
-                new Store
-                {
+                new() {
                     Name = "Your store name",
+                    DefaultTitle = "Your store",
+                    DefaultMetaKeywords = string.Empty,
+                    DefaultMetaDescription = string.Empty,
+                    HomepageTitle = "Home page title",
+                    HomepageDescription = "Home page description",
                     Url = storeUrl,
                     SslEnabled = _webHelper.IsCurrentConnectionSecured(),
                     Hosts = "yourstore.com,www.yourstore.com",
@@ -330,29 +327,25 @@ namespace Nop.Services.Installation
 
             var measureDimensions = new List<MeasureDimension>
             {
-                new MeasureDimension
-                {
+                new() {
                     Name = "inch(es)",
                     SystemKeyword = "inches",
                     Ratio = isMetric ? 39.3701M : 1M,
                     DisplayOrder = isMetric ? 1 : 0
                 },
-                new MeasureDimension
-                {
+                new() {
                     Name = "feet",
                     SystemKeyword = "feet",
                     Ratio = isMetric ? 3.28084M : 0.08333333M,
                     DisplayOrder = isMetric ? 1 : 0
                 },
-                new MeasureDimension
-                {
+                new() {
                     Name = "meter(s)",
                     SystemKeyword = "meters",
                     Ratio = isMetric ? 1M : 0.0254M,
                     DisplayOrder = isMetric ? 0 : 1
                 },
-                new MeasureDimension
-                {
+                new() {
                     Name = "millimetre(s)",
                     SystemKeyword = "millimetres",
                     Ratio = isMetric ? 1000M : 25.4M,
@@ -364,29 +357,25 @@ namespace Nop.Services.Installation
 
             var measureWeights = new List<MeasureWeight>
             {
-                new MeasureWeight
-                {
+                new() {
                     Name = "ounce(s)",
                     SystemKeyword = "ounce",
                     Ratio = isMetric ? 35.274M : 16M,
                     DisplayOrder = isMetric ? 1 : 0
                 },
-                new MeasureWeight
-                {
+                new() {
                     Name = "lb(s)",
                     SystemKeyword = "lb",
                     Ratio = isMetric ? 2.20462M : 1M,
                     DisplayOrder = isMetric ? 1 : 0
                 },
-                new MeasureWeight
-                {
+                new() {
                     Name = "kg(s)",
                     SystemKeyword = "kg",
                     Ratio = isMetric ? 1M : 0.45359237M,
                     DisplayOrder = isMetric ? 0 : 1
                 },
-                new MeasureWeight
-                {
+                new() {
                     Name = "gram(s)",
                     SystemKeyword = "grams",
                     Ratio = isMetric ? 1000M : 453.59237M,
@@ -402,11 +391,11 @@ namespace Nop.Services.Installation
         {
             var taxCategories = new List<TaxCategory>
             {
-                new TaxCategory {Name = "Books", DisplayOrder = 1},
-                new TaxCategory {Name = "Electronics & Software", DisplayOrder = 5},
-                new TaxCategory {Name = "Downloadable Products", DisplayOrder = 10},
-                new TaxCategory {Name = "Jewelry", DisplayOrder = 15},
-                new TaxCategory {Name = "Apparel", DisplayOrder = 20}
+                new() {Name = "Books", DisplayOrder = 1},
+                new() {Name = "Electronics & Software", DisplayOrder = 5},
+                new() {Name = "Downloadable Products", DisplayOrder = 10},
+                new() {Name = "Jewelry", DisplayOrder = 15},
+                new() {Name = "Apparel", DisplayOrder = 20}
             };
 
             await InsertInstallationDataAsync(taxCategories);
@@ -491,8 +480,7 @@ namespace Nop.Services.Installation
             var defaultCurrencies = new List<string>() { "USD", "AUD", "GBP", "CAD", "CNY", "EUR", "HKD", "JPY", "RUB", "SEK", "INR" };
             var currencies = new List<Currency>
             {
-                new Currency
-                {
+                new() {
                     Name = "US Dollar",
                     CurrencyCode = "USD",
                     Rate = 1,
@@ -504,8 +492,7 @@ namespace Nop.Services.Installation
                     UpdatedOnUtc = DateTime.UtcNow,
                     RoundingType = RoundingType.Rounding001
                 },
-                new Currency
-                {
+                new() {
                     Name = "Australian Dollar",
                     CurrencyCode = "AUD",
                     Rate = 1.34M,
@@ -517,8 +504,7 @@ namespace Nop.Services.Installation
                     UpdatedOnUtc = DateTime.UtcNow,
                     RoundingType = RoundingType.Rounding001
                 },
-                new Currency
-                {
+                new() {
                     Name = "British Pound",
                     CurrencyCode = "GBP",
                     Rate = 0.75M,
@@ -530,8 +516,7 @@ namespace Nop.Services.Installation
                     UpdatedOnUtc = DateTime.UtcNow,
                     RoundingType = RoundingType.Rounding001
                 },
-                new Currency
-                {
+                new() {
                     Name = "Canadian Dollar",
                     CurrencyCode = "CAD",
                     Rate = 1.32M,
@@ -543,8 +528,7 @@ namespace Nop.Services.Installation
                     UpdatedOnUtc = DateTime.UtcNow,
                     RoundingType = RoundingType.Rounding001
                 },
-                new Currency
-                {
+                new() {
                     Name = "Chinese Yuan Renminbi",
                     CurrencyCode = "CNY",
                     Rate = 6.43M,
@@ -556,8 +540,7 @@ namespace Nop.Services.Installation
                     UpdatedOnUtc = DateTime.UtcNow,
                     RoundingType = RoundingType.Rounding001
                 },
-                new Currency
-                {
+                new() {
                     Name = "Euro",
                     CurrencyCode = "EUR",
                     Rate = 0.86M,
@@ -569,8 +552,7 @@ namespace Nop.Services.Installation
                     UpdatedOnUtc = DateTime.UtcNow,
                     RoundingType = RoundingType.Rounding001
                 },
-                new Currency
-                {
+                new() {
                     Name = "Hong Kong Dollar",
                     CurrencyCode = "HKD",
                     Rate = 7.84M,
@@ -582,8 +564,7 @@ namespace Nop.Services.Installation
                     UpdatedOnUtc = DateTime.UtcNow,
                     RoundingType = RoundingType.Rounding001
                 },
-                new Currency
-                {
+                new() {
                     Name = "Japanese Yen",
                     CurrencyCode = "JPY",
                     Rate = 110.45M,
@@ -595,8 +576,7 @@ namespace Nop.Services.Installation
                     UpdatedOnUtc = DateTime.UtcNow,
                     RoundingType = RoundingType.Rounding001
                 },
-                new Currency
-                {
+                new() {
                     Name = "Russian Rouble",
                     CurrencyCode = "RUB",
                     Rate = 63.25M,
@@ -608,8 +588,7 @@ namespace Nop.Services.Installation
                     UpdatedOnUtc = DateTime.UtcNow,
                     RoundingType = RoundingType.Rounding001
                 },
-                new Currency
-                {
+                new() {
                     Name = "Swedish Krona",
                     CurrencyCode = "SEK",
                     Rate = 8.80M,
@@ -621,8 +600,7 @@ namespace Nop.Services.Installation
                     UpdatedOnUtc = DateTime.UtcNow,
                     RoundingType = RoundingType.Rounding1
                 },
-                new Currency
-                {
+                new() {
                     Name = "Indian Rupee",
                     CurrencyCode = "INR",
                     Rate = 68.03M,
@@ -705,21 +683,18 @@ namespace Nop.Services.Installation
         {
             var shippingMethods = new List<ShippingMethod>
             {
-                new ShippingMethod
-                {
+                new() {
                     Name = "Ground",
                     Description =
                         "Shipping by land transport",
                     DisplayOrder = 1
                 },
-                new ShippingMethod
-                {
+                new() {
                     Name = "Next Day Air",
                     Description = "The one day air shipping",
                     DisplayOrder = 2
                 },
-                new ShippingMethod
-                {
+                new() {
                     Name = "2nd Day Air",
                     Description = "The two day air shipping",
                     DisplayOrder = 3
@@ -734,18 +709,15 @@ namespace Nop.Services.Installation
         {
             var deliveryDates = new List<DeliveryDate>
             {
-                new DeliveryDate
-                {
+                new() {
                     Name = "1-2 days",
                     DisplayOrder = 1
                 },
-                new DeliveryDate
-                {
+                new() {
                     Name = "3-5 days",
                     DisplayOrder = 5
                 },
-                new DeliveryDate
-                {
+                new() {
                     Name = "1 week",
                     DisplayOrder = 10
                 }
@@ -759,19 +731,16 @@ namespace Nop.Services.Installation
         {
             var productAvailabilityRanges = new List<ProductAvailabilityRange>
             {
-                new ProductAvailabilityRange
-                {
+                new() {
                     Name = "2-4 days",
                     DisplayOrder = 1
                 },
-                new ProductAvailabilityRange
-                {
+                new() {
                     Name = "7-10 days",
                     DisplayOrder = 2
                 },
-                new ProductAvailabilityRange
-                {
-                    Name = "2 week",
+                new() {
+                    Name = "2 weeks",
                     DisplayOrder = 3
                 }
             };
@@ -785,14 +754,10 @@ namespace Nop.Services.Installation
             var crRegistered = await _customerRoleRepository.Table
                 .FirstOrDefaultAsync(customerRole => customerRole.SystemName == NopCustomerDefaults.RegisteredRoleName);
 
-            if (crRegistered == null)
-                throw new ArgumentNullException(nameof(crRegistered));
+            ArgumentNullException.ThrowIfNull(crRegistered);
 
             //default store 
-            var defaultStore = await _storeRepository.Table.FirstOrDefaultAsync();
-
-            if (defaultStore == null)
-                throw new Exception("No default store could be loaded");
+            var defaultStore = await _storeRepository.Table.FirstOrDefaultAsync() ?? throw new Exception("No default store could be loaded");
 
             var storeId = defaultStore.Id;
 
@@ -828,31 +793,13 @@ namespace Nop.Services.Installation
 
             secondUser.BillingAddressId = defaultSecondUserAddress.Id;
             secondUser.ShippingAddressId = defaultSecondUserAddress.Id;
+            secondUser.FirstName = defaultSecondUserAddress.FirstName;
+            secondUser.LastName = defaultSecondUserAddress.LastName;
 
             await InsertInstallationDataAsync(secondUser);
 
             await InsertInstallationDataAsync(new CustomerAddressMapping { CustomerId = secondUser.Id, AddressId = defaultSecondUserAddress.Id });
             await InsertInstallationDataAsync(new CustomerCustomerRoleMapping { CustomerId = secondUser.Id, CustomerRoleId = crRegistered.Id });
-
-            //set default customer name
-            await InsertInstallationDataAsync(new GenericAttribute
-            {
-                EntityId = secondUser.Id,
-                Key = NopCustomerDefaults.FirstNameAttribute,
-                KeyGroup = nameof(Customer),
-                Value = defaultSecondUserAddress.FirstName,
-                StoreId = 0,
-                CreatedOrUpdatedDateUTC = DateTime.UtcNow
-            },
-            new GenericAttribute
-            {
-                EntityId = secondUser.Id,
-                Key = NopCustomerDefaults.LastNameAttribute,
-                KeyGroup = nameof(Customer),
-                Value = defaultSecondUserAddress.LastName,
-                StoreId = 0,
-                CreatedOrUpdatedDateUTC = DateTime.UtcNow
-            });
 
             //set customer password
             await InsertInstallationDataAsync(new CustomerPassword
@@ -896,31 +843,13 @@ namespace Nop.Services.Installation
 
             thirdUser.BillingAddressId = defaultThirdUserAddress.Id;
             thirdUser.ShippingAddressId = defaultThirdUserAddress.Id;
+            thirdUser.FirstName = defaultThirdUserAddress.FirstName;
+            thirdUser.LastName = defaultThirdUserAddress.LastName;
 
             await InsertInstallationDataAsync(thirdUser);
 
             await InsertInstallationDataAsync(new CustomerAddressMapping { CustomerId = thirdUser.Id, AddressId = defaultThirdUserAddress.Id });
             await InsertInstallationDataAsync(new CustomerCustomerRoleMapping { CustomerId = thirdUser.Id, CustomerRoleId = crRegistered.Id });
-
-            //set default customer name
-            await InsertInstallationDataAsync(new GenericAttribute
-            {
-                EntityId = thirdUser.Id,
-                Key = NopCustomerDefaults.FirstNameAttribute,
-                KeyGroup = nameof(Customer),
-                Value = defaultThirdUserAddress.FirstName,
-                StoreId = 0,
-                CreatedOrUpdatedDateUTC = DateTime.UtcNow
-            },
-            new GenericAttribute
-            {
-                EntityId = thirdUser.Id,
-                Key = NopCustomerDefaults.LastNameAttribute,
-                KeyGroup = nameof(Customer),
-                Value = defaultThirdUserAddress.LastName,
-                StoreId = 0,
-                CreatedOrUpdatedDateUTC = DateTime.UtcNow
-            });
 
             //set customer password
             await InsertInstallationDataAsync(new CustomerPassword
@@ -963,31 +892,13 @@ namespace Nop.Services.Installation
 
             fourthUser.BillingAddressId = defaultFourthUserAddress.Id;
             fourthUser.ShippingAddressId = defaultFourthUserAddress.Id;
+            fourthUser.FirstName = defaultFourthUserAddress.FirstName;
+            fourthUser.LastName = defaultFourthUserAddress.LastName;
 
             await InsertInstallationDataAsync(fourthUser);
 
             await InsertInstallationDataAsync(new CustomerAddressMapping { CustomerId = fourthUser.Id, AddressId = defaultFourthUserAddress.Id });
             await InsertInstallationDataAsync(new CustomerCustomerRoleMapping { CustomerId = fourthUser.Id, CustomerRoleId = crRegistered.Id });
-
-            //set default customer name
-            await InsertInstallationDataAsync(new GenericAttribute
-            {
-                EntityId = fourthUser.Id,
-                Key = NopCustomerDefaults.FirstNameAttribute,
-                KeyGroup = nameof(Customer),
-                Value = defaultFourthUserAddress.FirstName,
-                StoreId = 0,
-                CreatedOrUpdatedDateUTC = DateTime.UtcNow
-            },
-            new GenericAttribute
-            {
-                EntityId = fourthUser.Id,
-                Key = NopCustomerDefaults.LastNameAttribute,
-                KeyGroup = nameof(Customer),
-                Value = defaultFourthUserAddress.LastName,
-                StoreId = 0,
-                CreatedOrUpdatedDateUTC = DateTime.UtcNow
-            });
 
             //set customer password
             await InsertInstallationDataAsync(new CustomerPassword
@@ -1031,31 +942,13 @@ namespace Nop.Services.Installation
 
             fifthUser.BillingAddressId = defaultFifthUserAddress.Id;
             fifthUser.ShippingAddressId = defaultFifthUserAddress.Id;
+            fifthUser.FirstName = defaultFifthUserAddress.FirstName;
+            fifthUser.LastName = defaultFifthUserAddress.LastName;
 
             await InsertInstallationDataAsync(fifthUser);
 
             await InsertInstallationDataAsync(new CustomerAddressMapping { CustomerId = fifthUser.Id, AddressId = defaultFifthUserAddress.Id });
             await InsertInstallationDataAsync(new CustomerCustomerRoleMapping { CustomerId = fifthUser.Id, CustomerRoleId = crRegistered.Id });
-
-            //set default customer name
-            await InsertInstallationDataAsync(new GenericAttribute
-            {
-                EntityId = fifthUser.Id,
-                Key = NopCustomerDefaults.FirstNameAttribute,
-                KeyGroup = nameof(Customer),
-                Value = defaultFifthUserAddress.FirstName,
-                StoreId = 0,
-                CreatedOrUpdatedDateUTC = DateTime.UtcNow
-            },
-            new GenericAttribute
-            {
-                EntityId = fifthUser.Id,
-                Key = NopCustomerDefaults.LastNameAttribute,
-                KeyGroup = nameof(Customer),
-                Value = defaultFifthUserAddress.LastName,
-                StoreId = 0,
-                CreatedOrUpdatedDateUTC = DateTime.UtcNow
-            });
 
             //set customer password
             await InsertInstallationDataAsync(new CustomerPassword
@@ -1099,31 +992,13 @@ namespace Nop.Services.Installation
 
             sixthUser.BillingAddressId = defaultSixthUserAddress.Id;
             sixthUser.ShippingAddressId = defaultSixthUserAddress.Id;
+            sixthUser.FirstName = defaultSixthUserAddress.FirstName;
+            sixthUser.LastName = defaultSixthUserAddress.LastName;
 
             await InsertInstallationDataAsync(sixthUser);
 
             await InsertInstallationDataAsync(new CustomerAddressMapping { CustomerId = sixthUser.Id, AddressId = defaultSixthUserAddress.Id });
             await InsertInstallationDataAsync(new CustomerCustomerRoleMapping { CustomerId = sixthUser.Id, CustomerRoleId = crRegistered.Id });
-
-            //set default customer name
-            await InsertInstallationDataAsync(new GenericAttribute
-            {
-                EntityId = sixthUser.Id,
-                Key = NopCustomerDefaults.FirstNameAttribute,
-                KeyGroup = nameof(Customer),
-                Value = defaultSixthUserAddress.FirstName,
-                StoreId = 0,
-                CreatedOrUpdatedDateUTC = DateTime.UtcNow
-            },
-            new GenericAttribute
-            {
-                EntityId = sixthUser.Id,
-                Key = NopCustomerDefaults.LastNameAttribute,
-                KeyGroup = nameof(Customer),
-                Value = defaultSixthUserAddress.LastName,
-                StoreId = 0,
-                CreatedOrUpdatedDateUTC = DateTime.UtcNow
-            });
 
             //set customer password
             await InsertInstallationDataAsync(new CustomerPassword
@@ -1186,10 +1061,7 @@ namespace Nop.Services.Installation
             await InsertInstallationDataAsync(customerRoles);
 
             //default store 
-            var defaultStore = await _storeRepository.Table.FirstOrDefaultAsync();
-
-            if (defaultStore == null)
-                throw new Exception("No default store could be loaded");
+            var defaultStore = await _storeRepository.Table.FirstOrDefaultAsync() ?? throw new Exception("No default store could be loaded");
 
             var storeId = defaultStore.Id;
 
@@ -1225,6 +1097,8 @@ namespace Nop.Services.Installation
 
             adminUser.BillingAddressId = defaultAdminUserAddress.Id;
             adminUser.ShippingAddressId = defaultAdminUserAddress.Id;
+            adminUser.FirstName = defaultAdminUserAddress.FirstName;
+            adminUser.LastName = defaultAdminUserAddress.LastName;
 
             await InsertInstallationDataAsync(adminUser);
 
@@ -1234,26 +1108,6 @@ namespace Nop.Services.Installation
                 new CustomerCustomerRoleMapping { CustomerId = adminUser.Id, CustomerRoleId = crAdministrators.Id },
                 new CustomerCustomerRoleMapping { CustomerId = adminUser.Id, CustomerRoleId = crForumModerators.Id },
                 new CustomerCustomerRoleMapping { CustomerId = adminUser.Id, CustomerRoleId = crRegistered.Id });
-
-            //set default customer name
-            await InsertInstallationDataAsync(new GenericAttribute
-            {
-                EntityId = adminUser.Id,
-                Key = NopCustomerDefaults.FirstNameAttribute,
-                KeyGroup = nameof(Customer),
-                Value = "John",
-                StoreId = 0,
-                CreatedOrUpdatedDateUTC = DateTime.UtcNow
-            },
-            new GenericAttribute
-            {
-                EntityId = adminUser.Id,
-                Key = NopCustomerDefaults.LastNameAttribute,
-                KeyGroup = nameof(Customer),
-                Value = "Smith",
-                StoreId = 0,
-                CreatedOrUpdatedDateUTC = DateTime.UtcNow
-            });
 
             //set hashed admin password
             var customerRegistrationService = EngineContext.Current.Resolve<ICustomerRegistrationService>();
@@ -1325,9 +1179,7 @@ namespace Nop.Services.Installation
             }
 
             //default store
-            var defaultStore = await _storeRepository.Table.FirstOrDefaultAsync();
-            if (defaultStore == null)
-                throw new Exception("No default store could be loaded");
+            var defaultStore = await _storeRepository.Table.FirstOrDefaultAsync() ?? throw new Exception("No default store could be loaded");
 
             //first order
             var firstCustomer = await _customerRepository.Table.FirstAsync(c => c.Email == "steve_gates@nopCommerce.com");
@@ -2154,9 +2006,7 @@ namespace Nop.Services.Installation
         protected virtual async Task InstallActivityLogAsync(string defaultUserEmail)
         {
             //default customer/user
-            var defaultCustomer = _customerRepository.Table.FirstOrDefault(x => x.Email == defaultUserEmail);
-            if (defaultCustomer == null)
-                throw new Exception("Cannot load default customer");
+            var defaultCustomer = _customerRepository.Table.FirstOrDefault(x => x.Email == defaultUserEmail) ?? throw new Exception("Cannot load default customer");
 
             await InsertInstallationDataAsync(new ActivityLog
             {
@@ -2208,9 +2058,7 @@ namespace Nop.Services.Installation
         protected virtual async Task InstallSearchTermsAsync()
         {
             //default store
-            var defaultStore = _storeRepository.Table.FirstOrDefault();
-            if (defaultStore == null)
-                throw new Exception("No default store could be loaded");
+            var defaultStore = _storeRepository.Table.FirstOrDefault() ?? throw new Exception("No default store could be loaded");
 
             await InsertInstallationDataAsync(new SearchTerm
             {
@@ -2260,16 +2108,14 @@ namespace Nop.Services.Installation
         {
             var emailAccounts = new List<EmailAccount>
             {
-                new EmailAccount
-                {
+                new() {
                     Email = "test@mail.com",
                     DisplayName = "Store name",
                     Host = "smtp.mail.com",
                     Port = 25,
                     Username = "123",
                     Password = "123",
-                    EnableSsl = false,
-                    UseDefaultCredentials = false
+                    EnableSsl = false
                 }
             };
 
@@ -2279,391 +2125,357 @@ namespace Nop.Services.Installation
         /// <returns>A task that represents the asynchronous operation</returns>
         protected virtual async Task InstallMessageTemplatesAsync()
         {
-            var eaGeneral = _emailAccountRepository.Table.FirstOrDefault();
-            if (eaGeneral == null)
-                throw new Exception("Default email account cannot be loaded");
+            var eaGeneral = _emailAccountRepository.Table.FirstOrDefault() ?? throw new Exception("Default email account cannot be loaded");
 
             var messageTemplates = new List<MessageTemplate>
             {
-                new MessageTemplate
-                {
-                    Name = MessageTemplateSystemNames.BlogCommentNotification,
+                new() {
+                    Name = MessageTemplateSystemNames.BLOG_COMMENT_STORE_OWNER_NOTIFICATION,
                     Subject = "%Store.Name%. New blog comment.",
                     Body = $"<p>{Environment.NewLine}<a href=\"%Store.URL%\">%Store.Name%</a>{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}A new blog comment has been created for blog post \"%BlogComment.BlogPostTitle%\".{Environment.NewLine}</p>{Environment.NewLine}",
                     IsActive = true,
                     EmailAccountId = eaGeneral.Id
                 },
-                new MessageTemplate
-                {
-                    Name = MessageTemplateSystemNames.BackInStockNotification,
+                new() {
+                    Name = MessageTemplateSystemNames.BACK_IN_STOCK_NOTIFICATION,
                     Subject = "%Store.Name%. Back in stock notification",
                     Body = $"<p>{Environment.NewLine}<a href=\"%Store.URL%\">%Store.Name%</a>{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}Hello %Customer.FullName%,{Environment.NewLine}<br />{Environment.NewLine}Product <a target=\"_blank\" href=\"%BackInStockSubscription.ProductUrl%\">%BackInStockSubscription.ProductName%</a> is in stock.{Environment.NewLine}</p>{Environment.NewLine}",
                     IsActive = true,
                     EmailAccountId = eaGeneral.Id
                 },
-                new MessageTemplate
-                {
-                    Name = MessageTemplateSystemNames.CustomerEmailValidationMessage,
+                new() {
+                    Name = MessageTemplateSystemNames.CUSTOMER_EMAIL_VALIDATION_MESSAGE,
                     Subject = "%Store.Name%. Email validation",
                     Body = $"<a href=\"%Store.URL%\">%Store.Name%</a>{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}To activate your account <a href=\"%Customer.AccountActivationURL%\">click here</a>.{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}%Store.Name%{Environment.NewLine}",
                     IsActive = true,
                     EmailAccountId = eaGeneral.Id
                 },
-                new MessageTemplate
-                {
-                    Name = MessageTemplateSystemNames.CustomerEmailRevalidationMessage,
+                new() {
+                    Name = MessageTemplateSystemNames.CUSTOMER_EMAIL_REVALIDATION_MESSAGE,
                     Subject = "%Store.Name%. Email validation",
                     Body = $"<p>{Environment.NewLine}<a href=\"%Store.URL%\">%Store.Name%</a>{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}Hello %Customer.FullName%!{Environment.NewLine}<br />{Environment.NewLine}To validate your new email address <a href=\"%Customer.EmailRevalidationURL%\">click here</a>.{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}%Store.Name%{Environment.NewLine}</p>{Environment.NewLine}",
                     IsActive = true,
                     EmailAccountId = eaGeneral.Id
                 },
-                new MessageTemplate
-                {
-                    Name = MessageTemplateSystemNames.PrivateMessageNotification,
+                new() {
+                    Name = MessageTemplateSystemNames.PRIVATE_MESSAGE_NOTIFICATION,
                     Subject = "%Store.Name%. You have received a new private message",
                     Body = $"<p>{Environment.NewLine}<a href=\"%Store.URL%\">%Store.Name%</a>{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}You have received a new private message.{Environment.NewLine}</p>{Environment.NewLine}",
                     IsActive = true,
                     EmailAccountId = eaGeneral.Id
                 },
-                new MessageTemplate
-                {
-                    Name = MessageTemplateSystemNames.CustomerPasswordRecoveryMessage,
+                new() {
+                    Name = MessageTemplateSystemNames.CUSTOMER_PASSWORD_RECOVERY_MESSAGE,
                     Subject = "%Store.Name%. Password recovery",
                     Body = $"<a href=\"%Store.URL%\">%Store.Name%</a>{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}To change your password <a href=\"%Customer.PasswordRecoveryURL%\">click here</a>.{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}%Store.Name%{Environment.NewLine}",
                     IsActive = true,
                     EmailAccountId = eaGeneral.Id
                 },
-                new MessageTemplate
-                {
-                    Name = MessageTemplateSystemNames.CustomerWelcomeMessage,
+                new() {
+                    Name = MessageTemplateSystemNames.CUSTOMER_WELCOME_MESSAGE,
                     Subject = "Welcome to %Store.Name%",
                     Body = $"We welcome you to <a href=\"%Store.URL%\"> %Store.Name%</a>.{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}You can now take part in the various services we have to offer you. Some of these services include:{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}Permanent Cart - Any products added to your online cart remain there until you remove them, or check them out.{Environment.NewLine}<br />{Environment.NewLine}Address Book - We can now deliver your products to another address other than yours! This is perfect to send birthday gifts direct to the birthday-person themselves.{Environment.NewLine}<br />{Environment.NewLine}Order History - View your history of purchases that you have made with us.{Environment.NewLine}<br />{Environment.NewLine}Products Reviews - Share your opinions on products with our other customers.{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}For help with any of our online services, please email the store-owner: <a href=\"mailto:%Store.Email%\">%Store.Email%</a>.{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}Note: This email address was provided on our registration page. If you own the email and did not register on our site, please send an email to <a href=\"mailto:%Store.Email%\">%Store.Email%</a>.{Environment.NewLine}",
                     IsActive = true,
                     EmailAccountId = eaGeneral.Id
                 },
-                new MessageTemplate
-                {
-                    Name = MessageTemplateSystemNames.NewForumPostMessage,
+                new() {
+                    Name = MessageTemplateSystemNames.NEW_FORUM_POST_MESSAGE,
                     Subject = "%Store.Name%. New Post Notification.",
                     Body = $"<p>{Environment.NewLine}<a href=\"%Store.URL%\">%Store.Name%</a>{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}A new post has been created in the topic <a href=\"%Forums.TopicURL%\">\"%Forums.TopicName%\"</a> at <a href=\"%Forums.ForumURL%\">\"%Forums.ForumName%\"</a> forum.{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}Click <a href=\"%Forums.TopicURL%\">here</a> for more info.{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}Post author: %Forums.PostAuthor%{Environment.NewLine}<br />{Environment.NewLine}Post body: %Forums.PostBody%{Environment.NewLine}</p>{Environment.NewLine}",
                     IsActive = true,
                     EmailAccountId = eaGeneral.Id
                 },
-                new MessageTemplate
-                {
-                    Name = MessageTemplateSystemNames.NewForumTopicMessage,
+                new() {
+                    Name = MessageTemplateSystemNames.NEW_FORUM_TOPIC_MESSAGE,
                     Subject = "%Store.Name%. New Topic Notification.",
                     Body = $"<p>{Environment.NewLine}<a href=\"%Store.URL%\">%Store.Name%</a>{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}A new topic <a href=\"%Forums.TopicURL%\">\"%Forums.TopicName%\"</a> has been created at <a href=\"%Forums.ForumURL%\">\"%Forums.ForumName%\"</a> forum.{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}Click <a href=\"%Forums.TopicURL%\">here</a> for more info.{Environment.NewLine}</p>{Environment.NewLine}",
                     IsActive = true,
                     EmailAccountId = eaGeneral.Id
                 },
-                new MessageTemplate
-                {
-                    Name = MessageTemplateSystemNames.GiftCardNotification,
+                new() {
+                    Name = MessageTemplateSystemNames.GIFT_CARD_NOTIFICATION,
                     Subject = "%GiftCard.SenderName% has sent you a gift card for %Store.Name%",
                     Body = $"<p>{Environment.NewLine}You have received a gift card for %Store.Name%{Environment.NewLine}</p>{Environment.NewLine}<p>{Environment.NewLine}Dear %GiftCard.RecipientName%,{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}%GiftCard.SenderName% (%GiftCard.SenderEmail%) has sent you a %GiftCard.Amount% gift card for <a href=\"%Store.URL%\"> %Store.Name%</a>{Environment.NewLine}</p>{Environment.NewLine}<p>{Environment.NewLine}Your gift card code is %GiftCard.CouponCode%{Environment.NewLine}</p>{Environment.NewLine}<p>{Environment.NewLine}%GiftCard.Message%{Environment.NewLine}</p>{Environment.NewLine}",
                     IsActive = true,
                     EmailAccountId = eaGeneral.Id
                 },
-                new MessageTemplate
-                {
-                    Name = MessageTemplateSystemNames.CustomerRegisteredNotification,
+                new() {
+                    Name = MessageTemplateSystemNames.CUSTOMER_REGISTERED_STORE_OWNER_NOTIFICATION,
                     Subject = "%Store.Name%. New customer registration",
                     Body = $"<p>{Environment.NewLine}<a href=\"%Store.URL%\">%Store.Name%</a>{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}A new customer registered with your store. Below are the customer's details:{Environment.NewLine}<br />{Environment.NewLine}Full name: %Customer.FullName%{Environment.NewLine}<br />{Environment.NewLine}Email: %Customer.Email%{Environment.NewLine}</p>{Environment.NewLine}",
                     IsActive = true,
                     EmailAccountId = eaGeneral.Id
                 },
-                new MessageTemplate
-                {
-                    Name = MessageTemplateSystemNames.NewReturnRequestStoreOwnerNotification,
+                new() {
+                    Name = MessageTemplateSystemNames.NEW_RETURN_REQUEST_STORE_OWNER_NOTIFICATION,
                     Subject = "%Store.Name%. New return request.",
                     Body = $"<p>{Environment.NewLine}<a href=\"%Store.URL%\">%Store.Name%</a>{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}%Customer.FullName% has just submitted a new return request. Details are below:{Environment.NewLine}<br />{Environment.NewLine}Request ID: %ReturnRequest.CustomNumber%{Environment.NewLine}<br />{Environment.NewLine}Product: %ReturnRequest.Product.Quantity% x Product: %ReturnRequest.Product.Name%{Environment.NewLine}<br />{Environment.NewLine}Reason for return: %ReturnRequest.Reason%{Environment.NewLine}<br />{Environment.NewLine}Requested action: %ReturnRequest.RequestedAction%{Environment.NewLine}<br />{Environment.NewLine}Customer comments:{Environment.NewLine}<br />{Environment.NewLine}%ReturnRequest.CustomerComment%{Environment.NewLine}</p>{Environment.NewLine}",
                     IsActive = true,
                     EmailAccountId = eaGeneral.Id
                 },
-                new MessageTemplate
+                new()
                 {
-                    Name = MessageTemplateSystemNames.NewReturnRequestCustomerNotification,
+                    Name = MessageTemplateSystemNames.DELETE_CUSTOMER_REQUEST_STORE_OWNER_NOTIFICATION,
+                    Subject = "%Store.Name%. New request to delete customer (GDPR)",
+                    Body = $"%Customer.Email% has requested account deletion. You can consider this in the admin area.",
+                    IsActive = true,
+                    EmailAccountId = eaGeneral.Id
+                },
+                new() {
+                    Name = MessageTemplateSystemNames.NEW_RETURN_REQUEST_CUSTOMER_NOTIFICATION,
                     Subject = "%Store.Name%. New return request.",
                     Body = $"<p>{Environment.NewLine}<a href=\"%Store.URL%\">%Store.Name%</a>{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}Hello %Customer.FullName%!{Environment.NewLine}<br />{Environment.NewLine}You have just submitted a new return request. Details are below:{Environment.NewLine}<br />{Environment.NewLine}Request ID: %ReturnRequest.CustomNumber%{Environment.NewLine}<br />{Environment.NewLine}Product: %ReturnRequest.Product.Quantity% x Product: %ReturnRequest.Product.Name%{Environment.NewLine}<br />{Environment.NewLine}Reason for return: %ReturnRequest.Reason%{Environment.NewLine}<br />{Environment.NewLine}Requested action: %ReturnRequest.RequestedAction%{Environment.NewLine}<br />{Environment.NewLine}Customer comments:{Environment.NewLine}<br />{Environment.NewLine}%ReturnRequest.CustomerComment%{Environment.NewLine}</p>{Environment.NewLine}",
                     IsActive = true,
                     EmailAccountId = eaGeneral.Id
                 },
-                new MessageTemplate
-                {
-                    Name = MessageTemplateSystemNames.NewsCommentNotification,
+                new() {
+                    Name = MessageTemplateSystemNames.NEWS_COMMENT_STORE_OWNER_NOTIFICATION,
                     Subject = "%Store.Name%. New news comment.",
                     Body = $"<p>{Environment.NewLine}<a href=\"%Store.URL%\">%Store.Name%</a>{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}A new news comment has been created for news \"%NewsComment.NewsTitle%\".{Environment.NewLine}</p>{Environment.NewLine}",
                     IsActive = true,
                     EmailAccountId = eaGeneral.Id
                 },
-                new MessageTemplate
-                {
-                    Name = MessageTemplateSystemNames.NewsletterSubscriptionActivationMessage,
+                new() {
+                    Name = MessageTemplateSystemNames.NEWSLETTER_SUBSCRIPTION_ACTIVATION_MESSAGE,
                     Subject = "%Store.Name%. Subscription activation message.",
                     Body = $"<p>{Environment.NewLine}<a href=\"%NewsLetterSubscription.ActivationUrl%\">Click here to confirm your subscription to our list.</a>{Environment.NewLine}</p>{Environment.NewLine}<p>{Environment.NewLine}If you received this email by mistake, simply delete it.{Environment.NewLine}</p>{Environment.NewLine}",
                     IsActive = true,
                     EmailAccountId = eaGeneral.Id
                 },
-                new MessageTemplate
-                {
-                    Name = MessageTemplateSystemNames.NewsletterSubscriptionDeactivationMessage,
+                new() {
+                    Name = MessageTemplateSystemNames.NEWSLETTER_SUBSCRIPTION_DEACTIVATION_MESSAGE,
                     Subject = "%Store.Name%. Subscription deactivation message.",
                     Body = $"<p>{Environment.NewLine}<a href=\"%NewsLetterSubscription.DeactivationUrl%\">Click here to unsubscribe from our newsletter.</a>{Environment.NewLine}</p>{Environment.NewLine}<p>{Environment.NewLine}If you received this email by mistake, simply delete it.{Environment.NewLine}</p>{Environment.NewLine}",
                     IsActive = true,
                     EmailAccountId = eaGeneral.Id
                 },
-                new MessageTemplate
-                {
-                    Name = MessageTemplateSystemNames.NewVatSubmittedStoreOwnerNotification,
+                new() {
+                    Name = MessageTemplateSystemNames.NEW_VAT_SUBMITTED_STORE_OWNER_NOTIFICATION,
                     Subject = "%Store.Name%. New VAT number is submitted.",
                     Body = $"<p>{Environment.NewLine}<a href=\"%Store.URL%\">%Store.Name%</a>{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}%Customer.FullName% (%Customer.Email%) has just submitted a new VAT number. Details are below:{Environment.NewLine}<br />{Environment.NewLine}VAT number: %Customer.VatNumber%{Environment.NewLine}<br />{Environment.NewLine}VAT number status: %Customer.VatNumberStatus%{Environment.NewLine}<br />{Environment.NewLine}Received name: %VatValidationResult.Name%{Environment.NewLine}<br />{Environment.NewLine}Received address: %VatValidationResult.Address%{Environment.NewLine}</p>{Environment.NewLine}",
                     IsActive = true,
                     EmailAccountId = eaGeneral.Id
                 },
-                new MessageTemplate
-                {
-                    Name = MessageTemplateSystemNames.OrderCancelledCustomerNotification,
+                new() {
+                    Name = MessageTemplateSystemNames.ORDER_CANCELLED_CUSTOMER_NOTIFICATION,
                     Subject = "%Store.Name%. Your order cancelled",
                     Body = $"<p>{Environment.NewLine}<a href=\"%Store.URL%\">%Store.Name%</a>{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}Hello %Order.CustomerFullName%,{Environment.NewLine}<br />{Environment.NewLine}Your order has been cancelled. Below is the summary of the order.{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}Order Number: %Order.OrderNumber%{Environment.NewLine}<br />{Environment.NewLine}Order Details: <a target=\"_blank\" href=\"%Order.OrderURLForCustomer%\">%Order.OrderURLForCustomer%</a>{Environment.NewLine}<br />{Environment.NewLine}Date Ordered: %Order.CreatedOn%{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}Billing Address{Environment.NewLine}<br />{Environment.NewLine}%Order.BillingFirstName% %Order.BillingLastName%{Environment.NewLine}<br />{Environment.NewLine}%Order.BillingAddress1%{Environment.NewLine}<br />{Environment.NewLine}%Order.BillingAddress2%{Environment.NewLine}<br />{Environment.NewLine}%Order.BillingCity% %Order.BillingZipPostalCode%{Environment.NewLine}<br />{Environment.NewLine}%Order.BillingStateProvince% %Order.BillingCountry%{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}%if (%Order.Shippable%) Shipping Address{Environment.NewLine}<br />{Environment.NewLine}%Order.ShippingFirstName% %Order.ShippingLastName%{Environment.NewLine}<br />{Environment.NewLine}%Order.ShippingAddress1%{Environment.NewLine}<br />{Environment.NewLine}%Order.ShippingAddress2%{Environment.NewLine}<br />{Environment.NewLine}%Order.ShippingCity% %Order.ShippingZipPostalCode%{Environment.NewLine}<br />{Environment.NewLine}%Order.ShippingStateProvince% %Order.ShippingCountry%{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}Shipping Method: %Order.ShippingMethod%{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine} endif% %Order.Product(s)%{Environment.NewLine}</p>{Environment.NewLine}",
                     IsActive = true,
                     EmailAccountId = eaGeneral.Id
                 },
-                new MessageTemplate
-                {
-                    Name = MessageTemplateSystemNames.OrderCompletedCustomerNotification,
+                new() {
+                    Name = MessageTemplateSystemNames.ORDER_PROCESSING_CUSTOMER_NOTIFICATION,
+                    Subject = "%Store.Name%. Your order is processing",
+                    Body = $"<p>{Environment.NewLine}<a href=\"%Store.URL%\">%Store.Name%</a>{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}Hello %Order.CustomerFullName%,{Environment.NewLine}<br />{Environment.NewLine}Your order is processing. Below is the summary of the order.{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}Order Number: %Order.OrderNumber%{Environment.NewLine}<br />{Environment.NewLine}Order Details: <a target=\"_blank\" href=\"%Order.OrderURLForCustomer%\">%Order.OrderURLForCustomer%</a>{Environment.NewLine}<br />{Environment.NewLine}Date Ordered: %Order.CreatedOn%{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}Billing Address{Environment.NewLine}<br />{Environment.NewLine}%Order.BillingFirstName% %Order.BillingLastName%{Environment.NewLine}<br />{Environment.NewLine}%Order.BillingAddress1%{Environment.NewLine}<br />{Environment.NewLine}%Order.BillingAddress2%{Environment.NewLine}<br />{Environment.NewLine}%Order.BillingCity% %Order.BillingZipPostalCode%{Environment.NewLine}<br />{Environment.NewLine}%Order.BillingStateProvince% %Order.BillingCountry%{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}%if (%Order.Shippable%) Shipping Address{Environment.NewLine}<br />{Environment.NewLine}%Order.ShippingFirstName% %Order.ShippingLastName%{Environment.NewLine}<br />{Environment.NewLine}%Order.ShippingAddress1%{Environment.NewLine}<br />{Environment.NewLine}%Order.ShippingAddress2%{Environment.NewLine}<br />{Environment.NewLine}%Order.ShippingCity% %Order.ShippingZipPostalCode%{Environment.NewLine}<br />{Environment.NewLine}%Order.ShippingStateProvince% %Order.ShippingCountry%{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}Shipping Method: %Order.ShippingMethod%{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine} endif% %Order.Product(s)%{Environment.NewLine}</p>{Environment.NewLine}",
+                    IsActive = false,
+                    EmailAccountId = eaGeneral.Id
+                },
+                new() {
+                    Name = MessageTemplateSystemNames.ORDER_COMPLETED_CUSTOMER_NOTIFICATION,
                     Subject = "%Store.Name%. Your order completed",
                     Body = $"<p>{Environment.NewLine}<a href=\"%Store.URL%\">%Store.Name%</a>{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}Hello %Order.CustomerFullName%,{Environment.NewLine}<br />{Environment.NewLine}Your order has been completed. Below is the summary of the order.{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}Order Number: %Order.OrderNumber%{Environment.NewLine}<br />{Environment.NewLine}Order Details: <a target=\"_blank\" href=\"%Order.OrderURLForCustomer%\">%Order.OrderURLForCustomer%</a>{Environment.NewLine}<br />{Environment.NewLine}Date Ordered: %Order.CreatedOn%{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}Billing Address{Environment.NewLine}<br />{Environment.NewLine}%Order.BillingFirstName% %Order.BillingLastName%{Environment.NewLine}<br />{Environment.NewLine}%Order.BillingAddress1%{Environment.NewLine}<br />{Environment.NewLine}%Order.BillingAddress2%{Environment.NewLine}<br />{Environment.NewLine}%Order.BillingCity% %Order.BillingZipPostalCode%{Environment.NewLine}<br />{Environment.NewLine}%Order.BillingStateProvince% %Order.BillingCountry%{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}%if (%Order.Shippable%) Shipping Address{Environment.NewLine}<br />{Environment.NewLine}%Order.ShippingFirstName% %Order.ShippingLastName%{Environment.NewLine}<br />{Environment.NewLine}%Order.ShippingAddress1%{Environment.NewLine}<br />{Environment.NewLine}%Order.ShippingAddress2%{Environment.NewLine}<br />{Environment.NewLine}%Order.ShippingCity% %Order.ShippingZipPostalCode%{Environment.NewLine}<br />{Environment.NewLine}%Order.ShippingStateProvince% %Order.ShippingCountry%{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}Shipping Method: %Order.ShippingMethod%{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine} endif% %Order.Product(s)%{Environment.NewLine}</p>{Environment.NewLine}",
                     IsActive = true,
                     EmailAccountId = eaGeneral.Id
                 },
-                new MessageTemplate
-                {
-                    Name = MessageTemplateSystemNames.ShipmentDeliveredCustomerNotification,
+                new() {
+                    Name = MessageTemplateSystemNames.SHIPMENT_DELIVERED_CUSTOMER_NOTIFICATION,
                     Subject = "Your order from %Store.Name% has been %if (!%Order.IsCompletelyDelivered%) partially endif%delivered.",
-                    Body = $"<p>{Environment.NewLine}<a href=\"%Store.URL%\"> %Store.Name%</a>{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}Hello %Order.CustomerFullName%,{Environment.NewLine}<br />{Environment.NewLine}Good news! You order has been %if (!%Order.IsCompletelyDelivered%) partially endif%delivered.{Environment.NewLine}<br />{Environment.NewLine}Order Number: %Order.OrderNumber%{Environment.NewLine}<br />{Environment.NewLine}Order Details: <a href=\"%Order.OrderURLForCustomer%\" target=\"_blank\">%Order.OrderURLForCustomer%</a>{Environment.NewLine}<br />{Environment.NewLine}Date Ordered: %Order.CreatedOn%{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}Billing Address{Environment.NewLine}<br />{Environment.NewLine}%Order.BillingFirstName% %Order.BillingLastName%{Environment.NewLine}<br />{Environment.NewLine}%Order.BillingAddress1%{Environment.NewLine}<br />{Environment.NewLine}%Order.BillingAddress2%{Environment.NewLine}<br />{Environment.NewLine}%Order.BillingCity% %Order.BillingZipPostalCode%{Environment.NewLine}<br />{Environment.NewLine}%Order.BillingStateProvince% %Order.BillingCountry%{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}%if (%Order.Shippable%) Shipping Address{Environment.NewLine}<br />{Environment.NewLine}%Order.ShippingFirstName% %Order.ShippingLastName%{Environment.NewLine}<br />{Environment.NewLine}%Order.ShippingAddress1%{Environment.NewLine}<br />{Environment.NewLine}%Order.ShippingAddress2%{Environment.NewLine}<br />{Environment.NewLine}%Order.ShippingAddress2%{Environment.NewLine}<br />{Environment.NewLine}%Order.ShippingCity% %Order.ShippingZipPostalCode%{Environment.NewLine}<br />{Environment.NewLine}%Order.ShippingStateProvince% %Order.ShippingCountry%{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}Shipping Method: %Order.ShippingMethod%{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine} endif% Delivered Products:{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}%Shipment.Product(s)%{Environment.NewLine}</p>{Environment.NewLine}",
+                    Body = $"<p>{Environment.NewLine}<a href=\"%Store.URL%\"> %Store.Name%</a>{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}Hello %Order.CustomerFullName%,{Environment.NewLine}<br />{Environment.NewLine}Good news! Your order has been %if (!%Order.IsCompletelyDelivered%) partially endif%delivered.{Environment.NewLine}<br />{Environment.NewLine}Order Number: %Order.OrderNumber%{Environment.NewLine}<br />{Environment.NewLine}Order Details: <a href=\"%Order.OrderURLForCustomer%\" target=\"_blank\">%Order.OrderURLForCustomer%</a>{Environment.NewLine}<br />{Environment.NewLine}Date Ordered: %Order.CreatedOn%{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}Billing Address{Environment.NewLine}<br />{Environment.NewLine}%Order.BillingFirstName% %Order.BillingLastName%{Environment.NewLine}<br />{Environment.NewLine}%Order.BillingAddress1%{Environment.NewLine}<br />{Environment.NewLine}%Order.BillingAddress2%{Environment.NewLine}<br />{Environment.NewLine}%Order.BillingCity% %Order.BillingZipPostalCode%{Environment.NewLine}<br />{Environment.NewLine}%Order.BillingStateProvince% %Order.BillingCountry%{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}%if (%Order.Shippable%) Shipping Address{Environment.NewLine}<br />{Environment.NewLine}%Order.ShippingFirstName% %Order.ShippingLastName%{Environment.NewLine}<br />{Environment.NewLine}%Order.ShippingAddress1%{Environment.NewLine}<br />{Environment.NewLine}%Order.ShippingAddress2%{Environment.NewLine}<br />{Environment.NewLine}%Order.ShippingAddress2%{Environment.NewLine}<br />{Environment.NewLine}%Order.ShippingCity% %Order.ShippingZipPostalCode%{Environment.NewLine}<br />{Environment.NewLine}%Order.ShippingStateProvince% %Order.ShippingCountry%{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}Shipping Method: %Order.ShippingMethod%{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine} endif% Delivered Products:{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}%Shipment.Product(s)%{Environment.NewLine}</p>{Environment.NewLine}",
                     IsActive = true,
                     EmailAccountId = eaGeneral.Id
                 },
-                new MessageTemplate
-                {
-                    Name = MessageTemplateSystemNames.OrderPlacedCustomerNotification,
+                new() {
+                    Name = MessageTemplateSystemNames.ORDER_PLACED_CUSTOMER_NOTIFICATION,
                     Subject = "Order receipt from %Store.Name%.",
                     Body = $"<p>{Environment.NewLine}<a href=\"%Store.URL%\">%Store.Name%</a>{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}Hello %Order.CustomerFullName%,{Environment.NewLine}<br />{Environment.NewLine}Thanks for buying from <a href=\"%Store.URL%\">%Store.Name%</a>. Below is the summary of the order.{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}Order Number: %Order.OrderNumber%{Environment.NewLine}<br />{Environment.NewLine}Order Details: <a target=\"_blank\" href=\"%Order.OrderURLForCustomer%\">%Order.OrderURLForCustomer%</a>{Environment.NewLine}<br />{Environment.NewLine}Date Ordered: %Order.CreatedOn%{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}Billing Address{Environment.NewLine}<br />{Environment.NewLine}%Order.BillingFirstName% %Order.BillingLastName%{Environment.NewLine}<br />{Environment.NewLine}%Order.BillingAddress1%{Environment.NewLine}<br />{Environment.NewLine}%Order.BillingAddress2%{Environment.NewLine}<br />{Environment.NewLine}%Order.BillingCity% %Order.BillingZipPostalCode%{Environment.NewLine}<br />{Environment.NewLine}%Order.BillingStateProvince% %Order.BillingCountry%{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}%if (%Order.Shippable%) Shipping Address{Environment.NewLine}<br />{Environment.NewLine}%Order.ShippingFirstName% %Order.ShippingLastName%{Environment.NewLine}<br />{Environment.NewLine}%Order.ShippingAddress1%{Environment.NewLine}<br />{Environment.NewLine}%Order.ShippingAddress2%{Environment.NewLine}<br />{Environment.NewLine}%Order.ShippingCity% %Order.ShippingZipPostalCode%{Environment.NewLine}<br />{Environment.NewLine}%Order.ShippingStateProvince% %Order.ShippingCountry%{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}Shipping Method: %Order.ShippingMethod%{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine} endif% %Order.Product(s)%{Environment.NewLine}</p>{Environment.NewLine}",
                     IsActive = true,
                     EmailAccountId = eaGeneral.Id
                 },
-                new MessageTemplate
-                {
-                    Name = MessageTemplateSystemNames.OrderPlacedStoreOwnerNotification,
+                new() {
+                    Name = MessageTemplateSystemNames.ORDER_PLACED_STORE_OWNER_NOTIFICATION,
                     Subject = "%Store.Name%. Purchase Receipt for Order #%Order.OrderNumber%",
                     Body = $"<p>{Environment.NewLine}<a href=\"%Store.URL%\">%Store.Name%</a>{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}%Order.CustomerFullName% (%Order.CustomerEmail%) has just placed an order from your store. Below is the summary of the order.{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}Order Number: %Order.OrderNumber%{Environment.NewLine}<br />{Environment.NewLine}Date Ordered: %Order.CreatedOn%{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}Billing Address{Environment.NewLine}<br />{Environment.NewLine}%Order.BillingFirstName% %Order.BillingLastName%{Environment.NewLine}<br />{Environment.NewLine}%Order.BillingAddress1%{Environment.NewLine}<br />{Environment.NewLine}%Order.BillingAddress2%{Environment.NewLine}<br />{Environment.NewLine}%Order.BillingCity% %Order.BillingZipPostalCode%{Environment.NewLine}<br />{Environment.NewLine}%Order.BillingStateProvince% %Order.BillingCountry%{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}%if (%Order.Shippable%) Shipping Address{Environment.NewLine}<br />{Environment.NewLine}%Order.ShippingFirstName% %Order.ShippingLastName%{Environment.NewLine}<br />{Environment.NewLine}%Order.ShippingAddress1%{Environment.NewLine}<br />{Environment.NewLine}%Order.ShippingAddress2%{Environment.NewLine}<br />{Environment.NewLine}%Order.ShippingCity% %Order.ShippingZipPostalCode%{Environment.NewLine}<br />{Environment.NewLine}%Order.ShippingStateProvince% %Order.ShippingCountry%{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}Shipping Method: %Order.ShippingMethod%{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine} endif% %Order.Product(s)%{Environment.NewLine}</p>{Environment.NewLine}",
                     IsActive = true,
                     EmailAccountId = eaGeneral.Id
                 },
-                new MessageTemplate
-                {
-                    Name = MessageTemplateSystemNames.ShipmentSentCustomerNotification,
+                new() {
+                    Name = MessageTemplateSystemNames.SHIPMENT_SENT_CUSTOMER_NOTIFICATION,
                     Subject = "Your order from %Store.Name% has been %if (!%Order.IsCompletelyShipped%) partially endif%shipped.",
-                    Body = $"<p>{Environment.NewLine}<a href=\"%Store.URL%\"> %Store.Name%</a>{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}Hello %Order.CustomerFullName%!,{Environment.NewLine}<br />{Environment.NewLine}Good news! You order has been %if (!%Order.IsCompletelyShipped%) partially endif%shipped.{Environment.NewLine}<br />{Environment.NewLine}Order Number: %Order.OrderNumber%{Environment.NewLine}<br />{Environment.NewLine}Order Details: <a href=\"%Order.OrderURLForCustomer%\" target=\"_blank\">%Order.OrderURLForCustomer%</a>{Environment.NewLine}<br />{Environment.NewLine}Date Ordered: %Order.CreatedOn%{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}Billing Address{Environment.NewLine}<br />{Environment.NewLine}%Order.BillingFirstName% %Order.BillingLastName%{Environment.NewLine}<br />{Environment.NewLine}%Order.BillingAddress1%{Environment.NewLine}<br />{Environment.NewLine}%Order.BillingAddress2%{Environment.NewLine}<br />{Environment.NewLine}%Order.BillingCity% %Order.BillingZipPostalCode%{Environment.NewLine}<br />{Environment.NewLine}%Order.BillingStateProvince% %Order.BillingCountry%{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}%if (%Order.Shippable%) Shipping Address{Environment.NewLine}<br />{Environment.NewLine}%Order.ShippingFirstName% %Order.ShippingLastName%{Environment.NewLine}<br />{Environment.NewLine}%Order.ShippingAddress1%{Environment.NewLine}<br />{Environment.NewLine}%Order.ShippingAddress2%{Environment.NewLine}<br />{Environment.NewLine}%Order.ShippingCity% %Order.ShippingZipPostalCode%{Environment.NewLine}<br />{Environment.NewLine}%Order.ShippingStateProvince% %Order.ShippingCountry%{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}Shipping Method: %Order.ShippingMethod%{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine} endif% Shipped Products:{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}%Shipment.Product(s)%{Environment.NewLine}</p>{Environment.NewLine}",
+                    Body = $"<p>{Environment.NewLine}<a href=\"%Store.URL%\"> %Store.Name%</a>{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}Hello %Order.CustomerFullName%!,{Environment.NewLine}<br />{Environment.NewLine}Good news! Your order has been %if (!%Order.IsCompletelyShipped%) partially endif%shipped.{Environment.NewLine}<br />{Environment.NewLine}Order Number: %Order.OrderNumber%{Environment.NewLine}<br />{Environment.NewLine}Order Details: <a href=\"%Order.OrderURLForCustomer%\" target=\"_blank\">%Order.OrderURLForCustomer%</a>{Environment.NewLine}<br />{Environment.NewLine}Date Ordered: %Order.CreatedOn%{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}Billing Address{Environment.NewLine}<br />{Environment.NewLine}%Order.BillingFirstName% %Order.BillingLastName%{Environment.NewLine}<br />{Environment.NewLine}%Order.BillingAddress1%{Environment.NewLine}<br />{Environment.NewLine}%Order.BillingAddress2%{Environment.NewLine}<br />{Environment.NewLine}%Order.BillingCity% %Order.BillingZipPostalCode%{Environment.NewLine}<br />{Environment.NewLine}%Order.BillingStateProvince% %Order.BillingCountry%{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}%if (%Order.Shippable%) Shipping Address{Environment.NewLine}<br />{Environment.NewLine}%Order.ShippingFirstName% %Order.ShippingLastName%{Environment.NewLine}<br />{Environment.NewLine}%Order.ShippingAddress1%{Environment.NewLine}<br />{Environment.NewLine}%Order.ShippingAddress2%{Environment.NewLine}<br />{Environment.NewLine}%Order.ShippingCity% %Order.ShippingZipPostalCode%{Environment.NewLine}<br />{Environment.NewLine}%Order.ShippingStateProvince% %Order.ShippingCountry%{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}Shipping Method: %Order.ShippingMethod%{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine} endif% Shipped Products:{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}%Shipment.Product(s)%{Environment.NewLine}</p>{Environment.NewLine}",
                     IsActive = true,
                     EmailAccountId = eaGeneral.Id
                 },
-                new MessageTemplate
-                {
-                    Name = MessageTemplateSystemNames.ShipmentReadyForPickupCustomerNotification,
+                new() {
+                    Name = MessageTemplateSystemNames.SHIPMENT_READY_FOR_PICKUP_CUSTOMER_NOTIFICATION,
                     Subject = "Your order from %Store.Name% has been %if (!%Order.IsCompletelyReadyForPickup%) partially endif%ready for pickup.",
-                    Body = $"<p>{Environment.NewLine}<a href=\"%Store.URL%\"> %Store.Name%</a>{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}Hello %Order.CustomerFullName%!,{Environment.NewLine}<br />{Environment.NewLine}Good news! You order has been %if (!%Order.IsCompletelyReadyForPickup%) partially endif%ready for pickup.{Environment.NewLine}<br />{Environment.NewLine}Order Number: %Order.OrderNumber%{Environment.NewLine}<br />{Environment.NewLine}Order Details: <a href=\"%Order.OrderURLForCustomer%\" target=\"_blank\">%Order.OrderURLForCustomer%</a>{Environment.NewLine}<br />{Environment.NewLine}Date Ordered: %Order.CreatedOn%{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}Billing Address{Environment.NewLine}<br />{Environment.NewLine}%Order.BillingFirstName% %Order.BillingLastName%{Environment.NewLine}<br />{Environment.NewLine}%Order.BillingAddress1%{Environment.NewLine}<br />{Environment.NewLine}%Order.BillingAddress2%{Environment.NewLine}<br />{Environment.NewLine}%Order.BillingCity% %Order.BillingZipPostalCode%{Environment.NewLine}<br />{Environment.NewLine}%Order.BillingStateProvince% %Order.BillingCountry%{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}%if (%Order.Shippable%) Shipping Address{Environment.NewLine}<br />{Environment.NewLine}%Order.ShippingFirstName% %Order.ShippingLastName%{Environment.NewLine}<br />{Environment.NewLine}%Order.ShippingAddress1%{Environment.NewLine}<br />{Environment.NewLine}%Order.ShippingAddress2%{Environment.NewLine}<br />{Environment.NewLine}%Order.ShippingCity% %Order.ShippingZipPostalCode%{Environment.NewLine}<br />{Environment.NewLine}%Order.ShippingStateProvince% %Order.ShippingCountry%{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}Shipping Method: %Order.ShippingMethod%{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine} endif% Products ready for pickup:{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}%Shipment.Product(s)%{Environment.NewLine}</p>{Environment.NewLine}",
+                    Body = $"<p>{Environment.NewLine}<a href=\"%Store.URL%\"> %Store.Name%</a>{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}Hello %Order.CustomerFullName%!,{Environment.NewLine}<br />{Environment.NewLine}Good news! Your order has been %if (!%Order.IsCompletelyReadyForPickup%) partially endif%ready for pickup.{Environment.NewLine}<br />{Environment.NewLine}Order Number: %Order.OrderNumber%{Environment.NewLine}<br />{Environment.NewLine}Order Details: <a href=\"%Order.OrderURLForCustomer%\" target=\"_blank\">%Order.OrderURLForCustomer%</a>{Environment.NewLine}<br />{Environment.NewLine}Date Ordered: %Order.CreatedOn%{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}Billing Address{Environment.NewLine}<br />{Environment.NewLine}%Order.BillingFirstName% %Order.BillingLastName%{Environment.NewLine}<br />{Environment.NewLine}%Order.BillingAddress1%{Environment.NewLine}<br />{Environment.NewLine}%Order.BillingAddress2%{Environment.NewLine}<br />{Environment.NewLine}%Order.BillingCity% %Order.BillingZipPostalCode%{Environment.NewLine}<br />{Environment.NewLine}%Order.BillingStateProvince% %Order.BillingCountry%{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}%if (%Order.Shippable%) Shipping Address{Environment.NewLine}<br />{Environment.NewLine}%Order.ShippingFirstName% %Order.ShippingLastName%{Environment.NewLine}<br />{Environment.NewLine}%Order.ShippingAddress1%{Environment.NewLine}<br />{Environment.NewLine}%Order.ShippingAddress2%{Environment.NewLine}<br />{Environment.NewLine}%Order.ShippingCity% %Order.ShippingZipPostalCode%{Environment.NewLine}<br />{Environment.NewLine}%Order.ShippingStateProvince% %Order.ShippingCountry%{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}Shipping Method: %Order.ShippingMethod%{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine} endif% Products ready for pickup:{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}%Shipment.Product(s)%{Environment.NewLine}</p>{Environment.NewLine}",
                     IsActive = true,
                     EmailAccountId = eaGeneral.Id
                 },
-                new MessageTemplate
-                {
-                    Name = MessageTemplateSystemNames.ProductReviewStoreOwnerNotification,
+                new() {
+                    Name = MessageTemplateSystemNames.PRODUCT_REVIEW_STORE_OWNER_NOTIFICATION,
                     Subject = "%Store.Name%. New product review.",
                     Body = $"<p>{Environment.NewLine}<a href=\"%Store.URL%\">%Store.Name%</a>{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}A new product review has been written for product \"%ProductReview.ProductName%\".{Environment.NewLine}</p>{Environment.NewLine}",
                     IsActive = true,
                     EmailAccountId = eaGeneral.Id
                 },
-                new MessageTemplate
-                {
-                    Name = MessageTemplateSystemNames.ProductReviewReplyCustomerNotification,
+                new() {
+                    Name = MessageTemplateSystemNames.PRODUCT_REVIEW_REPLY_CUSTOMER_NOTIFICATION,
                     Subject = "%Store.Name%. Product review reply.",
                     Body = $"<p>{Environment.NewLine}<a href=\"%Store.URL%\">%Store.Name%</a>{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}Hello %Customer.FullName%,{Environment.NewLine}<br />{Environment.NewLine}You received a reply from the store administration to your review for product \"%ProductReview.ProductName%\".{Environment.NewLine}</p>{Environment.NewLine}",
                     IsActive = false,
                     EmailAccountId = eaGeneral.Id
                 },
-                new MessageTemplate
-                {
-                    Name = MessageTemplateSystemNames.QuantityBelowStoreOwnerNotification,
+                new() {
+                    Name = MessageTemplateSystemNames.QUANTITY_BELOW_STORE_OWNER_NOTIFICATION,
                     Subject = "%Store.Name%. Quantity below notification. %Product.Name%",
                     Body = $"<p>{Environment.NewLine}<a href=\"%Store.URL%\">%Store.Name%</a>{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}%Product.Name% (ID: %Product.ID%) low quantity.{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}Quantity: %Product.StockQuantity%{Environment.NewLine}<br />{Environment.NewLine}</p>{Environment.NewLine}",
                     IsActive = true,
                     EmailAccountId = eaGeneral.Id
                 },
-                new MessageTemplate
-                {
-                    Name = MessageTemplateSystemNames.QuantityBelowAttributeCombinationStoreOwnerNotification,
+                new() {
+                    Name = MessageTemplateSystemNames.QUANTITY_BELOW_ATTRIBUTE_COMBINATION_STORE_OWNER_NOTIFICATION,
                     Subject = "%Store.Name%. Quantity below notification. %Product.Name%",
                     Body = $"<p>{Environment.NewLine}<a href=\"%Store.URL%\">%Store.Name%</a>{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}%Product.Name% (ID: %Product.ID%) low quantity.{Environment.NewLine}<br />{Environment.NewLine}%AttributeCombination.Formatted%{Environment.NewLine}<br />{Environment.NewLine}Quantity: %AttributeCombination.StockQuantity%{Environment.NewLine}<br />{Environment.NewLine}</p>{Environment.NewLine}",
                     IsActive = true,
                     EmailAccountId = eaGeneral.Id
                 },
-                new MessageTemplate
-                {
-                    Name = MessageTemplateSystemNames.ReturnRequestStatusChangedCustomerNotification,
+                new() {
+                    Name = MessageTemplateSystemNames.RETURN_REQUEST_STATUS_CHANGED_CUSTOMER_NOTIFICATION,
                     Subject = "%Store.Name%. Return request status was changed.",
                     Body = $"<p>{Environment.NewLine}<a href=\"%Store.URL%\">%Store.Name%</a>{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}Hello %Customer.FullName%,{Environment.NewLine}<br />{Environment.NewLine}Your return request #%ReturnRequest.CustomNumber% status has been changed.{Environment.NewLine}</p>{Environment.NewLine}",
                     IsActive = true,
                     EmailAccountId = eaGeneral.Id
                 },
-                new MessageTemplate
-                {
-                    Name = MessageTemplateSystemNames.EmailAFriendMessage,
+                new() {
+                    Name = MessageTemplateSystemNames.EMAIL_A_FRIEND_MESSAGE,
                     Subject = "%Store.Name%. Referred Item",
                     Body = $"<p>{Environment.NewLine}<a href=\"%Store.URL%\"> %Store.Name%</a>{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}%EmailAFriend.Email% was shopping on %Store.Name% and wanted to share the following item with you.{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}<b><a target=\"_blank\" href=\"%Product.ProductURLForCustomer%\">%Product.Name%</a></b>{Environment.NewLine}<br />{Environment.NewLine}%Product.ShortDescription%{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}For more info click <a target=\"_blank\" href=\"%Product.ProductURLForCustomer%\">here</a>{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}%EmailAFriend.PersonalMessage%{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}%Store.Name%{Environment.NewLine}</p>{Environment.NewLine}",
                     IsActive = true,
                     EmailAccountId = eaGeneral.Id
                 },
-                new MessageTemplate
-                {
-                    Name = MessageTemplateSystemNames.WishlistToFriendMessage,
+                new() {
+                    Name = MessageTemplateSystemNames.WISHLIST_TO_FRIEND_MESSAGE,
                     Subject = "%Store.Name%. Wishlist",
                     Body = $"<p>{Environment.NewLine}<a href=\"%Store.URL%\"> %Store.Name%</a>{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}%Wishlist.Email% was shopping on %Store.Name% and wanted to share a wishlist with you.{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}For more info click <a target=\"_blank\" href=\"%Wishlist.URLForCustomer%\">here</a>{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}%Wishlist.PersonalMessage%{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}%Store.Name%{Environment.NewLine}</p>{Environment.NewLine}",
                     IsActive = true,
                     EmailAccountId = eaGeneral.Id
                 },
-                new MessageTemplate
-                {
-                    Name = MessageTemplateSystemNames.NewOrderNoteAddedCustomerNotification,
+                new() {
+                    Name = MessageTemplateSystemNames.NEW_ORDER_NOTE_ADDED_CUSTOMER_NOTIFICATION,
                     Subject = "%Store.Name%. New order note has been added",
                     Body = $"<p>{Environment.NewLine}<a href=\"%Store.URL%\">%Store.Name%</a>{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}Hello %Customer.FullName%,{Environment.NewLine}<br />{Environment.NewLine}New order note has been added to your account:{Environment.NewLine}<br />{Environment.NewLine}\"%Order.NewNoteText%\".{Environment.NewLine}<br />{Environment.NewLine}<a target=\"_blank\" href=\"%Order.OrderURLForCustomer%\">%Order.OrderURLForCustomer%</a>{Environment.NewLine}</p>{Environment.NewLine}",
                     IsActive = true,
                     EmailAccountId = eaGeneral.Id
                 },
-                new MessageTemplate
-                {
-                    Name = MessageTemplateSystemNames.RecurringPaymentCancelledStoreOwnerNotification,
+                new() {
+                    Name = MessageTemplateSystemNames.RECURRING_PAYMENT_CANCELLED_STORE_OWNER_NOTIFICATION,
                     Subject = "%Store.Name%. Recurring payment cancelled",
                     Body = $"<p>{Environment.NewLine}<a href=\"%Store.URL%\">%Store.Name%</a>{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}%if (%RecurringPayment.CancelAfterFailedPayment%) The last payment for the recurring payment ID=%RecurringPayment.ID% failed, so it was cancelled. endif% %if (!%RecurringPayment.CancelAfterFailedPayment%) %Customer.FullName% (%Customer.Email%) has just cancelled a recurring payment ID=%RecurringPayment.ID%. endif%{Environment.NewLine}</p>{Environment.NewLine}",
                     IsActive = true,
                     EmailAccountId = eaGeneral.Id
                 },
-                new MessageTemplate
-                {
-                    Name = MessageTemplateSystemNames.RecurringPaymentCancelledCustomerNotification,
+                new() {
+                    Name = MessageTemplateSystemNames.RECURRING_PAYMENT_CANCELLED_CUSTOMER_NOTIFICATION,
                     Subject = "%Store.Name%. Recurring payment cancelled",
                     Body = $"<p>{Environment.NewLine}<a href=\"%Store.URL%\">%Store.Name%</a>{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}Hello %Customer.FullName%,{Environment.NewLine}<br />{Environment.NewLine}%if (%RecurringPayment.CancelAfterFailedPayment%) It appears your credit card didn't go through for this recurring payment (<a href=\"%Order.OrderURLForCustomer%\" target=\"_blank\">%Order.OrderURLForCustomer%</a>){Environment.NewLine}<br />{Environment.NewLine}So your subscription has been cancelled. endif% %if (!%RecurringPayment.CancelAfterFailedPayment%) The recurring payment ID=%RecurringPayment.ID% was cancelled. endif%{Environment.NewLine}</p>{Environment.NewLine}",
                     IsActive = true,
                     EmailAccountId = eaGeneral.Id
                 },
-                new MessageTemplate
-                {
-                    Name = MessageTemplateSystemNames.RecurringPaymentFailedCustomerNotification,
+                new() {
+                    Name = MessageTemplateSystemNames.RECURRING_PAYMENT_FAILED_CUSTOMER_NOTIFICATION,
                     Subject = "%Store.Name%. Last recurring payment failed",
                     Body = $"<p>{Environment.NewLine}<a href=\"%Store.URL%\">%Store.Name%</a>{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}Hello %Customer.FullName%,{Environment.NewLine}<br />{Environment.NewLine}It appears your credit card didn't go through for this recurring payment (<a href=\"%Order.OrderURLForCustomer%\" target=\"_blank\">%Order.OrderURLForCustomer%</a>){Environment.NewLine}<br /> %if (%RecurringPayment.RecurringPaymentType% == \"Manual\") {Environment.NewLine}You can recharge balance and manually retry payment or cancel it on the order history page. endif% %if (%RecurringPayment.RecurringPaymentType% == \"Automatic\") {Environment.NewLine}You can recharge balance and wait, we will try to make the payment again, or you can cancel it on the order history page. endif%{Environment.NewLine}</p>{Environment.NewLine}",
                     IsActive = true,
                     EmailAccountId = eaGeneral.Id
                 },
-                new MessageTemplate
-                {
-                    Name = MessageTemplateSystemNames.OrderPlacedVendorNotification,
+                new() {
+                    Name = MessageTemplateSystemNames.ORDER_PLACED_VENDOR_NOTIFICATION,
                     Subject = "%Store.Name%. Order placed",
                     Body = $"<p>{Environment.NewLine}<a href=\"%Store.URL%\">%Store.Name%</a>{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}%Customer.FullName% (%Customer.Email%) has just placed an order.{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}Order Number: %Order.OrderNumber%{Environment.NewLine}<br />{Environment.NewLine}Date Ordered: %Order.CreatedOn%{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}%Order.Product(s)%{Environment.NewLine}</p>{Environment.NewLine}",
                     //this template is disabled by default
                     IsActive = false,
                     EmailAccountId = eaGeneral.Id
                 },
-                new MessageTemplate
-                {
-                    Name = MessageTemplateSystemNames.OrderPlacedAffiliateNotification,
+                new() {
+                    Name = MessageTemplateSystemNames.ORDER_PLACED_AFFILIATE_NOTIFICATION,
                     Subject = "%Store.Name%. Order placed",
                     Body = $"<p>{Environment.NewLine}<a href=\"%Store.URL%\">%Store.Name%</a>{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}%Customer.FullName% (%Customer.Email%) has just placed an order.{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}Order Number: %Order.OrderNumber%{Environment.NewLine}<br />{Environment.NewLine}Date Ordered: %Order.CreatedOn%{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}%Order.Product(s)%{Environment.NewLine}</p>{Environment.NewLine}",
                     //this template is disabled by default
                     IsActive = false,
                     EmailAccountId = eaGeneral.Id
                 },
-                new MessageTemplate
-                {
-                    Name = MessageTemplateSystemNames.OrderRefundedCustomerNotification,
+                new() {
+                    Name = MessageTemplateSystemNames.ORDER_REFUNDED_CUSTOMER_NOTIFICATION,
                     Subject = "%Store.Name%. Order #%Order.OrderNumber% refunded",
                     Body = $"<p>{Environment.NewLine}<a href=\"%Store.URL%\">%Store.Name%</a>{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}Hello %Order.CustomerFullName%,{Environment.NewLine}<br />{Environment.NewLine}Thanks for buying from <a href=\"%Store.URL%\">%Store.Name%</a>. Order #%Order.OrderNumber% has been has been refunded. Please allow 7-14 days for the refund to be reflected in your account.{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}Amount refunded: %Order.AmountRefunded%{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}Below is the summary of the order.{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}Order Number: %Order.OrderNumber%{Environment.NewLine}<br />{Environment.NewLine}Order Details: <a href=\"%Order.OrderURLForCustomer%\" target=\"_blank\">%Order.OrderURLForCustomer%</a>{Environment.NewLine}<br />{Environment.NewLine}Date Ordered: %Order.CreatedOn%{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}Billing Address{Environment.NewLine}<br />{Environment.NewLine}%Order.BillingFirstName% %Order.BillingLastName%{Environment.NewLine}<br />{Environment.NewLine}%Order.BillingAddress1%{Environment.NewLine}<br />{Environment.NewLine}%Order.BillingAddress2%{Environment.NewLine}<br />{Environment.NewLine}%Order.BillingCity% %Order.BillingZipPostalCode%{Environment.NewLine}<br />{Environment.NewLine}%Order.BillingStateProvince% %Order.BillingCountry%{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}%if (%Order.Shippable%) Shipping Address{Environment.NewLine}<br />{Environment.NewLine}%Order.ShippingFirstName% %Order.ShippingLastName%{Environment.NewLine}<br />{Environment.NewLine}%Order.ShippingAddress1%{Environment.NewLine}<br />{Environment.NewLine}%Order.ShippingAddress2%{Environment.NewLine}<br />{Environment.NewLine}%Order.ShippingCity% %Order.ShippingZipPostalCode%{Environment.NewLine}<br />{Environment.NewLine}%Order.ShippingStateProvince% %Order.ShippingCountry%{Environment.NewLine}<br />{Environment.NewLine}<br /{Environment.NewLine}>Shipping Method: %Order.ShippingMethod%{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine} endif% %Order.Product(s)%{Environment.NewLine}</p>{Environment.NewLine}",
                     //this template is disabled by default
                     IsActive = false,
                     EmailAccountId = eaGeneral.Id
                 },
-                new MessageTemplate
-                {
-                    Name = MessageTemplateSystemNames.OrderRefundedStoreOwnerNotification,
+                new() {
+                    Name = MessageTemplateSystemNames.ORDER_REFUNDED_STORE_OWNER_NOTIFICATION,
                     Subject = "%Store.Name%. Order #%Order.OrderNumber% refunded",
                     Body = $"%Store.Name%. Order #%Order.OrderNumber% refunded', N'{Environment.NewLine}<p>{Environment.NewLine}<a href=\"%Store.URL%\">%Store.Name%</a>{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}Order #%Order.OrderNumber% has been just refunded{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}Amount refunded: %Order.AmountRefunded%{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}Date Ordered: %Order.CreatedOn%{Environment.NewLine}</p>{Environment.NewLine}",
                     //this template is disabled by default
                     IsActive = false,
                     EmailAccountId = eaGeneral.Id
                 },
-                new MessageTemplate
-                {
-                    Name = MessageTemplateSystemNames.OrderPaidStoreOwnerNotification,
+                new() {
+                    Name = MessageTemplateSystemNames.ORDER_PAID_STORE_OWNER_NOTIFICATION,
                     Subject = "%Store.Name%. Order #%Order.OrderNumber% paid",
                     Body = $"<p>{Environment.NewLine}<a href=\"%Store.URL%\">%Store.Name%</a>{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}Order #%Order.OrderNumber% has been just paid{Environment.NewLine}<br />{Environment.NewLine}Date Ordered: %Order.CreatedOn%{Environment.NewLine}</p>{Environment.NewLine}",
                     //this template is disabled by default
                     IsActive = false,
                     EmailAccountId = eaGeneral.Id
                 },
-                new MessageTemplate
-                {
-                    Name = MessageTemplateSystemNames.OrderPaidCustomerNotification,
+                new() {
+                    Name = MessageTemplateSystemNames.ORDER_PAID_CUSTOMER_NOTIFICATION,
                     Subject = "%Store.Name%. Order #%Order.OrderNumber% paid",
                     Body = $"<p>{Environment.NewLine}<a href=\"%Store.URL%\">%Store.Name%</a>{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}Hello %Order.CustomerFullName%,{Environment.NewLine}<br />{Environment.NewLine}Thanks for buying from <a href=\"%Store.URL%\">%Store.Name%</a>. Order #%Order.OrderNumber% has been just paid. Below is the summary of the order.{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}Order Number: %Order.OrderNumber%{Environment.NewLine}<br />{Environment.NewLine}Order Details: <a href=\"%Order.OrderURLForCustomer%\" target=\"_blank\">%Order.OrderURLForCustomer%</a>{Environment.NewLine}<br />{Environment.NewLine}Date Ordered: %Order.CreatedOn%{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}Billing Address{Environment.NewLine}<br />{Environment.NewLine}%Order.BillingFirstName% %Order.BillingLastName%{Environment.NewLine}<br />{Environment.NewLine}%Order.BillingAddress1%{Environment.NewLine}<br />{Environment.NewLine}%Order.BillingAddress2%{Environment.NewLine}<br />{Environment.NewLine}%Order.BillingCity% %Order.BillingZipPostalCode%{Environment.NewLine}<br />{Environment.NewLine}%Order.BillingStateProvince% %Order.BillingCountry%{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}%if (%Order.Shippable%) Shipping Address{Environment.NewLine}<br />{Environment.NewLine}%Order.ShippingFirstName% %Order.ShippingLastName%{Environment.NewLine}<br />{Environment.NewLine}%Order.ShippingAddress1%{Environment.NewLine}<br />{Environment.NewLine}%Order.ShippingAddress2%{Environment.NewLine}<br />{Environment.NewLine}%Order.ShippingCity% %Order.ShippingZipPostalCode%{Environment.NewLine}<br />{Environment.NewLine}%Order.ShippingStateProvince% %Order.ShippingCountry%{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}Shipping Method: %Order.ShippingMethod%{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine} endif% %Order.Product(s)%{Environment.NewLine}</p>{Environment.NewLine}",
                     //this template is disabled by default
                     IsActive = false,
                     EmailAccountId = eaGeneral.Id
                 },
-                new MessageTemplate
-                {
-                    Name = MessageTemplateSystemNames.OrderPaidVendorNotification,
+                new() {
+                    Name = MessageTemplateSystemNames.ORDER_PAID_VENDOR_NOTIFICATION,
                     Subject = "%Store.Name%. Order #%Order.OrderNumber% paid",
                     Body = $"<p>{Environment.NewLine}<a href=\"%Store.URL%\">%Store.Name%</a>{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}Order #%Order.OrderNumber% has been just paid.{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}Order Number: %Order.OrderNumber%{Environment.NewLine}<br />{Environment.NewLine}Date Ordered: %Order.CreatedOn%{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}%Order.Product(s)%{Environment.NewLine}</p>{Environment.NewLine}",
                     //this template is disabled by default
                     IsActive = false,
                     EmailAccountId = eaGeneral.Id
                 },
-                new MessageTemplate
-                {
-                    Name = MessageTemplateSystemNames.OrderPaidAffiliateNotification,
+                new() {
+                    Name = MessageTemplateSystemNames.ORDER_PAID_AFFILIATE_NOTIFICATION,
                     Subject = "%Store.Name%. Order #%Order.OrderNumber% paid",
                     Body = $"<p>{Environment.NewLine}<a href=\"%Store.URL%\">%Store.Name%</a>{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}Order #%Order.OrderNumber% has been just paid.{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}Order Number: %Order.OrderNumber%{Environment.NewLine}<br />{Environment.NewLine}Date Ordered: %Order.CreatedOn%{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}%Order.Product(s)%{Environment.NewLine}</p>{Environment.NewLine}",
                     //this template is disabled by default
                     IsActive = false,
                     EmailAccountId = eaGeneral.Id
                 },
-                new MessageTemplate
-                {
-                    Name = MessageTemplateSystemNames.NewVendorAccountApplyStoreOwnerNotification,
+                new() {
+                    Name = MessageTemplateSystemNames.NEW_VENDOR_ACCOUNT_APPLY_STORE_OWNER_NOTIFICATION,
                     Subject = "%Store.Name%. New vendor account submitted.",
                     Body = $"<p>{Environment.NewLine}<a href=\"%Store.URL%\">%Store.Name%</a>{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}%Customer.FullName% (%Customer.Email%) has just submitted for a vendor account. Details are below:{Environment.NewLine}<br />{Environment.NewLine}Vendor name: %Vendor.Name%{Environment.NewLine}<br />{Environment.NewLine}Vendor email: %Vendor.Email%{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}You can activate it in admin area.{Environment.NewLine}</p>{Environment.NewLine}",
                     IsActive = true,
                     EmailAccountId = eaGeneral.Id
                 },
-                new MessageTemplate
-                {
-                    Name = MessageTemplateSystemNames.VendorInformationChangeNotification,
+                new() {
+                    Name = MessageTemplateSystemNames.VENDOR_INFORMATION_CHANGE_STORE_OWNER_NOTIFICATION,
                     Subject = "%Store.Name%. Vendor information change.",
                     Body = $"<p>{Environment.NewLine}<a href=\"%Store.URL%\">%Store.Name%</a>{Environment.NewLine}<br />{Environment.NewLine}<br />{Environment.NewLine}Vendor %Vendor.Name% (%Vendor.Email%) has just changed information about itself.{Environment.NewLine}</p>{Environment.NewLine}",
                     IsActive = true,
                     EmailAccountId = eaGeneral.Id
                 },
-                new MessageTemplate
-                {
-                    Name = MessageTemplateSystemNames.ContactUsMessage,
+                new() {
+                    Name = MessageTemplateSystemNames.CONTACT_US_MESSAGE,
                     Subject = "%Store.Name%. Contact us",
                     Body = $"<p>{Environment.NewLine}%ContactUs.Body%{Environment.NewLine}</p>{Environment.NewLine}",
                     IsActive = true,
                     EmailAccountId = eaGeneral.Id
                 },
-                new MessageTemplate
-                {
-                    Name = MessageTemplateSystemNames.ContactVendorMessage,
+                new() {
+                    Name = MessageTemplateSystemNames.CONTACT_VENDOR_MESSAGE,
                     Subject = "%Store.Name%. Contact us",
                     Body = $"<p>{Environment.NewLine}%ContactUs.Body%{Environment.NewLine}</p>{Environment.NewLine}",
                     IsActive = true,
@@ -2678,14 +2490,11 @@ namespace Nop.Services.Installation
         protected virtual async Task InstallTopicsAsync()
         {
             var defaultTopicTemplate =
-                _topicTemplateRepository.Table.FirstOrDefault(tt => tt.Name == "Default template");
-            if (defaultTopicTemplate == null)
-                throw new Exception("Topic template cannot be loaded");
+                _topicTemplateRepository.Table.FirstOrDefault(tt => tt.Name == "Default template") ?? throw new Exception("Topic template cannot be loaded");
 
             var topics = new List<Topic>
             {
-                new Topic
-                {
+                new() {
                     SystemName = "AboutUs",
                     IncludeInSitemap = false,
                     IsPasswordProtected = false,
@@ -2697,8 +2506,7 @@ namespace Nop.Services.Installation
                         "<p>Put your &quot;About Us&quot; information here. You can edit this in the admin site.</p>",
                     TopicTemplateId = defaultTopicTemplate.Id
                 },
-                new Topic
-                {
+                new() {
                     SystemName = "CheckoutAsGuestOrRegister",
                     IncludeInSitemap = false,
                     IsPasswordProtected = false,
@@ -2709,8 +2517,7 @@ namespace Nop.Services.Installation
                         "<p><strong>Register and save time!</strong><br />Register with us for future convenience:</p><ul><li>Fast and easy check out</li><li>Easy access to your order history and status</li></ul>",
                     TopicTemplateId = defaultTopicTemplate.Id
                 },
-                new Topic
-                {
+                new() {
                     SystemName = "ConditionsOfUse",
                     IncludeInSitemap = false,
                     IsPasswordProtected = false,
@@ -2721,8 +2528,7 @@ namespace Nop.Services.Installation
                     Body = "<p>Put your conditions of use information here. You can edit this in the admin site.</p>",
                     TopicTemplateId = defaultTopicTemplate.Id
                 },
-                new Topic
-                {
+                new() {
                     SystemName = "ContactUs",
                     IncludeInSitemap = false,
                     IsPasswordProtected = false,
@@ -2732,8 +2538,7 @@ namespace Nop.Services.Installation
                     Body = "<p>Put your contact information here. You can edit this in the admin site.</p>",
                     TopicTemplateId = defaultTopicTemplate.Id
                 },
-                new Topic
-                {
+                new() {
                     SystemName = "ForumWelcomeMessage",
                     IncludeInSitemap = false,
                     IsPasswordProtected = false,
@@ -2743,8 +2548,7 @@ namespace Nop.Services.Installation
                     Body = "<p>Put your welcome message here. You can edit this in the admin site.</p>",
                     TopicTemplateId = defaultTopicTemplate.Id
                 },
-                new Topic
-                {
+                new() {
                     SystemName = "HomepageText",
                     IncludeInSitemap = false,
                     IsPasswordProtected = false,
@@ -2755,8 +2559,7 @@ namespace Nop.Services.Installation
                         "<p>Online shopping is the process consumers go through to purchase products or services over the Internet. You can edit this in the admin site.</p><p>If you have questions, see the <a href=\"http://docs.nopcommerce.com/\">Documentation</a>, or post in the <a href=\"https://www.nopcommerce.com/boards/\">Forums</a> at <a href=\"https://www.nopcommerce.com\">nopCommerce.com</a></p>",
                     TopicTemplateId = defaultTopicTemplate.Id
                 },
-                new Topic
-                {
+                new() {
                     SystemName = "LoginRegistrationInfo",
                     IncludeInSitemap = false,
                     IsPasswordProtected = false,
@@ -2767,8 +2570,7 @@ namespace Nop.Services.Installation
                         "<p>Put your login / registration information here. You can edit this in the admin site.</p>",
                     TopicTemplateId = defaultTopicTemplate.Id
                 },
-                new Topic
-                {
+                new() {
                     SystemName = "PrivacyInfo",
                     IncludeInSitemap = false,
                     IsPasswordProtected = false,
@@ -2779,8 +2581,7 @@ namespace Nop.Services.Installation
                     Body = "<p>Put your privacy policy information here. You can edit this in the admin site.</p>",
                     TopicTemplateId = defaultTopicTemplate.Id
                 },
-                new Topic
-                {
+                new() {
                     SystemName = "PageNotFound",
                     IncludeInSitemap = false,
                     IsPasswordProtected = false,
@@ -2791,8 +2592,7 @@ namespace Nop.Services.Installation
                         "<p><strong>The page you requested was not found, and we have a fine guess why.</strong></p><ul><li>If you typed the URL directly, please make sure the spelling is correct.</li><li>The page no longer exists. In this case, we profusely apologize for the inconvenience and for any damage this may cause.</li></ul>",
                     TopicTemplateId = defaultTopicTemplate.Id
                 },
-                new Topic
-                {
+                new() {
                     SystemName = "ShippingInfo",
                     IncludeInSitemap = false,
                     IsPasswordProtected = false,
@@ -2804,8 +2604,7 @@ namespace Nop.Services.Installation
                         "<p>Put your shipping &amp; returns information here. You can edit this in the admin site.</p>",
                     TopicTemplateId = defaultTopicTemplate.Id
                 },
-                new Topic
-                {
+                new() {
                     SystemName = "ApplyVendor",
                     IncludeInSitemap = false,
                     IsPasswordProtected = false,
@@ -2815,8 +2614,7 @@ namespace Nop.Services.Installation
                     Body = "<p>Put your apply vendor instructions here. You can edit this in the admin site.</p>",
                     TopicTemplateId = defaultTopicTemplate.Id
                 },
-                new Topic
-                {
+                new() {
                     SystemName = "VendorTermsOfService",
                     IncludeInSitemap = false,
                     IsPasswordProtected = false,
@@ -2859,7 +2657,7 @@ namespace Nop.Services.Installation
                 LogoPictureId = 0,
                 LetterPageSizeEnabled = false,
                 RenderOrderNotes = true,
-                FontFileName = "FreeSerif.ttf",
+                FontFamily = "FreeSerif",
                 InvoiceFooterTextColumn1 = null,
                 InvoiceFooterTextColumn2 = null
             });
@@ -2887,13 +2685,14 @@ namespace Nop.Services.Installation
                 SitemapXmlIncludeProducts = true,
                 SitemapXmlIncludeProductTags = true,
                 SitemapXmlIncludeCustomUrls = true,
-                SitemapXmlIncludeTopics = true
+                SitemapXmlIncludeTopics = true,
+                RebuildSitemapXmlAfterHours = 2 * 24,
+                SitemapBuildOperationDelay = 60
             });
 
             await settingService.SaveSettingAsync(new CommonSettings
             {
                 UseSystemEmailForContactUsForm = true,
-
                 DisplayJavaScriptDisabledWarning = false,
                 Log404Errors = true,
                 BreadcrumbDelimiter = "/",
@@ -2901,20 +2700,18 @@ namespace Nop.Services.Installation
                 PopupForTermsOfServiceLinks = true,
                 JqueryMigrateScriptLoggingActive = false,
                 UseResponseCompression = true,
-                FaviconAndAppIconsHeadCode = "<link rel=\"apple-touch-icon\" sizes=\"180x180\" href=\"/icons/icons_0/apple-touch-icon.png\"><link rel=\"icon\" type=\"image/png\" sizes=\"32x32\" href=\"/icons/icons_0/favicon-32x32.png\"><link rel=\"icon\" type=\"image/png\" sizes=\"192x192\" href=\"/icons/icons_0/android-chrome-192x192.png\"><link rel=\"icon\" type=\"image/png\" sizes=\"16x16\" href=\"/icons/icons_0/favicon-16x16.png\"><link rel=\"manifest\" href=\"/icons/icons_0/site.webmanifest\"><link rel=\"mask-icon\" href=\"/icons/icons_0/safari-pinned-tab.svg\" color=\"#5bbad5\"><link rel=\"shortcut icon\" href=\"/icons/icons_0/favicon.ico\"><meta name=\"msapplication-TileColor\" content=\"#2d89ef\"><meta name=\"msapplication-TileImage\" content=\"/icons/icons_0/mstile-144x144.png\"><meta name=\"msapplication-config\" content=\"/icons/icons_0/browserconfig.xml\"><meta name=\"theme-color\" content=\"#ffffff\">",
+                FaviconAndAppIconsHeadCode =
+                    "<link rel=\"apple-touch-icon\" sizes=\"180x180\" href=\"/icons/icons_0/apple-touch-icon.png\"><link rel=\"icon\" type=\"image/png\" sizes=\"32x32\" href=\"/icons/icons_0/favicon-32x32.png\"><link rel=\"icon\" type=\"image/png\" sizes=\"192x192\" href=\"/icons/icons_0/android-chrome-192x192.png\"><link rel=\"icon\" type=\"image/png\" sizes=\"16x16\" href=\"/icons/icons_0/favicon-16x16.png\"><link rel=\"manifest\" href=\"/icons/icons_0/site.webmanifest\"><link rel=\"mask-icon\" href=\"/icons/icons_0/safari-pinned-tab.svg\" color=\"#5bbad5\"><link rel=\"shortcut icon\" href=\"/icons/icons_0/favicon.ico\"><meta name=\"msapplication-TileColor\" content=\"#2d89ef\"><meta name=\"msapplication-TileImage\" content=\"/icons/icons_0/mstile-144x144.png\"><meta name=\"msapplication-config\" content=\"/icons/icons_0/browserconfig.xml\"><meta name=\"theme-color\" content=\"#ffffff\">",
                 EnableHtmlMinification = true,
-                RestartTimeout = NopCommonDefaults.RestartTimeout
+                RestartTimeout = NopCommonDefaults.RestartTimeout,
+                HeaderCustomHtml = string.Empty,
+                FooterCustomHtml = string.Empty
             });
 
             await settingService.SaveSettingAsync(new SeoSettings
             {
                 PageTitleSeparator = ". ",
                 PageTitleSeoAdjustment = PageTitleSeoAdjustment.PagenameAfterStorename,
-                HomepageTitle = "Home page title",
-                HomepageDescription = "Home page description",
-                DefaultTitle = "Your store",
-                DefaultMetaKeywords = string.Empty,
-                DefaultMetaDescription = string.Empty,
                 GenerateProductMetaDescription = true,
                 ConvertNonWesternChars = false,
                 AllowUnicodeCharsInUrls = true,
@@ -2938,7 +2735,7 @@ namespace Nop.Services.Installation
                 RichEditorAllowStyleTag = false,
                 UseRichEditorForCustomerEmails = false,
                 UseRichEditorInMessageTemplates = false,
-                CheckCopyrightRemovalKey = true,
+                CheckLicense = true,
                 UseIsoDateFormatInJsonResult = true,
                 ShowDocumentationReferenceLinks = true
             });
@@ -2954,6 +2751,7 @@ namespace Nop.Services.Installation
 
             await settingService.SaveSettingAsync(new GdprSettings
             {
+                DeleteInactiveCustomersAfterMonths = 36,
                 GdprEnabled = false,
                 LogPrivacyPolicyConsent = true,
                 LogNewsletterConsent = true,
@@ -2970,6 +2768,7 @@ namespace Nop.Services.Installation
                 ShowManufacturerPartNumber = false,
                 ShowGtin = false,
                 ShowFreeShippingNotification = true,
+                ShowShortDescriptionOnCatalogPages = false,
                 AllowProductSorting = true,
                 AllowProductViewModeChanging = true,
                 DefaultViewMode = "grid",
@@ -2978,7 +2777,8 @@ namespace Nop.Services.Installation
                 ShowCategoryProductNumberIncludingSubcategories = false,
                 CategoryBreadcrumbEnabled = true,
                 ShowShareButton = true,
-                PageShareCode = "<!-- AddThis Button BEGIN --><div class=\"addthis_toolbox addthis_default_style \"><a class=\"addthis_button_preferred_1\"></a><a class=\"addthis_button_preferred_2\"></a><a class=\"addthis_button_preferred_3\"></a><a class=\"addthis_button_preferred_4\"></a><a class=\"addthis_button_compact\"></a><a class=\"addthis_counter addthis_bubble_style\"></a></div><script src=\"http://s7.addthis.com/js/250/addthis_widget.js#pubid=nopsolutions\"></script><!-- AddThis Button END -->",
+                PageShareCode =
+                    "<!-- ShareThis Button BEGIN --><div class=\"sharethis-inline-share-buttons\"></div><script type=\"text/javascript\" src=\"https://platform-api.sharethis.com/js/sharethis.js#property=64428a0865e28d00193ae8a9&product=inline-share-buttons&source=nopcommerce\" async=\"async\"></script><!-- ShareThis Button END -->",
                 ProductReviewsMustBeApproved = false,
                 OneReviewPerProductFromCustomer = false,
                 DefaultProductRatingValue = 5,
@@ -2990,8 +2790,10 @@ namespace Nop.Services.Installation
                 AllowAnonymousUsersToEmailAFriend = false,
                 RecentlyViewedProductsNumber = 3,
                 RecentlyViewedProductsEnabled = true,
-                NewProductsNumber = 6,
                 NewProductsEnabled = true,
+                NewProductsPageSize = 6,
+                NewProductsAllowCustomersToSelectPageSize = true,
+                NewProductsPageSizeOptions = "6, 3, 9",
                 CompareProductsEnabled = true,
                 CompareProductsNumber = 4,
                 ProductSearchAutoCompleteEnabled = true,
@@ -3057,12 +2859,21 @@ namespace Nop.Services.Installation
                 EnableManufacturerFiltering = true,
                 EnablePriceRangeFiltering = true,
                 EnableSpecificationAttributeFiltering = true,
-                AttributeValueOutOfStockDisplayType = AttributeValueOutOfStockDisplayType.AlwaysDisplay
+                DisplayFromPrices = false,
+                AttributeValueOutOfStockDisplayType = AttributeValueOutOfStockDisplayType.AlwaysDisplay,
+                AllowCustomersToSearchWithCategoryName = false,
+                AllowCustomersToSearchWithManufacturerName = false,
+                DisplayAllPicturesOnCatalogPages = false,
+                ProductUrlStructureTypeId = (int)ProductUrlStructureType.Product,
+                ActiveSearchProviderSystemName = string.Empty,
+                UseStandardSearchWhenSearchProviderThrowsException = true
             });
 
             await settingService.SaveSettingAsync(new LocalizationSettings
             {
-                DefaultAdminLanguageId = _languageRepository.Table.Single(l => l.LanguageCulture == NopCommonDefaults.DefaultLanguageCulture).Id,
+                DefaultAdminLanguageId =
+                    _languageRepository.Table
+                        .Single(l => l.LanguageCulture == NopCommonDefaults.DefaultLanguageCulture).Id,
                 UseImagesForLanguageSelection = false,
                 SeoFriendlyUrlsForLanguagesEnabled = false,
                 AutomaticallyDetectLanguage = false,
@@ -3080,6 +2891,7 @@ namespace Nop.Services.Installation
                 DefaultPasswordFormat = PasswordFormat.Hashed,
                 HashedPasswordFormat = NopCustomerServicesDefaults.DefaultHashedPasswordFormat,
                 PasswordMinLength = 6,
+                PasswordMaxLength = 64,
                 PasswordRequireDigit = false,
                 PasswordRequireLowercase = false,
                 PasswordRequireNonAlphanumeric = false,
@@ -3089,6 +2901,7 @@ namespace Nop.Services.Installation
                 PasswordLifetime = 90,
                 FailedPasswordAllowedAttempts = 0,
                 FailedPasswordLockoutMinutes = 30,
+                RequiredReLoginAfterPasswordChange = false,
                 UserRegistrationType = UserRegistrationType.Standard,
                 AllowCustomersToUploadAvatars = false,
                 AvatarMaximumSizeBytes = 20000,
@@ -3106,7 +2919,8 @@ namespace Nop.Services.Installation
                 LastNameEnabled = true,
                 LastNameRequired = true,
                 GenderEnabled = true,
-                DateOfBirthEnabled = true,
+                NeutralGenderEnabled = false,
+                DateOfBirthEnabled = false,
                 DateOfBirthRequired = false,
                 DateOfBirthMinimumAge = null,
                 CompanyEnabled = true,
@@ -3138,7 +2952,8 @@ namespace Nop.Services.Installation
                 DeleteGuestTaskOlderThanMinutes = 1440,
                 PhoneNumberValidationEnabled = false,
                 PhoneNumberValidationUseRegex = false,
-                PhoneNumberValidationRule = "^[0-9]{1,14}?$"
+                PhoneNumberValidationRule = "^[0-9]{1,14}?$",
+                DefaultCountryId = _countryRepository.Table.FirstOrDefault(c => c.ThreeLetterIsoCode == regionInfo.ThreeLetterISORegionName)?.Id
             });
 
             await settingService.SaveSettingAsync(new MultiFactorAuthenticationSettings
@@ -3162,7 +2977,8 @@ namespace Nop.Services.Installation
                 StateProvinceEnabled = true,
                 PhoneEnabled = true,
                 PhoneRequired = true,
-                FaxEnabled = true
+                FaxEnabled = true,
+                DefaultCountryId = _countryRepository.Table.FirstOrDefault(c => c.ThreeLetterIsoCode == regionInfo.ThreeLetterISORegionName)?.Id
             });
 
             await settingService.SaveSettingAsync(new MediaSettings
@@ -3176,16 +2992,21 @@ namespace Nop.Services.Installation
                 ManufacturerThumbPictureSize = 420,
                 VendorThumbPictureSize = 450,
                 CartThumbPictureSize = 80,
+                OrderThumbPictureSize = 80,
                 MiniCartThumbPictureSize = 70,
                 AutoCompleteSearchThumbPictureSize = 20,
                 ImageSquarePictureSize = 32,
                 MaximumImageSize = 1980,
                 DefaultPictureZoomEnabled = false,
+                AllowSVGUploads = false,
                 DefaultImageQuality = 80,
                 MultipleThumbDirectories = false,
                 ImportProductImagesUsingHash = true,
                 AzureCacheControlHeader = string.Empty,
-                UseAbsoluteImagePath = true
+                UseAbsoluteImagePath = true,
+                VideoIframeAllow = "fullscreen",
+                VideoIframeWidth = 300,
+                VideoIframeHeight = 150
             });
 
             await settingService.SaveSettingAsync(new StoreInformationSettings
@@ -3197,6 +3018,7 @@ namespace Nop.Services.Installation
                 FacebookLink = "https://www.facebook.com/nopCommerce",
                 TwitterLink = "https://twitter.com/nopCommerce",
                 YoutubeLink = "https://www.youtube.com/user/nopCommerce",
+                InstagramLink = "https://www.instagram.com/nopcommerce_official",
                 HidePoweredByNopCommerce = false
             });
 
@@ -3230,8 +3052,10 @@ namespace Nop.Services.Installation
             await settingService.SaveSettingAsync(new CurrencySettings
             {
                 DisplayCurrencyLabel = false,
-                PrimaryStoreCurrencyId = _currencyRepository.Table.Single(c => c.CurrencyCode == primaryCurrency).Id,
-                PrimaryExchangeRateCurrencyId = _currencyRepository.Table.Single(c => c.CurrencyCode == primaryCurrency).Id,
+                PrimaryStoreCurrencyId =
+                    _currencyRepository.Table.Single(c => c.CurrencyCode == primaryCurrency).Id,
+                PrimaryExchangeRateCurrencyId =
+                    _currencyRepository.Table.Single(c => c.CurrencyCode == primaryCurrency).Id,
                 ActiveExchangeRateProviderSystemName = "CurrencyExchange.ECB",
                 AutoUpdateEnabled = false
             });
@@ -3241,7 +3065,8 @@ namespace Nop.Services.Installation
 
             await settingService.SaveSettingAsync(new MeasureSettings
             {
-                BaseDimensionId = _measureDimensionRepository.Table.Single(m => m.SystemKeyword == baseDimension).Id,
+                BaseDimensionId =
+                    _measureDimensionRepository.Table.Single(m => m.SystemKeyword == baseDimension).Id,
                 BaseWeightId = _measureWeightRepository.Table.Single(m => m.SystemKeyword == baseWeight).Id
             });
 
@@ -3295,6 +3120,7 @@ namespace Nop.Services.Installation
                 DisableOrderCompletedPage = false,
                 DisplayPickupInStoreOnShippingMethodPage = false,
                 AttachPdfInvoiceToOrderPlacedEmail = false,
+                AttachPdfInvoiceToOrderProcessingEmail = false,
                 AttachPdfInvoiceToOrderCompletedEmail = false,
                 GeneratePdfInvoiceInCustomerLanguage = true,
                 AttachPdfInvoiceToOrderPaidEmail = false,
@@ -3310,6 +3136,7 @@ namespace Nop.Services.Installation
                 CustomOrderNumberMask = "{ID}",
                 ExportWithProducts = true,
                 AllowAdminsToBuyCallForPriceProducts = true,
+                ShowProductThumbnailInOrderDetailsPage = true,
                 DisplayCustomerCurrencyOnOrders = false,
                 DisplayOrderSummary = true
             });
@@ -3320,13 +3147,15 @@ namespace Nop.Services.Installation
                 AdminAreaAllowedIpAddresses = null,
                 HoneypotEnabled = false,
                 HoneypotInputName = "hpinput",
-                AllowNonAsciiCharactersInHeaders = true
+                AllowNonAsciiCharactersInHeaders = true,
+                UseAesEncryptionAlgorithm = true,
+                AllowStoreOwnerExportImportCustomersWithHashedPassword = true
             });
 
             await settingService.SaveSettingAsync(new ShippingSettings
             {
-                ActiveShippingRateComputationMethodSystemNames = new List<string> { "Shipping.FixedByWeightByTotal" },
-                ActivePickupPointProviderSystemNames = new List<string> { "Pickup.PickupInStore" },
+                ActiveShippingRateComputationMethodSystemNames = ["Shipping.FixedByWeightByTotal"],
+                ActivePickupPointProviderSystemNames = ["Pickup.PickupInStore"],
                 ShipToSameAddress = true,
                 AllowPickupInStore = true,
                 DisplayPickupPointsOnMap = false,
@@ -3346,18 +3175,14 @@ namespace Nop.Services.Installation
                 BypassShippingMethodSelectionIfOnlyOne = false,
                 UseCubeRootMethod = true,
                 ConsiderAssociatedProductsDimensions = true,
-                ShipSeparatelyOneItemEach = true,
+                ShipSeparatelyOneItemEach = false,
                 RequestDelay = 300,
                 ShippingSorting = ShippingSortingEnum.Position,
             });
 
             await settingService.SaveSettingAsync(new PaymentSettings
             {
-                ActivePaymentMethodSystemNames = new List<string>
-                    {
-                        "Payments.CheckMoneyOrder",
-                        "Payments.Manual"
-                    },
+                ActivePaymentMethodSystemNames = ["Payments.CheckMoneyOrder", "Payments.Manual"],
                 AllowRePostingPayments = true,
                 BypassPaymentMethodSelectionIfOnlyOne = true,
                 ShowPaymentMethodDescriptions = true,
@@ -3376,6 +3201,7 @@ namespace Nop.Services.Installation
                 DisplayTaxSuffix = false,
                 DisplayTaxRates = false,
                 PricesIncludeTax = false,
+                AutomaticallyDetectCountry = true,
                 AllowCustomersToSelectTaxDisplayType = false,
                 ForceTaxExclusionFromOrderSubtotal = false,
                 DefaultTaxCategoryId = 0,
@@ -3388,7 +3214,11 @@ namespace Nop.Services.Installation
                 PaymentMethodAdditionalFeeIncludesTax = false,
                 PaymentMethodAdditionalFeeTaxClassId = 0,
                 EuVatEnabled = isEurope,
-                EuVatShopCountryId = isEurope ? (_countryRepository.Table.FirstOrDefault(x => x.TwoLetterIsoCode == country)?.Id ?? 0) : 0,
+                EuVatEnabledForGuests = false,
+                EuVatShopCountryId =
+                    isEurope
+                        ? (_countryRepository.Table.FirstOrDefault(x => x.TwoLetterIsoCode == country)?.Id ?? 0)
+                        : 0,
                 EuVatAllowVatExemption = true,
                 EuVatUseWebService = false,
                 EuVatAssumeValid = false,
@@ -3477,17 +3307,12 @@ namespace Nop.Services.Installation
                 AllowVendorsToImportProducts = true
             });
 
-            var eaGeneral = _emailAccountRepository.Table.FirstOrDefault();
-            if (eaGeneral == null)
-                throw new Exception("Default email account cannot be loaded");
-            await settingService.SaveSettingAsync(new EmailAccountSettings
-            {
-                DefaultEmailAccountId = eaGeneral.Id
-            });
+            var eaGeneral = _emailAccountRepository.Table.FirstOrDefault() ?? throw new Exception("Default email account cannot be loaded");
+            await settingService.SaveSettingAsync(new EmailAccountSettings { DefaultEmailAccountId = eaGeneral.Id });
 
             await settingService.SaveSettingAsync(new WidgetSettings
             {
-                ActiveWidgetSystemNames = new List<string> { "Widgets.NivoSlider" }
+                ActiveWidgetSystemNames = ["Widgets.NivoSlider"]
             });
 
             await settingService.SaveSettingAsync(new DisplayDefaultMenuItemSettings
@@ -3541,14 +3366,13 @@ namespace Nop.Services.Installation
                 ShowOnForum = false,
                 ShowOnLoginPage = false,
                 ShowOnNewsCommentPage = false,
+                ShowOnNewsletterPage = false,
                 ShowOnProductReviewPage = false,
                 ShowOnRegistrationPage = false,
+                ShowOnCheckoutPageForGuests = false,
             });
 
-            await settingService.SaveSettingAsync(new MessagesSettings
-            {
-                UsePopupNotifications = false
-            });
+            await settingService.SaveSettingAsync(new MessagesSettings { UsePopupNotifications = false });
 
             await settingService.SaveSettingAsync(new ProxySettings
             {
@@ -3566,6 +3390,115 @@ namespace Nop.Services.Installation
                 CompareProductsCookieExpires = 24 * 10,
                 RecentlyViewedProductsCookieExpires = 24 * 10,
                 CustomerCookieExpires = 24 * 365
+            });
+
+            await settingService.SaveSettingAsync(new RobotsTxtSettings
+            {
+                DisallowPaths =
+                [
+                    "/admin",
+                    "/bin/",
+                    "/files/",
+                    "/files/exportimport/",
+                    "/install",
+                    "/*?*returnUrl=",
+                    //AJAX urls
+                    "/cart/estimateshipping",
+                    "/cart/selectshippingoption",
+                    "/customer/addressdelete",
+                    "/customer/removeexternalassociation",
+                    "/customer/checkusernameavailability",
+                    "/catalog/searchtermautocomplete",
+                    "/catalog/getcatalogroot",
+                    "/addproducttocart/catalog/*",
+                    "/addproducttocart/details/*",
+                    "/compareproducts/add/*",
+                    "/backinstocksubscribe/*",
+                    "/subscribenewsletter",
+                    "/t-popup/*",
+                    "/setproductreviewhelpfulness",
+                    "/poll/vote",
+                    "/country/getstatesbycountryid/",
+                    "/eucookielawaccept",
+                    "/topic/authenticate",
+                    "/category/products/",
+                    "/product/combinations",
+                    "/uploadfileproductattribute/*",
+                    "/shoppingcart/productdetails_attributechange/*",
+                    "/uploadfilereturnrequest",
+                    "/boards/topicwatch/*",
+                    "/boards/forumwatch/*",
+                    "/install/restartapplication",
+                    "/boards/postvote",
+                    "/product/estimateshipping/*",
+                    "/shoppingcart/checkoutattributechange/*"
+                ],
+                LocalizableDisallowPaths =
+                [
+                    "/addproducttocart/catalog/",
+                    "/addproducttocart/details/",
+                    "/backinstocksubscriptions/manage",
+                    "/boards/forumsubscriptions",
+                    "/boards/forumwatch",
+                    "/boards/postedit",
+                    "/boards/postdelete",
+                    "/boards/postcreate",
+                    "/boards/topicedit",
+                    "/boards/topicdelete",
+                    "/boards/topiccreate",
+                    "/boards/topicmove",
+                    "/boards/topicwatch",
+                    "/cart$",
+                    "/changecurrency",
+                    "/changelanguage",
+                    "/changetaxtype",
+                    "/checkout",
+                    "/checkout/billingaddress",
+                    "/checkout/completed",
+                    "/checkout/confirm",
+                    "/checkout/shippingaddress",
+                    "/checkout/shippingmethod",
+                    "/checkout/paymentinfo",
+                    "/checkout/paymentmethod",
+                    "/clearcomparelist",
+                    "/compareproducts",
+                    "/compareproducts/add/*",
+                    "/customer/avatar",
+                    "/customer/activation",
+                    "/customer/addresses",
+                    "/customer/changepassword",
+                    "/customer/checkusernameavailability",
+                    "/customer/downloadableproducts",
+                    "/customer/info",
+                    "/customer/productreviews",
+                    "/deletepm",
+                    "/emailwishlist",
+                    "/eucookielawaccept",
+                    "/inboxupdate",
+                    "/newsletter/subscriptionactivation",
+                    "/onepagecheckout",
+                    "/order/history",
+                    "/orderdetails",
+                    "/passwordrecovery/confirm",
+                    "/poll/vote",
+                    "/privatemessages",
+                    "/recentlyviewedproducts",
+                    "/returnrequest",
+                    "/returnrequest/history",
+                    "/rewardpoints/history",
+                    "/search?",
+                    "/sendpm",
+                    "/sentupdate",
+                    "/shoppingcart/*",
+                    "/storeclosed",
+                    "/subscribenewsletter",
+                    "/topic/authenticate",
+                    "/viewpm",
+                    "/uploadfilecheckoutattribute",
+                    "/uploadfileproductattribute",
+                    "/uploadfilereturnrequest",
+                    "/wishlist"
+                ]
             });
         }
 
@@ -3588,14 +3521,14 @@ namespace Nop.Services.Installation
                     PriceAdjustment = 0,
                     DisplayOrder = 1,
                     IsPreSelected = true,
-                    CheckoutAttributeId = ca1.Id
+                    AttributeId = ca1.Id
                 },
                 new CheckoutAttributeValue
                 {
                     Name = "Yes",
                     PriceAdjustment = 10,
                     DisplayOrder = 2,
-                    CheckoutAttributeId = ca1.Id
+                    AttributeId = ca1.Id
                 });
         }
 
@@ -3761,40 +3694,31 @@ namespace Nop.Services.Installation
         {
             var productAttributes = new List<ProductAttribute>
             {
-                new ProductAttribute
-                {
+                new() {
                     Name = "Color"
                 },
-                new ProductAttribute
-                {
+                new() {
                     Name = "Print"
                 },
-                new ProductAttribute
-                {
+                new() {
                     Name = "Custom Text"
                 },
-                new ProductAttribute
-                {
+                new() {
                     Name = "HDD"
                 },
-                new ProductAttribute
-                {
+                new() {
                     Name = "OS"
                 },
-                new ProductAttribute
-                {
+                new() {
                     Name = "Processor"
                 },
-                new ProductAttribute
-                {
+                new() {
                     Name = "RAM"
                 },
-                new ProductAttribute
-                {
+                new() {
                     Name = "Size"
                 },
-                new ProductAttribute
-                {
+                new() {
                     Name = "Software"
                 }
             };
@@ -3810,9 +3734,7 @@ namespace Nop.Services.Installation
             var sampleImagesPath = GetSamplesPath();
 
             var categoryTemplateInGridAndLines = _categoryTemplateRepository
-                .Table.FirstOrDefault(pt => pt.Name == "Products in Grid or Lines");
-            if (categoryTemplateInGridAndLines == null)
-                throw new Exception("Category template cannot be loaded");
+                .Table.FirstOrDefault(pt => pt.Name == "Products in Grid or Lines") ?? throw new Exception("Category template cannot be loaded");
 
             //categories
             var allCategories = new List<Category>();
@@ -4165,9 +4087,7 @@ namespace Nop.Services.Installation
             var sampleImagesPath = GetSamplesPath();
 
             var manufacturerTemplateInGridAndLines =
-                _manufacturerTemplateRepository.Table.FirstOrDefault(pt => pt.Name == "Products in Grid or Lines");
-            if (manufacturerTemplateInGridAndLines == null)
-                throw new Exception("Manufacturer template cannot be loaded");
+                _manufacturerTemplateRepository.Table.FirstOrDefault(pt => pt.Name == "Products in Grid or Lines") ?? throw new Exception("Manufacturer template cannot be loaded");
 
             var allManufacturers = new List<Manufacturer>();
             var manufacturerAsus = new Manufacturer
@@ -4464,7 +4384,7 @@ namespace Nop.Services.Installation
             {
                 ProductType = ProductType.SimpleProduct,
                 VisibleIndividually = true,
-                Name = "Digital Storm VANQUISH 3 Custom Performance PC",
+                Name = "Digital Storm VANQUISH Custom Performance PC",
                 Sku = "DS_VA3_PC",
                 ShortDescription = "Digital Storm Vanquish 3 Desktop PC",
                 FullDescription = "<p>Blow the doors off today’s most demanding games with maximum detail, speed, and power for an immersive gaming experience without breaking the bank.</p><p>Stay ahead of the competition, VANQUISH 3 is fully equipped to easily handle future upgrades, keeping your system on the cutting edge for years to come.</p><p>Each system is put through an extensive stress test, ensuring you experience zero bottlenecks and get the maximum performance from your hardware.</p>",
@@ -4518,7 +4438,7 @@ namespace Nop.Services.Installation
             {
                 ProductType = ProductType.SimpleProduct,
                 VisibleIndividually = true,
-                Name = "Lenovo IdeaCentre 600 All-in-One PC",
+                Name = "Lenovo IdeaCentre",
                 Sku = "LE_IC_600",
                 ShortDescription = string.Empty,
                 FullDescription = "<p>The A600 features a 21.5in screen, DVD or optional Blu-Ray drive, support for the full beans 1920 x 1080 HD, Dolby Home Cinema certification and an optional hybrid analogue/digital TV tuner.</p><p>Connectivity is handled by 802.11a/b/g - 802.11n is optional - and an ethernet port. You also get four USB ports, a Firewire slot, a six-in-one card reader and a 1.3- or two-megapixel webcam.</p>",
@@ -4572,7 +4492,7 @@ namespace Nop.Services.Installation
             {
                 ProductType = ProductType.SimpleProduct,
                 VisibleIndividually = true,
-                Name = "Apple MacBook Pro 13-inch",
+                Name = "Apple MacBook Pro",
                 Sku = "AP_MBP_13",
                 ShortDescription = "A groundbreaking Retina display. A new force-sensing trackpad. All-flash architecture. Powerful dual-core and quad-core Intel processors. Together, these features take the notebook to a new level of performance. And they will do the same for you in everything you create.",
                 FullDescription = "<p>With fifth-generation Intel Core processors, the latest graphics, and faster flash storage, the incredibly advanced MacBook Pro with Retina display moves even further ahead in performance and battery life.* *Compared with the previous generation.</p><p>Retina display with 2560-by-1600 resolution</p><p>Fifth-generation dual-core Intel Core i5 processor</p><p>Intel Iris Graphics</p><p>Up to 9 hours of battery life1</p><p>Faster flash storage2</p><p>802.11ac Wi-Fi</p><p>Two Thunderbolt 2 ports for connecting high-performance devices and transferring data at lightning speed</p><p>Two USB 3 ports (compatible with USB 2 devices) and HDMI</p><p>FaceTime HD camera</p><p>Pages, Numbers, Keynote, iPhoto, iMovie, GarageBand included</p><p>OS X, the world's most advanced desktop operating system</p>",
@@ -4668,7 +4588,7 @@ namespace Nop.Services.Installation
             {
                 ProductType = ProductType.SimpleProduct,
                 VisibleIndividually = true,
-                Name = "Asus N551JK-XO076H Laptop",
+                Name = "Asus Laptop",
                 Sku = "AS_551_LP",
                 ShortDescription = "Laptop Asus N551JK Intel Core i7-4710HQ 2.5 GHz, RAM 16GB, HDD 1TB, Video NVidia GTX 850M 4GB, BluRay, 15.6, Full HD, Win 8.1",
                 FullDescription = "<p>The ASUS N550JX combines cutting-edge audio and visual technology to deliver an unsurpassed multimedia experience. A full HD wide-view IPS panel is tailor-made for watching movies and the intuitive touchscreen makes for easy, seamless navigation. ASUS has paired the N550JX’s impressive display with SonicMaster Premium, co-developed with Bang & Olufsen ICEpower® audio experts, for true surround sound. A quad-speaker array and external subwoofer combine for distinct vocals and a low bass that you can feel.</p>",
@@ -4758,7 +4678,7 @@ namespace Nop.Services.Installation
             {
                 ProductType = ProductType.SimpleProduct,
                 VisibleIndividually = true,
-                Name = "Samsung Series 9 NP900X4C Premium Ultrabook",
+                Name = "Samsung Premium Ultrabook",
                 Sku = "SM_900_PU",
                 ShortDescription = "Samsung Series 9 NP900X4C-A06US 15-Inch Ultrabook (1.70 GHz Intel Core i5-3317U Processor, 8GB DDR3, 128GB SSD, Windows 8) Ash Black",
                 FullDescription = "<p>Designed with mobility in mind, Samsung's durable, ultra premium, lightweight Series 9 laptop (model NP900X4C-A01US) offers mobile professionals and power users a sophisticated laptop equally suited for work and entertainment. Featuring a minimalist look that is both simple and sophisticated, its polished aluminum uni-body design offers an iconic look and feel that pushes the envelope with an edge just 0.58 inches thin. This Series 9 laptop also includes a brilliant 15-inch SuperBright Plus display with HD+ technology, 128 GB Solid State Drive (SSD), 8 GB of system memory, and up to 10 hours of battery life.</p>",
@@ -4950,7 +4870,7 @@ namespace Nop.Services.Installation
             {
                 ProductType = ProductType.SimpleProduct,
                 VisibleIndividually = true,
-                Name = "HP Envy 6-1180ca 15.6-Inch Sleekbook",
+                Name = "HP Envy 15.6-Inch Sleekbook",
                 Sku = "HP_ESB_15",
                 ShortDescription = "HP ENVY 6-1202ea Ultrabook Beats Audio, 3rd generation Intel® CoreTM i7-3517U processor, 8GB RAM, 500GB HDD, Microsoft Windows 8, AMD Radeon HD 8750M (2 GB DDR3 dedicated)",
                 FullDescription = "The UltrabookTM that's up for anything. Thin and light, the HP ENVY is the large screen UltrabookTM with Beats AudioTM. With a soft-touch base that makes it easy to grab and go, it's a laptop that's up for anything.<br /><br /><b>Features</b><br /><br />- Windows 8 or other operating systems available<br /><br /><b>Top performance. Stylish design. Take notice.</b><br /><br />- At just 19.8 mm (0.78 in) thin, the HP ENVY UltrabookTM is slim and light enough to take anywhere. It's the laptop that gets you noticed with the power to get it done.<br />- With an eye-catching metal design, it's a laptop that you want to carry with you. The soft-touch, slip-resistant base gives you the confidence to carry it with ease.<br /><br /><b>More entertaining. More gaming. More fun.</b><br /><br />- Own the UltrabookTM with Beats AudioTM, dual speakers, a subwoofer, and an awesome display. Your music, movies and photo slideshows will always look and sound their best.<br />- Tons of video memory let you experience incredible gaming and multimedia without slowing down. Create and edit videos in a flash. And enjoy more of what you love to the fullest.<br />- The HP ENVY UltrabookTM is loaded with the ports you'd expect on a world-class laptop, but on a Sleekbook instead. Like HDMI, USB, RJ-45, and a headphone jack. You get all the right connections without compromising size.<br /><br /><b>Only from HP.</b><br /><br />- Life heats up. That's why there's HP CoolSense technology, which automatically adjusts your notebook's temperature based on usage and conditions. It stays cool. You stay comfortable.<br />- With HP ProtectSmart, your notebook's data stays safe from accidental bumps and bruises. It senses motion and plans ahead, stopping your hard drive and protecting your entire digital life.<br />- Keep playing even in dimly lit rooms or on red eye flights. The optional backlit keyboard[1] is full-size so you don't compromise comfort. Backlit keyboard. Another bright idea.<br /><br />",
@@ -5046,7 +4966,7 @@ namespace Nop.Services.Installation
             {
                 ProductType = ProductType.SimpleProduct,
                 VisibleIndividually = true,
-                Name = "Lenovo Thinkpad X1 Carbon Laptop",
+                Name = "Lenovo Thinkpad Carbon Laptop",
                 Sku = "LE_TX1_CL",
                 ShortDescription = "Lenovo Thinkpad X1 Carbon Touch Intel Core i7 14 Ultrabook",
                 FullDescription = "<p>The X1 Carbon brings a new level of quality to the ThinkPad legacy of high standards and innovation. It starts with the durable, carbon fiber-reinforced roll cage, making for the best Ultrabook construction available, and adds a host of other new features on top of the old favorites. Because for 20 years, we haven't stopped innovating. And you shouldn't stop benefiting from that.</p>",
@@ -5119,7 +5039,7 @@ namespace Nop.Services.Installation
             {
                 ProductType = ProductType.SimpleProduct,
                 VisibleIndividually = true,
-                Name = "Adobe Photoshop CS4",
+                Name = "Adobe Photoshop",
                 Sku = "AD_CS4_PH",
                 ShortDescription = "Easily find and view all your photos",
                 FullDescription = "<p>Adobe Photoshop CS4 software combines power and simplicity so you can make ordinary photos extraordinary; tell engaging stories in beautiful, personalized creations for print and web; and easily find and view all your photos. New Photoshop.com membership* works with Photoshop CS4 so you can protect your photos with automatic online backup and 2 GB of storage; view your photos anywhere you are; and share your photos in fun, interactive ways with invitation-only Online Albums.</p>",
@@ -5166,7 +5086,7 @@ namespace Nop.Services.Installation
             {
                 ProductType = ProductType.SimpleProduct,
                 VisibleIndividually = true,
-                Name = "Windows 8 Pro",
+                Name = "Microsoft Windows OS",
                 Sku = "MS_WIN_8P",
                 ShortDescription = "Windows 8 is a Microsoft operating system that was released in 2012 as part of the company's Windows NT OS family. ",
                 FullDescription = "<p>Windows 8 Pro is comparable to Windows 7 Professional and Ultimate and is targeted towards enthusiasts and business users; it includes all the features of Windows 8. Additional features include the ability to receive Remote Desktop connections, the ability to participate in a Windows Server domain, Encrypting File System, Hyper-V, and Virtual Hard Disk Booting, Group Policy as well as BitLocker and BitLocker To Go. Windows Media Center functionality is available only for Windows 8 Pro as a separate software package.</p>",
@@ -5204,7 +5124,7 @@ namespace Nop.Services.Installation
                 DisplayOrder = 1
             });
 
-            await InsertProductPictureAsync(productWindows8Pro, "product_Windows8.jpeg");
+            await InsertProductPictureAsync(productWindows8Pro, "product_Windows.jpeg");
 
             await AddProductTagAsync(productWindows8Pro, "awesome");
             await AddProductTagAsync(productWindows8Pro, "computer");
@@ -5213,7 +5133,7 @@ namespace Nop.Services.Installation
             {
                 ProductType = ProductType.SimpleProduct,
                 VisibleIndividually = true,
-                Name = "Sound Forge Pro 11 (recurring)",
+                Name = "Sound Forge Pro (recurring)",
                 Sku = "SF_PRO_11",
                 ShortDescription = "Advanced audio waveform editor.",
                 FullDescription = "<p>Sound Forge™ Pro is the application of choice for a generation of creative and prolific artists, producers, and editors. Record audio quickly on a rock-solid platform, address sophisticated audio processing tasks with surgical precision, and render top-notch master files with ease. New features include one-touch recording, metering for the new critical standards, more repair and restoration tools, and exclusive round-trip interoperability with SpectraLayers Pro. Taken together, these enhancements make this edition of Sound Forge Pro the deepest and most advanced audio editing platform available.</p>",
@@ -5652,7 +5572,7 @@ namespace Nop.Services.Installation
             {
                 ProductType = ProductType.SimpleProduct,
                 VisibleIndividually = true,
-                Name = "HTC One M8 Android L 5.0 Lollipop",
+                Name = "HTC smartphone",
                 Sku = "M8_HTC_5L",
                 ShortDescription = "HTC - One (M8) 4G LTE Cell Phone with 32GB Memory - Gunmetal (Sprint)",
                 FullDescription = "<p><b>HTC One (M8) Cell Phone for Sprint:</b> With its brushed-metal design and wrap-around unibody frame, the HTC One (M8) is designed to fit beautifully in your hand. It's fun to use with amped up sound and a large Full HD touch screen, and intuitive gesture controls make it seem like your phone almost knows what you need before you do. <br /><br />Sprint Easy Pay option available in store.</p>",
@@ -5800,7 +5720,7 @@ namespace Nop.Services.Installation
             {
                 ProductType = ProductType.SimpleProduct,
                 VisibleIndividually = true,
-                Name = "Beats Pill 2.0 Wireless Speaker",
+                Name = "Beats Pill Wireless Speaker",
                 Sku = "BP_20_WSP",
                 ShortDescription = "<b>Pill 2.0 Portable Bluetooth Speaker (1-Piece):</b> Watch your favorite movies and listen to music with striking sound quality. This lightweight, portable speaker is easy to take with you as you travel to any destination, keeping you entertained wherever you are. ",
                 FullDescription = "<ul><li>Pair and play with your Bluetooth® device with 30 foot range</li><li>Built-in speakerphone</li><li>7 hour rechargeable battery</li><li>Power your other devices with USB charge out</li><li>Tap two Beats Pills™ together for twice the sound with Beats Bond™</li></ul>",
@@ -5846,20 +5766,17 @@ namespace Nop.Services.Installation
 
             await InsertInstallationDataAsync(new List<TierPrice>
             {
-                new TierPrice
-                {
+                new() {
                     Quantity = 2,
                     Price = 19,
                     ProductId = productBeatsPill.Id
                 },
-                new TierPrice
-                {
+                new() {
                     Quantity = 5,
                     Price = 17,
                     ProductId = productBeatsPill.Id
                 },
-                new TierPrice
-                {
+                new() {
                     Quantity = 10,
                     Price = 15,
                     StartDateTimeUtc = DateTime.UtcNow.AddDays(-7),
@@ -6184,24 +6101,37 @@ namespace Nop.Services.Installation
                     IsRequired = true
                 });
 
-            await InsertInstallationDataAsync(
+            var pavNatural = await InsertInstallationDataAsync(
                 new ProductAttributeValue
                 {
                     ProductAttributeMappingId = pamPrint.Id,
-                    PictureId = picProductNikeFloralShoe1Id,
                     AttributeValueType = AttributeValueType.Simple,
                     Name = "Natural",
                     DisplayOrder = 1,
                     ImageSquaresPictureId = (await pictureService.InsertPictureAsync(await _fileProvider.ReadAllBytesAsync(_fileProvider.Combine(sampleImagesPath, "p_attribute_print_2.jpg")), MimeTypes.ImagePJpeg, await pictureService.GetPictureSeNameAsync("Natural Print"))).Id
-                },
+                });
+
+            await InsertInstallationDataAsync(new ProductAttributeValuePicture
+            {
+                PictureId = picProductNikeFloralShoe1Id,
+                ProductAttributeValueId = pavNatural.Id
+            });
+
+            var pavFresh = await InsertInstallationDataAsync(
                 new ProductAttributeValue
                 {
                     ProductAttributeMappingId = pamPrint.Id,
-                    PictureId = picProductNikeFloralShoe2Id,
                     AttributeValueType = AttributeValueType.Simple,
                     Name = "Fresh",
                     DisplayOrder = 2,
                     ImageSquaresPictureId = (await pictureService.InsertPictureAsync(await _fileProvider.ReadAllBytesAsync(_fileProvider.Combine(sampleImagesPath, "p_attribute_print_1.jpg")), MimeTypes.ImagePJpeg, await pictureService.GetPictureSeNameAsync("Fresh Print"))).Id
+                });
+
+            await InsertInstallationDataAsync(
+                new ProductAttributeValuePicture
+                {
+                    PictureId = picProductNikeFloralShoe2Id,
+                    ProductAttributeValueId = pavFresh.Id
                 });
 
             await AddProductTagAsync(productNikeFloral, "cool");
@@ -6331,34 +6261,55 @@ namespace Nop.Services.Installation
                     IsRequired = true
                 });
 
-            await InsertInstallationDataAsync(
+            var pavRed = await InsertInstallationDataAsync(
                 new ProductAttributeValue
                 {
                     ProductAttributeMappingId = pamAdidasColor.Id,
-                    PictureId = picProductAdidasId,
                     AttributeValueType = AttributeValueType.Simple,
                     Name = "Red",
                     IsPreSelected = true,
                     ColorSquaresRgb = "#663030",
                     DisplayOrder = 1
-                },
-                new ProductAttributeValue
+                });
+
+            await InsertInstallationDataAsync(
+                new ProductAttributeValuePicture
                 {
-                    ProductAttributeMappingId = pamAdidasColor.Id,
+                    PictureId = picProductAdidasId,
+                    ProductAttributeValueId = pavRed.Id
+                });
+
+            var pavBlue = await InsertInstallationDataAsync(new ProductAttributeValue
+            {
+                ProductAttributeMappingId = pamAdidasColor.Id,
+                AttributeValueType = AttributeValueType.Simple,
+                Name = "Blue",
+                ColorSquaresRgb = "#363656",
+                DisplayOrder = 2
+            });
+
+            await InsertInstallationDataAsync(
+                new ProductAttributeValuePicture
+                {
                     PictureId = picProductAdidas2Id,
-                    AttributeValueType = AttributeValueType.Simple,
-                    Name = "Blue",
-                    ColorSquaresRgb = "#363656",
-                    DisplayOrder = 2
-                },
+                    ProductAttributeValueId = pavBlue.Id
+                });
+
+            var pavSilver = await InsertInstallationDataAsync(
                 new ProductAttributeValue
                 {
                     ProductAttributeMappingId = pamAdidasColor.Id,
-                    PictureId = picProductAdidas3Id,
                     AttributeValueType = AttributeValueType.Simple,
                     Name = "Silver",
                     ColorSquaresRgb = "#c5c5d5",
                     DisplayOrder = 3
+                });
+
+            await InsertInstallationDataAsync(
+                new ProductAttributeValuePicture
+                {
+                    PictureId = picProductAdidas3Id,
+                    ProductAttributeValueId = pavSilver.Id
                 });
 
             await AddProductTagAsync(productAdidas, "cool");
@@ -6588,20 +6539,17 @@ namespace Nop.Services.Installation
 
             await InsertInstallationDataAsync(new List<TierPrice>
             {
-                new TierPrice
-                {
+                new() {
                     Quantity = 3,
                     Price = 21,
                     ProductId = productOversizedWomenTShirt.Id
                 },
-                new TierPrice
-                {
+                new() {
                     Quantity = 7,
                     Price = 19,
                     ProductId = productOversizedWomenTShirt.Id
                 },
-                new TierPrice
-                {
+                new() {
                     Quantity = 10,
                     Price = 16,
                     ProductId = productOversizedWomenTShirt.Id
@@ -6719,20 +6667,17 @@ namespace Nop.Services.Installation
 
             await InsertInstallationDataAsync(new List<TierPrice>
             {
-                new TierPrice
-                {
+                new() {
                     Quantity = 3,
                     Price = 40,
                     ProductId = productLeviJeans.Id
                 },
-                new TierPrice
-                {
+                new() {
                     Quantity = 6,
                     Price = 38,
                     ProductId = productLeviJeans.Id
                 },
-                new TierPrice
-                {
+                new() {
                     Quantity = 10,
                     Price = 35,
                     ProductId = productLeviJeans.Id
@@ -7717,32 +7662,20 @@ namespace Nop.Services.Installation
         /// <returns>A task that represents the asynchronous operation</returns>
         protected virtual async Task InstallProductsAsync(string defaultUserEmail)
         {
-            var productTemplateSimple = _productTemplateRepository.Table.FirstOrDefault(pt => pt.Name == "Simple product");
-            if (productTemplateSimple == null)
-                throw new Exception("Simple product template could not be loaded");
-            var productTemplateGrouped = _productTemplateRepository.Table.FirstOrDefault(pt => pt.Name == "Grouped product (with variants)");
-            if (productTemplateGrouped == null)
-                throw new Exception("Grouped product template could not be loaded");
+            var productTemplateSimple = _productTemplateRepository.Table.FirstOrDefault(pt => pt.Name == "Simple product") ?? throw new Exception("Simple product template could not be loaded");
+            var productTemplateGrouped = _productTemplateRepository.Table.FirstOrDefault(pt => pt.Name == "Grouped product (with variants)") ?? throw new Exception("Grouped product template could not be loaded");
 
             //delivery date
-            var deliveryDate = _deliveryDateRepository.Table.FirstOrDefault();
-            if (deliveryDate == null)
-                throw new Exception("No default deliveryDate could be loaded");
+            var deliveryDate = _deliveryDateRepository.Table.FirstOrDefault() ?? throw new Exception("No default deliveryDate could be loaded");
 
             //product availability range
-            var productAvailabilityRange = _productAvailabilityRangeRepository.Table.FirstOrDefault();
-            if (productAvailabilityRange == null)
-                throw new Exception("No default product availability range could be loaded");
+            var productAvailabilityRange = _productAvailabilityRangeRepository.Table.FirstOrDefault() ?? throw new Exception("No default product availability range could be loaded");
 
             //default customer/user
-            var defaultCustomer = _customerRepository.Table.FirstOrDefault(x => x.Email == defaultUserEmail);
-            if (defaultCustomer == null)
-                throw new Exception("Cannot load default customer");
+            var defaultCustomer = _customerRepository.Table.FirstOrDefault(x => x.Email == defaultUserEmail) ?? throw new Exception("Cannot load default customer");
 
             //default store
-            var defaultStore = _storeRepository.Table.FirstOrDefault();
-            if (defaultStore == null)
-                throw new Exception("No default store could be loaded");
+            var defaultStore = _storeRepository.Table.FirstOrDefault() ?? throw new Exception("No default store could be loaded");
 
             //pictures
             var pictureService = EngineContext.Current.Resolve<IPictureService>();
@@ -7904,8 +7837,8 @@ namespace Nop.Services.Installation
         {
             var discounts = new List<Discount>
             {
-                new Discount
-                {
+                new() {
+                    IsActive = true,
                     Name = "Sample discount with coupon code",
                     DiscountType = DiscountType.AssignedToSkus,
                     DiscountLimitation = DiscountLimitationType.Unlimited,
@@ -7914,8 +7847,8 @@ namespace Nop.Services.Installation
                     RequiresCouponCode = true,
                     CouponCode = "123"
                 },
-                new Discount
-                {
+                new() {
+                    IsActive = true,
                     Name = "'20% order total' discount",
                     DiscountType = DiscountType.AssignedToOrderTotal,
                     DiscountLimitation = DiscountLimitationType.Unlimited,
@@ -7934,17 +7867,13 @@ namespace Nop.Services.Installation
         /// <returns>A task that represents the asynchronous operation</returns>
         protected virtual async Task InstallBlogPostsAsync(string defaultUserEmail)
         {
-            var defaultLanguage = _languageRepository.Table.FirstOrDefault();
-
-            if (defaultLanguage == null)
-                throw new Exception("Default language could not be loaded");
+            var defaultLanguage = _languageRepository.Table.FirstOrDefault() ?? throw new Exception("Default language could not be loaded");
 
             var blogService = EngineContext.Current.Resolve<IBlogService>();
 
             var blogPosts = new List<BlogPost>
             {
-                new BlogPost
-                {
+                new() {
                     AllowComments = true,
                     LanguageId = defaultLanguage.Id,
                     Title = "How a blog can help your growing e-Commerce business",
@@ -7953,8 +7882,7 @@ namespace Nop.Services.Installation
                     Tags = "e-commerce, blog, moey",
                     CreatedOnUtc = DateTime.UtcNow
                 },
-                new BlogPost
-                {
+                new() {
                     AllowComments = true,
                     LanguageId = defaultLanguage.Id,
                     Title = "Why your online store needs a wish list",
@@ -7979,14 +7907,10 @@ namespace Nop.Services.Installation
                 });
 
             //comments
-            var defaultCustomer = _customerRepository.Table.FirstOrDefault(x => x.Email == defaultUserEmail);
-            if (defaultCustomer == null)
-                throw new Exception("Cannot load default customer");
+            var defaultCustomer = _customerRepository.Table.FirstOrDefault(x => x.Email == defaultUserEmail) ?? throw new Exception("Cannot load default customer");
 
             //default store
-            var defaultStore = _storeRepository.Table.FirstOrDefault();
-            if (defaultStore == null)
-                throw new Exception("No default store could be loaded");
+            var defaultStore = _storeRepository.Table.FirstOrDefault() ?? throw new Exception("No default store could be loaded");
 
             foreach (var blogPost in blogPosts)
                 await blogService.InsertBlogCommentAsync(new BlogComment
@@ -8005,17 +7929,13 @@ namespace Nop.Services.Installation
         /// <returns>A task that represents the asynchronous operation</returns>
         protected virtual async Task InstallNewsAsync(string defaultUserEmail)
         {
-            var defaultLanguage = _languageRepository.Table.FirstOrDefault();
-
-            if (defaultLanguage == null)
-                throw new Exception("Default language could not be loaded");
+            var defaultLanguage = _languageRepository.Table.FirstOrDefault() ?? throw new Exception("Default language could not be loaded");
 
             var newsService = EngineContext.Current.Resolve<INewsService>();
 
             var news = new List<NewsItem>
             {
-                new NewsItem
-                {
+                new() {
                     AllowComments = true,
                     LanguageId = defaultLanguage.Id,
                     Title = "About nopCommerce",
@@ -8024,8 +7944,7 @@ namespace Nop.Services.Installation
                     Published = true,
                     CreatedOnUtc = DateTime.UtcNow
                 },
-                new NewsItem
-                {
+                new() {
                     AllowComments = true,
                     LanguageId = defaultLanguage.Id,
                     Title = "nopCommerce new release!",
@@ -8034,8 +7953,7 @@ namespace Nop.Services.Installation
                     Published = true,
                     CreatedOnUtc = DateTime.UtcNow.AddSeconds(1)
                 },
-                new NewsItem
-                {
+                new() {
                     AllowComments = true,
                     LanguageId = defaultLanguage.Id,
                     Title = "New online store is open!",
@@ -8060,14 +7978,10 @@ namespace Nop.Services.Installation
                 });
 
             //comments
-            var defaultCustomer = _customerRepository.Table.FirstOrDefault(x => x.Email == defaultUserEmail);
-            if (defaultCustomer == null)
-                throw new Exception("Cannot load default customer");
+            var defaultCustomer = _customerRepository.Table.FirstOrDefault(x => x.Email == defaultUserEmail) ?? throw new Exception("Cannot load default customer");
 
             //default store
-            var defaultStore = _storeRepository.Table.FirstOrDefault();
-            if (defaultStore == null)
-                throw new Exception("No default store could be loaded");
+            var defaultStore = _storeRepository.Table.FirstOrDefault() ?? throw new Exception("No default store could be loaded");
 
             foreach (var newsItem in news)
                 await newsService.InsertNewsCommentAsync(new NewsComment
@@ -8087,10 +8001,7 @@ namespace Nop.Services.Installation
         /// <returns>A task that represents the asynchronous operation</returns>
         protected virtual async Task InstallPollsAsync()
         {
-            var defaultLanguage = _languageRepository.Table.FirstOrDefault();
-
-            if (defaultLanguage == null)
-                throw new Exception("Default language could not be loaded");
+            var defaultLanguage = _languageRepository.Table.FirstOrDefault() ?? throw new Exception("Default language could not be loaded");
 
             var poll1 = new Poll
             {
@@ -8106,26 +8017,22 @@ namespace Nop.Services.Installation
 
             var answers = new List<PollAnswer>
             {
-                new PollAnswer
-            {
+                new() {
                 Name = "Excellent",
                 DisplayOrder = 1,
                 PollId = poll1.Id
             },
-                new PollAnswer
-            {
+                new() {
                 Name = "Good",
                 DisplayOrder = 2,
                 PollId = poll1.Id
             },
-                new PollAnswer
-            {
+                new() {
                 Name = "Poor",
                 DisplayOrder = 3,
                 PollId = poll1.Id
             },
-                new PollAnswer
-            {
+                new() {
                 Name = "Very bad",
                 DisplayOrder = 4,
                 PollId = poll1.Id
@@ -8141,921 +8048,818 @@ namespace Nop.Services.Installation
             var activityLogTypes = new List<ActivityLogType>
             {
                 //admin area activities
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "AddNewAddressAttribute",
                     Enabled = true,
                     Name = "Add a new address attribute"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "AddNewAddressAttributeValue",
                     Enabled = true,
                     Name = "Add a new address attribute value"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "AddNewAffiliate",
                     Enabled = true,
                     Name = "Add a new affiliate"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "AddNewBlogPost",
                     Enabled = true,
                     Name = "Add a new blog post"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "AddNewCampaign",
                     Enabled = true,
                     Name = "Add a new campaign"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "AddNewCategory",
                     Enabled = true,
                     Name = "Add a new category"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "AddNewCheckoutAttribute",
                     Enabled = true,
                     Name = "Add a new checkout attribute"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "AddNewCountry",
                     Enabled = true,
                     Name = "Add a new country"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "AddNewCurrency",
                     Enabled = true,
                     Name = "Add a new currency"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "AddNewCustomer",
                     Enabled = true,
                     Name = "Add a new customer"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "AddNewCustomerAttribute",
                     Enabled = true,
                     Name = "Add a new customer attribute"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "AddNewCustomerAttributeValue",
                     Enabled = true,
                     Name = "Add a new customer attribute value"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "AddNewCustomerRole",
                     Enabled = true,
                     Name = "Add a new customer role"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "AddNewDiscount",
                     Enabled = true,
                     Name = "Add a new discount"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "AddNewEmailAccount",
                     Enabled = true,
                     Name = "Add a new email account"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "AddNewGiftCard",
                     Enabled = true,
                     Name = "Add a new gift card"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "AddNewLanguage",
                     Enabled = true,
                     Name = "Add a new language"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "AddNewManufacturer",
                     Enabled = true,
                     Name = "Add a new manufacturer"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "AddNewMeasureDimension",
                     Enabled = true,
                     Name = "Add a new measure dimension"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "AddNewMeasureWeight",
                     Enabled = true,
                     Name = "Add a new measure weight"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "AddNewNews",
                     Enabled = true,
                     Name = "Add a new news"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "AddNewProduct",
                     Enabled = true,
                     Name = "Add a new product"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "AddNewProductAttribute",
                     Enabled = true,
                     Name = "Add a new product attribute"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "AddNewSetting",
                     Enabled = true,
                     Name = "Add a new setting"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "AddNewSpecAttribute",
                     Enabled = true,
                     Name = "Add a new specification attribute"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "AddNewSpecAttributeGroup",
                     Enabled = true,
                     Name = "Add a new specification attribute group"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "AddNewStateProvince",
                     Enabled = true,
                     Name = "Add a new state or province"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "AddNewStore",
                     Enabled = true,
                     Name = "Add a new store"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "AddNewTopic",
                     Enabled = true,
                     Name = "Add a new topic"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "AddNewReviewType",
                     Enabled = true,
                     Name = "Add a new review type"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "AddNewVendor",
                     Enabled = true,
                     Name = "Add a new vendor"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "AddNewVendorAttribute",
                     Enabled = true,
                     Name = "Add a new vendor attribute"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "AddNewVendorAttributeValue",
                     Enabled = true,
                     Name = "Add a new vendor attribute value"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "AddNewWarehouse",
                     Enabled = true,
                     Name = "Add a new warehouse"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "AddNewWidget",
                     Enabled = true,
                     Name = "Add a new widget"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "DeleteActivityLog",
                     Enabled = true,
                     Name = "Delete activity log"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "DeleteAddressAttribute",
                     Enabled = true,
                     Name = "Delete an address attribute"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "DeleteAddressAttributeValue",
                     Enabled = true,
                     Name = "Delete an address attribute value"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "DeleteAffiliate",
                     Enabled = true,
                     Name = "Delete an affiliate"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "DeleteBlogPost",
                     Enabled = true,
                     Name = "Delete a blog post"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "DeleteBlogPostComment",
                     Enabled = true,
                     Name = "Delete a blog post comment"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "DeleteCampaign",
                     Enabled = true,
                     Name = "Delete a campaign"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "DeleteCategory",
                     Enabled = true,
                     Name = "Delete category"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "DeleteCheckoutAttribute",
                     Enabled = true,
                     Name = "Delete a checkout attribute"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "DeleteCountry",
                     Enabled = true,
                     Name = "Delete a country"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "DeleteCurrency",
                     Enabled = true,
                     Name = "Delete a currency"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "DeleteCustomer",
                     Enabled = true,
                     Name = "Delete a customer"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "DeleteCustomerAttribute",
                     Enabled = true,
                     Name = "Delete a customer attribute"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "DeleteCustomerAttributeValue",
                     Enabled = true,
                     Name = "Delete a customer attribute value"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "DeleteCustomerRole",
                     Enabled = true,
                     Name = "Delete a customer role"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "DeleteDiscount",
                     Enabled = true,
                     Name = "Delete a discount"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "DeleteEmailAccount",
                     Enabled = true,
                     Name = "Delete an email account"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "DeleteGiftCard",
                     Enabled = true,
                     Name = "Delete a gift card"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "DeleteLanguage",
                     Enabled = true,
                     Name = "Delete a language"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "DeleteManufacturer",
                     Enabled = true,
                     Name = "Delete a manufacturer"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "DeleteMeasureDimension",
                     Enabled = true,
                     Name = "Delete a measure dimension"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "DeleteMeasureWeight",
                     Enabled = true,
                     Name = "Delete a measure weight"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "DeleteMessageTemplate",
                     Enabled = true,
                     Name = "Delete a message template"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "DeleteNews",
                     Enabled = true,
                     Name = "Delete a news"
                 },
-                 new ActivityLogType
-                {
+                 new() {
                     SystemKeyword = "DeleteNewsComment",
                     Enabled = true,
                     Name = "Delete a news comment"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "DeleteOrder",
                     Enabled = true,
                     Name = "Delete an order"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "DeletePlugin",
                     Enabled = true,
                     Name = "Delete a plugin"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "DeleteProduct",
                     Enabled = true,
                     Name = "Delete a product"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "DeleteProductAttribute",
                     Enabled = true,
                     Name = "Delete a product attribute"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "DeleteProductReview",
                     Enabled = true,
                     Name = "Delete a product review"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "DeleteReturnRequest",
                     Enabled = true,
                     Name = "Delete a return request"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "DeleteReviewType",
                     Enabled = true,
                     Name = "Delete a review type"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "DeleteSetting",
                     Enabled = true,
                     Name = "Delete a setting"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "DeleteSpecAttribute",
                     Enabled = true,
                     Name = "Delete a specification attribute"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "DeleteSpecAttributeGroup",
                     Enabled = true,
                     Name = "Delete a specification attribute group"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "DeleteStateProvince",
                     Enabled = true,
                     Name = "Delete a state or province"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "DeleteStore",
                     Enabled = true,
                     Name = "Delete a store"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "DeleteSystemLog",
                     Enabled = true,
                     Name = "Delete system log"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "DeleteTopic",
                     Enabled = true,
                     Name = "Delete a topic"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "DeleteVendor",
                     Enabled = true,
                     Name = "Delete a vendor"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "DeleteVendorAttribute",
                     Enabled = true,
                     Name = "Delete a vendor attribute"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "DeleteVendorAttributeValue",
                     Enabled = true,
                     Name = "Delete a vendor attribute value"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "DeleteWarehouse",
                     Enabled = true,
                     Name = "Delete a warehouse"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "DeleteWidget",
                     Enabled = true,
                     Name = "Delete a widget"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "EditActivityLogTypes",
                     Enabled = true,
                     Name = "Edit activity log types"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "EditAddressAttribute",
                     Enabled = true,
                     Name = "Edit an address attribute"
                 },
-                 new ActivityLogType
-                {
+                 new() {
                     SystemKeyword = "EditAddressAttributeValue",
                     Enabled = true,
                     Name = "Edit an address attribute value"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "EditAffiliate",
                     Enabled = true,
                     Name = "Edit an affiliate"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "EditBlogPost",
                     Enabled = true,
                     Name = "Edit a blog post"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "EditCampaign",
                     Enabled = true,
                     Name = "Edit a campaign"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "EditCategory",
                     Enabled = true,
                     Name = "Edit category"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "EditCheckoutAttribute",
                     Enabled = true,
                     Name = "Edit a checkout attribute"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "EditCountry",
                     Enabled = true,
                     Name = "Edit a country"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "EditCurrency",
                     Enabled = true,
                     Name = "Edit a currency"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "EditCustomer",
                     Enabled = true,
                     Name = "Edit a customer"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "EditCustomerAttribute",
                     Enabled = true,
                     Name = "Edit a customer attribute"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "EditCustomerAttributeValue",
                     Enabled = true,
                     Name = "Edit a customer attribute value"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "EditCustomerRole",
                     Enabled = true,
                     Name = "Edit a customer role"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "EditDiscount",
                     Enabled = true,
                     Name = "Edit a discount"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "EditEmailAccount",
                     Enabled = true,
                     Name = "Edit an email account"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "EditGiftCard",
                     Enabled = true,
                     Name = "Edit a gift card"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "EditLanguage",
                     Enabled = true,
                     Name = "Edit a language"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "EditManufacturer",
                     Enabled = true,
                     Name = "Edit a manufacturer"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "EditMeasureDimension",
                     Enabled = true,
                     Name = "Edit a measure dimension"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "EditMeasureWeight",
                     Enabled = true,
                     Name = "Edit a measure weight"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "EditMessageTemplate",
                     Enabled = true,
                     Name = "Edit a message template"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "EditNews",
                     Enabled = true,
                     Name = "Edit a news"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "EditOrder",
                     Enabled = true,
                     Name = "Edit an order"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "EditPlugin",
                     Enabled = true,
                     Name = "Edit a plugin"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "EditProduct",
                     Enabled = true,
                     Name = "Edit a product"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "EditProductAttribute",
                     Enabled = true,
                     Name = "Edit a product attribute"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "EditProductReview",
                     Enabled = true,
                     Name = "Edit a product review"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "EditPromotionProviders",
                     Enabled = true,
                     Name = "Edit promotion providers"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "EditReturnRequest",
                     Enabled = true,
                     Name = "Edit a return request"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "EditReviewType",
                     Enabled = true,
                     Name = "Edit a review type"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "EditSettings",
                     Enabled = true,
                     Name = "Edit setting(s)"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "EditStateProvince",
                     Enabled = true,
                     Name = "Edit a state or province"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "EditStore",
                     Enabled = true,
                     Name = "Edit a store"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "EditTask",
                     Enabled = true,
                     Name = "Edit a task"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "EditSpecAttribute",
                     Enabled = true,
                     Name = "Edit a specification attribute"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "EditSpecAttributeGroup",
                     Enabled = true,
                     Name = "Edit a specification attribute group"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "EditVendor",
                     Enabled = true,
                     Name = "Edit a vendor"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "EditVendorAttribute",
                     Enabled = true,
                     Name = "Edit a vendor attribute"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "EditVendorAttributeValue",
                     Enabled = true,
                     Name = "Edit a vendor attribute value"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "EditWarehouse",
                     Enabled = true,
                     Name = "Edit a warehouse"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "EditTopic",
                     Enabled = true,
                     Name = "Edit a topic"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "EditWidget",
                     Enabled = true,
                     Name = "Edit a widget"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "Impersonation.Started",
                     Enabled = true,
                     Name = "Customer impersonation session. Started"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "Impersonation.Finished",
                     Enabled = true,
                     Name = "Customer impersonation session. Finished"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "ImportCategories",
                     Enabled = true,
                     Name = "Categories were imported"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "ImportManufacturers",
                     Enabled = true,
                     Name = "Manufacturers were imported"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "ImportProducts",
                     Enabled = true,
                     Name = "Products were imported"
                 },
-                new ActivityLogType
-                {
+                new() {
+                    SystemKeyword = "ImportCustomers",
+                    Enabled = true,
+                    Name = "Customers were imported"
+                },
+                new() {
+                    SystemKeyword = "ImportNewsLetterSubscriptions",
+                    Enabled = true,
+                    Name = "Newsletter subscriptions were imported"
+                },
+                new() {
                     SystemKeyword = "ImportStates",
                     Enabled = true,
                     Name = "States were imported"
                 },
-                new ActivityLogType
-                {
+                new() {
+                    SystemKeyword = "ExportCustomers",
+                    Enabled = true,
+                    Name = "Customers were exported"
+                },
+                new() {
+                    SystemKeyword = "ExportCategories",
+                    Enabled = true,
+                    Name = "Categories were exported"
+                },
+                new() {
+                    SystemKeyword = "ExportManufacturers",
+                    Enabled = true,
+                    Name = "Manufacturers were exported"
+                },
+                new() {
+                    SystemKeyword = "ExportProducts",
+                    Enabled = true,
+                    Name = "Products were exported"
+                },
+                new() {
+                    SystemKeyword = "ExportOrders",
+                    Enabled = true,
+                    Name = "Orders were exported"
+                },
+                new() {
+                    SystemKeyword = "ExportStates",
+                    Enabled = true,
+                    Name = "States were exported"
+                },
+                new() {
+                    SystemKeyword = "ExportNewsLetterSubscriptions",
+                    Enabled = true,
+                    Name = "Newsletter subscriptions were exported"
+                },
+                new() {
                     SystemKeyword = "InstallNewPlugin",
                     Enabled = true,
                     Name = "Install a new plugin"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "UninstallPlugin",
                     Enabled = true,
                     Name = "Uninstall a plugin"
                 },
+                new() {
+                    SystemKeyword = "UpdatePlugin",
+                    Enabled = true,
+                    Name = "Update a plugin"
+                },
                 //public store activities
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "PublicStore.ViewCategory",
                     Enabled = false,
                     Name = "Public store. View a category"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "PublicStore.ViewManufacturer",
                     Enabled = false,
                     Name = "Public store. View a manufacturer"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "PublicStore.ViewProduct",
                     Enabled = false,
                     Name = "Public store. View a product"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "PublicStore.PlaceOrder",
                     Enabled = false,
                     Name = "Public store. Place an order"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "PublicStore.SendPM",
                     Enabled = false,
                     Name = "Public store. Send PM"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "PublicStore.ContactUs",
                     Enabled = false,
                     Name = "Public store. Use contact us form"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "PublicStore.AddToCompareList",
                     Enabled = false,
                     Name = "Public store. Add to compare list"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "PublicStore.AddToShoppingCart",
                     Enabled = false,
                     Name = "Public store. Add to shopping cart"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "PublicStore.AddToWishlist",
                     Enabled = false,
                     Name = "Public store. Add to wishlist"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "PublicStore.Login",
                     Enabled = false,
                     Name = "Public store. Login"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "PublicStore.Logout",
                     Enabled = false,
                     Name = "Public store. Logout"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "PublicStore.AddProductReview",
                     Enabled = false,
                     Name = "Public store. Add product review"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "PublicStore.AddNewsComment",
                     Enabled = false,
                     Name = "Public store. Add news comment"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "PublicStore.AddBlogComment",
                     Enabled = false,
                     Name = "Public store. Add blog comment"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "PublicStore.AddForumTopic",
                     Enabled = false,
                     Name = "Public store. Add forum topic"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "PublicStore.EditForumTopic",
                     Enabled = false,
                     Name = "Public store. Edit forum topic"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "PublicStore.DeleteForumTopic",
                     Enabled = false,
                     Name = "Public store. Delete forum topic"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "PublicStore.AddForumPost",
                     Enabled = false,
                     Name = "Public store. Add forum post"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "PublicStore.EditForumPost",
                     Enabled = false,
                     Name = "Public store. Edit forum post"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "PublicStore.DeleteForumPost",
                     Enabled = false,
                     Name = "Public store. Delete forum post"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "UploadNewPlugin",
                     Enabled = true,
                     Name = "Upload a plugin"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "UploadNewTheme",
                     Enabled = true,
                     Name = "Upload a theme"
                 },
-                new ActivityLogType
-                {
+                new() {
                     SystemKeyword = "UploadIcons",
                     Enabled = true,
                     Name = "Upload a favicon and app icons"
@@ -9070,15 +8874,13 @@ namespace Nop.Services.Installation
         {
             var productTemplates = new List<ProductTemplate>
             {
-                new ProductTemplate
-                {
+                new() {
                     Name = "Simple product",
                     ViewPath = "ProductTemplate.Simple",
                     DisplayOrder = 10,
                     IgnoredProductTypes = ((int)ProductType.GroupedProduct).ToString()
                 },
-                new ProductTemplate
-                {
+                new() {
                     Name = "Grouped product (with variants)",
                     ViewPath = "ProductTemplate.Grouped",
                     DisplayOrder = 100,
@@ -9094,8 +8896,7 @@ namespace Nop.Services.Installation
         {
             var categoryTemplates = new List<CategoryTemplate>
             {
-                new CategoryTemplate
-                {
+                new() {
                     Name = "Products in Grid or Lines",
                     ViewPath = "CategoryTemplate.ProductsInGridOrLines",
                     DisplayOrder = 1
@@ -9110,8 +8911,7 @@ namespace Nop.Services.Installation
         {
             var manufacturerTemplates = new List<ManufacturerTemplate>
             {
-                new ManufacturerTemplate
-                {
+                new() {
                     Name = "Products in Grid or Lines",
                     ViewPath = "ManufacturerTemplate.ProductsInGridOrLines",
                     DisplayOrder = 1
@@ -9126,8 +8926,7 @@ namespace Nop.Services.Installation
         {
             var topicTemplates = new List<TopicTemplate>
             {
-                new TopicTemplate
-                {
+                new() {
                     Name = "Default template",
                     ViewPath = "TopicDetails",
                     DisplayOrder = 1
@@ -9143,8 +8942,7 @@ namespace Nop.Services.Installation
             var lastEnabledUtc = DateTime.UtcNow;
             var tasks = new List<ScheduleTask>
             {
-                new ScheduleTask
-                {
+                new() {
                     Name = "Send emails",
                     Seconds = 60,
                     Type = "Nop.Services.Messages.QueuedMessagesSendTask, Nop.Services",
@@ -9152,8 +8950,7 @@ namespace Nop.Services.Installation
                     LastEnabledUtc = lastEnabledUtc,
                     StopOnError = false
                 },
-                new ScheduleTask
-                {
+                new() {
                     Name = "Keep alive",
                     Seconds = 300,
                     Type = "Nop.Services.Common.KeepAliveTask, Nop.Services",
@@ -9161,8 +8958,15 @@ namespace Nop.Services.Installation
                     LastEnabledUtc = lastEnabledUtc,
                     StopOnError = false
                 },
-                new ScheduleTask
-                {
+                new() {
+                    Name = nameof(ResetLicenseCheckTask),
+                    Seconds = 2073600,
+                    Type = "Nop.Services.Common.ResetLicenseCheckTask, Nop.Services",
+                    Enabled = true,
+                    LastEnabledUtc = lastEnabledUtc,
+                    StopOnError = false
+                },
+                new() {
                     Name = "Delete guests",
                     Seconds = 600,
                     Type = "Nop.Services.Customers.DeleteGuestsTask, Nop.Services",
@@ -9170,16 +8974,14 @@ namespace Nop.Services.Installation
                     LastEnabledUtc = lastEnabledUtc,
                     StopOnError = false
                 },
-                new ScheduleTask
-                {
+                new() {
                     Name = "Clear cache",
                     Seconds = 600,
                     Type = "Nop.Services.Caching.ClearCacheTask, Nop.Services",
                     Enabled = false,
                     StopOnError = false
                 },
-                new ScheduleTask
-                {
+                new() {
                     Name = "Clear log",
                     //60 minutes
                     Seconds = 3600,
@@ -9187,14 +8989,21 @@ namespace Nop.Services.Installation
                     Enabled = false,
                     StopOnError = false
                 },
-                new ScheduleTask
-                {
+                new() {
                     Name = "Update currency exchange rates",
                     //60 minutes
                     Seconds = 3600,
                     Type = "Nop.Services.Directory.UpdateExchangeRateTask, Nop.Services",
                     Enabled = true,
                     LastEnabledUtc = lastEnabledUtc,
+                    StopOnError = false
+                },
+                new() {
+                    Name = "Delete inactive customers (GDPR)",
+                    //24 hours
+                    Seconds = 86400,
+                    Type = "Nop.Services.Gdpr.DeleteInactiveCustomersTask, Nop.Services",
+                    Enabled = false,
                     StopOnError = false
                 }
             };
@@ -9207,18 +9016,15 @@ namespace Nop.Services.Installation
         {
             var returnRequestReasons = new List<ReturnRequestReason>
             {
-                new ReturnRequestReason
-                {
+                new() {
                     Name = "Received Wrong Product",
                     DisplayOrder = 1
                 },
-                new ReturnRequestReason
-                {
+                new() {
                     Name = "Wrong Product Ordered",
                     DisplayOrder = 2
                 },
-                new ReturnRequestReason
-                {
+                new() {
                     Name = "There Was A Problem With The Product",
                     DisplayOrder = 3
                 }
@@ -9232,18 +9038,15 @@ namespace Nop.Services.Installation
         {
             var returnRequestActions = new List<ReturnRequestAction>
             {
-                new ReturnRequestAction
-                {
+                new() {
                     Name = "Repair",
                     DisplayOrder = 1
                 },
-                new ReturnRequestAction
-                {
+                new() {
                     Name = "Replacement",
                     DisplayOrder = 2
                 },
-                new ReturnRequestAction
-                {
+                new() {
                     Name = "Store Credit",
                     DisplayOrder = 3
                 }
@@ -9281,13 +9084,11 @@ namespace Nop.Services.Installation
 
             var warehouses = new List<Warehouse>
             {
-                new Warehouse
-                {
+                new() {
                     Name = "Warehouse 1 (New York)",
                     AddressId = warehouse1address.Id
                 },
-                new Warehouse
-                {
+                new() {
                     Name = "Warehouse 2 (Los Angeles)",
                     AddressId = warehouse2address.Id
                 }
@@ -9301,8 +9102,7 @@ namespace Nop.Services.Installation
         {
             var vendors = new List<Vendor>
             {
-                new Vendor
-                {
+                new() {
                     Name = "Vendor 1",
                     Email = "vendor1email@gmail.com",
                     Description = "Some description...",
@@ -9318,8 +9118,7 @@ namespace Nop.Services.Installation
                     PriceFrom = NopCatalogDefaults.DefaultPriceRangeFrom,
                     PriceTo = NopCatalogDefaults.DefaultPriceRangeTo,
                 },
-                new Vendor
-                {
+                new() {
                     Name = "Vendor 2",
                     Email = "vendor2email@gmail.com",
                     Description = "Some description...",
@@ -9377,7 +9176,7 @@ namespace Nop.Services.Installation
         }
 
         /// <returns>A task that represents the asynchronous operation</returns>
-        private async Task AddProductTagAsync(Product product, string tag)
+        protected virtual async Task AddProductTagAsync(Product product, string tag)
         {
             var productTag = _productTagRepository.Table.FirstOrDefault(pt => pt.Name == tag);
 

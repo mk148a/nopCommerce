@@ -19,12 +19,12 @@
                 var gridMode = Model.AvailableViewModes[0];
                 var listMode = Model.AvailableViewModes[1];
 
-                <a class="viewmode-icon grid @if (gridMode.Selected){<text>selected</text>}" data-viewmode="@gridMode.Value" title="@gridMode.Text">@gridMode.Text</a>
-                <a class="viewmode-icon list @if (listMode.Selected){<text>selected</text>}" data-viewmode="@listMode.Value" title="@listMode.Text">@listMode.Text</a>
+                <a class="viewmode-icon grid @if (gridMode.Selected){<text>selected</text>}" data-viewmode="@gridMode.Value" title="@gridMode.Text" tabindex="0" aria-role="button" href="#">@gridMode.Text</a>
+                <a class="viewmode-icon list @if (listMode.Selected){<text>selected</text>}" data-viewmode="@listMode.Value" title="@listMode.Text" tabindex="0" aria-role="button" href="#">@listMode.Text</a>
             }
         </div>
         <script asp-location="Footer">
-            $(document).ready(function () {
+            $(function() {
                 var $viewModeEls = $('[data-viewmode]');
                 $viewModeEls.on('click', function () {
                     if (!$(this).hasClass('selected')) {
@@ -52,7 +52,7 @@
             @Html.DropDownList("products-orderby", Model.AvailableSortOptions, new { aria_label = T("Catalog.OrderBy.Label") })
         </div>
         <script asp-location="Footer">
-            $(document).ready(function () {
+            $(function() {
                 var $orderByEl = $('#products-orderby');
                 $orderByEl.on('change', function () {
                     CatalogProducts.getProducts();
@@ -74,7 +74,7 @@
             <span>@T("Catalog.PageSize.PerPage")</span>
         </div>
         <script asp-location="Footer">
-            $(document).ready(function () {
+            $(function() {
                 var $pageSizeEl = $('#products-pagesize');
                 $pageSizeEl.on('change', function () {
                     CatalogProducts.getProducts();

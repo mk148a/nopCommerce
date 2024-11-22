@@ -10,13 +10,13 @@
 
 @if (!string.IsNullOrEmpty(Model.Token))
 {    
-    var scriptUrl = avalaraTaxSettings.UseSandbox ? AvalaraTaxDefaults.CertificatesSandboxScriptUrl : AvalaraTaxDefaults.CertificatesScriptUrl;
+    var scriptUrl = avalaraTaxSettings.UseSandbox ? AvalaraTaxDefaults.CertificatesScriptUrl.Sandbox : AvalaraTaxDefaults.CertificatesScriptUrl.Live;
     <script asp-location="Head" asp-exclude-from-bundle="true" src="@scriptUrl"></script>
 }
 
 @section left
 {
-    @(await Component.InvokeAsync("CustomerNavigation", new { selectedTabId = AvalaraTaxDefaults.ExemptionCertificatesMenuTab }))
+    @(await Component.InvokeAsync(typeof(CustomerNavigationViewComponent), new { selectedTabId = AvalaraTaxDefaults.ExemptionCertificatesMenuTab }))
 }
 
 <script asp-location="Footer">
