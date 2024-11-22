@@ -16,7 +16,7 @@
             <i class="fas fa-plus-square"></i>
             @T("Admin.Common.AddNew")
         </a>
-        @await Component.InvokeAsync("AdminWidget", new { widgetZone = AdminWidgetZones.CheckoutAttributeListButtons, additionalData = Model })
+        @await Component.InvokeAsync(typeof(AdminWidgetViewComponent), new { widgetZone = AdminWidgetZones.CheckoutAttributeListButtons, additionalData = Model })
         <button type="button" id="delete-selected" class="btn btn-danger">
             <i class="far fa-trash-alt"></i>
             @T("Admin.Common.Delete.Selected")
@@ -83,7 +83,7 @@
                         })
 
                         <script>
-                    $(document).ready(function () {
+                    $(function() {
                         $('#delete-selected-action-confirmation-submit-button').bind('click', function () {
                             var postData = {
                                 selectedIds: selectedIds

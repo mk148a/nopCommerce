@@ -4,7 +4,7 @@
 <input asp-for="Id" type="hidden" />
 
 <script>
-    $(document).ready(function() {
+    $(function() {
         toggleRemoveButton();
     });
     
@@ -21,7 +21,7 @@
     <div class="container-fluid">
         <div class="form-horizontal">
             <div class="cards-group">
-                @await Component.InvokeAsync("AdminWidget", new { widgetZone = AdminWidgetZones.CustomerRoleDetailsTop, additionalData = Model })
+                @await Component.InvokeAsync(typeof(AdminWidgetViewComponent), new { widgetZone = AdminWidgetZones.CustomerRoleDetailsTop, additionalData = Model })
                 <div class="card card-default">
                     <div class="card-body">
                         <div class="form-group row">
@@ -106,7 +106,7 @@
                                 <button type="submit" id="btnRefreshPurchasedWithProduct" style="display: none"></button>
 
                                 <script>
-                                $(document).ready(function () {
+                                $(function() {
                                     $('#purchased-with-product-name-remove').click(function () {
                                         $('#purchased-with-product-name').text('');
                                         $("#@Html.IdFor(model => model.PurchasedWithProductId)").val(0);
@@ -146,7 +146,7 @@
                         </div>
                     </div>
                 </div>
-                @await Component.InvokeAsync("AdminWidget", new { widgetZone = AdminWidgetZones.CustomerRoleDetailsBottom, additionalData = Model })
+                @await Component.InvokeAsync(typeof(AdminWidgetViewComponent), new { widgetZone = AdminWidgetZones.CustomerRoleDetailsBottom, additionalData = Model })
             </div>
         </div>
     </div>

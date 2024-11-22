@@ -13,12 +13,12 @@
     </h1>
     <div class="float-right">
         &nbsp;
-        @await Component.InvokeAsync("AdminWidget", new { widgetZone = AdminWidgetZones.ScheduleTaskListButtons, additionalData = Model })
+        @await Component.InvokeAsync(typeof(AdminWidgetViewComponent), new { widgetZone = AdminWidgetZones.ScheduleTaskListButtons, additionalData = Model })
     </div>
 </div>
 
 <script>
-    $(document).ready(function () {
+    $(function() {
         $("#schedule-tasks-grid").on("click", ".run-now", function (e) {
             showThrobber('@Html.Raw(JavaScriptEncoder.Default.Encode(T("Admin.System.ScheduleTasks.RunNow.Progress").Text))');
         });

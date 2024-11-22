@@ -32,7 +32,7 @@
             @T("Admin.ContentManagement.News.Comments.DeleteSelected")
         </button>
         <nop-action-confirmation asp-button-id="delete-selected" />
-        @await Component.InvokeAsync("AdminWidget", new { widgetZone = AdminWidgetZones.NewsCommentListButtons, additionalData = Model })
+        @await Component.InvokeAsync(typeof(AdminWidgetViewComponent), new { widgetZone = AdminWidgetZones.NewsCommentListButtons, additionalData = Model })
     </div>
 </div>
 
@@ -190,7 +190,7 @@
                     })
 
                     <script>
-                        $(document).ready(function() {
+                        $(function() {
                             //"delete selected" button
                             $("#delete-selected-action-confirmation-submit-button").bind("click",
                                 function() {
