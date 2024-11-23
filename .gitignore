@@ -206,3 +206,4 @@ src/Presentation/Nop.Web/wwwroot/sitemaps/*
 src/packages/*
 src/Tests/Nop.Tests/Connections.resx
 /src/Presentation/Nop.Web/wwwroot/images
+/src/Presentation/Nop.Web/Themes/NopElementTheme_4.7.40.36
