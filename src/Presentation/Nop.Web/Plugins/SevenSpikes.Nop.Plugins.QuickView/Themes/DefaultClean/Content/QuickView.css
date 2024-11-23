@@ -76,14 +76,12 @@
 /* MAIN WINDOW & HEADERS */
 
 .quickView {
+    flex-flow: column;
     position: absolute;
     z-index: 1070;
     padding-top: 0 !important;
     box-shadow: 0 0 15px #444;
     background: #fff;
-}
-.quickViewWindow {
-    z-index: 100; /*check if z-index is necessary*/
 }
 .quickView,
 .quickViewWindow {
@@ -94,14 +92,14 @@
 .quickViewWindow a {
     cursor: pointer;
 }
-.quickView .k-window-titlebar.k-header {
+.quickView .k-window-titlebar {
     position: absolute;
     top: 0;
     right: 0;
     margin-top: 0 !important;
     background: none !important;
 }
-.quickView .k-window-titlebar.k-header .k-window-actions {
+.quickView .k-window-titlebar-actions {
 	position: absolute;
 	top: 14px;
 	right: 14px;
@@ -110,11 +108,15 @@
 	overflow: hidden;
 	text-indent: 9999px;
 }
-.quickView .k-window-titlebar.k-header .k-window-actions a {
+.quickView .k-window-titlebar .k-button {
 	display: block;
 	width: 18px;
 	height: 18px;
+    border: none;
 	background: url(images/close.png) no-repeat center;
+}
+.quickView .k-window-titlebar .k-icon {
+	display: none;
 }
 .quickViewWindow .product-essential {
     float: none;

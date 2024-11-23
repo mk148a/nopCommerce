@@ -14,10 +14,10 @@
 .ajaxCart {
     text-align: right;
 }
-.ajaxCart .k-window-titlebar.k-header {
+.ajaxCart .k-window-titlebar {
     padding: 14px 10px 14px 35px;
 }
-.ajaxCart .k-window-titlebar.k-header .k-window-actions {
+.ajaxCart .k-window-titlebar-actions {
     right: auto;
     left: 14px;
 }

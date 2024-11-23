@@ -1,7 +1,10 @@
 ﻿@model LoginModel
+
 @using Nop.Core
 @using Nop.Core.Domain.Customers
+
 @inject IWebHelper webHelper
+
 @{
     Layout = "_ColumnsOne";
 
@@ -13,12 +16,14 @@
     //register URL with return URL (if specified)
     var registerUrl = Url.RouteUrl("Register", new { returnUrl = this.Context.Request.Query["returnUrl"] }, webHelper.GetCurrentRequestProtocol());
 }
+
 <div class="page login-page">
     <div class="page-title">
         <h1>@T("Account.Login.Welcome")</h1>
     </div>
     @await Html.PartialAsync("_ExternalAuthentication.Errors")
     <div class="page-body">
+        @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.LoginTop, additionalData = Model })
         <div class="customer-blocks">
             <div class="returning-wrapper fieldset">
                 <form asp-route="Login" asp-route-returnurl="@Context.Request.Query["ReturnUrl"]" method="post" autocomplete="off">
@@ -89,7 +94,7 @@
                     </div>
                     <div class="inner-wrapper">
                         <div class="content text">
-                        @await Component.InvokeAsync("TopicBlock", new { systemName = "CheckoutAsGuestOrRegister" })
+                            @await Component.InvokeAsync(typeof(TopicBlockViewComponent), new { systemName = "CheckoutAsGuestOrRegister" })
                         </div>
                         <div class="buttons">
                             <button type="button" class="button-1 checkout-as-guest-button" onclick="location.href='@Url.RouteUrl("Checkout")'"><span>@T("Account.Login.CheckoutAsGuest")</span></button>
@@ -116,8 +121,9 @@
             }
         </div>
         <div class="external-authentication">
-            @await Component.InvokeAsync("ExternalMethods", "ExternalAuthentication")
+            @await Component.InvokeAsync(typeof(ExternalMethodsViewComponent), "ExternalAuthentication")
         </div>
-        @await Component.InvokeAsync("TopicBlock", new { systemName = "LoginRegistrationInfo" })
+        @await Component.InvokeAsync(typeof(TopicBlockViewComponent), new { systemName = "LoginRegistrationInfo" })
+        @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.LoginBottom, additionalData = Model })
     </div>
 </div>

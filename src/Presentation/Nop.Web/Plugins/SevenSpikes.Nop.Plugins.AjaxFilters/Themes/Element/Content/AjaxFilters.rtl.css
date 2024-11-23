@@ -55,11 +55,11 @@ a.clearPriceRangeFilter {
 	right: 7px;
 	left: auto;
 }
-.ajaxFilters .k-window-actions {
+.ajaxFilters .k-window-titlebar-actions {
 	left: 8px;
 	right: auto;
 }
-.ajaxFilters .k-window-actions .k-icon {
+.ajaxFilters .k-window-titlebar .k-button {
 	left: 10px;
 	right: auto;
 }

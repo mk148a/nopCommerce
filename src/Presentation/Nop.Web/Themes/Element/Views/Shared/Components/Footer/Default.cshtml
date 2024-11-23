@@ -1,13 +1,14 @@
-﻿@using Nop.Core
+﻿@model FooterModel
+
+@using Nop.Core
 @using Nop.Core.Domain.Tax
+@using Nop.Core.Domain.Topics
 @using Nop.Services.Configuration
 @using Nop.Web.Models.Common
 
 @inject IStoreContext storeContext
 @inject IWorkContext workContext
 @inject ISettingService settingService
-
-@model FooterModel
 
 @{
     var storeId = (await storeContext.GetCurrentStoreAsync()).Id;
@@ -18,7 +19,7 @@
 <div class="footer-wrapper">
     <div class="footer">
         <div class="footer-upper">
-            @await Component.InvokeAsync("NewsletterBox")
+            @await Component.InvokeAsync(typeof(NewsletterBoxViewComponent))
         </div>
         <div class="footer-middle">
             <div class="center">
@@ -26,7 +27,7 @@
                     <div class="title">
                         <strong>@T("Footer.SocialSharing")</strong>
                     </div>
-                    @await Component.InvokeAsync("SocialButtons")
+                    @await Component.InvokeAsync(typeof(SocialButtonsViewComponent))
                 </div>
                 <div class="footer-block footer-block-left">
                     <div class="title">
@@ -35,7 +36,7 @@
                     <ul class="list">
                         @foreach (var topic in Model.Topics.Where(x => x.IncludeInFooterColumn1).ToList())
                         {
-                            <li><a href="@Url.RouteUrl("Topic", new { SeName = topic.SeName })">@topic.Name</a></li>
+                            <li><a href="@(Url.RouteUrl<Topic>(new { SeName = topic.SeName }))">@topic.Name</a></li>
                         }
                     </ul>
                 </div>
@@ -62,7 +63,7 @@
                         }
                         @foreach (var topic in Model.Topics.Where(x => x.IncludeInFooterColumn2).ToList())
                         {
-                            <li><a href="@Url.RouteUrl("Topic", new { SeName = topic.SeName })">@topic.Name</a></li>
+                            <li><a href="@(Url.RouteUrl<Topic>(new { SeName = topic.SeName }))">@topic.Name</a></li>
                         }
                     </ul>
                 </div>
@@ -90,12 +91,11 @@
             {
                 var inclTax = await workContext.GetTaxDisplayTypeAsync() == TaxDisplayType.IncludingTax;
                 <p class="footer-text footer-tax-shipping">
-                    @T(inclTax ? "Footer.TaxShipping.InclTax" : "Footer.TaxShipping.ExclTax", Url.RouteUrl("Topic", new { SeName = await Html.GetTopicSeNameAsync("shippinginfo") }))
+                    @T(inclTax ? "Footer.TaxShipping.InclTax" : "Footer.TaxShipping.ExclTax", Url.RouteTopicUrl("shippinginfo"))
                 </p>
             }
-
-            @await Component.InvokeAsync("StoreThemeSelector")
+            @await Component.InvokeAsync(typeof(StoreThemeSelectorViewComponent))
         </div>
-    	@await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.Footer, additionalData = Model })
+    	@await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.Footer, additionalData = Model })
     </div>
 </div>

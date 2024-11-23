@@ -5,13 +5,12 @@
     <div class='post-navigation'>
         @if (!string.IsNullOrEmpty(Model.PreviousBlogPostTitle))
         {
-            <a href='@Url.RouteUrl("BlogPost", new { SeName = Model.PreviousBlogPostSeName })' title='@Model.PreviousBlogPostTitle' class='prev'>@Model.PreviousBlogPostTitle</a>
+            <a href='@Url.RouteUrl("BlogPost", new { SeName = Model.PreviousBlogPostSeName })' title='@Model.PreviousBlogPostTitle' class='prev'><span>@Model.PreviousBlogPostTitle</span></a>
         }
-
 
         @if (!string.IsNullOrEmpty(Model.NextBlogPostTitle))
         {
-            <a href='@Url.RouteUrl("BlogPost", new { SeName = Model.NextBlogPostSeName })' title='@Model.NextBlogPostTitle' class='next'>@Model.NextBlogPostTitle</a>
+            <a href='@Url.RouteUrl("BlogPost", new { SeName = Model.NextBlogPostSeName })' title='@Model.NextBlogPostTitle' class='next'><span>@Model.NextBlogPostTitle</span></a>
         }
     </div>
 }

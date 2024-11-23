@@ -1,10 +1,12 @@
 ﻿@model VendorModel
 
-@using Nop.Core.Domain.Seo;
-@using Nop.Core.Infrastructure;
-@using Nop.Web.Models.Catalog;
+@using Nop.Core
+@using Nop.Core.Domain.Seo
+@using Nop.Core.Domain.Vendors
+@using Nop.Core.Infrastructure
+@using Nop.Web.Models.Catalog
 
-@inject Nop.Core.IWebHelper webHelper
+@inject IWebHelper webHelper
 @inject SeoSettings seoSettings
 
 @{
@@ -20,7 +22,7 @@
 
     if (seoSettings.CanonicalUrlsEnabled)
     {
-        var vendorUrl = Url.RouteUrl("Vendor", new { SeName = Model.SeName }, webHelper.GetCurrentRequestProtocol()).ToLowerInvariant();
+        var vendorUrl = Url.RouteUrl<Vendor>(new { SeName = Model.SeName }, webHelper.GetCurrentRequestProtocol()).ToLowerInvariant();
         NopHtml.AddCanonicalUrlParts(vendorUrl, seoSettings.QueryStringInCanonicalUrlsEnabled);
     }
 }
@@ -34,7 +36,7 @@
         @*description + contact, to be rendered in _ColumnsTwo*@
         @section CategoryManufacturerVendorMovedContent
         {
-        	@await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.VendorDetailsTop, additionalData = Model })
+        	@await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.VendorDetailsTop, additionalData = Model })
             @if (!string.IsNullOrWhiteSpace(Model.Description))
             {
                 <div class="vendor-description">
@@ -57,11 +59,13 @@
         @await Html.PartialAsync("_CatalogSelectors", Model.CatalogProductsModel)
         
         @{
-            var catalogProductsViewData = new ViewDataDictionary(ViewData);
-            catalogProductsViewData["fetchUrl"] = Html.Raw(Url.Action("GetVendorProducts", "Catalog", new { vendorId = Model.Id }));
+            var catalogProductsViewData = new ViewDataDictionary(ViewData)
+            {
+                ["fetchUrl"] = Html.Raw(Url.RouteUrl("GetVendorProducts", new { vendorId = Model.Id }))
+            };
         }
 
         @await Html.PartialAsync("_CatalogProducts", Model.CatalogProductsModel, catalogProductsViewData)
-        @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.VendorDetailsBottom, additionalData = Model })
+        @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.VendorDetailsBottom, additionalData = Model })
     </div>
 </div>

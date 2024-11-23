@@ -345,6 +345,7 @@ a.clearPriceRangeFilter {
 	opacity: 0.7 !important;
 }
 .ajaxFilters.k-window {
+	flex-flow: column;
 	position: absolute;
 	z-index: 1070;
 	width: 500px !important;
@@ -372,15 +373,12 @@ a.clearPriceRangeFilter {
 	font-size: 20px;
 	font-weight: 400;
 }
-.ajaxFilters .k-window-actions {
+.ajaxFilters .k-window-titlebar-actions {
 	position: absolute;
 	top: 8px;
 	right: 8px;
 }
-.ajaxFilters .k-window-actions a {
-	display: block;
-}
-.ajaxFilters .k-window-actions .k-icon {
+.ajaxFilters .k-window-titlebar .k-button {
 	display: block;
 	top: 10px;
 	right: 10px;
@@ -391,8 +389,11 @@ a.clearPriceRangeFilter {
 	font-size: 0 !important;
 	transition: opacity 0.2s ease;
 }
-.ajaxFilters .k-window-actions .k-icon:hover {
+.ajaxFilters .k-window-titlebar .k-button:hover {
 	opacity: 0.9;
+}
+.ajaxFilters .k-window-titlebar .k-icon {
+	display: none;
 }
 .ajaxFilters .k-window-content {
 	min-height: inherit !important;

@@ -7,6 +7,7 @@
 	position: relative;
 }
 span.search-box-text {
+    position: relative;
     float: left;
 }
 input.search-box-text {
@@ -19,7 +20,7 @@ input.search-box-text.narrow:focus {
 	border-color: #ddd; /*prevent different colors*/
 }
 input.search-box-text.instant-search-busy {
-    background: #fff url('../../../images/ajax-loader-small.gif') no-repeat 174px center;
+    background: #fff url('../../../images/ajax-loader-small.gif') no-repeat right 5px center;
 }
 input.search-box-text.narrow.instant-search-busy {
 	background-position: 104px center;
@@ -32,7 +33,28 @@ input.search-box-text:focus {
 	width: 80px;
 	height: 36px;
 	border: 1px solid #ddd;
+    outline: none;
     margin: 0 -1px;
+}
+.search-box .k-clear-value {
+    display: flex;
+    align-items: center;
+    position: absolute;
+    top: 1px;
+    bottom: 1px;
+    right: 0;
+    z-index: 1;
+    background: #fff;
+    padding: 0 5px;
+    cursor: pointer;
+}
+.search-box .k-clear-value.k-hidden {
+    display: none;
+}
+.search-box .k-clear-value .k-icon {
+    width: 16px;
+    height: 16px;
+    opacity: 0.5;
 }
 
 /* AUTOCOMPLETE */
@@ -47,6 +69,10 @@ input.search-box-text:focus {
 .instantSearch.resize {
 	width: 294px !important;
 }
+.k-child-animation-container {
+    width: 100% !important;
+    height: auto !important;
+}
 .instantSearch .k-list-container {
     width: 100% !important;
     position: static !important;
@@ -55,19 +81,21 @@ input.search-box-text:focus {
     height: 100% !important;
     overflow-y: auto;
 }
-.instantSearch .k-item {
-    border-top: 1px solid #ddd;
-    cursor: pointer;
-}
-.instantSearch .k-item:first-child {
-	border: 0;
+.instantSearch .k-no-data {
+    padding: 10px;
+    text-align: left;
 }
 .instant-search-item {
+    border-top: 1px solid #ddd;
     overflow: hidden;
     padding: 10px;
+    cursor: pointer;
 }
-.instantSearch .k-item.k-state-hover .instant-search-item, 
-.instantSearch .k-item.k-state-focused .instant-search-item{
+.k-list-item:first-child .instant-search-item {
+	border-top: none;
+}
+.k-list-item.k-hover .instant-search-item, 
+.k-list-item.k-focus .instant-search-item {
     background: #f3f3f3;
 }
 .instant-search-item .img-block {

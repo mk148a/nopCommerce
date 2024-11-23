@@ -9,8 +9,15 @@
     var hasSublistClass = hasSublist ? "has-sublist" : string.Empty;
     var withSubcategoriesClass = hasSublist ? "with-subcategories" : string.Empty;
     var itemUrl = Plugin.PredefinedPageTypes.Contains(Model.Type) ? Url.RouteUrl(Model.Type.ToString()) : Model.Url;
+
+    var isCategory = Model.Type == MenuItemType.Categories;
+    var rootCategoryClass = string.Empty;
+    if (isCategory)
+    {
+        rootCategoryClass = "root-category";
+    }
 }
-<li class="@Model.CssClass @hasSublistClass">
+<li class="@Model.CssClass @rootCategoryClass @hasSublistClass">
 
     <a href="@itemUrl" class="@withSubcategoriesClass" title="@Model.Title" @if (Model.OpenInNewWindow) { <text> target="_blank" </text> }><span> @Model.Title</span></a>
 
@@ -30,4 +37,3 @@
         </div>
     }
 </li>
-

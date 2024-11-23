@@ -116,7 +116,7 @@
     
     function renderCheckBox(data, type, row, meta) {
 
-        var checked = row.CustomProperties.Selected ? 'checked' : '';
+        var checked = row.CustomProperties.Selected == 'True' ? 'checked' : '';
 
         return '<input type="checkbox" id="SelectedCategoryIds" name="SelectedCategoryIds" value="' + row.Id + '" class="checkboxGroups" ' + checked + '>';
     }

@@ -1,1 +1,9 @@
 ﻿/*don't delete this file even if empty, otherwise "file not found" error will be triggered on RTL websites*/
+
+@media all and (min-width: 1001px) {
+
+    .productTabs .write-review .review-rating label {
+        margin: 0 0 0 5px;
+        text-align: left;
+    }
+}

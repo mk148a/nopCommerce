@@ -10,7 +10,7 @@
 }
 @section AccountNavigation
 {
-    @await Component.InvokeAsync("CustomerNavigation", new { selectedTabId = CustomerNavigationEnum.VendorInfo })
+    @await Component.InvokeAsync(typeof(CustomerNavigationViewComponent), new { selectedTabId = CustomerNavigationEnum.VendorInfo })
 }
 <form asp-route="CustomerVendorInfo" method="post" enctype="multipart/form-data">
     <div class="page account-page vendorinfo-page">
@@ -18,6 +18,7 @@
             <h1>@T("Account.MyAccount") - @T("Account.VendorInfo")</h1>
         </div>
         <div class="page-body">
+            @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.VendorInfoTop, additionalData = Model })
             <div asp-validation-summary="ModelOnly" class="message-error"></div>
             <div class="fieldset">
                 <div class="form-fields">
@@ -62,6 +63,7 @@
             <div class="buttons">
                 <button type="submit" name="save-info-button" class="button-1 save-vendorinfo-button">@T("Common.Save")</button>
             </div>
+            @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.VendorInfoBottom, additionalData = Model })
         </div>
     </div>
 </form>

@@ -1,15 +1,23 @@
-﻿span.search-box-text,
+﻿
+span.search-box-text,
 .search-box-select {
     float: right;
 }
 .instant-search-busy {
-    background-position: 10px center !important;
+    background-position: left 5px center !important;
+}
+.search-box .k-clear-value {
+    right: unset;
+    left: 0;
 }
 
 /* AUTOCOMPLETE */
 
 .instantSearch {
 	right: 0 !important;
+}
+.instantSearch .k-no-data {
+    text-align: right;
 }
 .instant-search-item .img-block {
     float: right !important;

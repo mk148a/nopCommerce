@@ -23,6 +23,9 @@
 .slick-initialized .html-slide {
     display: block;
 }
+.anywhere-slider img[data-lazy] {
+	max-height: 1px;
+}
 
 /* directional navigation */
 

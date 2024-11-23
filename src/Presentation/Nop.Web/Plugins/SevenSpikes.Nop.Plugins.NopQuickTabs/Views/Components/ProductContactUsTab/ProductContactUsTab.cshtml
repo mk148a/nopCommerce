@@ -1,13 +1,17 @@
-﻿@model ContactUsModel
-@using Nop.Core.Domain.Seo
-@inject Nop.Core.IWebHelper webHelper
-@inject SeoSettings seoSettings
+﻿@using SevenSpikes.Nop.Plugins.NopQuickTabs.Models;
+@inject CaptchaSettings captchaSettings
 
-<div id="contact-us-tab" class="contact-page write-review">
+@model ContactUsModel
+
+@{
+    var publicKey = captchaSettings.ReCaptchaPublicKey ?? string.Empty;
+}
+
+<div id="contact-us-tab" class="contact-page">
     @if (!Model.SuccessfullySent && !string.IsNullOrEmpty(Model.Result))
 	{
         <div class="message-error">@Model.Result</div>
-	}
+    }
     <div class="form-fields">
         <div class="inputs">
             <label asp-for="FullName"></label>
@@ -36,9 +40,13 @@
             <nop-required />
             <span asp-validation-for="Enquiry"></span>
         </div>
-
         @if (Model.DisplayCaptcha)
         {
+            if (captchaSettings.CaptchaType == CaptchaType.ReCaptchaV3)
+            {
+                <input type="hidden" id="contactus-captcha-v3-enabled" value="true" />
+                <input type="hidden" id="captcha-public-key" value="@publicKey" />
+            }
             <nop-captcha />
         }
     </div>

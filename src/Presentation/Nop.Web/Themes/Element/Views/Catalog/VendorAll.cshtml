@@ -1,5 +1,7 @@
 ﻿@model IList<VendorModel>
 
+@using Nop.Core.Domain.Vendors
+
 @inject IViewComponentSelector viewComponentSelector
 
 @{
@@ -22,7 +24,7 @@
                     <div class="item-box">
                         <div class="vendor-item">
                             <div class="picture">
-                                <a href="@Url.RouteUrl("Vendor", new { SeName = item.SeName })" title="@item.PictureModel.Title">
+                                <a href="@(Url.RouteUrl<Vendor>(new { SeName = item.SeName }))" title="@item.PictureModel.Title">
                                     @if (viewComponentSelector.SelectComponent("LazyLoadImage") != null)
                                     {
                                         @await Component.InvokeAsync("LazyLoadImage", new(string Key, string Value)[] 
@@ -39,7 +41,7 @@
                                 </a>
                             </div>
                             <h2 class="title">
-                                <a href="@Url.RouteUrl("Vendor", new { SeName = item.SeName })" title="@item.PictureModel.Title">
+                                <a href="@(Url.RouteUrl<Vendor>(new { SeName = item.SeName }))" title="@item.PictureModel.Title">
                                     @item.Name
                                 </a>
                             </h2>

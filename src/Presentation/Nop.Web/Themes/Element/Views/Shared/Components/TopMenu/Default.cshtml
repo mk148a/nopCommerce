@@ -1,7 +1,67 @@
 ﻿@model TopMenuModel
 
+@using Nop.Core.Domain.Catalog
+@using Nop.Core.Domain.Topics
+@using Nop.Web.Models.Catalog
+
+@{
+    var isRtl = await Html.ShouldUseRtlThemeAsync();
+}
+
+<input type="hidden" value="@isRtl.ToString().ToLowerInvariant()" id="isRtlEnabled" />
+
+@functions {
+    async Task CategoryLine(TopMenuModel.CategoryLineModel lineModel)
+    {
+        var subCategories = lineModel.ResponsiveMobileMenu ?
+        //responsive (all categories)
+        lineModel.Category.SubCategories :
+        //standard design (only categories with "IncludeInTopMenu")
+        lineModel.Category.SubCategories.Where(x => x.IncludeInTopMenu).ToList();
+
+        var hasSubCategories = String.Empty;
+        @if (subCategories.Count > 0)
+        {
+            hasSubCategories = "with-subcategories";
+        }
+
+        <li>
+            @if (lineModel.Category.NumberOfProducts.HasValue)
+            {
+                <a class="@hasSubCategories" href="@(Url.RouteUrl<Category>(new { SeName = lineModel.Category.SeName }))">@lineModel.Category.Name
+                    @T("Categories.TotalProducts", lineModel.Category.NumberOfProducts.Value)</a>
+            }
+            else
+            {
+                <a class="@hasSubCategories" href="@(Url.RouteUrl<Category>(new { SeName = lineModel.Category.SeName }))">@lineModel.Category.Name</a>
+            }
+            @if (subCategories.Count > 0)
+            {
+                <div class="plus-button"></div>
+                <div class="sublist-wrap">
+                    <ul class="sublist">
+                        <li class="back-button">
+                            <span>@T("SevenSpikes.Themes.Common.BackSublist")</span>
+                        </li>
+                        @foreach (var subCategory in subCategories)
+                        {
+                            var categoryLineModel = new TopMenuModel.CategoryLineModel
+                            {
+                                Category = subCategory,
+                                Level = lineModel.Level + 1,
+                                ResponsiveMobileMenu = lineModel.ResponsiveMobileMenu
+                            };
+                            await CategoryLine(categoryLineModel);
+                        }
+                    </ul>
+                </div>
+            }
+        </li>
+    }
+}
+
 <ul class="top-menu">
-    @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.HeaderMenuBefore, additionalData = Model })
+    @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.HeaderMenuBefore, additionalData = Model })
     @if (Model.DisplayHomepageMenuItem)
     {
         <li><a href="@Url.RouteUrl("Homepage")">@T("Homepage")</a></li>
@@ -15,12 +75,11 @@
         {
             Category = category
         };
-        @await Html.PartialAsync("_CategoryLine.TopMenu", categoryLineModel)
+        await CategoryLine(categoryLineModel);
     }
-
     @foreach (var topic in Model.Topics)
     {
-        <li><a href="@Url.RouteUrl("Topic", new { SeName = topic.SeName })">@topic.Name</a></li>
+        <li><a href="@(Url.RouteUrl<Topic>(new { SeName = topic.SeName }))">@topic.Name</a></li>
     }
     @if (Model.NewProductsEnabled && Model.DisplayNewProductsMenuItem)
     {
@@ -46,10 +105,10 @@
     {
         <li><a href="@Url.RouteUrl("ContactUs")">@T("ContactUs")</a></li>
     }
-    @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.HeaderMenuAfter, additionalData = Model })
+    @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.HeaderMenuAfter, additionalData = Model })
 </ul>
 
-<script type="text/javascript" asp-location="Footer">
+<script asp-location="Footer">
     (function($, ssCore) {
 
         $(document).ready(function () {

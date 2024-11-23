@@ -2,10 +2,10 @@
 
 <div class="productTabs-header">
     <ul>
-        <li id="firstTabTitle"><a href="#quickTab-default">@Model.Tabs.First().Title</a></li>
+        <li id="@Model.Tabs.First().TabKey-tab"><a href="#quickTab-default">@Model.Tabs.First().Title</a></li>
         @foreach (var tabInfo in Model.Tabs.Skip(1))
         {
-            <li>
+            <li id="@tabInfo.TabKey-tab">
                 <a href="@tabInfo.AjaxUrl">@tabInfo.Title</a>
             </li>
         }

@@ -1,5 +1,8 @@
 ﻿@model ProductDetailsModel
+
 @using Nop.Core.Domain.Catalog
+@using Nop.Core.Domain.Vendors
+
 @if ((!String.IsNullOrWhiteSpace(Model.Sku) && Model.ShowSku) ||
      (!String.IsNullOrWhiteSpace(Model.ManufacturerPartNumber) && Model.ShowManufacturerPartNumber) ||
      (!String.IsNullOrWhiteSpace(Model.Gtin) && Model.ShowGtin) ||
@@ -35,7 +38,7 @@
 	    {
 	        <div class="product-vendor">
 	            <span class="label">@T("Products.Vendor"):</span>
-	            <span class="value"><a href="@Url.RouteUrl("Vendor", new { SeName = Model.VendorModel.SeName })">@Model.VendorModel.Name</a></span>
+	            <span class="value"><a href="@(Url.RouteUrl<Vendor>(new { SeName = Model.VendorModel.SeName }))">@Model.VendorModel.Name</a></span>
 	        </div>
 	    }
 	</div>

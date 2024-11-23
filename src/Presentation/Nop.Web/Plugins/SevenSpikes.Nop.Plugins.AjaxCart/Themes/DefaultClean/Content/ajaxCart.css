@@ -96,6 +96,7 @@
 
 
 .ajaxCart {
+    flex-flow: column;
     position: absolute;
     padding: 0 !important;
     width: 500px;
@@ -107,26 +108,30 @@
 .ajaxCart li {
 	list-style: none;
 }
-.ajaxCart .k-window-titlebar.k-header {
+.ajaxCart .k-window-titlebar {
 	margin: 0 !important;
     padding: 14px 35px 14px 10px;
     min-height: 46px;
     border-bottom: 1px solid #ddd;
     background: #efefef;
 }
-.ajaxCart .k-window-titlebar.k-header .k-window-actions {
+.ajaxCart .k-window-titlebar-actions {
 	position: absolute;
     top: 16px;
     right: 14px;
 	font-size: 0;
 	z-index: 1;
 }
-.ajaxCart .k-window-titlebar.k-header .k-window-actions a {
+.ajaxCart .k-window-titlebar .k-button {
 	display: block;
 	width: 16px;
 	height: 16px;
+    border: none;
     background: url(img/close.png) no-repeat center;
 	font-size: 0;
+}
+.ajaxCart .k-window-titlebar .k-icon {
+	display: none;
 }
 .productAddedToCartWindowTitle {
     position: absolute;
