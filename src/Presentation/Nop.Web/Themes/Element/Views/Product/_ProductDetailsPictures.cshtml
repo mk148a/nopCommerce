@@ -5,8 +5,8 @@
     <script asp-exclude-from-bundle="true" src="~/lib_npm/magnific-popup/jquery.magnific-popup.min.js" asp-location="Footer"></script>
 }
 
-<div class="gallery">
-    @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.ProductDetailsBeforePictures, additionalData = Model })
+<div class="picture-gallery">
+    @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.ProductDetailsBeforePictures, additionalData = Model })
     <div class="picture">
         @if (Model.DefaultPictureZoomEnabled && Model.PictureModels.Count == 1)
         {
@@ -14,7 +14,7 @@
                 <img alt="@Model.DefaultPictureModel.AlternateText" src="@Model.DefaultPictureModel.ImageUrl" title="@Model.DefaultPictureModel.Title" id="main-product-img-@Model.Id" />
             </a>
             <script asp-location="Footer">
-                $(document).ready(function() {
+                $(function() {
                     $('#main-product-img-lightbox-anchor-@Model.Id').magnificPopup({ type: 'image' });
                 });
             </script>
@@ -29,7 +29,7 @@
         <ul class="picture-thumbs">
             @foreach (var picture in Model.PictureModels)
             {
-                <li class="picture-thumb">
+                <li class="picture-thumb" data-pictureid="@picture.Id">
                     <a class="thumb-item" href="javascript:void(0)">
                         <img src="@picture.ThumbImageUrl" alt="@picture.AlternateText" title="@picture.Title" data-defaultsize="@picture.ImageUrl" data-fullsize="@picture.FullSizeImageUrl" />
                     </a>
@@ -37,7 +37,7 @@
             }
         </ul>
         <script asp-location="Footer">
-            $(document).ready(function() {
+            $(function() {
                 $('.picture-thumbs').magnificPopup(
                     {
                         type: 'image',
@@ -57,7 +57,7 @@
             });
         </script>
         <script asp-location="Footer">
-            $(document).ready(function() {
+            $(function() {
                 $('.thumb-item > img').on('click',
                     function() {
                         $('#main-product-img-@Model.Id').attr('src', $(this).attr('data-defaultsize'));
@@ -76,7 +76,7 @@
 	        <ul class="picture-thumbs">
 	            @foreach (var picture in Model.PictureModels)
 	            {
-	                <li class="picture-thumb">
+	                <li class="picture-thumb" data-pictureid="@picture.Id">
 	                    <a class="thumb-item" href="javascript:void(0)">
 	                        <img src="@picture.ThumbImageUrl" alt="@picture.AlternateText" title="@picture.Title" data-defaultsize="@picture.ImageUrl" data-fullsize="@picture.FullSizeImageUrl" />
 	                    </a>
@@ -84,7 +84,7 @@
 	            }
 	        </ul>
             <script asp-location="Footer">
-                $(document).ready(function() {
+                $(function() {
                     $('.thumb-item img').on('click',
                         function() {
                             $('#main-product-img-@Model.Id').attr('src', $(this).attr('data-defaultsize'));
@@ -98,5 +98,5 @@
             </script>
         }
     }
-    @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.ProductDetailsAfterPictures, additionalData = Model })
+    @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.ProductDetailsAfterPictures, additionalData = Model })
 </div>

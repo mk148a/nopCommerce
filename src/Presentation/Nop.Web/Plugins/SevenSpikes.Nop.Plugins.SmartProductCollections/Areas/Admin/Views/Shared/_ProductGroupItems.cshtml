@@ -40,29 +40,30 @@
 				<i class="fa fa-exclamation-circle"></i>
 				@T("SevenSpikes.SmartProductCollections.Admin.ProductsGroupItem.DragAndDrop.Items")
 			</div>
+			<div class="k-tabstrip-wrapper" style="">
+				<div id="tabstrip" @if (Model.Items.Count > 0) { <text> class="not-empty" </text> }>
+					<ul class="nav nav-tabs tabs-anchors">
+						@foreach (var item in Model.Items)
+						{
+							string title = item.Title;
 
-			<div id="tabstrip" @if (Model.Items.Count > 0) { <text> class="not-empty" </text> }>
-				<ul class="nav nav-tabs tabs-anchors">
+							if (string.IsNullOrEmpty(title))
+							{
+								title = defaultItemTitle;
+							}
+
+							<li data-itemid="@item.Id">@title</li>
+						}
+						<li class="add-new-item-from-tabstrip-button">@addNewText</li>
+					</ul>
+
 					@foreach (var item in Model.Items)
 					{
-						string title = item.Title;
-
-						if (string.IsNullOrEmpty(title))
-						{
-							title = defaultItemTitle;
-						}
-
-						<li data-itemid="@item.Id">@title</li>
+						await Html.RenderPartialAsync(AdminViews.ProductGroupHeaderTemplate, item);
 					}
-					<li id="add-new-item-from-tabstrip-button">@addNewText</li>
-				</ul>
-
-				@foreach (var item in Model.Items)
-				{
-					await Html.RenderPartialAsync(AdminViews.ProductGroupHeaderTemplate, item);
-				}
-				<div class="tab-content k-content add-new-item-tabstrip-content">@addNewText</div>
+					<div class="tab-content k-content add-new-item-tabstrip-content">@addNewText</div>
+				</div>
+				</div>
 			</div>
-		</div>
 	</div>
 </div>

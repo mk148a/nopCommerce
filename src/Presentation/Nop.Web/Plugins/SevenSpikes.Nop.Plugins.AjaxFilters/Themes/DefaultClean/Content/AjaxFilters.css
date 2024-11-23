@@ -311,11 +311,14 @@
 /* no result popup */
 
 .ajaxFilters.k-window {
+    flex-flow: column;
     position: absolute;
+    z-index: 1061 !important;
+    height: auto !important;
+    outline: none !important;
     padding: 0 !important;
     background: #fff;
     text-align: left;
-    z-index: 1061 !important;
 }
 .ajaxFilters .k-window-titlebar {
     position: relative;
@@ -327,20 +330,21 @@
     border-bottom: 1px solid #ddd;
     padding: 12px 36px 12px 12px;
 }
-.ajaxFilters .k-window-actions {
+.ajaxFilters .k-window-titlebar-actions {
     position: absolute;
     top: 16px;
     right: 14px;
     font-size: 0;
 }
-.ajaxFilters .k-window-actions a {
-    display: block;
-}
-.ajaxFilters .k-window-actions .k-icon {
+.ajaxFilters .k-window-titlebar .k-button {
     display: block;
     width: 12px;
     height: 12px;
+    border: none;
     background: url(images/filters-close.png) no-repeat center;
+}
+.ajaxFilters .k-window-titlebar .k-icon {
+    display: none;
 }
 .ajaxFilters .k-window-content {
     padding: 15px;

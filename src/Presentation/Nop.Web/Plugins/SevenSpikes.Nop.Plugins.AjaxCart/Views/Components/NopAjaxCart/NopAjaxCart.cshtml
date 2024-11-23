@@ -22,9 +22,7 @@
     <script src="~/Plugins/SevenSpikes.Core/Scripts/sevenspikes.core.min.js" asp-location="Footer"></script>
     <script src="~/Plugins/SevenSpikes.Core/Scripts/jquery.json-2.4.min.js" asp-location="Footer"></script>
     <script src="~/Plugins/SevenSpikes.Nop.Plugins.AjaxCart/Scripts/AjaxCart.min.js" asp-location="Footer"></script>
-
-    var kendoVersion = "2020.1.406";
-
+    
     var shoppingCartSuccessMessage = string.Format(T("Products.ProductHasBeenAddedToTheCart.Link").Text, Url.RouteUrl("ShoppingCart"));
     var wishlistSuccessMessage = string.Format(T("Products.ProductHasBeenAddedToTheWishlist.Link").Text, Url.RouteUrl("Wishlist"));
 
@@ -33,11 +31,7 @@
         which includes kendo.all.min.js to work properly.
     */
 
-    NopHtml.AppendScriptParts(ResourceLocation.Footer, $"~/lib/kendo/{kendoVersion}/js/kendo.window.min.js");
-    NopHtml.AppendScriptParts(ResourceLocation.Footer, $"~/lib/kendo/{kendoVersion}/js/kendo.popup.min.js");
-    NopHtml.AppendScriptParts(ResourceLocation.Footer, $"~/lib/kendo/{kendoVersion}/js/kendo.draganddrop.min.js");
-    NopHtml.AppendScriptParts(ResourceLocation.Footer, $"~/lib/kendo/{kendoVersion}/js/kendo.userevents.min.js");
-    NopHtml.AppendScriptParts(ResourceLocation.Footer, $"~/lib/kendo/{kendoVersion}/js/kendo.core.min.js");
+    NopHtml.AppendScriptParts(ResourceLocation.Footer, $"~/Plugins/SevenSpikes.Core/Scripts/lib/kendo/2024.1.130/js/kendo.public.min.js");
     NopHtml.AppendScriptParts(ResourceLocation.Footer, $"~/js/public.combinationsbehavior.js");
 }
 

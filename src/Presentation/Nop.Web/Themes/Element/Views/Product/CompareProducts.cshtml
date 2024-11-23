@@ -1,5 +1,7 @@
 ﻿@model CompareProductsModel
 
+@using Nop.Core.Domain.Catalog
+
 @{
     Layout = "_ColumnsTwo";
 
@@ -39,8 +41,11 @@
                             <td class="empty">&nbsp;</td>
                             @foreach (var product in Model.Products)
                             {
+                                var picture = product.PictureModels.FirstOrDefault();
                                 <td style="width: @columnWidth;">
-                                    <a class="picture" href="@Url.RouteUrl("Product", new { SeName = product.SeName })"><img alt="@product.DefaultPictureModel.AlternateText" src="@product.DefaultPictureModel.ImageUrl" title="@product.DefaultPictureModel.Title" /></a>
+                                    <a class="picture" href="@(Url.RouteUrl<Product>(new { SeName = product.SeName }))">
+                                        <img alt="@picture?.AlternateText" src="@picture?.ImageUrl" title="@picture?.Title" />
+                                    </a>
                                     <button type="button" title="@T("Common.Remove")" class="button-2 remove-button" onclick="setLocation('@Url.RouteUrl("RemoveProductFromCompareList", new { productId = product.Id })')"><span>@T("Common.Remove")</span></button>
                                 </td>
                             }
@@ -52,7 +57,7 @@
                             @foreach (var product in Model.Products)
                             {
                                 <td style="width: @columnWidth;">
-                                    <a href="@Url.RouteUrl("Product", new { SeName = product.SeName })">@product.Name</a>
+                                    <a href="@(Url.RouteUrl<Product>(new { SeName = product.SeName }))">@product.Name</a>
                                 </td>
                             }
                         </tr>
@@ -163,9 +168,12 @@
                     <ul>
                         @foreach (var product in Model.Products)
                         {
+                            var picture = product.PictureModels.FirstOrDefault();
                             <li class="item">
                                 <div class="picture">
-                                    <a href="@Url.RouteUrl("Product", new { SeName = product.SeName })"><img alt="@product.DefaultPictureModel.AlternateText" src="@product.DefaultPictureModel.ImageUrl" title="@product.DefaultPictureModel.Title" /></a>
+                                    <a href="@(Url.RouteUrl<Product>(new { SeName = product.SeName }))">
+                                        <img alt="@picture?.AlternateText" src="@picture?.ImageUrl" title="@picture?.Title" />
+                                    </a>
                                 </div>
                                 <div class="details">
                                     <div class="product-name">

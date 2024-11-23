@@ -14,6 +14,7 @@
             
             var datePickerFormat = Html.GetJQueryDateFormat();//java-script format
             var isMobileDevice = userAgentHelper.IsMobileDevice();
+
             <div class="attribute-item">
                 <div class="attribute-label">
                     <label class="text-prompt">
@@ -24,7 +25,7 @@
                 <div class="attribute-data">
                     <span><input id="@(startDateControlId)" name="@(startDateControlId)" type="text" class="datepicker" value="@(Model.RentalStartDate.HasValue ? Model.RentalStartDate.Value.ToShortDateString() : null)" @if(isMobileDevice){<text>readonly</text>}/></span>
                     <script asp-location="Footer">
-                        $(document).ready(function () {
+                        $(function() {
                             $("#@(startDateControlId)").datepicker({ dateFormat: "@datePickerFormat", onSelect: @(dateControlChangeHandlerFuncName) });
                         });
                     </script>
@@ -40,7 +41,7 @@
                 <div class="attribute-data">
                     <span><input id="@(endDateControlId)" name="@(endDateControlId)" type="text" class="datepicker" value="@(Model.RentalEndDate.HasValue ? Model.RentalEndDate.Value.ToShortDateString() : null)" @if(isMobileDevice){<text>readonly</text>}/></span>
                     <script asp-location="Footer">
-                        $(document).ready(function () {
+                        $(function() {
                             $("#@(endDateControlId)").datepicker({ dateFormat: "@datePickerFormat", onSelect: @(dateControlChangeHandlerFuncName) });
                         });
                     </script>
@@ -58,7 +59,7 @@
                         <text>
                         $.ajax({
                             cache: false,
-                            url: "@Html.Raw(Url.Action("productdetails_attributechange", "shoppingcart", new {productId = productId, validateAttributeConditions = false, loadPicture = false }))",
+                            url: "@Html.Raw(Url.RouteUrl("ProductDetailsAttributeChange", new {productId = productId, validateAttributeConditions = false, loadPicture = false }))",
                             data: $('#product-details-form').serialize(),
                             type: "POST",
                             success: function (data, textStatus, jqXHR) {

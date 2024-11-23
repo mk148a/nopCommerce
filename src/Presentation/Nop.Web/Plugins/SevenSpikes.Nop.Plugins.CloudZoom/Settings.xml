@@ -52,7 +52,7 @@
     <Value>.overview</Value>
   </Setting>
   <Setting Name="CloudZoomSettings.DefaultImageContainerSelector">
-    <Value>.product-essential .gallery</Value>
+    <Value>.product-essential .picture-gallery</Value>
   </Setting>
   <Setting Name="CloudZoomSettings.DefaultResponsiveBreakpointsForThumbnailsCarousel">
     <Value>[{"breakpoint":1001,"settings":{"arrows":false,"dots":true}},{"breakpoint":600,"settings":{"slidesToShow":4,"slidesToScroll":4,"arrows":false,"dots":true}},{"breakpoint":400,"settings":{"slidesToShow":3,"slidesToScroll":3,"arrows":false,"dots":true}}]</Value>

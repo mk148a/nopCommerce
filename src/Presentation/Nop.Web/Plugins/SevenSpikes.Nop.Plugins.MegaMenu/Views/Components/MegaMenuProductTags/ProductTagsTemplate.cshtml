@@ -1,18 +1,11 @@
 ﻿@using SevenSpikes.Nop.Plugins.MegaMenu.Models
-@using Nop.Core.Domain.Seo
-@inject Nop.Core.IWebHelper webHelper
-@inject SeoSettings seoSettings
+
 @model MenuItemProductTagsModel
 
 @{
     var hasTags = Model.ProductTags.Count > 0;
     var hasSublistClass = hasTags ? "has-sublist" : string.Empty;
     var withSubcategoriesClass = hasTags ? "with-subcategories" : string.Empty;
-					 if (seoSettings.CanonicalUrlsEnabled)
- {
-     var homePageUrl = Url.RouteUrl("ProductTags", new {}, webHelper.GetCurrentRequestProtocol());
-     NopHtml.AddCanonicalUrlParts(homePageUrl, seoSettings.QueryStringInCanonicalUrlsEnabled);
- }
 }
 
 <li class="@hasSublistClass @Model.Item.CssClass">

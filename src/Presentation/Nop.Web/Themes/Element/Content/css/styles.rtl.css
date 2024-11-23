@@ -449,12 +449,13 @@ label, label + * {
 	color: #11a871;
 }
 .captcha-box {
-	margin: 0 0 25px;
-	text-align: center;
-	line-height: 0; /*firefox line-height bug fix*/
+	display: flex;
+	justify-content: center;
+	clear: both;
+	margin: 30px 0 0;
 }
-.captcha-box > div {
-	display: inline-block;
+.captcha-box iframe {
+	margin: 0;
 }
 .captcha-box input {
 	height: auto;
@@ -552,14 +553,18 @@ label, label + * {
 .cart .remove-from-cart button:hover {
 	background-color: #aaa;
 }
-.cart .product-picture {
+.cart .product-picture,
+.data-table .picture {
 	text-align: center;
 	font-size: 0;
 }
-.cart .product-picture a {
+.cart .product-picture a,
+.data-table .picture a {
 	display: inline-block;
 }
-.cart .product-picture img {
+.cart .product-picture img,
+.data-table .picture img {
+	min-width: 60px;
 	max-width: 60px;
 }
 .cart .product-name {
@@ -567,7 +572,8 @@ label, label + * {
 	color: #555;
 	text-transform: uppercase;
 }
-.cart .attributes {
+.cart .attributes,
+.data-table .attributes {
 	margin: 10px 0 !important;
 	border: none;
 	background-color: transparent;
@@ -637,8 +643,8 @@ label, label + * {
 .earth-theme .cart td.subtotal {
 	color: #007c5a;
 }
-.cart .subtotal .discount {
-    white-space: normal;
+.cart .subtotal .discount span {
+    display: block;
 }
 .cart .discount-additional-info {
 	margin: 5px 0 0;
@@ -651,6 +657,74 @@ label, label + * {
 .earth-theme .discount-additional-info {
 	font-size: 14px;
 	font-weight: 300;
+}
+
+
+/* RESPONSIVE TABLES */
+
+
+.footable-first-column {
+	text-align: center;
+}
+td.footable-first-column {
+	position: relative;
+	background: transparent !important; /*Firefox relative cell bug fix*/
+}
+
+.air-theme .footable-first-column .item-count {
+	font-size: 11px !important;
+}
+.earth-theme .footable-first-column .item-count {
+	font-size: 13px !important;
+}
+
+.footable.breakpoint > tbody > tr > td > span.footable-toggle {
+	position: absolute;
+	/*top: 50%;*/ /*doesn't work in IE*/
+	left: 50%;
+	width: 20px;
+	height: 20px;
+	/*margin: -10px 0 0 -10px;*/
+	border-radius: 50%;
+	overflow: hidden;
+	background: #bbb url('../img/table-sprite.png') no-repeat;
+}
+.air-theme .footable.breakpoint > tbody > tr > td > span.footable-toggle {
+	margin: -1px 0 0 -10px; /*IE hack*/
+}
+.earth-theme .footable.breakpoint > tbody > tr > td > span.footable-toggle {
+	margin: 2px 0 0 -10px; /*IE hack*/
+}
+.footable-toggle {
+	background-position: 0 center !important;
+}
+.footable-detail-show .footable-toggle {
+	background-position: -20px center !important;
+}
+.footable-toggle:before {
+	display: none !important;
+}
+
+.footable-row-detail {
+	text-align: right;
+}
+.footable-row-detail-cell {
+	border-width: 1px 0 !important;
+	border-style: solid !important;
+	border-color: #eee !important;
+	text-align: right !important;
+}
+.footable-row-detail-row {
+	margin: 0 0 10px;
+    display: table-row;
+}
+.footable-row-detail-name {
+    display: table-cell;
+    padding: 10px;
+}
+.footable-row-detail-value {
+    display: table-cell;
+	padding: 10px;
 }
 
 
@@ -1056,17 +1130,16 @@ label, label + * {
 .ui-autocomplete li:first-child {
 	border-top: none;
 }
+.ui-autocomplete .ui-state-active {
+	background: #f6f6f6;
+}
 .ui-autocomplete a {
 	display: block;
-	padding: 30px 20px;
+	padding: 10px 20px;
 	color: #555;
 	text-transform: uppercase;
 }
-.ui-autocomplete a.ui-state-focus {
-	background: #f6f6f6;
-}
 .ui-autocomplete img {
-	display: none;
 	margin: 0 0 0 20px;
 	vertical-align: middle;
 }
@@ -1091,6 +1164,9 @@ label, label + * {
 	background-color: #f6f6f6;
 	padding: 30px 20px;
 	font-size: 0;
+}
+.header-selectors-wrapper:empty {
+	display: none;
 }
 .header-selectors-wrapper > div {
 	display: inline-block;
@@ -2062,6 +2138,13 @@ label, label + * {
     font-size: 0;
 }
 
+.air-theme .swiper-pagination-bullet-active {
+	background-color: #eda187;
+}
+.earth-theme .swiper-pagination-bullet-active {
+	background-color: #007c5a;
+}
+
 .home-page-category-grid {
 	width: 94%;
 	margin: 0 auto 60px;
@@ -2285,6 +2368,16 @@ label, label + * {
 	max-height: 100%;
 	margin: auto;
 }
+.video-gallery .video-thumbs {
+	max-width: 600px;
+	margin: 10px auto 0;
+	font-size: 0;
+}
+.video-gallery .thumb-item {
+	width: 100%;
+    height: 315px;
+	margin: 10px 0 0;
+}
 
 .mfp-bg { /*default zoom*/
 	z-index: 1080 !important;
@@ -2332,6 +2425,7 @@ label, label + * {
 }
 .product-review-box .rating {
 	display: inline-block;
+	font-size: 0;
 }
 .product-review-box .rating,
 .product-list .item-box .rating {
@@ -2352,11 +2446,23 @@ label, label + * {
 .earth-theme .product-list .item-box .rating div {
 	background-color: #007c5a;
 }
+.product-no-reviews a {
+	padding: 0 !important;
+}
+.product-no-reviews a:before {
+	display: none !important;
+}
 .air-theme .product-no-reviews a {
+	font-size: 13px !important;
 	color: #eda187;
 }
 .earth-theme .product-no-reviews a {
+	font-size: 16px !important;
+	line-height: normal !important;
 	color: #007c5a;
+}
+.product-review-links {
+	display: inline-block;
 }
 .product-review-links a {
 	position: relative;
@@ -2377,10 +2483,12 @@ label, label + * {
 .product-review-links .separator {
 	display: none;
 }
-.product-review-links a:first-child:before {
+/*.product-review-links a:first-child:before*/
+.product-review-links:first-child a:before {
 	background-position: 0 center;
 }
-.product-review-links a:last-child:before {
+/*.product-review-links a:last-child:before*/
+.product-review-links:last-child a:before {
 	background-position: -30px center;
 }
 .product-review-links a:before,
@@ -3451,7 +3559,7 @@ table .attributes {
 	position: absolute;
 	top: 3px; right: 3px;
 	width: 6px; height: 6px;
-	border-radius: 50px;
+	border-radius: 50%;
 	background-color: #444;
 }
 
@@ -3509,29 +3617,22 @@ table .attributes {
 /* PRODUCT REVIEWS */
 
 
-.product-reviews-page h1 a:before,
-.product-reviews-page h1 a:after {
-	content: "''";
-}
-.product-reviews-page .page-body > .result {
+.product-reviews > .result {
 	/*min-height: 100px;*/
 	margin: 40px 0;
 	text-align: center;
 }
-.product-reviews-page .message-error {
+.product-reviews .message-error {
 	margin: 0 0 20px;
 	text-align: center;
 }
-.product-reviews-page .title {
-	display: none;
-}
-.product-reviews-page .write-review {
+.product-reviews .write-review {
 	margin: 30px 0 80px;
 }
-.product-reviews-page .write-review form {
-	width: 600px;
+.product-reviews .write-review form {
+	/*width: 600px;
 	max-width: 100%;
-	margin: auto;
+	margin: auto;*/
 	background-color: #f9f9f9;
 	padding: 40px 20px;
 }
@@ -3600,17 +3701,30 @@ table .attributes {
 .write-review .review-rating .tooltip-text {
 	display: none;
 }
-.write-review .captcha-box {
-	margin: 30px 0 0;
+/*form toggle*/
+.write-review .fieldset {
+	display: none;
 }
+.write-review .buttons {
+	position: relative;
+}
+.write-review .trigger {
+	position: absolute;
+	top: 0; right: 0;
+	bottom: 0; left: 0;
+	cursor: pointer;
+}/**/
 
 .product-review-list {
-	margin: 0 0 80px;
+	margin: 0 0 -30px;
 }
 .product-review-item {
 	border-bottom: 1px solid #eee;
 	overflow: hidden;
 	padding: 25px 20px 35px;
+}
+.product-review-item:first-child {
+	padding-top: 0;
 }
 .product-review-item .review-item-head {
 	margin: 0 0 20px;
@@ -3649,6 +3763,14 @@ table .attributes {
 .earth-theme .product-review-item .review-info .date {
 	font-size: 14px;
 }
+.review-type-rating-ext .review-title {
+	margin: 5px 0 3px !important;
+	color: #888;
+}
+.product-review-item .review-title {
+	margin: 0 0 20px;
+	color: #555;
+}
 .product-review-item .review-title {
 	margin: 0 0 20px;
 	color: #555;
@@ -3662,10 +3784,6 @@ table .attributes {
 .product-review-item .review-text {
 	margin: 0 0 20px;
 	line-height: 26px;
-}
-.review-type-rating-ext .review-title {
-	margin: 5px 0 10px;
-	color: #888;
 }
 .product-review-helpfulness > span {
 	display: inline-block;
@@ -4022,6 +4140,9 @@ table .attributes {
 	font-size: 18px;
 	font-weight: 400;
 	color: #007c5a;
+}
+.apply-vendor-page .terms-of-service {
+	margin-top: 30px;
 }
 
 
@@ -5324,6 +5445,9 @@ table .attributes {
 	border-top: 1px solid #eee;
 	padding: 25px 0 0;
 }
+.opc .button-1[style] {
+    display: none!important;
+}
 .opc .back-link {
 	margin: 0 0 15px;
 	text-transform: uppercase;
@@ -5417,6 +5541,9 @@ table .attributes {
 	float: none;
 	border-bottom: 1px solid #eee;
 	background-color: #fff;
+}
+.opc .captcha-box {
+	margin-bottom: 30px;
 }
 
 

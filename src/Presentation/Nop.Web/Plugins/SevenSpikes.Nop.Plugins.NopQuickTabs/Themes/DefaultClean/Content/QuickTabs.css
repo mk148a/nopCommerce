@@ -21,25 +21,50 @@
 .productTabs {
     margin: 0 0 40px;
 }
+.productTabs .title {
+    display: none;
+}
 .ui-tabs-nav li.ui-state-active a {
     background-color: #f6f6f6;
 }
 .productTabs .product-specs-box {
     display: block;
 }
-
-.productTabs .write-review {
+.productTabs .write-review,
+.productTabs .contact-page {
+    margin-bottom: 0;
     background-color: #f9f9f9;
     padding: 30px 15px;
+}
+.productTabs .write-review:first-child,
+.productTabs .contact-page {
     margin-top: -30px;
 }
-.productTabs .write-review .title {
-    display: none;
-}
-.productTabs .write-review .form-fields {
+.productTabs .write-review .form-fields,
+.productTabs .contact-page .form-fields {
     border-top: 0;
     padding: 0;
 }
-.productTabs .write-review .buttons {
+.productTabs .write-review .buttons,
+.productTabs .contact-page .buttons {
 	margin: 20px 0 0;
+}
+.productTabs .review-type-rating-ext {
+    padding: 10px;
+}
+
+@media all and (min-width: 1001px) {
+
+    .productTabs .write-review .review-rating label {
+        display: inline-block;
+        width: 265px;
+        margin: 0 5px 0 0;
+        text-align: right;
+    }
+}
+@media all and (min-width: 1367px) {
+
+    .productTabs .write-review .review-rating label {
+        width: 375px;
+    }
 }

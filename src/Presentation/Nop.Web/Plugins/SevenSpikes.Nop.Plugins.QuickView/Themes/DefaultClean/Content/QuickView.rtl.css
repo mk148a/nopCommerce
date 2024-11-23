@@ -27,28 +27,14 @@
 	text-align: right;
 }
 
-.quickView .k-window-titlebar.k-header {
+.quickView .k-window-titlebar {
     left: 0;
     right: inherit;
 }
 
-.quickView .k-window-titlebar.k-header .k-window-actions {
+.quickView .k-window-titlebar-actions {
     right: auto;
     left: 14px;
-}
-.quickView .k-loading-mask {
-    right: 0;
-    left: inherit;
-}
-
-.quickView .k-loading-image {
-    right: 0;
-    left: inherit;
-}
-
-.k-overlay {
-    right: 0;
-    left: inherit;
 }
 
 .quickViewWindow .product-name {

@@ -6,7 +6,6 @@
   <WidgetZone>main_column_before</WidgetZone>
   <WidgetZone>main_column_after</WidgetZone>
   <WidgetZone>left_side_column_before</WidgetZone>
-  <WidgetZone>left_side_column_after_category_navigation</WidgetZone>
   <WidgetZone>left_side_column_after</WidgetZone>
   <WidgetZone>home_page_before_best_sellers</WidgetZone>
   <WidgetZone>home_page_before_categories</WidgetZone>
@@ -29,7 +28,13 @@
   <WidgetZone>productdetails_after_pictures</WidgetZone>
   <WidgetZone>productdetails_overview_top</WidgetZone>
   <WidgetZone>productdetails_overview_bottom</WidgetZone>
+  <WidgetZone>productdetails_before_collateral</WidgetZone>
+  <WidgetZone>customer_topic_details_top</WidgetZone>
+  <WidgetZone>customer_topic_details_bottom</WidgetZone>
   <WidgetZone>manufacturerdetails_top</WidgetZone>
+  <WidgetZone>manufacturerdetails_bottom</WidgetZone>
+  <WidgetZone>vendordetails_top</WidgetZone>
+  <WidgetZone>vendordetails_bottom</WidgetZone>
   <WidgetZone>mega_menu_categories_before_dropdown_end</WidgetZone>
   <WidgetZone>mega_menu_categories_before_dropdown_end_1</WidgetZone>
   <WidgetZone>mega_menu_categories_before_dropdown_end_2</WidgetZone>

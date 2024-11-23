@@ -3,10 +3,10 @@
 * http://www.nop-templates.com/t/licensinginfo
 */
 
-.gallery {
+.picture-gallery {
     display: none;
 }
-.gallery.sevenspikes-cloudzoom-gallery {
+.sevenspikes-cloudzoom-gallery {
     display: block;
 }
 .gallery .picture-wrapper {

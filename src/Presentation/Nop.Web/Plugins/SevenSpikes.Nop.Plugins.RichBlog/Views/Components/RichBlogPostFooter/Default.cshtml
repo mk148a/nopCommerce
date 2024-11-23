@@ -83,6 +83,10 @@
                         <!-- Pinterest -->
                         <a data-pin-do="buttonPin" data-pin-custom="true" data-pin-description="@Model.BlogPostTitle"
                            data-pin-media="@Model.BlogPostImgUrl" href="https://www.pinterest.com/pin/create/button/?url=@shareUrl"></a>
+                        <script>
+                            @*Pinterest scrit copied from: assets.pinterest.com/js/pinit.js*@
+                            !function (a, b, c) { var d, e, f; d = "PIN_" + ~~((new Date).getTime() / 864e5), a[d] ? a[d] += 1 : (a[d] = 1, a.setTimeout(function () { e = b.getElementsByTagName("SCRIPT")[0], f = b.createElement("SCRIPT"), f.type = "text/javascript", f.async = !0, f.src = c.mainUrl + "?" + Math.random(), e.parentNode.insertBefore(f, e) }, 10)) }(window, document, { mainUrl: "//assets.pinterest.com/js/pinit_main.js" });
+                        </script>
                     </li>
                 }
                 @if (richBlogSettings.ShowLinkedInShare)
@@ -103,9 +107,6 @@
 
                     window.open(url, 'sharer', 'top=' + winTop + ',left=' + winLeft + ',toolbar=0,status=0,width=' + winWidth + ',height=' + winHeight);
                 }
-
-                @*Pinterest scrit copied from: assets.pinterest.com/js/pinit.js*@
-                !function (a, b, c) { var d, e, f; d = "PIN_" + ~~((new Date).getTime() / 864e5), a[d] ? a[d] += 1 : (a[d] = 1, a.setTimeout(function () { e = b.getElementsByTagName("SCRIPT")[0], f = b.createElement("SCRIPT"), f.type = "text/javascript", f.async = !0, f.src = c.mainUrl + "?" + Math.random(), e.parentNode.insertBefore(f, e) }, 10)) }(window, document, { mainUrl: "//assets.pinterest.com/js/pinit_main.js" });
             </script>
         }
     </div>

@@ -74,6 +74,7 @@
 
 
 .ajaxCart {
+	flex-flow: column;
     position: absolute;
 	left: 0 !important;
 	right: 0;
@@ -99,13 +100,13 @@
 .ajaxCart .k-window-titlebar .k-window-title {
 	display: none;
 }
-.ajaxCart .k-window-titlebar .k-window-actions {
+.ajaxCart .k-window-titlebar-actions {
 	position: absolute;
 	top: 10px;
 	right: 10px;
 	z-index: 1;
 }
-.ajaxCart .k-window-titlebar .k-window-actions a {
+.ajaxCart .k-window-titlebar .k-button {
 	display: block;
 	width: 18px;
 	height: 18px;
@@ -113,6 +114,9 @@
 	border-radius: 50%;
 	background: #ccc url('images/close.png') center no-repeat;
 	font-size: 0;
+}
+.ajaxCart .k-window-titlebar .k-icon {
+	display: none;
 }
 
 .productAddedToCartWindowTitle,

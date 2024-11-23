@@ -17,18 +17,7 @@
 
     <link rel="stylesheet" href="~/lib_npm/fine-uploader/fine-uploader/fine-uploader.min.css" />
 
-    var kendoVersion = "2020.1.406";
-
-    /*
-        We usually use AddScriptParts but in this case, we need to use AppendScriptParts and reverse the order of adding the kendo js files in order for other plugins such as HelpDesk,
-        which includes kendo.all.min.js to work properly.
-    */
-
-    NopHtml.AppendScriptParts(ResourceLocation.Footer, $"~/lib/kendo/{kendoVersion}/js/kendo.window.min.js");
-    NopHtml.AppendScriptParts(ResourceLocation.Footer, $"~/lib/kendo/{kendoVersion}/js/kendo.popup.min.js");
-    NopHtml.AppendScriptParts(ResourceLocation.Footer, $"~/lib/kendo/{kendoVersion}/js/kendo.draganddrop.min.js");
-    NopHtml.AppendScriptParts(ResourceLocation.Footer, $"~/lib/kendo/{kendoVersion}/js/kendo.userevents.min.js");
-    NopHtml.AppendScriptParts(ResourceLocation.Footer, $"~/lib/kendo/{kendoVersion}/js/kendo.core.min.js");
+    NopHtml.AppendScriptParts(ResourceLocation.Footer, $"~/Plugins/SevenSpikes.Core/Scripts/lib/kendo/2024.1.130/js/kendo.public.min.js");
     
 
     <script src="~/lib_npm/fine-uploader/jquery.fine-uploader/jquery.fine-uploader.min.js" asp-location="Footer"></script>

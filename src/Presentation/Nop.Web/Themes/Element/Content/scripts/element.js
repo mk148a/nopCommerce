@@ -272,6 +272,51 @@
         $(document).on('click', '.add-to-cart .decrease, .cart .decrease', decrementQuantityValue);
     }
 
+    // Handle Product Reviews form. Closed by default and opened either on button click or on error message present.
+
+    function handleProductReviewForm() {
+
+        var triggerElement = $('.write-review .trigger');
+        var targetElement = $('.write-review .fieldset, .ui-tabs .write-review .form-fields');
+
+        $('a[href="#addreview"]').on('click', function () {
+            triggerElement.hide();
+            targetElement.addClass('active').slideDown();
+        });
+        triggerElement.on('click', function () {
+            triggerElement.hide();
+            targetElement.addClass('active').slideDown();
+        });
+        if ($('.write-review .message-error, .write-review .field-validation-error').length > 0) {
+            triggerElement.hide();
+            targetElement.addClass('active').slideDown();
+        }
+
+        if (!$('.ui-tabs .product-review-list').length > 0) {
+            $('.ui-tabs').find(triggerElement).click();
+        }
+        $(document).on('quickTabsRefreshedTab quickTabsLoadedTab', function () {
+            var newTriggerElement = $('.write-review .trigger');
+            var newTargetElement = $('.write-review .form-fields');
+
+            newTriggerElement.on('click', function () {
+                newTriggerElement.hide();
+                newTargetElement.slideDown();
+            });
+            if (!$('.ui-tabs .product-review-list').length > 0) {
+                $('.ui-tabs').find(newTriggerElement).click();
+            }
+            if ($('.write-review .message-error, .write-review .field-validation-error').length > 0) {
+                newTriggerElement.hide();
+                newTargetElement.slideDown();
+
+                $('html, body').animate({
+                    scrollTop: newTargetElement.offset().top - 150
+                }, 500);
+            }
+        });
+    }
+
     // Implements custom rating functionality (Product Reviews page).
 
     /*function handleProductReviewRatingIcons() {
@@ -486,6 +531,7 @@
         handleFlyoutCartScroll();
         handleBlockNavigationSublists();
         handlePurchaseQuantityValue();
+        handleProductReviewForm();
         //handleProductReviewRatingIcons();
         handleCartCollateralsContentToggle();
         preventCrossSellsButtonsConflict();

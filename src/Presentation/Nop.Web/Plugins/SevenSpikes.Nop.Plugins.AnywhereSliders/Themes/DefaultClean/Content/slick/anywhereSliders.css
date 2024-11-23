@@ -1,19 +1,23 @@
 
-.html-slide {
+.anywhere-slider .picture-slide a {
+    display: block;
+}
+.anywhere-slider .picture-slide img {
+    width: 100%;
 	display: none;
 }
-.first-slide {
+.anywhere-slider .first-slide img {
     display: block;
 }
-.picture-slide a {
+.anywhere-slider .html-slide {
+	display: none;
+}
+.anywhere-slider .first-slide,
+.slick-initialized .html-slide {
     display: block;
 }
-.picture-slide img {
-    width: 100%;
-    display: none;
-}
-.first-slide img {
-    display: block;
+.anywhere-slider img[data-lazy] {
+	max-height: 1px;
 }
 
 @media all and (min-width: 1001px) {

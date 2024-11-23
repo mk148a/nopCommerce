@@ -15,8 +15,8 @@ input.search-box-text {
 input.instant-search-busy {
 	background: #fff url('images/loader.gif') right center no-repeat !important;
 }
-.k-ff {
-    overflow: inherit !important; /*fix for missing kendo results dropdown in Firefox*/
+.search-box .k-clear-value {
+    display: none !important;
 }
 
 /* CATEGORY FILTER */
@@ -45,6 +45,10 @@ input.instant-search-busy {
 	height: auto !important;
 	margin: 0 0 0 -1px !important;
 }
+.k-child-animation-container {
+    width: 100% !important;
+    height: auto !important;
+}
 .instantSearch .k-list-container {
 	position: static !important;
 	width: 100% !important;
@@ -55,8 +59,8 @@ input.instant-search-busy {
     height: 100% !important;
     overflow-y: auto;
 }
-.instantSearch .k-item:first-child:before,
-.instantSearch .k-item:last-child:after {
+.instantSearch .k-list-item:first-child:before,
+.instantSearch .k-list-item:last-child:after {
 	content: "";
 	display: block;
 	height: 10px;
@@ -67,6 +71,10 @@ input.instant-search-busy {
 	overflow: hidden;
 	padding: 10px 20px;
 	cursor: pointer;
+}
+.k-hover .instant-search-item,
+.k-focus .instant-search-item  {
+	background: #f6f6f6;
 }
 .instant-search-item .img-block {
 	position: relative;
@@ -118,10 +126,6 @@ input.instant-search-busy {
 	font-weight: 400;
 	color: #007c5a;
 }
-.k-item.k-state-hover .instant-search-item,
-.k-item.k-state-focused .instant-search-item  {
-	background: #f6f6f6;
-}
 
 
 
@@ -172,7 +176,7 @@ span.search-box-text.narrow {
 
 @media all and (min-width: 1025px) {
 
-.with-caregory-search-enabled form {
+.search-option-enabled form {
 	width: 900px;
 }
 span.search-box-text.narrow {

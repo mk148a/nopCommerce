@@ -1,14 +1,15 @@
 ﻿@** Copyright 2017 Seven Spikes Ltd. All rights reserved. (http://www.nop-templates.com)
     * http://www.nop-templates.com/t/licensinginfo
 *@
-@inject IWorkContext workContext;
 
 @model MegaMenuWidgetModel
+
+@inject IWorkContext workContext;
 
 @{
     var megaMenuCssFilePath = "~/Plugins/SevenSpikes.Nop.Plugins.MegaMenu/Themes/" + Model.Theme + "/Content/MegaMenu.css";
 
-   var supportRtl = (await workContext.GetWorkingLanguageAsync()).Rtl;
+    var supportRtl = (await workContext.GetWorkingLanguageAsync()).Rtl;
 }
 
 <link rel="stylesheet" href="@megaMenuCssFilePath" />

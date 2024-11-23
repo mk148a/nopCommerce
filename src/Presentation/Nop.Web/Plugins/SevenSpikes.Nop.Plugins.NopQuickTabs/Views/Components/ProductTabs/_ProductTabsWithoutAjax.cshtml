@@ -4,7 +4,7 @@
     <ul>
         @foreach (var tabInfo in Model.Tabs)
         {
-            <li>
+            <li id="@tabInfo.TabKey-tab">
                 <a href="#quickTab-@tabInfo.TabKey">@tabInfo.Title</a>
             </li>
         }

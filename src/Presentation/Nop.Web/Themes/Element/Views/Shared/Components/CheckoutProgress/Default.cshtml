@@ -2,7 +2,7 @@
 @using Nop.Web.Models.Checkout;
 <div class="order-progress">
     <ul>
-        @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.CheckoutProgressBefore, additionalData = Model })
+        @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.CheckoutProgressBefore, additionalData = Model })
         <li class="active-step">
             <a class="cart-step" @(Model.CheckoutProgressStep != CheckoutProgressStep.Complete ? @Html.Raw($" href=\"{Url.RouteUrl("ShoppingCart")}\"") : null)>
                 <span>@T("Checkout.Progress.Cart")</span></a>
@@ -26,6 +26,6 @@
         <li @(Model.CheckoutProgressStep == CheckoutProgressStep.Complete ? @Html.Raw(" class=\"active-step\"") : @Html.Raw(" class=\"inactive-step\""))>
             <a class="complete-step"><span>@T("Checkout.Progress.Complete")</span></a>
         </li>
-        @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.CheckoutProgressAfter, additionalData = Model })
+        @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.CheckoutProgressAfter, additionalData = Model })
     </ul>
 </div>

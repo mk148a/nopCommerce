@@ -171,6 +171,7 @@
 
 
 .quickView {
+	flex-flow: column;
     position: absolute;
 	left: 50% !important;
     z-index: 1070;
@@ -187,16 +188,16 @@
 	margin-top: 0 !important;
 	font-size: 0;
 }
-.quickView .k-window-titlebar .k-window-title {
+.quickView .k-window-titlebar > span {
 	display: none;
 }
-.quickView .k-window-titlebar .k-window-actions {
+.quickView .k-window-titlebar-actions {
 	position: absolute;
 	top: 10px;
 	right: 10px;
 	z-index: 1;
 }
-.quickView .k-window-titlebar .k-window-actions a {
+.quickView .k-window-titlebar .k-button {
 	display: block;
 	width: 18px;
 	height: 18px;
@@ -204,6 +205,9 @@
 	border-radius: 50%;
 	background: #ccc url('images/close.png') center no-repeat;
 	font-size: 0;
+}
+.quickView .k-window-titlebar .k-icon {
+	display: none;
 }
 
 .quickView .product-essential {

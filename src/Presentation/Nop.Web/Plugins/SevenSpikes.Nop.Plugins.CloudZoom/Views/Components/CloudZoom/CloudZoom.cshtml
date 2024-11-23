@@ -93,7 +93,7 @@
         <input type="hidden" class="cloudZoomEnableClickToZoom" />
     }
 
-    <div class="gallery sevenspikes-cloudzoom-gallery">
+    <div class="picture-gallery sevenspikes-cloudzoom-gallery">
         @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.ProductDetailsBeforePictures, additionalData = Model.ProductDetailsModel })
         <div class="picture-wrapper">
             <div class="picture" id="sevenspikes-cloud-zoom" data-zoomwindowelementid="@Model.ElementId"

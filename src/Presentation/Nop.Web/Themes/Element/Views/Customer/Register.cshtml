@@ -1,7 +1,5 @@
 ﻿@model RegisterModel
-@using Nop.Core.Domain.Seo
-@inject Nop.Core.IWebHelper webHelper
-@inject SeoSettings seoSettings
+
 @{
     Layout = "_ColumnsOne";
 
@@ -9,12 +7,6 @@
     NopHtml.AddTitleParts(T("PageTitle.Register").Text);
     //page class
     NopHtml.AppendPageCssClassParts("html-registration-page");
-			 if (seoSettings.CanonicalUrlsEnabled)
- {
-     var homePageUrl = Url.RouteUrl("Register", new {}, webHelper.GetCurrentRequestProtocol());
-     NopHtml.AddCanonicalUrlParts(homePageUrl, seoSettings.QueryStringInCanonicalUrlsEnabled);
- }
-}
 }
 
 <form asp-route="Register" asp-route-returnurl="@Context.Request.Query["ReturnUrl"]" method="post" autocomplete="off">
@@ -23,6 +15,7 @@
             <h1>@T("Account.Register")</h1>
         </div>
         <div class="page-body">
+            @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.RegisterTop, additionalData = Model })
             <div asp-validation-summary="ModelOnly" class="message-error"></div>
             <div class="fieldset">
                 <div class="title">
@@ -150,10 +143,10 @@
                 </div>
             }
             @if (Model.StreetAddressEnabled ||
-                Model.StreetAddress2Enabled || 
-                Model.ZipPostalCodeEnabled || 
-                Model.CityEnabled || 
-                Model.CountyEnabled || 
+                Model.StreetAddress2Enabled ||
+                Model.ZipPostalCodeEnabled ||
+                Model.CityEnabled ||
+                Model.CountyEnabled ||
                 Model.CountryEnabled)
             {
                 <div class="fieldset">
@@ -358,7 +351,7 @@
             @if (Model.AcceptPrivacyPolicyEnabled)
             {
             	<script asp-location="Footer">
-                    $(document).ready(function () {
+                    $(function () {
                         $('#register-button').on('click', function() {
                             if ($('#accept-consent').is(':checked')) {
                             	//do some stuff
@@ -378,7 +371,7 @@
                     {
                         <span class="read" id="read-privacyinfo">@T("Account.Fields.AcceptPrivacyPolicy.Read")</span>
                         	<script asp-location="Footer">
-                                $(document).ready(function() {
+                                $(function() {
                                     $('#read-privacyinfo').on('click',
                                         function(e) {
                                             displayPopupContentFromUrl(
@@ -390,7 +383,7 @@
                     }
                     else
                     {
-                        <a class="read" id="read-privacyinfo" href="@Url.RouteUrl("Topic", new {SeName = await Html.GetTopicSeNameAsync("privacyinfo") })">@T("Account.Fields.AcceptPrivacyPolicy.Read")</a>
+                        <a class="read" id="read-privacyinfo" href="@Url.RouteTopicUrl("privacyinfo")">@T("Account.Fields.AcceptPrivacyPolicy.Read")</a>
                     }
                 </div>
             }
@@ -399,7 +392,7 @@
                  if (consent.IsRequired)
                  {
                      <script asp-location="Footer">
-                         $(document).ready(function() {
+                         $(function() {
                              $('#register-button').on('click', function() {
                                  if ($('#consent@(consent.Id)').is(':checked')) {
                                      //do some stuff
@@ -422,8 +415,9 @@
                 <button type="submit" name="register-button" id="register-button" class="button-1 register-next-step-button">@T("Account.Register.Button")</button>
             </div>
             <div class="external-authentication">
-                @await Component.InvokeAsync("ExternalMethods", "ExternalAuthentication")
+                @await Component.InvokeAsync(typeof(ExternalMethodsViewComponent), "ExternalAuthentication")
             </div>
+            @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.RegisterBottom, additionalData = Model })
         </div>
     </div>
 </form>

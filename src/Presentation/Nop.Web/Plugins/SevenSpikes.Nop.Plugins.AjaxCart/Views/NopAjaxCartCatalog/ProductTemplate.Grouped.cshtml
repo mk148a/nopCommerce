@@ -8,7 +8,7 @@
     </h1>
 }
 
-<div class="product-details-page">
+<div class="product-details-page grouped">
     <form asp-route="Product" asp-route-sename="@Model.SeName" method="post" id="product-details-form">
         @foreach (var associatedProduct in Model.AssociatedProducts)
         {

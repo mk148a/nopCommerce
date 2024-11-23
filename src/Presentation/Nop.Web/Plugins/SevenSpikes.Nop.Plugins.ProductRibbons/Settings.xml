@@ -4,10 +4,10 @@
     <Value>true</Value>
   </Setting>
   <Setting Name="ProductRibbonsSettings.ProductBoxSelector">
-    <Value>.product-item, .item-holder</Value>
+    <Value>.product-item</Value>
   </Setting>
   <Setting Name="ProductRibbonsSettings.ProductBoxPictureContainerSelector">
-    <Value>.picture, .item-picture</Value>
+    <Value>.picture</Value>
   </Setting>
   <Setting Name="ProductRibbonsSettings.ProductPagePicturesParentContainerSelector">
     <Value>.product-essential</Value>

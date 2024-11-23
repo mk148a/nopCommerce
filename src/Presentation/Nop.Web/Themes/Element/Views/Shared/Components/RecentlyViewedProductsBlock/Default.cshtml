@@ -1,4 +1,7 @@
 ﻿@model IList<ProductOverviewModel>
+
+@using Nop.Core.Domain.Catalog
+
 @inject IViewComponentSelector viewComponentSelector
 
 @if (Model.Count > 0)
@@ -12,26 +15,27 @@
                 @for (var i = 0; i < Model.Count; i++)
                 {
                     var product = Model[i];
+                    var picture = product.PictureModels.FirstOrDefault();
                     <li @(i == Model.Count - 1 ? @Html.Raw(" class=\"last\"") : null)>
-                        @if (!string.IsNullOrEmpty(product.DefaultPictureModel.ImageUrl))
+                        @if (picture != null && !string.IsNullOrEmpty(picture.ImageUrl))
                         {
-                            <a class="product-picture" href="@Url.RouteUrl("Product", new { SeName = product.SeName })" title="@product.DefaultPictureModel.Title">
+                            <a class="product-picture" href="@(Url.RouteUrl<Product>(new { SeName = product.SeName }))" title="@picture.Title">
                                 @if (viewComponentSelector.SelectComponent("LazyLoadImage") != null)
                                 {
                                     @await Component.InvokeAsync("LazyLoadImage", new(string Key, string Value)[] 
                                     {
-                                        ("src", product.DefaultPictureModel.ImageUrl),
-                                        ("alt", product.DefaultPictureModel.AlternateText),
-                                        ("title", product.DefaultPictureModel.Title)
+                                        ("src", picture.ImageUrl),
+                                        ("alt", picture.AlternateText),
+                                        ("title", picture.Title)
                                     })
                                 }
                                 else
                                 {
-                                    <img alt="@product.DefaultPictureModel.AlternateText" src="@product.DefaultPictureModel.ImageUrl" title="@product.DefaultPictureModel.Title" />
+                                    <img alt="@picture.AlternateText" src="@picture.ImageUrl" title="@picture.Title" />
                                 }
                             </a>
                         }
-                        <a class="product-name" href="@Url.RouteUrl("Product", new { SeName = product.SeName })">@product.Name</a>
+                        <a class="product-name" href="@(Url.RouteUrl<Product>(new { SeName = product.SeName }))">@product.Name</a>
                     </li>
                 }
             </ul>

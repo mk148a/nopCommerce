@@ -8,10 +8,10 @@
     color: #3c8dbc;
 }
 
-#add-new-item-from-tabstrip-button .k-link {
-    padding-left: 28px;
+.add-new-item-from-tabstrip-button .k-link {
+    padding-left: 28px !important;
     background: url("../Images/add-icon.png") no-repeat 7px center;
-    color: #18ab29;
+    color: #18ab29 !important;
     cursor: pointer !important;
 }
 

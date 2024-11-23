@@ -13,15 +13,7 @@
 
     var instantSearchCssFilePath = "~/Plugins/SevenSpikes.Nop.Plugins.InstantSearch/Themes/" + Model.Theme + "/Content/InstantSearch.css";
 
-    var kendoVersion = "2020.1.406";
-
-    <!--Kendo scripts should be included before kendo.all.min.js in case we have HelpDesk. That is why we use Append to place them at the top of any other scripts -->
-    NopHtml.AppendScriptParts(ResourceLocation.Footer, $"~/lib/kendo/{kendoVersion}/js/kendo.fx.min.js");
-    NopHtml.AppendScriptParts(ResourceLocation.Footer, $"~/lib/kendo/{kendoVersion}/js/kendo.autocomplete.min.js");
-    NopHtml.AppendScriptParts(ResourceLocation.Footer, $"~/lib/kendo/{kendoVersion}/js/kendo.list.min.js");
-    NopHtml.AppendScriptParts(ResourceLocation.Footer, $"~/lib/kendo/{kendoVersion}/js/kendo.popup.min.js");
-    NopHtml.AppendScriptParts(ResourceLocation.Footer, $"~/lib/kendo/{kendoVersion}/js/kendo.data.min.js");
-    NopHtml.AppendScriptParts(ResourceLocation.Footer, $"~/lib/kendo/{kendoVersion}/js/kendo.core.min.js");
+    NopHtml.AppendScriptParts(ResourceLocation.Footer, $"~/Plugins/SevenSpikes.Core/Scripts/lib/kendo/2024.1.130/js/kendo.public.min.js");
 }
 
 <link rel="stylesheet" href="@instantSearchCssFilePath" />   
@@ -89,13 +81,13 @@ else if (Model.Vendors.Count > 0)
     <div class="instant-search-item" data-url="${ data.CustomProperties.Url }">
         <a href="${ data.CustomProperties.Url }">
             <div class="img-block">
-                <img src="${ data.DefaultPictureModel.ImageUrl }" alt="${ data.Name }" title="${ data.Name }" style="border: none">
+                <img src="${ data.PictureModels[0].ImageUrl }" alt="${ data.Name }" title="${ data.Name }" style="border: none">
             </div>
             <div class="detail">
                 <div class="title">${ data.Name }</div>
                 @if (Model.ShowSku)
                 {
-                    <div class="sku"># var sku = ""; if (data.CustomProperties.Sku != null) { sku = "@T("Products.Sku"): " + data.CustomProperties.Sku } # #= sku #</div>
+                    <div class="sku"># var sku = ""; if (data.Sku != null) { sku = "@T("Products.Sku"): " + data.Sku } # #= sku #</div>
                 }
                 <div class="price"># var price = ""; if (data.ProductPrice.Price) { price = data.ProductPrice.Price } # #= price #</div>           
             </div>

@@ -96,7 +96,7 @@
 .ajaxFilters .k-window-titlebar {
     padding: 12px 12px 12px 36px;
 }
-.ajaxFilters .k-window-actions {
+.ajaxFilters .k-window-titlebar-actions {
     right: auto;
     left: 14px;
 }
