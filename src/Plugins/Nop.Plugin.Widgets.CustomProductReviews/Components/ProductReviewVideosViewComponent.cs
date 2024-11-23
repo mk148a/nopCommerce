@@ -31,7 +31,7 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Components
         private readonly CustomProductReviewsSettings _customProductReviewsSettings;
         private readonly IProductService _productService;
         private readonly IProductModelFactory _productModelFactory;
-        private readonly IVideoService _videoService;
+        private readonly IReviewVideoService _videoService;
         private readonly ICustomProductReviewMappingService _customProductReviewMappingService;
         private readonly ILocalizationService _localizationService;
         private readonly MediaSettings _mediaSettings;
@@ -42,7 +42,7 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Components
 
         #region Ctor
 
-        public ProductReviewVideos(CustomProductReviewsSettings customProductReviewsSettings, IProductService productService, IProductModelFactory productModelFactory,IVideoService videoService, ICustomProductReviewMappingService customProductReviewMappingService, ILocalizationService localizationService, MediaSettings mediaSettings)
+        public ProductReviewVideos(CustomProductReviewsSettings customProductReviewsSettings, IProductService productService, IProductModelFactory productModelFactory,IReviewVideoService videoService, ICustomProductReviewMappingService customProductReviewMappingService, ILocalizationService localizationService, MediaSettings mediaSettings)
         {
             //_accessiBeService = accessiBeService;
             _customProductReviewsSettings = customProductReviewsSettings;
@@ -93,8 +93,8 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Components
             {
                 model = (ProductReviewModel)additionalData;
             }
-            List<Video> reviewVidList = new List<Video>();
-            List<VideoModel> videoModelList = new List<VideoModel>();
+            var reviewVidList = new List<ReviewVideo>();
+            List<ReviewVideoModel> videoModelList = new List<ReviewVideoModel>();
             var reviewMappings= await _customProductReviewMappingService.GetCustomProductReviewMappingByProductReviewIdAsync(model.Id);
            if (reviewMappings == null)
            {
@@ -108,9 +108,9 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Components
                 var defaultPictureSize = 0;
                 foreach (var mapping in reviewMappings)
                {
-                    if (mapping.VideoId != null)
+                    if (mapping.ReviewVideoId != null)
                    {
-                       var vidId = mapping.VideoId.Value;
+                       var vidId = mapping.ReviewVideoId.Value;
 
                         var vid = await _videoService.GetVideoByIdAsync(vidId);
                        reviewVidList.Add(vid);
@@ -127,7 +127,7 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Components
                     (imageUrl, video) = await _videoService.GetVideoUrlAsync(video, defaultPictureSize, false);
                     (fullSizeImageUrl, video) = await _videoService.GetVideoUrlAsync(video, defaultPictureSize, false);
 
-                    var videoModel = new VideoModel()
+                    var videoModel = new ReviewVideoModel()
                     {
                         ImageUrl = imageUrl,
                         FullSizeImageUrl = fullSizeImageUrl,

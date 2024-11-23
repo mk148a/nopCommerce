@@ -5,7 +5,7 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Domains
     /// <summary>
     /// Represents a video binary data
     /// </summary>
-    public partial class VideoBinary : BaseEntity
+    public partial class ReviewVideoBinary : BaseEntity
     {
         /// <summary>
         /// Gets or sets the video binary
@@ -15,6 +15,6 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Domains
         /// <summary>
         /// Gets or sets the video identifier
         /// </summary>
-        public int VideoId { get; set; }
+        public int ReviewVideoId { get; set; }
     }
 }

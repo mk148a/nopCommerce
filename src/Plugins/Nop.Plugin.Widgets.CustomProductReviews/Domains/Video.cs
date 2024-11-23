@@ -2,7 +2,7 @@
 
 namespace Nop.Plugin.Widgets.CustomProductReviews.Domains
 {
-    public partial class Video : BaseEntity
+    public partial class ReviewVideo : BaseEntity
     {
         /// <summary>
         /// Gets or sets the video identifier

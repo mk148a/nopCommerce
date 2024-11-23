@@ -19,6 +19,8 @@ using Nop.Services.Customers;
 using Nop.Services.Localization;
 using Nop.Services.Orders;
 using Nop.Services.Plugins;
+using Nop.Web.Framework.Factories;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Nop.Plugin.Widgets.CustomProductReviews.Components
 {
@@ -101,7 +103,7 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Components
         }
         public async Task<IViewComponentResult> InvokeAsync(string widgetZone, object additionalData)
         {
-            if (_customProductReviewsSettings.data.IsNullOrEmpty())
+            if (string.IsNullOrEmpty(_customProductReviewsSettings.data))
             {
 
 
@@ -131,7 +133,7 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Components
                     var product = await _productService.GetProductByIdAsync(productId);
 
 
-                    model = await _productModelFactory.PrepareProductReviewsModelAsync(model, product);
+                    model = await _productModelFactory.PrepareProductReviewsModelAsync( product);
 
                     await ValidateProductReviewAvailabilityAsync(product);
 

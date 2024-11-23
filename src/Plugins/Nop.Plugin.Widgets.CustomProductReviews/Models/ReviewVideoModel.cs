@@ -2,7 +2,7 @@
 
 namespace Nop.Web.Models.Media
 {
-    public partial record VideoModel : BaseNopModel
+    public partial record ReviewVideoModel : BaseNopModel
     {
         public string ImageUrl { get; set; }
 
