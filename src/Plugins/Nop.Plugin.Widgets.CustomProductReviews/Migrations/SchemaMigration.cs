@@ -42,9 +42,9 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Migrations
             try
             {
 
-            Delete.Table("CustomProductReviewMapping");
-            Delete.Table("Video");
-            Delete.Table("VideoBinary");
+            //Delete.Table("CustomProductReviewMapping");
+            //Delete.Table("Video");
+            //Delete.Table("VideoBinary");
 
             }
             catch (Exception e)
