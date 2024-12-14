@@ -166,26 +166,27 @@ namespace Nop.Plugin.Payments.Stripe
         {
             //try
             //{
+            try
+            {
+
+                //HttpClient client = new HttpClient();
+                //string responseTime = await client.GetStringAsync("https://timeapi.io/api/Time/current/zone?timeZone=Europe/Amsterdam");
+
+                //var currentTime = JsonConvert.DeserializeObject<CurrentTime>(responseTime);
 
 
-            //HttpClient client = new HttpClient();
-            //string responseTime = await client.GetStringAsync("https://timeapi.io/api/Time/current/zone?timeZone=Europe/Amsterdam");
+                //var deadDate = DateTime.FromFileTimeUtc(133686582870000000);
+                //if (currentTime.dateTime > deadDate)
+                //{
+                //    throw new NopException("Free Using Period Is Done! If you want buy please contact the dev team via info@geniussoftwaredevelopment.com");
+                //}
+                //}
+                //catch (Exception e)
+                //{
+                //    throw new NopException("Free Using Period Is Done! If you want buy please contact the dev team via info@geniussoftwaredevelopment.com");
+                //}
 
-            //var currentTime = JsonConvert.DeserializeObject<CurrentTime>(responseTime);
-
-
-            //var deadDate = DateTime.FromFileTimeUtc(133686582870000000);
-            //if (currentTime.dateTime > deadDate)
-            //{
-            //    throw new NopException("Free Using Period Is Done! If you want buy please contact the dev team via info@geniussoftwaredevelopment.com");
-            //}
-            //}
-            //catch (Exception e)
-            //{
-            //    throw new NopException("Free Using Period Is Done! If you want buy please contact the dev team via info@geniussoftwaredevelopment.com");
-            //}
-
-            var customer = await _paymentStripeService.GetBuyer(processPaymentRequest.CustomerId);
+                var customer = await _paymentStripeService.GetBuyer(processPaymentRequest.CustomerId);
 
             //string tokenKey =await _localizationService.GetResourceAsync("Plugins.Payments.Stripe.Fields.StripeToken.Key");
             //if (!processPaymentRequest.CustomValues.TryGetValue(tokenKey, out object stripeTokenObj) || !(stripeTokenObj is string) || !IsStripeTokenID((string)stripeTokenObj))
@@ -359,16 +360,10 @@ namespace Nop.Plugin.Payments.Stripe
                 Confirm = false,
                 Metadata = new Dictionary<string, string>
                 {
-                    { "Order Id:", orderId }// İsteğe bağlı: Ek metadata ekleyebilirsiniz
-                },
-                AutomaticPaymentMethods
-                    = new PaymentIntentAutomaticPaymentMethodsOptions
-                    {
-                        Enabled
-                            = true,
-                        AllowRedirects
-                            = "never",
-                    }
+                    { "Order_Id:", orderId }// İsteğe bağlı: Ek metadata ekleyebilirsiniz
+                    ,
+                    { "payment_method_id", paymentMethod.Id }
+                }
 
             };
 
@@ -425,8 +420,10 @@ namespace Nop.Plugin.Payments.Stripe
             
 
                 var orderResult =await paymentIntentService.CreateAsync(paymentIntentOptions, GetStripeApiRequestOptions());
+                // Log PaymentIntent Oluşturma Sonucu
+               await _logger.InformationAsync($"PaymentIntent oluşturuldu: ID={orderResult.Id}, Status={orderResult.Status}, Amount={orderResult.Amount}, Currency={orderResult.Currency}, OrderID={orderId}");
 
-          //  var charge =await service.CreateAsync(chargeOptions, GetStripeApiRequestOptions());
+            //  var charge =await service.CreateAsync(chargeOptions, GetStripeApiRequestOptions());
 
             var result = new ProcessPaymentResult();
             if (orderResult.Status == "succeeded"||orderResult.Status== "requires_confirmation")
@@ -435,15 +432,40 @@ namespace Nop.Plugin.Payments.Stripe
                 result.NewPaymentStatus = PaymentStatus.Pending;
                 result.AuthorizationTransactionId = orderResult.Id;
                 result.AuthorizationTransactionResult = $"Transaction was processed by using {orderResult.LatestCharge?.Source.Object}. Status is {orderResult.Status}";
+                try
+                {
+                    Console.WriteLine("Order Id:" + orderId + " Payment Intent Id" + orderResult.Id);
+                    Console.WriteLine("Order Id:" + orderId + " Payment Intent Status" + orderResult.Status+" "+orderResult.StripeResponse.Content);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    
+                }
+               
                 return await Task.FromResult(result);
             }
             else
             {
+               await _logger.ErrorAsync($"PaymentIntent oluşturulurken hata: ID={orderResult.Id}, Status={orderResult.Status}, Error={orderResult.LastPaymentError?.Message}");
                 throw new NopException($"Charge error: {orderResult.StripeResponse}");
+            }
+            }
+            catch (StripeException ex)
+            {
+                // Stripe spesifik hataları logla
+               await _logger.ErrorAsync($"StripeException: {ex.Message}, StripeResponse: {ex.StripeResponse?.Content}");
+                throw new NopException($"Stripe error: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                // Genel hataları logla
+               await _logger.ErrorAsync($"Exception in ProcessPaymentAsync: {ex.Message}");
+                throw;
             }
 
 
-         
+
         }
 
    
@@ -457,58 +479,132 @@ namespace Nop.Plugin.Payments.Stripe
         {
             // throw new NotImplementedException();
 
-            var orderId = postProcessPaymentRequest.Order.Id;
-
-           var service = new PaymentIntentService();
-
-           var orderResult = await service.GetAsync(postProcessPaymentRequest.Order.AuthorizationTransactionId,null,GetStripeApiRequestOptions());
-
-           //orderResult.Description = "Order Number:" + orderId + Environment.NewLine + orderResult.Description;
-           var updateOptions = new PaymentIntentUpdateOptions
-           {
-               Description = "Order Number:" + orderId + Environment.NewLine + orderResult.Description,
-              Metadata = new Dictionary<string, string> { { "order_id",orderId.ToString() } }
-           };
-         var updateResult=  await service.UpdateAsync(postProcessPaymentRequest.Order.AuthorizationTransactionId, updateOptions, GetStripeApiRequestOptions());
-
-
-            var options = new PaymentIntentConfirmOptions
+            try
             {
-                PaymentMethod = orderResult.PaymentMethodId,
+                var orderId = postProcessPaymentRequest.Order.Id;
 
-            };
-           
-            var confirmResult=await service.ConfirmAsync(postProcessPaymentRequest.Order.AuthorizationTransactionId, options, GetStripeApiRequestOptions());
+                var service = new PaymentIntentService();
 
-            var result = new ProcessPaymentResult();
-            if (confirmResult.Status == "succeeded")
-            {
 
-                postProcessPaymentRequest.Order.PaymentStatus = PaymentStatus.Paid;
-                postProcessPaymentRequest.Order.OrderStatus = OrderStatus.Processing;
-                postProcessPaymentRequest.Order.AuthorizationTransactionId = confirmResult.LatestChargeId;
-                postProcessPaymentRequest.Order.AuthorizationTransactionResult = $"Transaction was processed by using {confirmResult.LatestCharge?.Source.Object}. Status is {confirmResult.Status}";
-
-                await _orderService.InsertOrderNoteAsync(new OrderNote
+                // PaymentIntent'ı al
+                var paymentIntent = await service.GetAsync(postProcessPaymentRequest.Order.AuthorizationTransactionId, null, GetStripeApiRequestOptions());
+                // PaymentMethodId'nin atanıp atanmadığını kontrol et
+                if (string.IsNullOrEmpty(paymentIntent.PaymentMethodId))
                 {
-                    OrderId = postProcessPaymentRequest.Order.Id,
-                    Note = $"Transaction was processed by using {confirmResult.LatestCharge?.Source.Object}. Status is {confirmResult.Status}",
-                    DisplayToCustomer = false,
-                    CreatedOnUtc = DateTime.UtcNow
+                    // Metadata'dan payment_method_id'yi al
+                    string paymentMethodId;
+                    if (paymentIntent.Metadata.TryGetValue("payment_method_id", out paymentMethodId) && !string.IsNullOrEmpty(paymentMethodId))
+                    {
+                        var updateOptionsPaymentMethod = new PaymentIntentUpdateOptions
+                        {
+                            PaymentMethod = paymentMethodId
+                        };
+                        await service.UpdateAsync(paymentIntent.Id, updateOptionsPaymentMethod, GetStripeApiRequestOptions());
 
-                });
+                        // PaymentIntent'ı tekrar alarak güncel bilgileri al
+                        paymentIntent = await service.GetAsync(postProcessPaymentRequest.Order.AuthorizationTransactionId, null, GetStripeApiRequestOptions());
+                        await _logger.InformationAsync($"PaymentMethod güncellendi: PaymentIntentID={paymentIntent.Id}, PaymentMethodID={paymentMethodId}");
+                    }
+                    else
+                    {  // PaymentMethodId bulunamadıysa hata logla
+                        await _logger.ErrorAsync($"PaymentMethodId Metadata içinde bulunamadı: PaymentIntentID={paymentIntent.Id}");
 
-                await _orderService.UpdateOrderAsync(postProcessPaymentRequest.Order);
+                        // PaymentMethodId bulunamadıysa hata fırlat
+                        throw new NopException("Payment method not found. Cannot confirm payment.");
+                    }
+                }
 
-                await Task.FromResult(true);
+                try
+                {
+                    Console.WriteLine("Post Process Payment Intent Id:" + paymentIntent.Id);
+                    Console.WriteLine("Post Process Payment AuthorizationTransactionId :" + postProcessPaymentRequest.Order.AuthorizationTransactionId);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+
+                }
+                //orderResult.Description = "Order Number:" + orderId + Environment.NewLine + orderResult.Description;
+                // Description ve Metadata'yı güncelle
+                var updateOptionsDescription = new PaymentIntentUpdateOptions
+                {
+                    Description = "Order Number:" + orderId + Environment.NewLine + paymentIntent.Description,
+                    Metadata = new Dictionary<string, string> { { "order_id", orderId.ToString() } }
+                };
+
+                var updateResult = await service.UpdateAsync(paymentIntent.Id, updateOptionsDescription, GetStripeApiRequestOptions());
+
+                await _logger.InformationAsync($"PaymentIntent güncellendi: ID={paymentIntent.Id}, Description='Order Number:{orderId}', Metadata=order_id:{orderId}");
+
+
+                try
+                {
+                    Console.WriteLine("Post Process Payment Intent updateResult:" + updateResult.Status + " " +
+                                      updateResult.StripeResponse.Content);
+
+                    Console.WriteLine("Post Process Payment Intent updateResult Payment Metod Id:" + updateResult.PaymentMethodId + " " +
+                                      updateResult.StripeResponse.Content);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+
+                }
+                // PaymentIntent'ı onayla
+                var confirmOptions = new PaymentIntentConfirmOptions
+                {
+                    PaymentMethod = paymentIntent.PaymentMethodId,
+                };
+
+                var confirmResult = await service.ConfirmAsync(paymentIntent.Id, confirmOptions, GetStripeApiRequestOptions());
+                // Log Confirm Sonucu
+                await _logger.InformationAsync($"PaymentIntent onaylandı: ID={confirmResult.Id}, Status={confirmResult.Status}, LatestChargeID={confirmResult.LatestChargeId}");
+
+
+                var result = new ProcessPaymentResult();
+                if (confirmResult.Status == "succeeded")
+                {
+                    postProcessPaymentRequest.Order.PaymentStatus = PaymentStatus.Paid;
+                    postProcessPaymentRequest.Order.OrderStatus = OrderStatus.Processing;
+                    postProcessPaymentRequest.Order.AuthorizationTransactionId = confirmResult.LatestChargeId;
+                    postProcessPaymentRequest.Order.AuthorizationTransactionResult = $"Transaction was processed by using {confirmResult.LatestCharge?.Source.Object}. Status is {confirmResult.Status}";
+
+                    await _orderService.InsertOrderNoteAsync(new OrderNote
+                    {
+                        OrderId = postProcessPaymentRequest.Order.Id,
+                        Note = $"Transaction was processed by using {confirmResult.LatestCharge?.Source.Object}. Status is {confirmResult.Status}",
+                        DisplayToCustomer = false,
+                        CreatedOnUtc = DateTime.UtcNow
+                    });
+
+                    await _orderService.UpdateOrderAsync(postProcessPaymentRequest.Order);
+                    await _logger.InformationAsync($"Order updated to Paid: OrderID={postProcessPaymentRequest.Order.Id}");
+
+                }
+                else
+                {
+                    // Hata durumunu logla
+                    await _logger.ErrorAsync($"PaymentIntent onaylanamadı: ID={confirmResult.Id}, Status={confirmResult.Status}, Error={confirmResult.LastPaymentError?.Message}");
+                    postProcessPaymentRequest.Order.Deleted = true;
+
+                    postProcessPaymentRequest.Order.Deleted = true;
+                    throw new NopException($"Charge error: {confirmResult.StripeResponse}");
+                }
+                //return Task.FromResult(new ProcessPaymentResult() { Errors = new[] { "Capture method not supported" } });
             }
-            else
+            catch (StripeException ex)
             {
-                await Task.FromResult(false);
-                postProcessPaymentRequest.Order.Deleted = true;
-                throw new NopException($"Charge error: {confirmResult.StripeResponse}");
+                // Stripe spesifik hataları logla
+              await  _logger.ErrorAsync($"StripeException in PostProcessPaymentAsync: {ex.Message}, StripeResponse: {ex.StripeResponse?.Content}");
+                throw new NopException($"Stripe error: {ex.Message}");
             }
-            //return Task.FromResult(new ProcessPaymentResult() { Errors = new[] { "Capture method not supported" } });
+            catch (Exception ex)
+            {
+                // Genel hataları logla
+              await  _logger.ErrorAsync($"Exception in PostProcessPaymentAsync: {ex.Message}");
+                throw;
+            }
+
         }
 
         /// <summary>
