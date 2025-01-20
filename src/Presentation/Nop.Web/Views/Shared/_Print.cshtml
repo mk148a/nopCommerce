@@ -1,5 +1,6 @@
 ﻿@inject Nop.Core.Domain.Common.CommonSettings commonSettings
 @inject IThemeContext themeContext
+
 @{
     var themeName = await themeContext.GetWorkingThemeNameAsync();
     var title = await NopHtml.GenerateTitleAsync();
@@ -9,6 +10,7 @@
 <head>
     <title>@title</title>
     <meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
+
     <link href="~/Themes/@themeName/Content/css/print.css" rel="stylesheet" type="text/css" />
 
     @NopHtml.GenerateCssFiles()    
