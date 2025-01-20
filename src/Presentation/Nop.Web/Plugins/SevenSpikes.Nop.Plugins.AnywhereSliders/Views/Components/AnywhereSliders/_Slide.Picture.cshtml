@@ -10,7 +10,7 @@
 <div class="anywhereslider-slide picture-slide @if (Model.IsFirstSlide) {<text>first-slide</text>}">
     @if (!string.IsNullOrEmpty(Model.Url))
     {
-        <text><a href="@Model.Url"></text>
+        <text><a href="@Model.Url"></a></text>
     }
 
     @if (Model.IsFirstSlide && PreLoadFirstImage)
