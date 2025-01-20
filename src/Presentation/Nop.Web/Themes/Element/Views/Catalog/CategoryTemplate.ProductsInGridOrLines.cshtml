@@ -14,7 +14,17 @@
 @inject Nop.Core.IWebHelper webHelper
 @inject SeoSettings seoSettings
 
+@inject IThemeContext themeContext
 @{
+    var themeName = await themeContext.GetWorkingThemeNameAsync();
+}
+@{
+    if (Model != null)
+        
+    //Lancelot Fix:Call the owl.carousel css and js for sub-category slider view
+    NopHtml.AppendCssFileParts($"~/Themes/{themeName}/Content/css/owl.carousel.css");
+    NopHtml.AppendScriptParts(ResourceLocation.Footer, $"~/Themes/{themeName}/Content/scripts/owl.carousel.js");
+
     Layout = "_ColumnsTwo";
 
     //title
@@ -112,11 +122,11 @@
             @if (Model.SubCategories.Count > 0)
             {
                 <div class="category-grid sub-category-grid @subCategoriesPerRowClassName">
-                    <div class="item-grid">
+                    <div class="item-grid owl-carousel">
                         @foreach (var item in Model.SubCategories)
                         {
                             <div class="item-box">
-                                <div class="sub-category-item">
+                                <div class="category-item">
                                     <h2 class="title">
                                         <a href="@(Url.RouteUrl<Category>(new { SeName = item.SeName }))" title="@item.PictureModel.Title">
                                             @item.Name
@@ -183,3 +193,27 @@
         @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.CategoryDetailsBottom, additionalData = Model })
     </div>
 </div>
+<script asp-location="Footer">
+                var owl = $('.owl-carousel');
+        owl.owlCarousel({
+            items:3,
+            loop:true,
+            margin:1,
+        responsiveClass:true,
+            autoplay:true,
+            autoplayTimeout:3000,
+            autoplayHoverPause:true,
+            responsive: {
+                            0: {
+                                items: 1
+                            },
+                            481: {
+                                items: 2
+                            },
+                            769: {
+                                items: 3
+                            }
+                        }
+        });
+    </script>
+}
