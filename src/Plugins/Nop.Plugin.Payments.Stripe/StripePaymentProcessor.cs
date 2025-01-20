@@ -164,311 +164,317 @@ namespace Nop.Plugin.Payments.Stripe
         /// </returns>
         public async Task<ProcessPaymentResult> ProcessPaymentAsync(ProcessPaymentRequest processPaymentRequest)
         {
-            //try
-            //{
+            var result = new ProcessPaymentResult();
+
             try
             {
-
-                //HttpClient client = new HttpClient();
-                //string responseTime = await client.GetStringAsync("https://timeapi.io/api/Time/current/zone?timeZone=Europe/Amsterdam");
-
-                //var currentTime = JsonConvert.DeserializeObject<CurrentTime>(responseTime);
-
-
-                //var deadDate = DateTime.FromFileTimeUtc(133686582870000000);
-                //if (currentTime.dateTime > deadDate)
-                //{
-                //    throw new NopException("Free Using Period Is Done! If you want buy please contact the dev team via info@geniussoftwaredevelopment.com");
-                //}
-                //}
-                //catch (Exception e)
-                //{
-                //    throw new NopException("Free Using Period Is Done! If you want buy please contact the dev team via info@geniussoftwaredevelopment.com");
-                //}
-
                 var customer = await _paymentStripeService.GetBuyer(processPaymentRequest.CustomerId);
 
-            //string tokenKey =await _localizationService.GetResourceAsync("Plugins.Payments.Stripe.Fields.StripeToken.Key");
-            //if (!processPaymentRequest.CustomValues.TryGetValue(tokenKey, out object stripeTokenObj) || !(stripeTokenObj is string) || !IsStripeTokenID((string)stripeTokenObj))
-            //{
-            //    throw new NopException("Card token not received");
-            //}
-            //string stripeToken = stripeTokenObj.ToString();
-            if (customer == null || customer.Id.IsNullOrEmpty())
-                throw new Exception("No Valid Customer Found!");
-
-            var cart = await _shoppingCartService.GetShoppingCartAsync(customer.Customer, ShoppingCartType.ShoppingCart, processPaymentRequest.StoreId);
-            if (!cart.Any())
-                throw new Exception("No Product Found in Your Cart!");
-
-         
-            if (customer.billingAddress.Address1.IsNullOrEmpty())
-                throw new NopException("Customer billing address not set!");
-
-         
-            //if (customer.shippinAddress.Address1.IsNullOrEmpty())
-            //    throw new NopException("Customer shipping address not set!");
-
-            var currency = await _workContext.GetWorkingCurrencyAsync();
-
-            //var currenctLanguage = await _workContext.GetWorkingLanguageAsync();
-
-
-
-           // var shoppingCartSubTotal = await _orderTotalCalculationService.GetShoppingCartSubTotalAsync(cart, true);
-            var shoppingCartTotal = await _orderTotalCalculationService.GetShoppingCartTotalAsync(cart, true);
-           // var shoppingCartUnitPriceWithoutDiscount = await _currencyService.ConvertFromPrimaryStoreCurrencyAsync(shoppingCartSubTotal.subTotalWithDiscount, currency);
-            var shoppingCartUnitPriceWithDiscount = await _currencyService.ConvertFromPrimaryStoreCurrencyAsync(shoppingCartTotal.shoppingCartTotal.Value, currency);
-            //string finalValue = shoppingCartUnitPriceWithDiscount.ToString();
-            //var finalValueLong= Convert.ToInt64(Convert.ToDecimal(finalValue));
-
-//            var service = new ChargeService();
-            var paymentIntentService = new PaymentIntentService();
-            var paymentMethodService = new PaymentMethodService();
-
-            //var myCustomer = new CardCreateNestedOptions();
-
-            //myCustomer.Name = processPaymentRequest.CreditCardName;
-            //myCustomer.AddressCity = customer.billingAddress.City;
-            //myCustomer.AddressCountry=customer.billingAddress.Country;
-            //myCustomer.AddressLine1 = customer.billingAddress.Address1;
-            //myCustomer.AddressLine2=customer.billingAddress.Address2;
-            //myCustomer.AddressState=customer.billingAddress.State;
-            //myCustomer.AddressZip = customer.billingAddress.ZipCode;
-            //myCustomer.Cvc = processPaymentRequest.CreditCardCvv2;
-            //myCustomer.ExpMonth = processPaymentRequest.CreditCardExpireMonth;
-            //myCustomer.ExpYear=processPaymentRequest.CreditCardExpireYear;
-            //myCustomer.Number = processPaymentRequest.CreditCardNumber;
-
-            //order details section
-            string orderId = "";
-
-            var order = await _orderService.GetOrderByGuidAsync(processPaymentRequest.OrderGuid);
-            if (order!=null)
-            {
-                orderId = order.Id.ToString();
-            }
-            else
-            {
-                orderId = processPaymentRequest.OrderGuid.ToString();
-            }
-
-            //myCustomer.Metadata = new Dictionary<string, string>
-            //{
-            //    { "Order Id:", orderId }
-            //};
-
-
-            
-
-            //var chargeOptions = new ChargeCreateOptions
-            //{
-            //    Amount = (long)(shoppingCartUnitPriceWithDiscount * 100),
-            //    Currency = currency.CurrencyCode.ToLower(),
-            //    Description = string.Format(StripePaymentDefaults.PaymentNote, orderId)+Environment.NewLine,
-            //    ReceiptEmail=customer.billingAddress.Email,
-            //    Source = myCustomer
-            //};
-
-           string orderItemsTxt = string.Empty;
-
-            //if (customer.shippinAddress.Id != null)
-            //{
-
-            //    chargeOptions.Shipping = new ChargeShippingOptions
-            //    {
-            //        Address =
-            //        {
-            //            City = customer.shippinAddress.City,
-            //            Country = customer.shippinAddress.Country,
-            //            Line1 = customer.shippinAddress.Address1,
-            //            Line2 = customer.shippinAddress.Address2,
-            //            State = customer.shippinAddress.State,
-            //            PostalCode = customer.shippinAddress.ZipCode
-
-            //        },
-            //        Phone = customer.billingAddress.GsmNumber,
-            //        Name = customer.billingAddress.Name + ' ' + customer.billingAddress.Surname
-            //    };
-            //}
-
-
-
-            var paymentMethodOptions = new PaymentMethodCreateOptions()
-            {
-                Type = "card",
-                Card = new PaymentMethodCardOptions
+                if (customer == null || customer.Id.IsNullOrEmpty())
                 {
-                    Number = processPaymentRequest.CreditCardNumber,
-                    ExpMonth = processPaymentRequest.CreditCardExpireMonth,
-                    ExpYear = processPaymentRequest.CreditCardExpireYear,
-                    Cvc = processPaymentRequest.CreditCardCvv2,
-                },
-                BillingDetails = new PaymentMethodBillingDetailsOptions
+                    throw new Exception("No Valid Customer Found!");
+                }
+
+                var cart = await _shoppingCartService.GetShoppingCartAsync(customer.Customer, ShoppingCartType.ShoppingCart, processPaymentRequest.StoreId);
+                if (!cart.Any())
                 {
-                    Name = processPaymentRequest.CreditCardName,
-                    Address = new AddressOptions
+                    throw new Exception("No Product Found in Your Cart!");
+                }
+
+                if (customer.billingAddress.Address1.IsNullOrEmpty())
+                {
+                    throw new NopException("Customer billing address not set!");
+                }
+
+                var currency = await _workContext.GetWorkingCurrencyAsync();
+                var shoppingCartTotal = await _orderTotalCalculationService.GetShoppingCartTotalAsync(cart, true);
+                var shoppingCartUnitPriceWithDiscount = await _currencyService.ConvertFromPrimaryStoreCurrencyAsync(shoppingCartTotal.shoppingCartTotal.Value, currency);
+
+                var paymentMethodOptions = new PaymentMethodCreateOptions()
+                {
+                    Type = "card",
+                    Card = new PaymentMethodCardOptions
                     {
+                        Number = processPaymentRequest.CreditCardNumber,
+                        ExpMonth = processPaymentRequest.CreditCardExpireMonth,
+                        ExpYear = processPaymentRequest.CreditCardExpireYear,
+                        Cvc = processPaymentRequest.CreditCardCvv2,
+                    },
+                    BillingDetails = new PaymentMethodBillingDetailsOptions
+                    {
+                        Name = processPaymentRequest.CreditCardName,
+                        Address = new AddressOptions
+                        {
+                            Line1 = customer.billingAddress.Address1,
+                            Line2 = customer.billingAddress.Address2,
+                            City = customer.billingAddress.City,
+                            State = customer.billingAddress.State,
+                            PostalCode = customer.billingAddress.ZipCode,
+                            Country = customer.billingAddress.Country,
+                        }
+                    }
+                };
+                string orderId = "";
+                var order = await _orderService.GetOrderByGuidAsync(processPaymentRequest.OrderGuid);
+
+                var paymentMethodService = new PaymentMethodService();
+                var paymentMethod = await paymentMethodService.CreateAsync(paymentMethodOptions, GetStripeApiRequestOptions());
+
+                var customerOptions = new CustomerCreateOptions
+                {
+                    Email = customer.billingAddress.Email,
+                    Address = new AddressOptions()
+                    {
+                        City = customer.billingAddress.City,
+                        Country = customer.billingAddress.Country,
                         Line1 = customer.billingAddress.Address1,
                         Line2 = customer.billingAddress.Address2,
-                        City = customer.billingAddress.City,
-                        State = customer.billingAddress.State,
                         PostalCode = customer.billingAddress.ZipCode,
-                        Country = customer.billingAddress.Country,
-                    }
-                }
-            };
-
-          
-
-
-
-            var customerOptions = new CustomerCreateOptions
-            {
-                Email = customer.billingAddress.Email,
-                Address = new AddressOptions()
-                {
-                    City = customer.billingAddress.City,
-                    Country = customer.billingAddress.Country,
-                    Line1 = customer.billingAddress.Address1,
-                    Line2 = customer.billingAddress.Address2,
-                    PostalCode = customer.billingAddress.ZipCode,
-                    State = customer.billingAddress.State
-
-                },
-                Name = customer.billingAddress.Name+" "+customer.billingAddress.Surname,
-            };
-            var paymentMethod = await paymentMethodService.CreateAsync(paymentMethodOptions, GetStripeApiRequestOptions());
-
-            var customerService = new CustomerService();
-            var stripeCustomer = await customerService.CreateAsync(customerOptions, GetStripeApiRequestOptions());
-
-            var paymentMethodAttachOptions = new PaymentMethodAttachOptions
-            {
-                Customer = stripeCustomer.Id // Assuming you have the customer's StripeCustomerId
-            };
-            await paymentMethodService.AttachAsync(paymentMethod.Id, paymentMethodAttachOptions, GetStripeApiRequestOptions());
-
-
-            // PaymentIntent oluşturma
-            var paymentIntentOptions = new PaymentIntentCreateOptions
-            {
-                Amount = (long)(shoppingCartUnitPriceWithDiscount * 100),
-                Currency = currency.CurrencyCode.ToLower(),
-                PaymentMethod = paymentMethod.Id,
-                Customer = stripeCustomer.Id,
-                Confirm = false,
-                Metadata = new Dictionary<string, string>
-                {
-                    { "Order_Id:", orderId }// İsteğe bağlı: Ek metadata ekleyebilirsiniz
-                    ,
-                    { "payment_method_id", paymentMethod.Id }
-                }
-
-            };
-
-
-        
-
-
-
-            if (customer.shippinAddress != null)
-            {
-                paymentIntentOptions.Shipping = new ChargeShippingOptions()
-                {
-                    Address = new AddressOptions
-                    {
-                        City = customer.shippinAddress.City,
-                        Country = customer.shippinAddress.Country,
-                        Line1 = customer.shippinAddress.Address1,
-                        Line2 = customer.shippinAddress.Address2,
-                        State = customer.shippinAddress.State,
-                        PostalCode = customer.shippinAddress.ZipCode
-
+                        State = customer.billingAddress.State
                     },
-                    Phone = customer.billingAddress.GsmNumber,
-                    Name = customer.billingAddress.Name + ' ' + customer.billingAddress.Surname
+                    Name = customer.billingAddress.Name + " " + customer.billingAddress.Surname,
                 };
-            }
+                var customerService = new CustomerService();
+                var stripeCustomer = await customerService.CreateAsync(customerOptions, GetStripeApiRequestOptions());
 
-
-            string orderItems="";
-
-        
-            for (int i = 0; i < cart.Count; i++)
-            {
-                var cartItem = cart[i];
-                var product = await _productService.GetProductByIdAsync(cartItem.ProductId);
-                var price = (await _shoppingCartService.GetUnitPriceAsync(cartItem, true)).unitPrice;
-                var productName = product.Name;
-                string productType = "Virtual- Shipping Not Required ";
-                if (product.IsShipEnabled)
+                var paymentMethodAttachOptions = new PaymentMethodAttachOptions
                 {
-                    productType = "PHYSICAL - Shipping Required";
+                    Customer = stripeCustomer.Id
+                };
+               var attachResult= await paymentMethodService.AttachAsync(paymentMethod.Id, paymentMethodAttachOptions, GetStripeApiRequestOptions());
+               if (attachResult.StripeResponse.StatusCode != HttpStatusCode.OK)
+               {
+                   // Hata durumunu logla ve kullanıcıya anlamlı mesaj göster
+                   await _logger.ErrorAsync($"PaymentAttach oluşturulurken hata: ID={attachResult.Id}, Status={attachResult.StripeResponse.StatusCode}, Error={attachResult.StripeResponse?.Content}");
+
+                  
+
+                    string errorMessage = attachResult.StripeResponse.Content;
+                   
+
+                   // Sipariş durumunu Cancelled olarak güncelle
+                   if (order != null)
+                   {
+                       order.OrderStatus = OrderStatus.Cancelled;
+                       await _orderService.UpdateOrderAsync(order);
+                   }
+
+                   // Hata mesajını ProcessPaymentResult ile döndür
+                   result.Errors = new List<string> { errorMessage };
+                   
+                   return result;
                 }
 
+              
+                if (order != null)
+                {
+                    orderId = order.Id.ToString();
+                }
+                else
+                {
+                    orderId = processPaymentRequest.OrderGuid.ToString();
+                }
 
-                if (!product.Sku.IsNullOrEmpty())
-                    productName = productName + "(" + product.Sku + ")";
-             
+                var paymentIntentOptions = new PaymentIntentCreateOptions
+                {
+                    Amount = (long)(shoppingCartUnitPriceWithDiscount * 100),
+                    Currency = currency.CurrencyCode.ToLower(),
+                    PaymentMethod = paymentMethod.Id,
+                    Customer = stripeCustomer.Id,
+                    Confirm = false,
+                    Metadata = new Dictionary<string, string>
+            {
+                { "order_id", orderId },
+                { "payment_method_id", paymentMethod.Id }
+            },
+                    AutomaticPaymentMethods = new PaymentIntentAutomaticPaymentMethodsOptions
+                    {
+                        Enabled = true,
+                        AllowRedirects = "never"
+                    }
+                };
 
-                orderItems += Environment.NewLine + productName + " x " + cartItem.Quantity + " (" + productType + ")";
-                paymentIntentOptions.Metadata.Add("Item" + (i + 1), "Unit Count:" + cartItem.Quantity + ";" + "Product Name:" + productName + ";" + "Price:" + price + ";" + "Product Type:" + productType);
-            }
+                if (customer.shippinAddress != null)
+                {
+                    paymentIntentOptions.Shipping = new ChargeShippingOptions()
+                    {
+                        Address = new AddressOptions
+                        {
+                            City = customer.shippinAddress.City,
+                            Country = customer.shippinAddress.Country,
+                            Line1 = customer.shippinAddress.Address1,
+                            Line2 = customer.shippinAddress.Address2,
+                            State = customer.shippinAddress.State,
+                            PostalCode = customer.shippinAddress.ZipCode
+                        },
+                        Phone = customer.billingAddress.GsmNumber,
+                        Name = customer.billingAddress.Name + ' ' + customer.billingAddress.Surname
+                    };
+                }
 
-            paymentIntentOptions.Description = orderItems;
-            
+                string orderItems = "";
 
-                var orderResult =await paymentIntentService.CreateAsync(paymentIntentOptions, GetStripeApiRequestOptions());
+                for (int i = 0; i < cart.Count; i++)
+                {
+                    var cartItem = cart[i];
+                    var product = await _productService.GetProductByIdAsync(cartItem.ProductId);
+                    var price = (await _shoppingCartService.GetUnitPriceAsync(cartItem, true)).unitPrice;
+                    var productName = product.Name;
+                    string productType = "Virtual- Shipping Not Required ";
+                    if (product.IsShipEnabled)
+                    {
+                        productType = "PHYSICAL - Shipping Required";
+                    }
+
+                    if (!product.Sku.IsNullOrEmpty())
+                        productName = productName + "(" + product.Sku + ")";
+
+                    orderItems += Environment.NewLine + productName + " x " + cartItem.Quantity + " (" + productType + ")";
+                    paymentIntentOptions.Metadata.Add("Item" + (i + 1), "Unit Count:" + cartItem.Quantity + ";" + "Product Name:" + productName + ";" + "Price:" + price + ";" + "Product Type:" + productType);
+                }
+
+                paymentIntentOptions.Description = orderItems;
+
+                var paymentIntentService = new PaymentIntentService();
+                var paymentIntent = await paymentIntentService.CreateAsync(paymentIntentOptions, GetStripeApiRequestOptions());
+
                 // Log PaymentIntent Oluşturma Sonucu
-               await _logger.InformationAsync($"PaymentIntent oluşturuldu: ID={orderResult.Id}, Status={orderResult.Status}, Amount={orderResult.Amount}, Currency={orderResult.Currency}, OrderID={orderId}");
+                await _logger.InformationAsync($"PaymentIntent oluşturuldu: ID={paymentIntent.Id}, Status={paymentIntent.Status}, Amount={paymentIntent.Amount}, Currency={paymentIntent.Currency}, OrderID={orderId}");
 
-            //  var charge =await service.CreateAsync(chargeOptions, GetStripeApiRequestOptions());
-
-            var result = new ProcessPaymentResult();
-            if (orderResult.Status == "succeeded"||orderResult.Status== "requires_confirmation")
-            {
-
-                result.NewPaymentStatus = PaymentStatus.Pending;
-                result.AuthorizationTransactionId = orderResult.Id;
-                result.AuthorizationTransactionResult = $"Transaction was processed by using {orderResult.LatestCharge?.Source.Object}. Status is {orderResult.Status}";
-                try
+                if (paymentIntent.Status == "succeeded" )
                 {
-                    Console.WriteLine("Order Id:" + orderId + " Payment Intent Id" + orderResult.Id);
-                    Console.WriteLine("Order Id:" + orderId + " Payment Intent Status" + orderResult.Status+" "+orderResult.StripeResponse.Content);
+                    // Ödeme başarılı
+                    result.NewPaymentStatus = PaymentStatus.Paid;
+                    result.AuthorizationTransactionId = paymentIntent.Id;
+                    result.AuthorizationTransactionResult = $"Transaction was processed by using {paymentIntent.LatestCharge?.Source.Object}. Status is {paymentIntent.Status}";
+                    return result;
                 }
-                catch (Exception e)
+                else if (paymentIntent.Status == "requires_confirmation")
                 {
-                    Console.WriteLine(e);
-                    
+                    // Ödeme onay bekliyor
+                    result.NewPaymentStatus = PaymentStatus.Pending;
+                    result.AuthorizationTransactionId = paymentIntent.Id;
+                    result.AuthorizationTransactionResult = $"Transaction was processed by using {paymentIntent.LatestCharge?.Source.Object}. Status is {paymentIntent.Status}";
+                    return result;
                 }
-               
-                return await Task.FromResult(result);
-            }
-            else
-            {
-               await _logger.ErrorAsync($"PaymentIntent oluşturulurken hata: ID={orderResult.Id}, Status={orderResult.Status}, Error={orderResult.LastPaymentError?.Message}");
-                throw new NopException($"Charge error: {orderResult.StripeResponse}");
-            }
+                else if ( paymentIntent.Status == "requires_action")
+                {
+                    // Ödeme ek doğrulama gerektiriyor
+                    result.NewPaymentStatus = PaymentStatus.Pending;
+                    result.AuthorizationTransactionId = paymentIntent.Id;
+                    result.AuthorizationTransactionResult = "You must complete additional verification steps to complete your payment.";
+                    result.Errors = new List<string> { "You must complete additional verification steps to complete your payment.." };
+
+                    // Stripe'ın sağladığı hata mesajını kullanıcıya daha anlaşılır hale getirebilirsiniz
+                    if (!string.IsNullOrEmpty(paymentIntent.LastPaymentError?.Message))
+                    {
+                        result.Errors.Add(paymentIntent.LastPaymentError.Message);
+                    }
+
+                    // Sipariş durumunu Cancelled olarak güncelle
+                    if (order != null)
+                    {
+                        order.OrderStatus = OrderStatus.Cancelled;
+                        await _orderService.UpdateOrderAsync(order);
+                    }
+
+                    return result;
+                }
+                else
+                {
+                    // Hata durumunu logla ve kullanıcıya anlamlı mesaj göster
+                    await _logger.ErrorAsync($"PaymentIntent oluşturulurken hata: ID={paymentIntent.Id}, Status={paymentIntent.Status}, Error={paymentIntent.LastPaymentError?.Message}");
+
+                    string errorMessage = "An error occurred during payment. Please try again.";
+                    if (!string.IsNullOrEmpty(paymentIntent.LastPaymentError?.Message))
+                    {
+                        errorMessage = paymentIntent.LastPaymentError.Message;
+                    }
+
+                    // Sipariş durumunu Cancelled olarak güncelle
+                    if (order != null)
+                    {
+                        order.OrderStatus = OrderStatus.Cancelled;
+                        await _orderService.UpdateOrderAsync(order);
+                    }
+
+                    // Hata mesajını ProcessPaymentResult ile döndür
+                    result.Errors = new List<string> { errorMessage };
+                    return result;
+                }
             }
             catch (StripeException ex)
             {
-                // Stripe spesifik hataları logla
-               await _logger.ErrorAsync($"StripeException: {ex.Message}, StripeResponse: {ex.StripeResponse?.Content}");
-                throw new NopException($"Stripe error: {ex.Message}");
+                // Stripe spesifik hataları logla ve kullanıcıya anlamlı mesaj döndür
+                await _logger.ErrorAsync($"StripeException: {ex.Message}, StripeResponse: {ex.StripeResponse?.Content}");
+
+                // Sipariş durumunu Cancelled olarak güncelle
+                var order = await _orderService.GetOrderByGuidAsync(processPaymentRequest.OrderGuid);
+                if (order != null)
+                {
+                    order.OrderStatus = OrderStatus.Cancelled;
+                    await _orderService.UpdateOrderAsync(order);
+                }
+
+                if (result.Errors!=null)
+                {
+                   result.Errors.Add("An error occurred while paying with Stripe. Please try again.");
+                   result.Errors.Add(ex.Message);
+                }
+                else
+                {
+                    result.Errors = new List<string> { "An error occurred while paying with Stripe. Please try again." };
+                    result.Errors.Add(ex.Message);
+                }
+              
+               
+
+                // Sipariş durumunu Cancelled olarak güncelle
+                if (order != null)
+                {
+                    order.OrderStatus = OrderStatus.Cancelled;
+                    await _orderService.UpdateOrderAsync(order);
+                }
+
+
+                return result;
             }
             catch (Exception ex)
             {
-                // Genel hataları logla
-               await _logger.ErrorAsync($"Exception in ProcessPaymentAsync: {ex.Message}");
-                throw;
+                // Genel hataları logla ve kullanıcıya anlamlı mesaj döndür
+                await _logger.ErrorAsync($"Exception in ProcessPaymentAsync: {ex.Message}");
+
+                // Sipariş durumunu Cancelled olarak güncelle
+                var order = await _orderService.GetOrderByGuidAsync(processPaymentRequest.OrderGuid);
+                if (order != null)
+                {
+                    order.OrderStatus = OrderStatus.Cancelled;
+                    await _orderService.UpdateOrderAsync(order);
+                }
+                if (result.Errors != null)
+                {
+                    result.Errors.Add("An error occurred while paying with Stripe. Please try again.");
+                }
+                else
+                {
+                    result.Errors = new List<string> { "An error occurred while paying with Stripe. Please try again." };
+                }
+
+
+
+                // Sipariş durumunu Cancelled olarak güncelle
+                if (order != null)
+                {
+                    order.OrderStatus = OrderStatus.Cancelled;
+                    await _orderService.UpdateOrderAsync(order);
+                }
+               // result.Errors = new List<string> { "An error occurred during payment. Please try again." };
+                return result;
             }
-
-
-
         }
 
-   
+
+
 
         /// <summary>
         /// Post process payment (used by payment gateways that require redirecting to a third-party URL)
@@ -477,17 +483,15 @@ namespace Nop.Plugin.Payments.Stripe
         /// <returns>A task that represents the asynchronous operation</returns>
         public async Task PostProcessPaymentAsync(PostProcessPaymentRequest postProcessPaymentRequest)
         {
-            // throw new NotImplementedException();
-
             try
             {
                 var orderId = postProcessPaymentRequest.Order.Id;
 
                 var service = new PaymentIntentService();
 
-
                 // PaymentIntent'ı al
                 var paymentIntent = await service.GetAsync(postProcessPaymentRequest.Order.AuthorizationTransactionId, null, GetStripeApiRequestOptions());
+
                 // PaymentMethodId'nin atanıp atanmadığını kontrol et
                 if (string.IsNullOrEmpty(paymentIntent.PaymentMethodId))
                 {
@@ -503,28 +507,23 @@ namespace Nop.Plugin.Payments.Stripe
 
                         // PaymentIntent'ı tekrar alarak güncel bilgileri al
                         paymentIntent = await service.GetAsync(postProcessPaymentRequest.Order.AuthorizationTransactionId, null, GetStripeApiRequestOptions());
+
                         await _logger.InformationAsync($"PaymentMethod güncellendi: PaymentIntentID={paymentIntent.Id}, PaymentMethodID={paymentMethodId}");
                     }
                     else
-                    {  // PaymentMethodId bulunamadıysa hata logla
+                    {
+                        // PaymentMethodId bulunamadıysa hata logla ve siparişi Cancelled yap
                         await _logger.ErrorAsync($"PaymentMethodId Metadata içinde bulunamadı: PaymentIntentID={paymentIntent.Id}");
 
-                        // PaymentMethodId bulunamadıysa hata fırlat
-                        throw new NopException("Payment method not found. Cannot confirm payment.");
+                        // Sipariş durumunu Cancelled olarak güncelle
+                        postProcessPaymentRequest.Order.OrderStatus = OrderStatus.Cancelled;
+                        await _orderService.UpdateOrderAsync(postProcessPaymentRequest.Order);
+
+                        // Hata mesajını logladıktan sonra işlemi durdur
+                        return;
                     }
                 }
 
-                try
-                {
-                    Console.WriteLine("Post Process Payment Intent Id:" + paymentIntent.Id);
-                    Console.WriteLine("Post Process Payment AuthorizationTransactionId :" + postProcessPaymentRequest.Order.AuthorizationTransactionId);
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e);
-
-                }
-                //orderResult.Description = "Order Number:" + orderId + Environment.NewLine + orderResult.Description;
                 // Description ve Metadata'yı güncelle
                 var updateOptionsDescription = new PaymentIntentUpdateOptions
                 {
@@ -532,24 +531,10 @@ namespace Nop.Plugin.Payments.Stripe
                     Metadata = new Dictionary<string, string> { { "order_id", orderId.ToString() } }
                 };
 
-                var updateResult = await service.UpdateAsync(paymentIntent.Id, updateOptionsDescription, GetStripeApiRequestOptions());
+                await service.UpdateAsync(paymentIntent.Id, updateOptionsDescription, GetStripeApiRequestOptions());
 
                 await _logger.InformationAsync($"PaymentIntent güncellendi: ID={paymentIntent.Id}, Description='Order Number:{orderId}', Metadata=order_id:{orderId}");
 
-
-                try
-                {
-                    Console.WriteLine("Post Process Payment Intent updateResult:" + updateResult.Status + " " +
-                                      updateResult.StripeResponse.Content);
-
-                    Console.WriteLine("Post Process Payment Intent updateResult Payment Metod Id:" + updateResult.PaymentMethodId + " " +
-                                      updateResult.StripeResponse.Content);
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e);
-
-                }
                 // PaymentIntent'ı onayla
                 var confirmOptions = new PaymentIntentConfirmOptions
                 {
@@ -557,11 +542,10 @@ namespace Nop.Plugin.Payments.Stripe
                 };
 
                 var confirmResult = await service.ConfirmAsync(paymentIntent.Id, confirmOptions, GetStripeApiRequestOptions());
+
                 // Log Confirm Sonucu
                 await _logger.InformationAsync($"PaymentIntent onaylandı: ID={confirmResult.Id}, Status={confirmResult.Status}, LatestChargeID={confirmResult.LatestChargeId}");
 
-
-                var result = new ProcessPaymentResult();
                 if (confirmResult.Status == "succeeded")
                 {
                     postProcessPaymentRequest.Order.PaymentStatus = PaymentStatus.Paid;
@@ -579,32 +563,42 @@ namespace Nop.Plugin.Payments.Stripe
 
                     await _orderService.UpdateOrderAsync(postProcessPaymentRequest.Order);
                     await _logger.InformationAsync($"Order updated to Paid: OrderID={postProcessPaymentRequest.Order.Id}");
-
                 }
                 else
                 {
-                    // Hata durumunu logla
+                    // Hata durumunu logla ve siparişi Cancelled yap
                     await _logger.ErrorAsync($"PaymentIntent onaylanamadı: ID={confirmResult.Id}, Status={confirmResult.Status}, Error={confirmResult.LastPaymentError?.Message}");
-                    postProcessPaymentRequest.Order.Deleted = true;
+                    postProcessPaymentRequest.Order.OrderStatus = OrderStatus.Cancelled;
+                    await _orderService.UpdateOrderAsync(postProcessPaymentRequest.Order);
 
-                    postProcessPaymentRequest.Order.Deleted = true;
-                    throw new NopException($"Charge error: {confirmResult.StripeResponse}");
+                    // Kullanıcıya hata mesajı iletmek için NopException yerine hata mesajını logladık ve siparişi güncelledik
+                    // NopCommerce'un hata yönetim sistemi tarafından otomatik olarak işlenecektir
                 }
-                //return Task.FromResult(new ProcessPaymentResult() { Errors = new[] { "Capture method not supported" } });
             }
             catch (StripeException ex)
             {
-                // Stripe spesifik hataları logla
-              await  _logger.ErrorAsync($"StripeException in PostProcessPaymentAsync: {ex.Message}, StripeResponse: {ex.StripeResponse?.Content}");
-                throw new NopException($"Stripe error: {ex.Message}");
+                // Stripe spesifik hataları logla ve siparişi Cancelled yap
+                await _logger.ErrorAsync($"StripeException in PostProcessPaymentAsync: {ex.Message}, StripeResponse: {ex.StripeResponse?.Content}");
+
+                var order = await _orderService.GetOrderByGuidAsync(postProcessPaymentRequest.Order.OrderGuid);
+                if (order != null)
+                {
+                    order.OrderStatus = OrderStatus.Cancelled;
+                    await _orderService.UpdateOrderAsync(order);
+                }
             }
             catch (Exception ex)
             {
-                // Genel hataları logla
-              await  _logger.ErrorAsync($"Exception in PostProcessPaymentAsync: {ex.Message}");
-                throw;
-            }
+                // Genel hataları logla ve siparişi Cancelled yap
+                await _logger.ErrorAsync($"Exception in PostProcessPaymentAsync: {ex.Message}");
 
+                var order = await _orderService.GetOrderByGuidAsync(postProcessPaymentRequest.Order.OrderGuid);
+                if (order != null)
+                {
+                    order.OrderStatus = OrderStatus.Cancelled;
+                    await _orderService.UpdateOrderAsync(order);
+                }
+            }
         }
 
         /// <summary>
