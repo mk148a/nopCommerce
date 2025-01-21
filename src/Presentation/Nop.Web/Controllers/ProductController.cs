@@ -381,14 +381,10 @@ public partial class ProductController : BasePublicController
             await _productService.InsertProductReviewAsync(productReview);
 
             //add product review and review type mapping                
+            //add product review and review type mapping                
             foreach (var additionalReview in model.AddAdditionalProductReviewList)
             {
-                var additionalProductReview = new ProductReviewReviewTypeMapping
-                {
-                    ProductReviewId = productReview.Id,
-                    ReviewTypeId = additionalReview.ReviewTypeId,
-                    Rating = additionalReview.Rating
-                };
+                var additionalProductReview = new ProductReviewReviewTypeMapping { ProductReviewId = productReview.Id, ReviewTypeId = additionalReview.ReviewTypeId, Rating = additionalReview.Rating };
 
                 await _reviewTypeService.InsertProductReviewReviewTypeMappingsAsync(additionalProductReview);
             }
@@ -398,11 +394,14 @@ public partial class ProductController : BasePublicController
 
             //notify store owner
             if (_catalogSettings.NotifyStoreOwnerAboutNewProductReviews)
-                await _workflowMessageService.SendProductReviewStoreOwnerNotificationMessageAsync(productReview, _localizationSettings.DefaultAdminLanguageId);
+                await _workflowMessageService.SendProductReviewStoreOwnerNotificationMessageAsync(productReview,
+                    _localizationSettings.DefaultAdminLanguageId);
 
             //activity log
             await _customerActivityService.InsertActivityAsync("PublicStore.AddProductReview",
-                string.Format(await _localizationService.GetResourceAsync("ActivityLog.PublicStore.AddProductReview"), product.Name), product);
+                string.Format(
+                    await _localizationService.GetResourceAsync("ActivityLog.PublicStore.AddProductReview"),
+                    product.Name), product);
 
             //raise event
             if (productReview.IsApproved)
@@ -411,6 +410,7 @@ public partial class ProductController : BasePublicController
             model = await _productModelFactory.PrepareProductReviewsModelAsync(product);
             model.AddProductReview.Title = null;
             model.AddProductReview.ReviewText = null;
+
 
             if (!isApproved)
                 _notificationService.SuccessNotification(await _localizationService.GetResourceAsync("Reviews.SeeAfterApproving"));

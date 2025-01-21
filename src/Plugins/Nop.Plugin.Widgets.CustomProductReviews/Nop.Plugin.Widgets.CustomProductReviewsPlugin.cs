@@ -22,6 +22,7 @@ using Nop.Core;
 using Nop.Core.Domain.Cms;
 using Nop.Core.Infrastructure;
 using Nop.Plugin.Widgets.CustomCustomProductReviews.Services;
+using Nop.Plugin.Widgets.CustomProductReviews.Components;
 using Nop.Services.Cms;
 using Nop.Services.Configuration;
 using Nop.Services.Localization;
@@ -103,24 +104,12 @@ namespace Nop.Plugin.Widgets.CustomProductReviews
         /// </returns>
         public async Task<IList<string>> GetWidgetZonesAsync()
         {
-            return await Task.FromResult<IList<string>>(new List<string> { _customProdutReviewSettings.WidgetZone, PublicWidgetZones.ProductDetailsBottom });
+            return await Task.FromResult<IList<string>>(new List<string> { _customProdutReviewSettings.WidgetZone, PublicWidgetZones.CustomerProductReviewsTop });
            
            
         }
 
-        /// <summary>
-        /// Gets a name of a view component for displaying widget
-        /// </summary>
-        /// <param name="widgetZone">Name of the widget zone</param>
-        /// <returns>View component name</returns>
-        public string GetWidgetViewComponentName(string widgetZone)
-        {
-            if (widgetZone == null)
-                throw new ArgumentNullException(nameof(widgetZone));
-
-            return "CustomProductReviews";
-        }
-
+        
 
         /// <summary>
         /// Install plugin
@@ -159,8 +148,8 @@ namespace Nop.Plugin.Widgets.CustomProductReviews
 
                 await _settingService.SaveSettingAsync(new CustomProductReviewsSettings
                 {
-                    WidgetZone = PublicWidgetZones.ProductReviewsPageTop,
-                    data = "json",
+                    WidgetZone = PublicWidgetZones.CustomerProductReviewsTop,
+                    //data = "json",
                     MaximumFile = 5,
                     MaximumSize = 1073741824
                 });
@@ -259,6 +248,14 @@ namespace Nop.Plugin.Widgets.CustomProductReviews
             await base.UninstallAsync();
         }
 
+        public Type GetWidgetViewComponent(string widgetZone)
+        {
+            if (widgetZone == null)
+                     throw new ArgumentNullException(nameof(widgetZone));
+
+                 return typeof(CustomProductReviewsViewComponent);
+        }
+       
         #endregion
 
         #region Properties

@@ -8,6 +8,7 @@ using Nop.Data.Migrations;
 using Nop.Plugin.Widgets.CustomCustomProductReviews;
 using Nop.Plugin.Widgets.CustomProductReviews.Domains;
 using Nop.Plugin.Widgets.CustomProductReviews.Mapping.Builders;
+using Nop.Plugin.Widgets.CustomProductReviews.Services;
 
 namespace Nop.Plugin.Widgets.CustomProductReviews.Migrations
 {
@@ -27,14 +28,31 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Migrations
         public override void Up() {
             try
             {
-                Create.TableFor<Video>();
-            Create.TableFor<CustomProductReviewMapping>();
-            Create.TableFor<VideoBinary>();
+                Create.TableFor<ProductReviewVideo>();
+          
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
 
+            }
+
+            //try
+            //{
+            //    Create.TableFor<CustomProductReviewMapping>();
+            //}
+            //catch (Exception e)
+            //{
+            //    Console.WriteLine(e);
+            //}
+
+            try
+            {
+                Create.TableFor<ProductReviewVideoBinary>();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
             }
         }     
         public override void Down()
@@ -42,9 +60,9 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Migrations
             try
             {
 
-            Delete.Table("CustomProductReviewMapping");
-            Delete.Table("Video");
-            Delete.Table("VideoBinary");
+            //Delete.Table("CustomProductReviewMapping");
+            //Delete.Table("ProductReviewVideo");
+            //Delete.Table("VideoBinary");
 
             }
             catch (Exception e)

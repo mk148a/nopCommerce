@@ -29,7 +29,7 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Services
     /// <summary>
     /// Video service
     /// </summary>
-    public partial class VideoService : IVideoService
+    public partial class ProductReviewVideoService : IProductReviewVideoService
     {
         #region Fields
 
@@ -37,8 +37,8 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Services
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly INopFileProvider _fileProvider;
         private readonly IProductAttributeParser _productAttributeParser;
-        private readonly IRepository<Video> _videoRepository;
-        private readonly IRepository<VideoBinary> _videoBinaryRepository;
+        private readonly IRepository<ProductReviewVideo> _videoRepository;
+        private readonly IRepository<ProductReviewVideoBinary> _videoBinaryRepository;
         //private readonly IRepository<ProductVideo> _productVideoRepository;
         private readonly ISettingService _settingService;
         private readonly IUrlRecordService _urlRecordService;
@@ -49,12 +49,12 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Services
 
         #region Ctor
 
-        public VideoService(IDownloadService downloadService,
+        public ProductReviewVideoService(IDownloadService downloadService,
             IHttpContextAccessor httpContextAccessor,
             INopFileProvider fileProvider,
             IProductAttributeParser productAttributeParser,
-            IRepository<Video> videoRepository,
-            IRepository<VideoBinary> videoBinaryRepository,
+            IRepository<ProductReviewVideo> videoRepository,
+            IRepository<ProductReviewVideoBinary> videoBinaryRepository,
             //IRepository<ProductVideo> productVideoRepository,
             ISettingService settingService,
             IUrlRecordService urlRecordService,
@@ -115,7 +115,7 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Services
         /// </summary>
         /// <param name="video">Video</param>
         /// <returns>A task that represents the asynchronous operation</returns>
-        protected virtual async Task DeleteVideoOnFileSystemAsync(Video video)
+        protected virtual async Task DeleteVideoOnFileSystemAsync(ProductReviewVideo video)
         {
             if (video == null)
                 throw new ArgumentNullException(nameof(video));
@@ -131,7 +131,7 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Services
         /// </summary>
         /// <param name="video">Video</param>
         /// <returns>A task that represents the asynchronous operation</returns>
-        protected virtual async Task DeleteVideoThumbsAsync(Video video)
+        protected virtual async Task DeleteVideoThumbsAsync(ProductReviewVideo video)
         {
             var filter = $"{video.Id:0000000}*.*";
             var currentFiles = _fileProvider.GetFiles(_fileProvider.GetAbsolutePath(NopMediaDefaults.ImageThumbsPath), filter, false);
@@ -238,7 +238,7 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Services
         /// A task that represents the asynchronous operation
         /// The task result contains the video binary
         /// </returns>
-        protected virtual async Task<byte[]> LoadVideoBinaryAsync(Video video, bool fromDb)
+        protected virtual async Task<byte[]> LoadVideoBinaryAsync(ProductReviewVideo video, bool fromDb)
         {
             if (video == null)
                 throw new ArgumentNullException(nameof(video));
@@ -291,17 +291,17 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Services
         /// A task that represents the asynchronous operation
         /// The task result contains the video binary
         /// </returns>
-        protected virtual async Task<VideoBinary> UpdateVideoBinaryAsync(Video video, byte[] binaryData)
+        protected virtual async Task<ProductReviewVideoBinary> UpdateVideoBinaryAsync(ProductReviewVideo video, byte[] binaryData)
         {
             if (video == null)
                 throw new ArgumentNullException(nameof(video));
 
-            VideoBinary videoBinary = await GetVideoBinaryByVideoIdAsync(video.Id);
+            ProductReviewVideoBinary videoBinary = await GetVideoBinaryByVideoIdAsync(video.Id);
 
             var isNew = videoBinary == null;
 
             if (isNew)
-                videoBinary = new VideoBinary
+                videoBinary = new ProductReviewVideoBinary
                 {
                     VideoId = video.Id
                 };
@@ -463,7 +463,7 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Services
         /// A task that represents the asynchronous operation
         /// The task result contains the video binary
         /// </returns>
-        public virtual async Task<byte[]> LoadVideoBinaryAsync(Video video)
+        public virtual async Task<byte[]> LoadVideoBinaryAsync(ProductReviewVideo video)
         {
             return await LoadVideoBinaryAsync(video, await IsStoreInDbAsync());
         }
@@ -572,7 +572,7 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Services
         /// A task that represents the asynchronous operation
         /// The task result contains the video URL
         /// </returns>
-        public virtual async Task<(string Url, Video Video)> GetVideoUrlAsync(Video video,
+        public virtual async Task<(string Url, ProductReviewVideo Video)> GetVideoUrlAsync(ProductReviewVideo video,
             int targetSize = 0,
             bool showDefaultVideo = true,
             string storeLocation = null,
@@ -650,7 +650,7 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Services
         /// A task that represents the asynchronous operation
         /// The task result contains the 
         /// </returns>
-        public virtual async Task<string> GetThumbLocalPathAsync(Video video, int targetSize = 0, bool showDefaultVideo = true)
+        public virtual async Task<string> GetThumbLocalPathAsync(ProductReviewVideo video, int targetSize = 0, bool showDefaultVideo = true)
         {
             var (url, _) = await GetVideoUrlAsync(video, targetSize, showDefaultVideo);
             if (string.IsNullOrEmpty(url))
@@ -671,7 +671,7 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Services
         /// A task that represents the asynchronous operation
         /// The task result contains the video
         /// </returns>
-        public virtual async Task<Video> GetVideoByIdAsync(int videoId)
+        public virtual async Task<ProductReviewVideo> GetVideoByIdAsync(int videoId)
         {
             return await _videoRepository.GetByIdAsync(videoId, cache => default);
         }
@@ -681,7 +681,7 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Services
         /// </summary>
         /// <param name="video">Video</param>
         /// <returns>A task that represents the asynchronous operation</returns>
-        public virtual async Task DeleteVideoAsync(Video video)
+        public virtual async Task DeleteVideoAsync(ProductReviewVideo video)
         {
             if (video == null)
                 throw new ArgumentNullException(nameof(video));
@@ -707,7 +707,7 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Services
         /// A task that represents the asynchronous operation
         /// The task result contains the paged list of pictures
         /// </returns>
-        public virtual async Task<IPagedList<Video>> GetVideosAsync(string virtualPath = "", int pageIndex = 0, int pageSize = int.MaxValue)
+        public virtual async Task<IPagedList<ProductReviewVideo>> GetVideosAsync(string virtualPath = "", int pageIndex = 0, int pageSize = int.MaxValue)
         {
             var query = _videoRepository.Table;
 
@@ -761,7 +761,7 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Services
         /// A task that represents the asynchronous operation
         /// The task result contains the video
         /// </returns>
-        public virtual async Task<Video> InsertVideoDataAsync(byte[] videoBinary, string mimeType, string seoFilename,
+        public virtual async Task<ProductReviewVideo> InsertVideoDataAsync(byte[] videoBinary, string mimeType, string seoFilename,
             string altAttribute = null, string titleAttribute = null,
             bool isNew = true, bool validateBinary = true)
         {
@@ -780,7 +780,7 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Services
 
             //ffmpeg.GetVideoThumbnail("output.mp4", "video_thumbnail.jpg");
 
-            var video = new Video
+            var video = new ProductReviewVideo
             {
                 MimeType = data.Extentions,
                 SeoFilename = seoFilename,
@@ -808,7 +808,7 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Services
         /// A task that represents the asynchronous operation
         /// The task result contains the video
         /// </returns>
-        public virtual async Task<Video> InsertVideoAsync(byte[] formFile, string defaultFileName , string contentType, string virtualPath = "")
+        public virtual async Task<ProductReviewVideo> InsertVideoAsync(byte[] formFile, string defaultFileName , string contentType, string virtualPath = "")
         {
 
             switch (contentType)
@@ -860,7 +860,7 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Services
         /// A task that represents the asynchronous operation
         /// The task result contains the video
         /// </returns>
-        public virtual async Task<Video> UpdateVideoAsync(int videoId, byte[] videoBinary, string mimeType,
+        public virtual async Task<ProductReviewVideo> UpdateVideoAsync(int videoId, byte[] videoBinary, string mimeType,
             string seoFilename, string altAttribute = null, string titleAttribute = null,
             bool isNew = true, bool validateBinary = true)
         {
@@ -910,7 +910,7 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Services
         /// A task that represents the asynchronous operation
         /// The task result contains the video
         /// </returns>
-        public virtual async Task<Video> UpdateVideoAsync(Video video)
+        public virtual async Task<ProductReviewVideo> UpdateVideoAsync(ProductReviewVideo video)
         {
             if (video == null)
                 return null;
@@ -939,9 +939,9 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Services
         /// A task that represents the asynchronous operation
         /// The task result contains the video binary
         /// </returns>
-        public virtual async Task<VideoBinary> GetVideoBinaryByVideoIdAsync(int videoId)
+        public virtual async Task<ProductReviewVideoBinary> GetVideoBinaryByVideoIdAsync(int videoId)
         {
-            var result = new VideoBinary();
+            var result = new ProductReviewVideoBinary();
             try
             {
                 Stopwatch sw = new Stopwatch();
@@ -975,7 +975,7 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Services
         /// A task that represents the asynchronous operation
         /// The task result contains the video
         /// </returns>
-        public virtual async Task<Video> SetSeoFilenameAsync(int videoId, string seoFilename)
+        public virtual async Task<ProductReviewVideo> SetSeoFilenameAsync(int videoId, string seoFilename)
         {
             var video = await GetVideoByIdAsync(videoId);
             if (video == null)

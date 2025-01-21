@@ -40,11 +40,14 @@ using Nop.Services.Stores;
 using Nop.Web.Factories;
 using Nop.Web.Framework.Controllers;
 using Nop.Web.Framework.Mvc.Filters;
-using ImageProcessor;
-using ImageProcessor.Plugins.WebP.Imaging.Formats;
+
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats.Webp;
+using SixLabors.ImageSharp.Processing;
 
 using System.Runtime.InteropServices;
 using Nop.Web.Models.Catalog;
+using Nop.Web.Framework.Mvc.Routing;
 
 namespace Nop.Plugin.Widgets.CustomProductReviews.Controllers
 {
@@ -57,36 +60,27 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Controllers
 
         private readonly CaptchaSettings _captchaSettings;
         private readonly CatalogSettings _catalogSettings;
-        private readonly IAclService _aclService;
-        private readonly ICompareProductsService _compareProductsService;
         private readonly ICustomerActivityService _customerActivityService;
         private readonly ICustomerService _customerService;
         private readonly IEventPublisher _eventPublisher;
-        private readonly IHtmlFormatter _htmlFormatter;
         private readonly ILocalizationService _localizationService;
         private readonly IOrderService _orderService;
-        private readonly IPermissionService _permissionService;
-        private readonly IProductAttributeParser _productAttributeParser;
         private readonly IProductModelFactory _productModelFactory;
         private readonly IProductService _productService;
-        private readonly IRecentlyViewedProductsService _recentlyViewedProductsService;
         private readonly IReviewTypeService _reviewTypeService;
-        private readonly IShoppingCartModelFactory _shoppingCartModelFactory;
-        private readonly IShoppingCartService _shoppingCartService;
         private readonly IStoreContext _storeContext;
-        private readonly IStoreMappingService _storeMappingService;
         private readonly IUrlRecordService _urlRecordService;
-        private readonly IWebHelper _webHelper;
         private readonly IWorkContext _workContext;
         private readonly IWorkflowMessageService _workflowMessageService;
         private readonly LocalizationSettings _localizationSettings;
-        private readonly ShoppingCartSettings _shoppingCartSettings;
-        private readonly ShippingSettings _shippingSettings;
         private readonly IPictureService _pictureService;
-        private readonly IVideoService _videoService;
+        private readonly IProductReviewVideoService _videoService;
         private readonly ICustomProductReviewMappingService _customProductReviewMappingService;
-        private readonly INopFileProvider _fileProvider;
         private readonly IBackgroundQueue _queue;
+        protected readonly INotificationService _notificationService;
+        protected readonly INopUrlHelper _nopUrlHelper;
+
+
 
         #endregion
 
@@ -94,71 +88,49 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Controllers
 
         public CustomProductReviewsController(CaptchaSettings captchaSettings,
             CatalogSettings catalogSettings,
-            IAclService aclService,
-            ICompareProductsService compareProductsService,
             ICustomerActivityService customerActivityService,
             ICustomerService customerService,
             IEventPublisher eventPublisher,
-            IHtmlFormatter htmlFormatter,
             ILocalizationService localizationService,
             IOrderService orderService,
-            IPermissionService permissionService,
-            IProductAttributeParser productAttributeParser,
             IProductModelFactory productModelFactory,
             IProductService productService,
-            IRecentlyViewedProductsService recentlyViewedProductsService,
             IReviewTypeService reviewTypeService,
-            IShoppingCartModelFactory shoppingCartModelFactory,
-            IShoppingCartService shoppingCartService,
             IStoreContext storeContext,
-            IStoreMappingService storeMappingService,
             IUrlRecordService urlRecordService,
-            IWebHelper webHelper,
             IWorkContext workContext,
             IWorkflowMessageService workflowMessageService,
             LocalizationSettings localizationSettings,
-            ShoppingCartSettings shoppingCartSettings,
             IPictureService pictureService,
-            IVideoService videoService,
-            INopFileProvider fileProvider,
-            ShippingSettings shippingSettings,
+            IProductReviewVideoService videoService,
             ICustomProductReviewMappingService customProductReviewMappingService,
-            IBackgroundQueue queue
+            IBackgroundQueue queue,
+            INotificationService notificationService,
+            INopUrlHelper nopUrlHelper
 
         )
         {
             _captchaSettings = captchaSettings;
             _pictureService = pictureService;
             _videoService = videoService;
-            _fileProvider = fileProvider;
             _catalogSettings = catalogSettings;
-            _aclService = aclService;
-            _compareProductsService = compareProductsService;
             _customerActivityService = customerActivityService;
             _customerService = customerService;
             _eventPublisher = eventPublisher;
-            _htmlFormatter = htmlFormatter;
             _localizationService = localizationService;
             _orderService = orderService;
-            _permissionService = permissionService;
-            _productAttributeParser = productAttributeParser;
             _productModelFactory = productModelFactory;
             _productService = productService;
             _reviewTypeService = reviewTypeService;
-            _recentlyViewedProductsService = recentlyViewedProductsService;
-            _shoppingCartModelFactory = shoppingCartModelFactory;
-            _shoppingCartService = shoppingCartService;
             _storeContext = storeContext;
-            _storeMappingService = storeMappingService;
             _urlRecordService = urlRecordService;
-            _webHelper = webHelper;
             _workContext = workContext;
             _workflowMessageService = workflowMessageService;
             _localizationSettings = localizationSettings;
-            _shoppingCartSettings = shoppingCartSettings;
-            _shippingSettings = shippingSettings;
             _customProductReviewMappingService = customProductReviewMappingService;
             _queue = queue;
+            _notificationService=notificationService;
+            _nopUrlHelper=nopUrlHelper;
 
         }
 
@@ -244,7 +216,7 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Controllers
 
                 //notify store owner
                 if (_catalogSettings.NotifyStoreOwnerAboutNewProductReviews)
-                    await _workflowMessageService.SendProductReviewNotificationMessageAsync(productReview,
+                    await _workflowMessageService.SendProductReviewStoreOwnerNotificationMessageAsync(productReview,
                         _localizationSettings.DefaultAdminLanguageId);
 
                 //activity log
@@ -257,11 +229,11 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Controllers
                 if (productReview.IsApproved)
                     await _eventPublisher.PublishAsync(new ProductReviewApprovedEvent(productReview));
 
-                model = await _productModelFactory.PrepareProductReviewsModelAsync(model, product);
+                model = await _productModelFactory.PrepareProductReviewsModelAsync(product);
                 model.AddProductReview.Title = null;
                 model.AddProductReview.ReviewText = null;
 
-                model.AddProductReview.SuccessfullyAdded = true;
+                // model.AddProductReview.SuccessfullyAdded = true;
 
                 #region Product Review Media Upload Section
 
@@ -309,93 +281,110 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Controllers
                     
                 }
                 #endregion
+
+                //  if (_catalogSettings.ProductReviewsMustBeApproved)
+                // {
+                //     productReviewModel.ApprovalStatus = review.IsApproved
+                //         ? await _localizationService.GetResourceAsync("Account.CustomerProductReviews.ApprovalStatus.Approved")
+                //         : await _localizationService.GetResourceAsync("Account.CustomerProductReviews.ApprovalStatus.Pending");
+                // }
                 if (!isApproved)
-                    model.AddProductReview.Result =
-                        await _localizationService.GetResourceAsync("Reviews.SeeAfterApproving") + Environment.NewLine +
+                    _notificationService.SuccessNotification(await _localizationService.GetResourceAsync("Reviews.SeeAfterApproving") + Environment.NewLine +
                         " Your uploaded media(photo or video ) will continue to be processed in the background." + Environment.NewLine +
-                        " After processing, the media will be automatically added to your review.";
+                        " After processing, the media will be automatically added to your review.");
 
                 else
-                    model.AddProductReview.Result =
+                    _notificationService.SuccessNotification(
                         await _localizationService.GetResourceAsync("Reviews.SuccessfullyAdded") + Environment.NewLine +
                         " Your uploaded media(photo or video ) will continue to be processed in the background." + Environment.NewLine +
-                        " After processing, the media will be automatically added to your review.";
+                        " After processing, the media will be automatically added to your review.");
 
-                return Json(model);
+                 return Json(model);
+                //var seName = await _urlRecordService.GetSeNameAsync(product);
+                //var productUrl = await _nopUrlHelper.RouteGenericUrlAsync<Product>(new { SeName = seName });
+                //return LocalRedirect(productUrl);
 
             }
             //if we got this far, something failed, redisplay form
-            model = await _productModelFactory.PrepareProductReviewsModelAsync(model, product);
+            model = await _productModelFactory.PrepareProductReviewsModelAsync( product);
             return Json(model);
+
+            //If we got this far, something failed, redisplay form
+            //RouteData.Values["action"] = "ProductDetails";
+
+            ////model
+            //var productModel = await _productModelFactory.PrepareProductDetailsModelAsync(product);
+            ////template
+            //var productTemplateViewPath = await _productModelFactory.PrepareProductTemplateViewPathAsync(product);
+
+            //return View(productTemplateViewPath, productModel);
         }
     
 
     public async Task<string> InsertReviewMedia(ProductReviewsModel model, UploadDataBinary data, int reviewId)
         {
+            var product = await _productService.GetProductByIdAsync(model.ProductId);
+            var seName = await _urlRecordService.GetSeNameAsync(product);
 
-            string name = model.ProductSeName + "-" + DateTime.UtcNow.ToFileTime();
+            string name = seName + "-" + DateTime.UtcNow.ToFileTime();
+
             Stopwatch sw = new Stopwatch();
 
             var pic = new Picture();
 
-
-                Video vid = new Video();
-                if (data.Extentions.Contains("image"))
+            ProductReviewVideo vid = new ProductReviewVideo();
+            if (data.Extentions.Contains("image"))
+            {
+                try
                 {
-                    try
-                    {
-                        sw.Start();
+                    sw.Start();
 
-                        var ms = new MemoryStream();
-                        ImageFactory imageFactory = new ImageFactory(preserveExifData: false);
-                        imageFactory.Load(data.BinaryData).Format(new WebPFormat()).Quality(90).Save(ms);
+                    using (var image = Image.Load(data.BinaryData))
+                    using (var ms = new MemoryStream())
+                    {
+                       await image.SaveAsync(ms, new WebpEncoder { Quality = 90 });
                         sw.Stop();
                         Console.WriteLine("Elapsed Picture Encode={0}", sw.Elapsed);
                         System.IO.File.AppendAllText(@"ImageProcessPerformace.log", string.Format("Elapsed Picture Encode={0}", sw.Elapsed) + Environment.NewLine);
 
                         byte[] raw = ms.ToArray();
-                        await ms.DisposeAsync();
-                        imageFactory.Dispose();
-
-
                         pic = await _pictureService.InsertPictureAsync(raw, "image/webp", name);
                     }
-                    catch (Exception e)
-                    {
-                        System.IO.File.AppendAllText(@"customProductReview.log", e.Message + Environment.NewLine);
-                    }
                 }
-                else if (data.Extentions.Contains("video"))
+                catch (Exception e)
                 {
-                    try
-                    {
-                        vid = await _videoService.InsertVideoAsync(data.BinaryData, name, data.Extentions);
-                    }
-                    catch (Exception e)
-                    {
-                        System.IO.File.AppendAllText(@"customProductReview.log", e.InnerException + Environment.NewLine);
-                    }
+                    System.IO.File.AppendAllText(@"customProductReview.log", e.Message + Environment.NewLine);
                 }
-
-                int? lastPicId = pic.Id;
-                int? lastVidId = vid.Id;
-                if (lastPicId == 0)
+            }
+            else if (data.Extentions.Contains("video"))
+            {
+                try
                 {
-                    lastPicId = null;
+                    vid = await _videoService.InsertVideoAsync(data.BinaryData, name, data.Extentions);
                 }
-
-                if (lastVidId == 0)
+                catch (Exception e)
                 {
-                    lastVidId = null;
+                    System.IO.File.AppendAllText(@"customProductReview.log", e.InnerException + Environment.NewLine);
                 }
+            }
 
+            int? lastPicId = pic.Id;
+            int? lastVidId = vid.Id;
+            if (lastPicId == 0)
+            {
+                lastPicId = null;
+            }
 
-                if (!(lastPicId == null && lastVidId == null))
-                {
-                    await _customProductReviewMappingService.InsertCustomProductReviewMappingAsync(reviewId, lastPicId,
-                        lastVidId);
-                }
-           
+            if (lastVidId == 0)
+            {
+                lastVidId = null;
+            }
+
+            if (!(lastPicId == null && lastVidId == null))
+            {
+                await _customProductReviewMappingService.InsertCustomProductReviewMappingAsync(reviewId, lastPicId, lastVidId);
+            }
+
             return "done";
         }
 
