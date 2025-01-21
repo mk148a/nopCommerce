@@ -68,7 +68,7 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Services
             {
                 ProductReviewId = productReviewId,
                 PictureId = pictureId,
-                VideoId = videoIdId
+                ProductReviewVideoId = videoIdId
             };
 
             await _customProductReviewMappingRepository.InsertAsync(customProductReviewMapping);
@@ -93,7 +93,7 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Services
 
 
             customProductReviewMapping.PictureId = pictureId;
-            customProductReviewMapping.VideoId = videoIdId;
+            customProductReviewMapping.ProductReviewVideoId = videoIdId;
             customProductReviewMapping.ProductReviewId = productReviewId;
 
             await _customProductReviewMappingRepository.UpdateAsync(customProductReviewMapping);

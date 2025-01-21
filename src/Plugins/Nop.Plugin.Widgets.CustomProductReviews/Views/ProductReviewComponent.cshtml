@@ -16,23 +16,29 @@
 @{
     var _storeContext = EngineContext.Current.Resolve<Nop.Core.IStoreContext>();
     var _settingService = EngineContext.Current.Resolve<Nop.Services.Configuration.ISettingService>();
+    var _urlRecordService = EngineContext.Current.Resolve<Nop.Services.Seo.IUrlRecordService>();
+    var _productService = EngineContext.Current.Resolve<Nop.Services.Catalog.IProductService>();
+
+    
+    var product = await _productService.GetProductByIdAsync(Model.ProductId);
 
     var setting = await _settingService.LoadSettingAsync<Nop.Plugin.Widgets.CustomProductReviews.CustomProductReviewsSettings>((await _storeContext.GetCurrentStoreAsync()).Id);
     if (setting == null)
     {
         setting = await _settingService.LoadSettingAsync<Nop.Plugin.Widgets.CustomProductReviews.CustomProductReviewsSettings>();
     }
+    var seName = await _urlRecordService.GetSeNameAsync(product);
 }
-<div class="page product-reviews-page">
+<div class="page product-reviews">
 <div >
-        <h2 style="text-align: center;">@T("Reviews.ProductReviewsFor") <a href="@Url.RouteUrl("Product", new { SeName = Model.ProductSeName })">@Model.ProductName</a></h2>
+        <h2 style="text-align: center;">@T("Product Reviews For ") <a href="@Url.RouteUrl("Product", new { SeName = seName })">@product.Name</a></h2>
 
     </div>
     <div class="page-body">
-        @if (Model.AddProductReview.SuccessfullyAdded)
+        @if (!Model.AddProductReview.CanCurrentCustomerLeaveReview)
         {
-            <div class="submitReviewResult result">
-                @Model.AddProductReview.Result
+            <div class="result review-already-added">
+                @T("Reviews.OnlyRegisteredUsersCanWriteReviews")
             </div>
         }
         else if (!Model.AddProductReview.CanAddNewReview)
@@ -239,7 +245,7 @@
                 }
             </div>
         }
-        @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.ProductReviewsPageBottom, additionalData = Model })
+        @* @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.ProductReviewsPageBottom, additionalData = Model }) *@
 
 
     </div>

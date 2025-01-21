@@ -19,6 +19,7 @@ using Nop.Services.Customers;
 using Nop.Services.Localization;
 using Nop.Services.Orders;
 using Nop.Services.Plugins;
+using Nop.Web.Framework.Factories;
 
 namespace Nop.Plugin.Widgets.CustomProductReviews.Components
 {
@@ -32,7 +33,6 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Components
         private readonly CustomProductReviewsSettings _customProductReviewsSettings;
         private readonly IProductService _productService;
         private readonly IProductModelFactory _productModelFactory;
-        private readonly IWidgetModelFactory _widgetModelFactory;
         private readonly IWorkContext _workContext;
         private readonly ILocalizationService _localizationService;
         private readonly IOrderService _orderService;
@@ -43,12 +43,11 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Components
 
         #region Ctor
 
-        public CustomProductReviewsViewComponent(CustomProductReviewsSettings customProductReviewsSettings,IProductService productService, IProductModelFactory productModelFactory,IWidgetModelFactory widgetModelFactory, IWorkContext workContext, IOrderService orderService, ICustomerService customerService, CatalogSettings catalogSettings,ILocalizationService localizationService,IPluginService pluginService)
+        public CustomProductReviewsViewComponent(CustomProductReviewsSettings customProductReviewsSettings,IProductService productService, IProductModelFactory productModelFactory, IWorkContext workContext, IOrderService orderService, ICustomerService customerService, CatalogSettings catalogSettings,ILocalizationService localizationService,IPluginService pluginService)
         {
         _customProductReviewsSettings = customProductReviewsSettings;                                                                                                                                                
             _productService = productService;                                                                                                                                                                             
             _productModelFactory = productModelFactory;
-            _widgetModelFactory = widgetModelFactory;
             _workContext = workContext;
             _orderService = orderService;
             _customerService = customerService;
@@ -101,20 +100,7 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Components
         }
         public async Task<IViewComponentResult> InvokeAsync(string widgetZone, object additionalData)
         {
-            if (_customProductReviewsSettings.data.IsNullOrEmpty())
-            {
-
-
-                await _pluginService.UninstallPluginsAsync();
-            await _pluginService.DeletePluginsAsync();
-            return View("~/Plugins/Widgets.CustomProductReviews/Views/Denied.html");
-
-
-
-
-            }
-            else
-            {
+          
                 var model = new ProductReviewsModel();
                 var productDetailModel = new ProductDetailsModel();
 
@@ -131,7 +117,7 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Components
                     var product = await _productService.GetProductByIdAsync(productId);
 
 
-                    model = await _productModelFactory.PrepareProductReviewsModelAsync(model, product);
+                    model = await _productModelFactory.PrepareProductReviewsModelAsync( product);
 
                     await ValidateProductReviewAvailabilityAsync(product);
 
@@ -152,7 +138,7 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Components
 
 
                 return View("~/Plugins/Widgets.CustomProductReviews/Views/ProductReviewComponent.cshtml", model);
-            }
+            
         }
 
         #endregion

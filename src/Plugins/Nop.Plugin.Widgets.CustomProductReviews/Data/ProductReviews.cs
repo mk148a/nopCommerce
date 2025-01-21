@@ -38,8 +38,8 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Data
                 return;
             
             //settings
-            if (!_settingService.SettingExistsAsync(_productReviewSettings, settings => settings.data).Result)
-                _productReviewSettings.data = "test";
+            //if (!_settingService.SettingExistsAsync(_productReviewSettings, settings => settings.data).Result)
+            //    _productReviewSettings.data = "test";
 
             _settingService.SaveSettingAsync(_productReviewSettings).Wait();
         }
