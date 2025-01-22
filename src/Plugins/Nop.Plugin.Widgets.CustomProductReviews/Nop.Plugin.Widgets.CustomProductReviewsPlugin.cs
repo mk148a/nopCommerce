@@ -108,7 +108,7 @@ namespace Nop.Plugin.Widgets.CustomProductReviews
 
             return await Task.FromResult<IList<string>>(new List<string>
             {
-                PublicWidgetZones.ProductReviewsPageTop
+               
                 
             });
 

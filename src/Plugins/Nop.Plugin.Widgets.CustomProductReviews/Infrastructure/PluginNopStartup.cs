@@ -15,8 +15,11 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Infrastructure
         {
             services.Configure<RazorViewEngineOptions>(options =>
             {
+               
                 options.ViewLocationExpanders.Add(new ViewLocationExpander());
+
             });
+         
 
             //register services and interfaces
             //services.AddScoped<CustomModelFactory, ICustomerModelFactory>();
@@ -31,6 +34,6 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Infrastructure
         {
         }
 
-        public int Order => 11;
+        public int Order => 700;
     }
 }
