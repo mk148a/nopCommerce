@@ -104,9 +104,15 @@ namespace Nop.Plugin.Widgets.CustomProductReviews
         /// </returns>
         public async Task<IList<string>> GetWidgetZonesAsync()
         {
-            return await Task.FromResult<IList<string>>(new List<string> { _customProdutReviewSettings.WidgetZone, PublicWidgetZones.CustomerProductReviewsTop });
-           
-           
+           // return await Task.FromResult<IList<string>>(new List<string> { _customProdutReviewSettings.WidgetZone, PublicWidgetZones.CustomerProductReviewsTop });
+
+            return await Task.FromResult<IList<string>>(new List<string>
+            {
+                PublicWidgetZones.ProductReviewsPageTop
+                
+            });
+
+
         }
 
         

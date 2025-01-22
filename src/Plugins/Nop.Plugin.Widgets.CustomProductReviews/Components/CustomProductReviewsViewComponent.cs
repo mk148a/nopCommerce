@@ -102,13 +102,19 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Components
         {
           
                 var model = new ProductReviewsModel();
-                var productDetailModel = new ProductDetailsModel();
+                var productReviewModel = new ProductReviewModel();
+            var productDetailModel = new ProductDetailsModel();
 
 
 
                 if (additionalData.GetType() == model.GetType())
                 {
                     model = (ProductReviewsModel)additionalData;
+                }
+                else if (additionalData.GetType() == productReviewModel.GetType())
+                {
+                    productReviewModel= (ProductReviewModel)additionalData;
+
                 }
                 else
                 {

@@ -197,7 +197,7 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Controllers
                     CreatedOnUtc = DateTime.UtcNow,
                     StoreId = currentStore.Id,
                 };
-                await _productService.InsertProductReviewAsync(productReview);
+                await _productService.InsertProductReviewAsync(productReview).ConfigureAwait(false);
                 var reviewId = productReview.Id;
 
 
@@ -208,7 +208,7 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Controllers
                 {
                     var additionalProductReview = new ProductReviewReviewTypeMapping { ProductReviewId = productReview.Id, ReviewTypeId = additionalReview.ReviewTypeId, Rating = additionalReview.Rating };
 
-                    await _reviewTypeService.InsertProductReviewReviewTypeMappingsAsync(additionalProductReview);
+                    await _reviewTypeService.InsertProductReviewReviewTypeMappingsAsync(additionalProductReview).ConfigureAwait(false);
                 }
 
                 //update product totals
@@ -270,7 +270,7 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Controllers
                 {
                    _queue.QueueTask(async token =>
                     {
-                       await InsertReviewMedia(model, data, reviewId);
+                       await InsertReviewMedia(model, data, reviewId).ConfigureAwait(false);
                     });
                 }
 
@@ -328,7 +328,7 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Controllers
 
             string name = seName + "-" + DateTime.UtcNow.ToFileTime();
 
-            Stopwatch sw = new Stopwatch();
+            var sw = new Stopwatch();
 
             var pic = new Picture();
 
@@ -345,7 +345,7 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Controllers
                        await image.SaveAsync(ms, new WebpEncoder { Quality = 90 });
                         sw.Stop();
                         Console.WriteLine("Elapsed Picture Encode={0}", sw.Elapsed);
-                        System.IO.File.AppendAllText(@"ImageProcessPerformace.log", string.Format("Elapsed Picture Encode={0}", sw.Elapsed) + Environment.NewLine);
+                      await  System.IO.File.AppendAllTextAsync(@"ImageProcessPerformace.log", string.Format("Elapsed Picture Encode={0}", sw.Elapsed) + Environment.NewLine);
 
                         byte[] raw = ms.ToArray();
                         pic = await _pictureService.InsertPictureAsync(raw, "image/webp", name);
@@ -353,7 +353,7 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Controllers
                 }
                 catch (Exception e)
                 {
-                    System.IO.File.AppendAllText(@"customProductReview.log", e.Message + Environment.NewLine);
+                   await System.IO.File.AppendAllTextAsync(@"customProductReview.log", e.Message + Environment.NewLine);
                 }
             }
             else if (data.Extentions.Contains("video"))
@@ -364,7 +364,7 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Controllers
                 }
                 catch (Exception e)
                 {
-                    System.IO.File.AppendAllText(@"customProductReview.log", e.InnerException + Environment.NewLine);
+                    await System.IO.File.AppendAllTextAsync(@"customProductReview.log", e.InnerException + Environment.NewLine);
                 }
             }
 
@@ -382,7 +382,8 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Controllers
 
             if (!(lastPicId == null && lastVidId == null))
             {
-                await _customProductReviewMappingService.InsertCustomProductReviewMappingAsync(reviewId, lastPicId, lastVidId);
+                await _customProductReviewMappingService.InsertCustomProductReviewMappingAsync(reviewId, lastPicId, lastVidId).ConfigureAwait(false);
+                
             }
 
             return "done";

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using LinqToDB.Common;
 using Microsoft.AspNetCore.Http;
 using Nop.Core;
-
+using Nop.Core.Caching;
 using Nop.Core.Domain.Media;
 using Nop.Core.Infrastructure;
 using Nop.Data;
@@ -28,15 +28,19 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Services
         #region Fields
 
         private readonly IRepository<CustomProductReviewMapping> _customProductReviewMappingRepository;
+        protected readonly IStaticCacheManager _staticCacheManager;
+        public static CacheKey CustomProductReviewMappingByPictureIdCacheKey => new("Nop.customproductreviewreviewmapping.bypictureid.{0}");
+
         //private readonly IRepository<ProductCustomProductReviewMapping> _productCustomProductReviewMappingRepository;
 
         #endregion
 
         #region Ctor
 
-        public CustomProductReviewMappingService(IRepository<CustomProductReviewMapping> customProductReviewMappingRepository)
+        public CustomProductReviewMappingService(IRepository<CustomProductReviewMapping> customProductReviewMappingRepository, IStaticCacheManager staticCacheManager)
         {
             _customProductReviewMappingRepository = customProductReviewMappingRepository;
+            _staticCacheManager = staticCacheManager;
         }
 
         #endregion
@@ -144,7 +148,7 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Services
         /// </returns>
         public virtual async Task<CustomProductReviewMapping> GetCustomProductReviewMappingByIdAsync(int customProductReviewMappingId)
         {
-            return await _customProductReviewMappingRepository.GetByIdAsync(customProductReviewMappingId, cache => default);
+            return await _customProductReviewMappingRepository.GetByIdAsync(customProductReviewMappingId, cache => default,useShortTermCache:true);
         }
 
 
@@ -164,11 +168,21 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Services
             if (productReviewId == 0)
                 return new  List<CustomProductReviewMapping>();
 
+
+          
+
+            var key = _staticCacheManager.PrepareKeyForDefaultCache(CustomProductReviewMappingByPictureIdCacheKey, productReviewId);
+
+
             var query = from p in _customProductReviewMappingRepository.Table
+
                 where p.ProductReviewId == productReviewId
                 select p;
 
-            var mappings = await query.ToListAsync();
+            var mappings = await _staticCacheManager.GetAsync(key, async () => await query.ToListAsync());
+
+
+
 
             return mappings;
         }
