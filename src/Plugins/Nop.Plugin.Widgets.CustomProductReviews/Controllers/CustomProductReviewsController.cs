@@ -46,8 +46,13 @@ using SixLabors.ImageSharp.Formats.Webp;
 using SixLabors.ImageSharp.Processing;
 
 using System.Runtime.InteropServices;
+using DocumentFormat.OpenXml.Drawing;
 using Nop.Web.Models.Catalog;
 using Nop.Web.Framework.Mvc.Routing;
+using Nop.Plugin.Widgets.CustomProductReviews.Components;
+using DocumentFormat.OpenXml.Presentation;
+using MimeDetective;
+using Picture = Nop.Core.Domain.Media.Picture;
 
 namespace Nop.Plugin.Widgets.CustomProductReviews.Controllers
 {
@@ -150,6 +155,29 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Controllers
         //    return View("~/Plugins/Pickup.PickupInStore/Views/Configure.cshtml", model);
         //}
 
+        public static bool IsValidFileType(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+                return false;
+
+            var inspector = new ContentInspectorBuilder()
+            {
+                Definitions = MimeDetective.Definitions.DefaultDefinitions.All()
+            }.Build();
+
+
+            using (var fileStream = file.OpenReadStream())
+            {
+                var result = inspector.Inspect(fileStream);
+                var mimeType = result.ByMimeType().FirstOrDefault()?.MimeType;
+
+                if (mimeType == null)
+                    return false;
+
+                // Sadece resim ve video türlerini kabul et
+                return mimeType.StartsWith("image/") || mimeType.StartsWith("video/");
+            }
+        }
 
         //[FormValueRequired("add-review")]
         [HttpPost]
@@ -158,7 +186,31 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Controllers
         [RequestSizeLimit(1048576000)]
         public virtual async Task<IActionResult> ProductReviewsAdd(int productId, ProductReviewsModel model, bool captchaValid, List<IFormFile> photos)
         {
+            bool fileIsValid = true;
+            if (photos.Count>0)
+            {
+              
+                foreach (var file in photos)
+                {
+                    fileIsValid= IsValidFileType(file);
+                    if (!fileIsValid)
+                    {
+                        break;
+                    }
+                }
+              
+            }
 
+            if (!fileIsValid)
+            {
+                return Json(new
+                {
+                    Success = false,
+                    Message ="File Format Is Not Supported For Upload",
+                    IsBackgroundProcess = false // Hata durumunda arka plan işlemi yok
+                });
+            }
+           
             var product = await _productService.GetProductByIdAsync(productId);
             var currentStore = await _storeContext.GetCurrentStoreAsync();
 
@@ -167,7 +219,7 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Controllers
                     _catalogSettings.ShowProductReviewsPerStore ? currentStore.Id : 0))
                 return RedirectToRoute("Homepage");
 
-            //validate CAPTCHA
+            // CAPTCHA kontrolü
             if (_captchaSettings.Enabled && _captchaSettings.ShowOnProductReviewPage && !captchaValid)
             {
                 ModelState.AddModelError("", await _localizationService.GetResourceAsync("Common.WrongCaptchaMessage"));
@@ -177,10 +229,11 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Controllers
 
             if (ModelState.IsValid)
             {
-                //save review
+                // Yorumu kaydet
                 var rating = model.AddProductReview.Rating;
                 if (rating < 1 || rating > 5)
                     rating = _catalogSettings.DefaultProductRatingValue;
+
                 var isApproved = !_catalogSettings.ProductReviewsMustBeApproved;
                 var customer = await _workContext.GetCurrentCustomerAsync();
 
@@ -197,131 +250,167 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Controllers
                     CreatedOnUtc = DateTime.UtcNow,
                     StoreId = currentStore.Id,
                 };
+
                 await _productService.InsertProductReviewAsync(productReview).ConfigureAwait(false);
                 var reviewId = productReview.Id;
 
-
-
-
-                //add product review and review type mapping                
+                // Ek yorum türlerini kaydet
                 foreach (var additionalReview in model.AddAdditionalProductReviewList)
                 {
-                    var additionalProductReview = new ProductReviewReviewTypeMapping { ProductReviewId = productReview.Id, ReviewTypeId = additionalReview.ReviewTypeId, Rating = additionalReview.Rating };
+                    var additionalProductReview = new ProductReviewReviewTypeMapping
+                    {
+                        ProductReviewId = productReview.Id,
+                        ReviewTypeId = additionalReview.ReviewTypeId,
+                        Rating = additionalReview.Rating
+                    };
 
                     await _reviewTypeService.InsertProductReviewReviewTypeMappingsAsync(additionalProductReview).ConfigureAwait(false);
                 }
 
-                //update product totals
+                // Ürün toplamlarını güncelle
                 await _productService.UpdateProductReviewTotalsAsync(product);
 
-                //notify store owner
+                // Mağaza sahibini bilgilendir
                 if (_catalogSettings.NotifyStoreOwnerAboutNewProductReviews)
                     await _workflowMessageService.SendProductReviewStoreOwnerNotificationMessageAsync(productReview,
                         _localizationSettings.DefaultAdminLanguageId);
 
-                //activity log
+                // Aktivite logu
                 await _customerActivityService.InsertActivityAsync("PublicStore.AddProductReview",
                     string.Format(
                         await _localizationService.GetResourceAsync("ActivityLog.PublicStore.AddProductReview"),
                         product.Name), product);
 
-                //raise event
+                // Event'i tetikle
                 if (productReview.IsApproved)
                     await _eventPublisher.PublishAsync(new ProductReviewApprovedEvent(productReview));
 
                 model = await _productModelFactory.PrepareProductReviewsModelAsync(product);
                 model.AddProductReview.Title = null;
                 model.AddProductReview.ReviewText = null;
-
-                // model.AddProductReview.SuccessfullyAdded = true;
-
-                #region Product Review Media Upload Section
-
+                
+                var processResult = true;
+                // Medya yükleme işlemleri
                 try
                 {
+                    List<UploadDataBinary> dataList = new List<UploadDataBinary>();
 
-
-                //pictures
-                List<UploadDataBinary> dataList = new List<UploadDataBinary>();
-
-
-                foreach (var photo in photos)
-                {
-                    var uploadData = new UploadDataBinary();
-
-                    uploadData.Extentions = photo.ContentType;
-                        
-                  
-                    using (var ms = new MemoryStream())
+                    foreach (var photo in photos)
                     {
-                        await photo.CopyToAsync(ms);
-                        uploadData.BinaryData = ms.ToArray();
-                        dataList.Add(uploadData);
+                        var uploadData = new UploadDataBinary
+                        {
+                            Extentions = photo.ContentType
+                        };
+
+                        using (var ms = new MemoryStream())
+                        {
+                            await photo.CopyToAsync(ms);
+                            uploadData.BinaryData = ms.ToArray();
+                            dataList.Add(uploadData);
+                        }
                     }
-                        
-                        
-                    //string fileName = "tempUpload"+DateTime.UtcNow.ToFileTime() + fileInfo.Extension;
 
-
-                   
-                }
-
-                foreach (var data in dataList)
-                {
-                   _queue.QueueTask(async token =>
+                  
+                    foreach (var data in dataList)
                     {
-                       await InsertReviewMedia(model, data, reviewId).ConfigureAwait(false);
-                    });
-                }
+                        _queue.QueueTask(async token =>
+                        {
+                            processResult =  await InsertReviewMedia(model, data, reviewId);
+                          if (!processResult)
+                            {
+                                var mapping = await _customProductReviewMappingService.GetCustomProductReviewMappingByProductReviewIdAsync(
+                                    reviewId);
+                                foreach (var map in mapping)
+                                {
+                                    if (map.ProductReviewVideoId!=null)
+                                    {
+                                        var vid =await _videoService.GetVideoByIdAsync(map.ProductReviewVideoId.Value);
+                                        await _videoService.DeleteVideoAsync(vid);
+                                    }
+                                    else if (map.PictureId!=null)
+                                    {
+                                        var pic= await _pictureService.GetPictureByIdAsync(map.PictureId.Value);
+                                        await _pictureService.DeletePictureAsync(pic);
+                                      
+                                    }
 
+                                   
+
+                                }
+                            }
+
+                        });
+                       
+                      
+                    }
                 }
                 catch (Exception e)
                 {
                     Console.WriteLine(e);
+                    // Genel hata durumu
+                    return Json(new
+                    {
+                        Success = false,
+                        Message = e.Message,
+                        IsBackgroundProcess = false // Hata durumunda arka plan işlemi yok
+                    });
+                }
+
+                if (processResult)
+                {
                     
                 }
-                #endregion
-
-                //  if (_catalogSettings.ProductReviewsMustBeApproved)
-                // {
-                //     productReviewModel.ApprovalStatus = review.IsApproved
-                //         ? await _localizationService.GetResourceAsync("Account.CustomerProductReviews.ApprovalStatus.Approved")
-                //         : await _localizationService.GetResourceAsync("Account.CustomerProductReviews.ApprovalStatus.Pending");
-                // }
+                else
+                {
+                    return Json(new
+                    {
+                        Success = false,
+                        Message = "Upload File Format Error",
+                        IsBackgroundProcess = false // Hata durumunda arka plan işlemi yok
+                    });
+                }
+                // Başarılı mesajı göster
                 if (!isApproved)
                     _notificationService.SuccessNotification(await _localizationService.GetResourceAsync("Reviews.SeeAfterApproving") + Environment.NewLine +
-                        " Your uploaded media(photo or video ) will continue to be processed in the background." + Environment.NewLine +
+                        " Your uploaded media (photo or video) will continue to be processed in the background." + Environment.NewLine +
                         " After processing, the media will be automatically added to your review.");
-
                 else
                     _notificationService.SuccessNotification(
                         await _localizationService.GetResourceAsync("Reviews.SuccessfullyAdded") + Environment.NewLine +
-                        " Your uploaded media(photo or video ) will continue to be processed in the background." + Environment.NewLine +
+                        " Your uploaded media (photo or video) will continue to be processed in the background." + Environment.NewLine +
                         " After processing, the media will be automatically added to your review.");
 
-                 return Json(model);
-                //var seName = await _urlRecordService.GetSeNameAsync(product);
-                //var productUrl = await _nopUrlHelper.RouteGenericUrlAsync<Product>(new { SeName = seName });
-                //return LocalRedirect(productUrl);
+                var message = isApproved
+                    ? await _localizationService.GetResourceAsync("Reviews.SuccessfullyAdded")
+                    : await _localizationService.GetResourceAsync("Reviews.SeeAfterApproving");
 
+                return Json(new
+                {
+                    Success = true,
+                    Message = message + Environment.NewLine +
+                              "Your uploaded media (photo or video) will continue to be processed in the background." + Environment.NewLine +
+                              "After processing, the media will be automatically added to your review.",
+                    IsBackgroundProcess = true // Başarılı durumda arka plan işlemi var
+                });
             }
-            //if we got this far, something failed, redisplay form
-            model = await _productModelFactory.PrepareProductReviewsModelAsync( product);
-            return Json(model);
 
-            //If we got this far, something failed, redisplay form
-            //RouteData.Values["action"] = "ProductDetails";
-
-            ////model
-            //var productModel = await _productModelFactory.PrepareProductDetailsModelAsync(product);
-            ////template
-            //var productTemplateViewPath = await _productModelFactory.PrepareProductTemplateViewPathAsync(product);
-
-            //return View(productTemplateViewPath, productModel);
+            // Hata durumunda formu yeniden göster
+            model = await _productModelFactory.PrepareProductReviewsModelAsync(product);
+            return Json(new
+            {
+                Success = false,
+                Message = "General Error",
+                IsBackgroundProcess = false // Hata durumunda arka plan işlemi yok
+            });
         }
-    
 
-    public async Task<string> InsertReviewMedia(ProductReviewsModel model, UploadDataBinary data, int reviewId)
+        public async Task<IActionResult> GetProductReviews(int productId)
+        {
+            var product = await _productService.GetProductByIdAsync(productId);
+            var model = await _productModelFactory.PrepareProductReviewsModelAsync(product);
+            return PartialView("_ProductReviews", model);
+        }
+        public async Task<bool> InsertReviewMedia(ProductReviewsModel model, UploadDataBinary data, int reviewId)
         {
             var product = await _productService.GetProductByIdAsync(model.ProductId);
             var seName = await _urlRecordService.GetSeNameAsync(product);
@@ -354,6 +443,7 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Controllers
                 catch (Exception e)
                 {
                    await System.IO.File.AppendAllTextAsync(@"customProductReview.log", e.Message + Environment.NewLine);
+                   return false;
                 }
             }
             else if (data.Extentions.Contains("video"))
@@ -365,7 +455,12 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Controllers
                 catch (Exception e)
                 {
                     await System.IO.File.AppendAllTextAsync(@"customProductReview.log", e.InnerException + Environment.NewLine);
+                    return false;
                 }
+            }
+            else
+            {
+                return false;
             }
 
             int? lastPicId = pic.Id;
@@ -373,6 +468,7 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Controllers
             if (lastPicId == 0)
             {
                 lastPicId = null;
+
             }
 
             if (lastVidId == 0)
@@ -385,8 +481,12 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Controllers
                 await _customProductReviewMappingService.InsertCustomProductReviewMappingAsync(reviewId, lastPicId, lastVidId).ConfigureAwait(false);
                 
             }
+            else
+            {
+                return false;
+            }
 
-            return "done";
+            return true;
         }
 
 

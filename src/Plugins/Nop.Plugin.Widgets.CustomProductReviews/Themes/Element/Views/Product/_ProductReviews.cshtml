@@ -251,8 +251,105 @@
     </div>
 </div>
 <script asp-location="Footer">
+    var uploadButton = document.getElementById('add-review');
 
-       $(document).ready(function () {
+    $('#review-form').submit(function (e) {
+        var form = $(this);
+        e.preventDefault();
+        uploadButton.value = 'Submitting...';
+        e.stopImmediatePropagation();
+        //if (!form.valid()) return false;
+        if (!readURLFileUpload()) return false;
+        var formData = new FormData(form[0]);
+        formData.append("productId", @Model.ProductId);
+        var t = $("input[name='__RequestVerificationToken']").val();
+        $(".form-message").html("");
+        $.ajax({
+            url: '@Url.Action("ProductReviewsAdd", "CustomProductReviews")',
+            type: 'POST',
+            headers:
+            {
+                "RequestVerificationToken": t
+            },
+            data: formData,
+            contentType: false,
+            processData: false,
+            beforeSend: function(){
+                document.getElementById("ajax-loader").style.display = "";
+
+
+            },
+            success: function (data) {
+               
+                var strmsg = "";
+                uploadButton.value = "@T("Reviews.SubmitButton")";
+                if (data.AddProductReview.Result.length > 0) {
+                    strmsg += "<ul>";
+                    strmsg += "<li>" + data.AddProductReview.Result + "</li>";
+                    strmsg += "</ul>";
+                    if (!data.AddProductReview.SuccessfullyAdded) {
+                        $("#message-error-review-form").html(strmsg);
+                    }
+                    else {
+                      
+                        $("#message-success-review-form").html(strmsg);
+                        $("#review-form .review-form-body").css("display", "none");
+                        document.getElementById("review-form").reset();
+                    }
+                    if (typeof grecaptcha != "undefined") {
+                        grecaptcha.reset();
+                    }
+                    $('html, body').animate({ scrollTop: $("#review-form").offset().top }, 'slow');
+
+
+                    return false;
+                }
+               
+            },
+            error: function (xhr, resp, text) {
+                console.log(xhr, resp, text);
+            },
+            complete: function () {
+                document.getElementById("ajax-loader").style.display = "none";
+                uploadButton.value = "@T("Reviews.SubmitButton")";
+
+            },
+            xhr:function()
+            {
+            var filexhr=$.ajaxSettings.xhr();
+                if(filexhr.upload)
+                {
+                    filexhr.upload.addEventListener("progress",function(e){
+                        if(e.lengthComputable)
+                        {                           
+                            var progressval = parseInt(((e.loaded)/(e.total))*100);
+                            var elm = document.getElementsByClassName('progressab')[0];
+                            elm.style.width = progressval+"%";
+                            
+                            elm.innerText =+progressval;
+                            if(progressval>90 && progressval<=100 )
+                            {  
+                                elm.style.backgroundColor = 'blue';                            
+                            }
+                            else if(progressval>50 && progressval<90 )
+                            { 
+                                elm.style.backgroundColor = 'green';
+                            }
+                            else if(progressval<=50)
+                            { 
+                                elm.style.backgroundColor = 'red';
+                            }
+                        }
+                    },false);
+
+                }
+                return filexhr;
+            }
+        });
+        return false;
+    });
+
+    $(document).ready(function () {
         $('.product-review-links a,.product-no-reviews a').on('click', function (e) {
             e.preventDefault();
             $('html, body').animate({
@@ -261,110 +358,12 @@
         });
     });
 
-    var uploadButton = document.getElementById('add-review');
-
-    $('#review-form').submit(function (e) {
-        var form = $(this);
-        e.preventDefault();
-        uploadButton.value = 'Submitting...';
-        e.stopImmediatePropagation();
-
-        // Dosya yükleme kontrolü
-        if (!readURLFileUpload()) {
-            uploadButton.value = "@T("Reviews.SubmitButton")";
-            return false;
-        }
-
-        var formData = new FormData(form[0]);
-        formData.append("productId", @Model.ProductId);
-        var t = $("input[name='__RequestVerificationToken']").val();
-        $(".form-message").html("");
-
-        $.ajax({
-            url: '@Url.Action("ProductReviewsAdd", "CustomProductReviews")',
-            type: 'POST',
-            headers: {
-                "RequestVerificationToken": t
-            },
-            data: formData,
-            contentType: false,
-            processData: false,
-            beforeSend: function() {
-                document.getElementById("ajax-loader").style.display = "";
-            },
-            success: function (data) {
-                var strmsg = "";
-                uploadButton.value = "@T("Reviews.SubmitButton")";
-                
-                if (data.Message.length > 0) {
-                    strmsg += "<ul>";
-                    strmsg += "<li>" + data.Message  + "</li>";
-                    strmsg += "</ul>";
-
-            if (!data.Success) {
-                $("#message-error-review-form").html(strmsg);
-            } else {
-                $("#message-success-review-form").html(strmsg);
-                $("#review-form .review-form-body").css("display", "none");
-                document.getElementById("review-form").reset();
-
-                // Yorum listesini güncelle
-                $.get('@Url.Action("GetProductReviews", "CustomProductReviews")', { productId: @Model.ProductId }, function (html) {
-                    $("#product-review-list").html(html);
-                });
-            }
-
-            if (typeof grecaptcha != "undefined") {
-                grecaptcha.reset();
-            }
-
-            $('html, body').animate({ scrollTop: $("#review-form").offset().top }, 'slow');
-        }
-    },
-            error: function (xhr, resp, text) {
-                console.log(xhr, resp, text);
-                $("#message-error-review-form").html("An error occurred while submitting the review. Please try again.");
-            },
-            complete: function () {
-                document.getElementById("ajax-loader").style.display = "none";
-                uploadButton.value = "@T("Reviews.SubmitButton")";
-                var elm = document.getElementsByClassName('progressab')[0];
-                elm.style.width = "0%"; // Progress bar'ı sıfırla
-                elm.innerText = "";
-            },
-            xhr: function() {
-                var filexhr = $.ajaxSettings.xhr();
-                if (filexhr.upload) {
-                    filexhr.upload.addEventListener("progress", function(e) {
-                        if (e.lengthComputable) {
-                            var progressval = parseInt(((e.loaded) / (e.total)) * 100);
-                            var elm = document.getElementsByClassName('progressab')[0];
-                            elm.style.width = progressval + "%";
-                            elm.innerText = progressval;
-
-                            if (progressval > 90 && progressval <= 100) {
-                                elm.style.backgroundColor = 'blue';
-                            } else if (progressval > 50 && progressval < 90) {
-                                elm.style.backgroundColor = 'green';
-                            } else if (progressval <= 50) {
-                                elm.style.backgroundColor = 'red';
-                            }
-                        }
-                    }, false);
-                }
-                return filexhr;
-            }
-        });
-        return false;
-    });
-
     function readURLFileUpload() {
         var fileSelect = document.getElementById('photos'),
             supportedFileFormat = '.jpg,.jpeg,.png,.mp4,.mov,.webp,.webm',
-            files = fileSelect.files;
-
-        if (files.length > @setting.MaximumFile) {
-            alert('File upload exceeds the allowed size. Your file sizes: ' + files.length + ' files / Maximum file size: ' + @setting.MaximumFile + ' files');
+            files = fileSelect.files;if (files.length > @setting.MaximumFile) {
+                alert('File upload exceeds the allowed size Your file sizes:' + myfile.size+'bytes / Maximum file size:'+@setting.MaximumSize+'bytes' );
+            //alert('@T("Nop.Plugin.Widgets.CustomProductReviews.MaximumUploadedFile")');
             $("#photos").val("");
             return false;
         }
@@ -375,13 +374,16 @@
                 type = value.substr(value.lastIndexOf(".")).toString();
 
             if (supportedFileFormat.indexOf(type) == -1) {
-                alert('File is not properly formatted. Supported formats: ' + supportedFileFormat);
+                //alert('@T("Nop.Plugin.Widgets.CustomProductReviews.AllowedExtension")');
+                alert('File is not properly formatted');
+
                 $("#photos").val("");
                 return false;
             }
 
             if (myfile.size > @setting.MaximumSize) {
-                alert('File upload exceeds the allowed size. Your file size: ' + myfile.size + ' bytes / Maximum file size: ' + @setting.MaximumSize + ' bytes');
+                alert('File upload exceeds the allowed size Your file sizes:' + myfile.size+'bytes / Maximum file size:'+@setting.MaximumSize+'bytes' );
+                //alert('@T("Nop.Plugin.Widgets.CustomProductReviews.MaximumUploadedFileSize")');
                 $("#photos").val("");
                 return false;
             }
