@@ -47,7 +47,8 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Services
     public class BackgroundQueue : IBackgroundQueue
     {
         private ConcurrentQueue<Func<CancellationToken, Task>> Tasks;
-        private SemaphoreSlim Signal;
+     
+        private readonly SemaphoreSlim Signal = new SemaphoreSlim(5); // Aynı anda en fazla 5 işlem
         public BackgroundQueue()
         {
             Tasks =new ConcurrentQueue<Func<CancellationToken, Task>>();

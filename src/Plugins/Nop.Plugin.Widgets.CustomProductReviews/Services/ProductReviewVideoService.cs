@@ -33,10 +33,8 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Services
     {
         #region Fields
 
-        private readonly IDownloadService _downloadService;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly INopFileProvider _fileProvider;
-        private readonly IProductAttributeParser _productAttributeParser;
         private readonly IRepository<ProductReviewVideo> _videoRepository;
         private readonly IRepository<ProductReviewVideoBinary> _videoBinaryRepository;
         //private readonly IRepository<ProductVideo> _productVideoRepository;
@@ -49,10 +47,8 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Services
 
         #region Ctor
 
-        public ProductReviewVideoService(IDownloadService downloadService,
-            IHttpContextAccessor httpContextAccessor,
+        public ProductReviewVideoService(IHttpContextAccessor httpContextAccessor,
             INopFileProvider fileProvider,
-            IProductAttributeParser productAttributeParser,
             IRepository<ProductReviewVideo> videoRepository,
             IRepository<ProductReviewVideoBinary> videoBinaryRepository,
             //IRepository<ProductVideo> productVideoRepository,
@@ -61,10 +57,8 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Services
             IWebHelper webHelper,
             MediaSettings mediaSettings)
         {
-            _downloadService = downloadService;
             _httpContextAccessor = httpContextAccessor;
             _fileProvider = fileProvider;
-            _productAttributeParser = productAttributeParser;
             _videoRepository = videoRepository;
             _videoBinaryRepository = videoBinaryRepository;
             //_productVideoRepository = productVideoRepository;
@@ -244,8 +238,9 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Services
                 throw new ArgumentNullException(nameof(video));
 
             var result = fromDb
-                ? (await GetVideoBinaryByVideoIdAsync(video.Id))?.BinaryData ?? Array.Empty<byte>()
-                : await LoadVideoFromFileAsync(video.Id, video.MimeType);
+                ? (await GetVideoBinaryByVideoIdAsync(video.Id).ConfigureAwait(false))?.BinaryData ?? Array.Empty<byte>()
+                : await LoadVideoFromFileAsync(video.Id, video.MimeType).ConfigureAwait(false);
+            ;
 
             return result;
         }
@@ -465,7 +460,7 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Services
         /// </returns>
         public virtual async Task<byte[]> LoadVideoBinaryAsync(ProductReviewVideo video)
         {
-            return await LoadVideoBinaryAsync(video, await IsStoreInDbAsync());
+            return await LoadVideoBinaryAsync(video, await IsStoreInDbAsync()).ConfigureAwait(false);
         }
 
         /// <summary>
