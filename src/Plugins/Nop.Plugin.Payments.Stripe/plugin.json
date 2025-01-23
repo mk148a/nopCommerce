@@ -3,7 +3,7 @@
   "FriendlyName": "Credit Card",
   "SystemName": "Payments.Stripe",
   "Version": "1.22",
-  "SupportedVersions": [ "4.80" ],
+  "SupportedVersions": [ "4.50" ],
   "Author": "Genius Software",
   "DisplayOrder": 1,
   "FileName": "Nop.Plugin.Payments.Stripe.dll",
