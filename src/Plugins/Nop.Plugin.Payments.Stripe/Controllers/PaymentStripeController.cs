@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Nop.Core;
 using Nop.Plugin.Payments.Stripe.Models;
@@ -11,6 +12,7 @@ using Nop.Services.Security;
 using Nop.Web.Framework;
 using Nop.Web.Framework.Controllers;
 using Nop.Web.Framework.Mvc.Filters;
+using Stripe;
 
 namespace Nop.Plugin.Payments.Stripe.Controllers
 {
@@ -28,6 +30,7 @@ namespace Nop.Plugin.Payments.Stripe.Controllers
         private readonly IStoreContext _storeContext;
         private readonly IOrderService _orderService;
         private readonly IWorkContext _workContext;
+        private readonly StripePaymentSettings _stripePaymentSettings;
 
         #endregion
 
@@ -39,7 +42,8 @@ namespace Nop.Plugin.Payments.Stripe.Controllers
             ISettingService settingService,
             IStoreContext storeContext,
             IOrderService orderService,
-            IWorkContext workContext)
+            IWorkContext workContext,
+            StripePaymentSettings stripePaymentSettings)
         {
             _localizationService = localizationService;
             _notificationService = notificationService;
@@ -48,6 +52,7 @@ namespace Nop.Plugin.Payments.Stripe.Controllers
             _storeContext = storeContext;
             _orderService = orderService;
             _workContext = workContext;
+            _stripePaymentSettings= stripePaymentSettings;
         }
 
         #endregion
@@ -128,6 +133,51 @@ namespace Nop.Plugin.Payments.Stripe.Controllers
                 return RedirectToRoute("OrderDetails", new { orderId = order.Id });
 
             return RedirectToRoute("Homepage");
+        }
+        /// <summary>
+        /// Set up for a call to the Stripe API
+        /// </summary>
+        /// <returns></returns>
+        private RequestOptions GetStripeApiRequestOptions()
+        {
+            return new RequestOptions
+            {
+                ApiKey = _stripePaymentSettings.SecretKey,
+                IdempotencyKey = Guid.NewGuid().ToString()
+            };
+        }
+        // Controllers/PaymentStripeController.cs
+        [AllowAnonymous]
+        public async Task<IActionResult> CheckPaymentStatus(string paymentIntentId)
+        {
+            try
+            {
+                var service = new PaymentIntentService();
+
+                var paymentIntent = await service.GetAsync(paymentIntentId, null, GetStripeApiRequestOptions());
+
+                return Json(new
+                {
+                    success = true,
+                    status = paymentIntent.Status,
+                    message =await GetStatusMessage(paymentIntent.Status)
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        private async Task<string> GetStatusMessage(string status)
+        {
+            return status switch
+            {
+                "requires_action" => await _localizationService.GetResourceAsync("Plugins.Payments.Stripe.StatusRequiresAction"),
+                "requires_confirmation" => await _localizationService.GetResourceAsync("Plugins.Payments.Stripe.StatusRequiresConfirmation"),
+                "processing" => await _localizationService.GetResourceAsync("Plugins.Payments.Stripe.StatusProcessing"),
+                _ => await _localizationService.GetResourceAsync("Plugins.Payments.Stripe.StatusUnknown")
+            };
         }
 
         #endregion

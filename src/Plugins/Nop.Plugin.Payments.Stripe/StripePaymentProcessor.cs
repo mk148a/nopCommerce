@@ -41,6 +41,9 @@ using Nop.Core.Domain.Catalog;
 using DocumentFormat.OpenXml.Spreadsheet;
 using CustomerService = Stripe.CustomerService;
 using Nop.Plugin.Payments.Stripe.Components;
+using Nop.Core.Domain.Messages;
+using Nop.Services.Messages;
+using Token = Stripe.Token;
 
 namespace Nop.Plugin.Payments.Stripe
 {
@@ -78,8 +81,13 @@ namespace Nop.Plugin.Payments.Stripe
         private readonly ICountryService _countryService;
         private readonly IStateProvinceService _iStateProvinceService;
         private readonly IPaymentStripeService _paymentStripeService;
-
-
+        private readonly ICustomerService _customerService;
+        protected readonly IStoreContext _storeContext;
+        private readonly IMessageTokenProvider _messageTokenProvider;
+        private readonly IQueuedEmailService _queuedEmailService;
+        private readonly IEmailAccountService _emailAccountService;
+        private readonly EmailAccountSettings _emailAccountSettings;
+        protected readonly ITokenizer _tokenizer;
 
         #endregion
 
@@ -108,7 +116,14 @@ namespace Nop.Plugin.Payments.Stripe
             IScheduleTaskService scheduleTaskService,
             IOrderService orderService,
             ILanguageService languageService,
-            IPaymentStripeService paymentStripeService
+            IPaymentStripeService paymentStripeService,
+            IStoreContext storeContext,
+            IMessageTokenProvider messageTokenProvider,
+            IQueuedEmailService queuedEmailService,
+            IEmailAccountService emailAccountService,
+            EmailAccountSettings emailAccountSettings,
+            ITokenizer tokenizer
+
             )
         {
             _localizationService = localizationService;
@@ -132,6 +147,13 @@ namespace Nop.Plugin.Payments.Stripe
             _orderService = orderService;
             _languageService = languageService;
             _paymentStripeService = paymentStripeService;
+            _customerService = customerService;
+            _storeContext = storeContext;
+            _messageTokenProvider = messageTokenProvider;
+            _queuedEmailService = queuedEmailService;
+            _emailAccountService = emailAccountService;
+            _emailAccountSettings= emailAccountSettings;
+            _tokenizer= tokenizer;
 
 
 
@@ -247,8 +269,9 @@ namespace Nop.Plugin.Payments.Stripe
                {
                    // Hata durumunu logla ve kullanıcıya anlamlı mesaj göster
                    await _logger.ErrorAsync($"PaymentAttach oluşturulurken hata: ID={attachResult.Id}, Status={attachResult.StripeResponse.StatusCode}, Error={attachResult.StripeResponse?.Content}");
+               
 
-                  
+
 
                     string errorMessage = attachResult.StripeResponse.Content;
                    
@@ -408,11 +431,13 @@ namespace Nop.Plugin.Payments.Stripe
             {
                 // Stripe spesifik hataları logla ve kullanıcıya anlamlı mesaj döndür
                 await _logger.ErrorAsync($"StripeException: {ex.Message}, StripeResponse: {ex.StripeResponse?.Content}");
-
+              
                 // Sipariş durumunu Cancelled olarak güncelle
                 var order = await _orderService.GetOrderByGuidAsync(processPaymentRequest.OrderGuid);
                 if (order != null)
                 {
+                    await LogPaymentError(order, ex, "ProcesPayment");
+
                     order.OrderStatus = OrderStatus.Cancelled;
                     await _orderService.UpdateOrderAsync(order);
                 }
@@ -447,8 +472,11 @@ namespace Nop.Plugin.Payments.Stripe
 
                 // Sipariş durumunu Cancelled olarak güncelle
                 var order = await _orderService.GetOrderByGuidAsync(processPaymentRequest.OrderGuid);
+
                 if (order != null)
                 {
+                    await LogPaymentError(order, ex, "ProcesPayment");
+
                     order.OrderStatus = OrderStatus.Cancelled;
                     await _orderService.UpdateOrderAsync(order);
                 }
@@ -584,6 +612,8 @@ namespace Nop.Plugin.Payments.Stripe
                 var order = await _orderService.GetOrderByGuidAsync(postProcessPaymentRequest.Order.OrderGuid);
                 if (order != null)
                 {
+                    await LogPaymentError(order, ex, "PostProcesPayment");
+
                     order.OrderStatus = OrderStatus.Cancelled;
                     await _orderService.UpdateOrderAsync(order);
                 }
@@ -596,6 +626,7 @@ namespace Nop.Plugin.Payments.Stripe
                 var order = await _orderService.GetOrderByGuidAsync(postProcessPaymentRequest.Order.OrderGuid);
                 if (order != null)
                 {
+                    await LogPaymentError(order, ex, "PostProcesPayment");
                     order.OrderStatus = OrderStatus.Cancelled;
                     await _orderService.UpdateOrderAsync(order);
                 }
@@ -989,8 +1020,33 @@ namespace Nop.Plugin.Payments.Stripe
 
                 }
             }
+            // StripePaymentProcessor.cs - InstallAsync içine ekle
+            await _localizationService.AddOrUpdateLocaleResourceAsync(new Dictionary<string, string>
+            {
+                ["Plugins.Payments.Stripe.ProcessingHeader"] = "Your payment is being processed",
+                ["Plugins.Payments.Stripe.ProcessingText"] = "Please wait while we process your payment...",
+                ["Plugins.Payments.Stripe.ProcessingNotification"] = "If there are any issues, we'll contact you via email",
+                ["Plugins.Payments.Stripe.StatusRequiresAction"] = "Additional verification required - please check your email",
+                ["Plugins.Payments.Stripe.StatusProcessing"] = "Payment is still processing - please wait",
+                ["Plugins.Payments.Stripe.StatusUnknown"] = "Payment status unknown - please contact support"
+            });
 
-
+            await _localizationService.AddOrUpdateLocaleResourceAsync(new Dictionary<string, string>
+            {
+                ["Plugins.Payments.Stripe.EmailTemplates.PaymentActionRequired.Subject"] = "Action Required: Complete Your Payment",
+                ["Plugins.Payments.Stripe.EmailTemplates.PaymentActionRequired.Body"] = @"
+        Dear {{Order.CustomerFullName}},
+        
+        We noticed that your payment for order #{{Order.OrderNumber}} requires additional verification.
+        Please follow the link below to complete your payment:
+        
+        {{Payment.Link}}
+        
+        If you have any questions, please contact us at {{Store.URL}}.
+        
+        Best regards,
+        {{Store.Name}} Team"
+            });
 
 
 
@@ -1022,7 +1078,7 @@ namespace Nop.Plugin.Payments.Stripe
                 languageInstalled = true;
             }
 
-            
+           
 
             if (languageInstalled == false)
             {
@@ -1088,6 +1144,195 @@ namespace Nop.Plugin.Payments.Stripe
             
             return typeof(PaymentStripeViewComponent);
 
+        }
+
+        // StripePaymentProcessor.cs
+        public async Task ConfirmPendingPaymentIntentAsync(Order order)
+        {
+            if (string.IsNullOrEmpty(order.AuthorizationTransactionId))
+                throw new NopException("No authorization transaction ID found");
+
+            var service = new PaymentIntentService();
+            var paymentIntent = await service.GetAsync(order.AuthorizationTransactionId, null, GetStripeApiRequestOptions());
+
+            switch (paymentIntent.Status)
+            {
+                case "requires_confirmation":
+                    await ConfirmPaymentIntent(paymentIntent, order);
+                    break;
+                case "requires_action":
+                    await HandleRequiresAction(paymentIntent, order);
+                    break;
+                case "succeeded":
+                    await UpdateOrderStatus(order, PaymentStatus.Paid, OrderStatus.Processing);
+                    break;
+                default:
+                    throw new NopException($"Unhandled payment status: {paymentIntent.Status}");
+            }
+        }
+        /// <summary>
+        /// Siparişe yeni bir not ekler.
+        /// </summary>
+        /// <param name="order">Sipariş</param>
+        /// <param name="note">Eklenecek not</param>
+        /// <param name="displayToCustomer">Müşteriye gösterilsin mi?</param>
+        /// <returns></returns>
+        private async Task CreateOrderNote(Order order, string note, bool displayToCustomer = true)
+        {
+            if (order == null)
+                throw new ArgumentNullException(nameof(order));
+
+            if (string.IsNullOrEmpty(note))
+                throw new ArgumentNullException(nameof(note));
+
+            // Yeni sipariş notu oluştur
+            var orderNote = new OrderNote
+            {
+                OrderId = order.Id,
+                Note = note,
+                DisplayToCustomer = displayToCustomer,
+                CreatedOnUtc = DateTime.UtcNow
+            };
+
+            // Sipariş notunu veritabanına ekle
+            await _orderService.InsertOrderNoteAsync(orderNote);
+
+            // Loglama yap
+            await _logger.InformationAsync($"[Stripe] Order note added for order {order.CustomOrderNumber}: {note}");
+        }
+        /// <summary>
+        /// Müşteriye e-posta gönderir.
+        /// </summary>
+        /// <param name="order">Sipariş</param>
+        /// <param name="messageTemplateName">E-posta şablonu adı</param>
+        /// <param name="tokens">E-posta içeriğinde kullanılacak token'lar</param>
+        /// <returns></returns>
+        /// <summary>
+        /// Müşteriye e-posta gönderir.
+        /// </summary>
+        /// <param name="order">Sipariş</param>
+        /// <param name="messageTemplateName">E-posta şablonu adı</param>
+        /// <param name="tokens">E-posta içeriğinde kullanılacak token'lar</param>
+        /// <returns></returns>
+        private async Task SendCustomerEmail(Order order, string messageTemplateName, IEnumerable<Token> tokens = null)
+        {
+            if (order == null)
+                throw new ArgumentNullException(nameof(order));
+
+            if (string.IsNullOrEmpty(messageTemplateName))
+                throw new ArgumentNullException(nameof(messageTemplateName));
+
+            // Müşteri bilgilerini al
+            var customer = await _customerService.GetCustomerByIdAsync(order.CustomerId);
+            if (customer == null)
+                throw new NopException($"Customer not found for order {order.CustomOrderNumber}");
+
+            // Dil ve mağaza bilgilerini al
+            var languageId = customer.LanguageId ?? (await _workContext.GetWorkingLanguageAsync()).Id;
+            var store = await _storeContext.GetCurrentStoreAsync();
+
+            // Token listesini hazırla (varsayılan token'ları ekle)
+            var defaultTokens = new List<Nop.Services.Messages.Token>
+    {
+        new ("Order.CustomerFullName", customer.FirstName+" "+customer.LastName),
+        new ("Order.CustomerEmail", customer.Email),
+        new ("Order.OrderNumber", order.CustomOrderNumber),
+        new ("Store.Name", store.Name),
+        new ("Store.URL", store.Url)
+    };
+
+           
+
+            // Sipariş token'larını ekle
+            await _messageTokenProvider.AddOrderTokensAsync(defaultTokens, order, languageId);
+
+            // E-posta şablonunu al
+            var subjectTemplate = await _localizationService.GetResourceAsync($"Plugins.Payments.Stripe.EmailTemplates.{messageTemplateName}.Subject", languageId);
+            var bodyTemplate = await _localizationService.GetResourceAsync($"Plugins.Payments.Stripe.EmailTemplates.{messageTemplateName}.Body", languageId);
+
+            // Token'ları şablona uygula
+            var subject = _tokenizer.Replace(subjectTemplate, defaultTokens, false);
+            var body = _tokenizer.Replace(bodyTemplate, defaultTokens, true);
+
+            // E-posta kuyruğuna ekle
+            var emailAccount = await _emailAccountService.GetEmailAccountByIdAsync(_emailAccountSettings.DefaultEmailAccountId);
+            var email = new QueuedEmail
+            {
+                Priority = QueuedEmailPriority.High,
+                From = emailAccount.Email,
+                FromName = emailAccount.DisplayName,
+                To = customer.Email,
+                Subject = subject,
+                Body = body,
+                CreatedOnUtc = DateTime.UtcNow,
+                EmailAccountId = emailAccount.Id
+            };
+
+            await _queuedEmailService.InsertQueuedEmailAsync(email);
+
+            // Loglama yap
+            await _logger.InformationAsync($"[Stripe] Email sent to customer {customer.Email} for order {order.CustomOrderNumber} using template {messageTemplateName}");
+        }
+
+        private async Task ConfirmPaymentIntent(PaymentIntent paymentIntent, Order order)
+        {
+            var service = new PaymentIntentService();
+            var confirmedIntent = await service.ConfirmAsync(paymentIntent.Id, null, GetStripeApiRequestOptions());
+
+            if (confirmedIntent.Status == "succeeded")
+            {
+                await UpdateOrderStatus(order, PaymentStatus.Paid, OrderStatus.Processing);
+                await CreateOrderNote(order, "Payment automatically confirmed by system");
+            }
+        }
+
+        private async Task HandleRequiresAction(PaymentIntent paymentIntent, Order order)
+        {
+            await CreateOrderNote(order, "Payment requires additional action. Customer should check their email for instructions.");
+            await SendCustomerEmail(order, "PaymentActionRequired");
+        }
+
+        private async Task UpdateOrderStatus(Order order, PaymentStatus paymentStatus, OrderStatus orderStatus)
+        {
+            order.PaymentStatus = paymentStatus;
+            order.OrderStatus = orderStatus;
+            await _orderService.UpdateOrderAsync(order);
+        }
+
+
+        // StripePaymentProcessor.cs içinde
+        private async Task LogPaymentError(Order order, Exception ex, string stage)
+        {
+            var errorMessage = $@"Stripe Payment Error:
+        Stage: {stage}
+        Order: {order.CustomOrderNumber}
+        Customer: {order.CustomerId}
+        Error: {ex.Message}
+        StackTrace: {ex.StackTrace}";
+
+            if (ex is StripeException stripeEx)
+            {
+                errorMessage += $"\nStripe Error: {stripeEx.StripeError?.Code} - {stripeEx.StripeError?.Message}";
+            }
+
+            await _logger.InsertLogAsync(LogLevel.Error, "Stripe Payment Error", errorMessage);
+            await SendAdminNotification($"Stripe Payment Error - {stage}", errorMessage);
+        }
+
+        private async Task SendAdminNotification(string subject, string message)
+        {
+            var store = await _storeContext.GetCurrentStoreAsync();
+            var emailAccount = await _emailAccountService.GetEmailAccountByIdAsync(_emailAccountSettings.DefaultEmailAccountId);
+
+            await _queuedEmailService.InsertQueuedEmailAsync(new QueuedEmail
+            {
+                Priority = QueuedEmailPriority.High,
+                From = emailAccount.Email,
+                To = emailAccount.Email,
+                Subject = subject,
+                Body = message,
+                CreatedOnUtc = DateTime.UtcNow
+            });
         }
 
         #endregion
