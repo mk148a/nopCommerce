@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Nop.Core;
 using Nop.Plugin.Payments.Stripe.Models;
-using Nop.Plugin.Payments.Stripe.Services;
 using Nop.Services.Configuration;
 using Nop.Services.Localization;
 using Nop.Services.Messages;
@@ -32,7 +31,6 @@ namespace Nop.Plugin.Payments.Stripe.Controllers
         private readonly IOrderService _orderService;
         private readonly IWorkContext _workContext;
         private readonly StripePaymentSettings _stripePaymentSettings;
-        private readonly IPaymentStatusService _paymentStatusService;
 
         #endregion
 
@@ -45,8 +43,7 @@ namespace Nop.Plugin.Payments.Stripe.Controllers
             IStoreContext storeContext,
             IOrderService orderService,
             IWorkContext workContext,
-            StripePaymentSettings stripePaymentSettings,
-            IPaymentStatusService paymentStatusService)
+            StripePaymentSettings stripePaymentSettings)
         {
             _localizationService = localizationService;
             _notificationService = notificationService;
@@ -56,7 +53,6 @@ namespace Nop.Plugin.Payments.Stripe.Controllers
             _orderService = orderService;
             _workContext = workContext;
             _stripePaymentSettings= stripePaymentSettings;
-            _paymentStatusService = paymentStatusService;
         }
 
         #endregion
@@ -151,27 +147,26 @@ namespace Nop.Plugin.Payments.Stripe.Controllers
             };
         }
         // Controllers/PaymentStripeController.cs
-        // Controllers/PaymentStripeController.cs
-        [HttpPost]
-        [IgnoreAntiforgeryToken]
-        [Route("Plugins/PaymentStripe/CheckStatus")]
-        public async Task<JsonResult> CheckPaymentStatus([FromBody] PaymentStatusRequest request)
+        [AllowAnonymous]
+        public async Task<IActionResult> CheckPaymentStatus(string paymentIntentId)
         {
-            var result = await _paymentStatusService.GetStatusAsync(request.PaymentIntentId);
-
-            if (result.Status == "succeeded")
+            try
             {
+                var service = new PaymentIntentService();
+
+                var paymentIntent = await service.GetAsync(paymentIntentId, null, GetStripeApiRequestOptions());
+
                 return Json(new
                 {
-                    redirectUrl = Url.Action("Details", "Order", new { orderId = result.OrderId })
+                    success = true,
+                    status = paymentIntent.Status,
+                    message =await GetStatusMessage(paymentIntent.Status)
                 });
             }
-
-            return Json(new
+            catch (Exception ex)
             {
-                errors = result.Errors,
-                status = result.Status
-            });
+                return Json(new { success = false, message = ex.Message });
+            }
         }
 
         private async Task<string> GetStatusMessage(string status)

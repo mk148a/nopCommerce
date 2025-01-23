@@ -168,7 +168,7 @@ namespace Nop.Plugin.Payments.Stripe
         /// Set up for a call to the Stripe API
         /// </summary>
         /// <returns></returns>
-        public RequestOptions GetStripeApiRequestOptions()
+        private RequestOptions GetStripeApiRequestOptions()
         {
             return new RequestOptions
             {
