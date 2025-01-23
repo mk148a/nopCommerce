@@ -46,28 +46,28 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Services
 
     public class BackgroundQueue : IBackgroundQueue
     {
-        private ConcurrentQueue<Func<CancellationToken, Task>> _tasks;
-
-        private readonly SemaphoreSlim _signal;
+        private ConcurrentQueue<Func<CancellationToken, Task>> Tasks;
+     
+        private readonly SemaphoreSlim Signal = new SemaphoreSlim(5); // Aynı anda en fazla 5 işlem
         public BackgroundQueue()
         {
-            _tasks = new ConcurrentQueue<Func<CancellationToken, Task>>();
-            _signal = new SemaphoreSlim(0);
+            Tasks =new ConcurrentQueue<Func<CancellationToken, Task>>();
+            Signal = new SemaphoreSlim(0);
         }
 
         public void QueueTask(Func<CancellationToken, Task> task)
         {
-            _tasks.Enqueue(task);
-            _signal.Release();
+            Tasks.Enqueue(task);
+            Signal.Release();
         }
 
         public async Task<Func<CancellationToken, Task>> PopQueue(CancellationToken cancellationToken)
         {
-            await _signal.WaitAsync(cancellationToken); // Token'ı ilet
-            _tasks.TryDequeue(out var task);
+            await Signal.WaitAsync(cancellationToken);
+            Tasks.TryDequeue(out var task);
+
             return task;
         }
-
 
     }
   

@@ -15,25 +15,13 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Services
         {
             _queue = queue;
         }
-        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+        protected async override Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            while (!stoppingToken.IsCancellationRequested) // İptal kontrolü ekle
+            while (stoppingToken.IsCancellationRequested==false)
             {
-                try
-                {
-                    var task = await _queue.PopQueue(stoppingToken);
-                    await task(stoppingToken);
-                }
-                catch (OperationCanceledException)
-                {
-                    // İptal edildiğinde sessizce çık
-                    break;
-                }
-                catch (Exception ex)
-                {
-                    // Loglama yap
-                    Console.WriteLine($"Error processing task: {ex}");
-                }
+                var task = await _queue.PopQueue(stoppingToken);
+
+                await task(stoppingToken);
             }
         }
     }
