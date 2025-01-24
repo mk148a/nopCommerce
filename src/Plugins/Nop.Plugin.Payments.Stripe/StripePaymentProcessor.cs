@@ -44,6 +44,7 @@ using Nop.Plugin.Payments.Stripe.Components;
 using Nop.Core.Domain.Messages;
 using Nop.Services.Messages;
 using Token = Stripe.Token;
+using Nop.Core.Domain.ScheduleTasks;
 
 namespace Nop.Plugin.Payments.Stripe
 {
@@ -1108,6 +1109,22 @@ namespace Nop.Plugin.Payments.Stripe
             }
 
 
+            // Zamanlanmış görevi oluştur veya güncelle
+            if (await _scheduleTaskService.GetTaskByTypeAsync("Nop.Plugin.Payments.Stripe.Services.StripePendingPaymentTask") is null)
+            {
+                var scheduleTask = new ScheduleTask
+                {
+                    Name = "Stripe Pending Payment Check",
+                    LastEnabledUtc = DateTime.UtcNow,
+                    Seconds = 300, // 5 dakikada bir çalışsın
+                    Type = "Nop.Plugin.Payments.Stripe.Services.StripePendingPaymentTask",
+                    Enabled = true,
+                    StopOnError = false
+                };
+                await _scheduleTaskService.InsertTaskAsync(scheduleTask);
+
+            }
+
             await base.InstallAsync();
         }
 
@@ -1117,6 +1134,10 @@ namespace Nop.Plugin.Payments.Stripe
         /// <returns>A task that represents the asynchronous operation</returns>
         public override async Task UninstallAsync()
         {
+            // Zamanlanmış görevi sil
+            var task = await _scheduleTaskService.GetTaskByTypeAsync("Nop.Plugin.Payments.Stripe.Services.StripePendingPaymentTask");
+            if (task != null)
+                await _scheduleTaskService.DeleteTaskAsync(task);
             //settings
             await _settingService.DeleteSettingAsync<StripePaymentSettings>();
 

@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Nop.Core.Infrastructure;
 using Nop.Plugin.Payments.Stripe.Services;
 using Nop.Services.ScheduleTasks;
+using Nop.Web.Areas.Admin.Factories;
 
 namespace Nop.Plugin.Payments.Stripe.Infrastructure
 {
@@ -21,6 +22,8 @@ namespace Nop.Plugin.Payments.Stripe.Infrastructure
             services.AddScoped<IPaymentStripeService, PaymentStripeService>();
             services.AddScoped<IScheduleTask, StripePendingPaymentTask>();
             services.AddHttpClient<StripePaymentProcessor>();
+            services.AddScoped<IOrderModelFactory, OrderModelFactory>();
+            services.AddScoped<StripePaymentProcessor>(); // Bu satırı ekleyin
         }
 
         public void Configure(IApplicationBuilder application)

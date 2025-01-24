@@ -13,8 +13,8 @@ using Nop.Web.Areas.Admin.Factories;
 using Stripe;
 using Nop.Web.Areas.Admin.Models.Orders;
 
-namespace Nop.Plugin.Payments.Stripe.Infrastructure;
-// Infrastructure/StripePendingPaymentTask.cs
+namespace Nop.Plugin.Payments.Stripe.Services;
+
 public class StripePendingPaymentTask : IScheduleTask
 {
     private readonly IOrderService _orderService;
@@ -28,7 +28,7 @@ public class StripePendingPaymentTask : IScheduleTask
         StripePaymentProcessor paymentProcessor,
         ILogger logger,
         IWorkContext workContext,
-        IStoreContext storeContext,IOrderModelFactory orderModelFactory)
+        IStoreContext storeContext, IOrderModelFactory orderModelFactory)
     {
         _orderService = orderService;
         _paymentProcessor = paymentProcessor;
@@ -41,7 +41,7 @@ public class StripePendingPaymentTask : IScheduleTask
     public async Task ExecuteAsync()
     {
         var store = await _storeContext.GetCurrentStoreAsync();
-        OrderSearchModel searchModel = new OrderSearchModel();
+        var searchModel = new OrderSearchModel();
 
         searchModel.OrderStatusIds.Add((int)OrderStatus.Pending);
 
@@ -49,16 +49,16 @@ public class StripePendingPaymentTask : IScheduleTask
         searchModel.PaymentStatusIds.Add((int)PaymentStatus.Pending);
         searchModel.PaymentMethodSystemName = "Payments.Stripe";
 
-            //prepare model
-            var pendingOrders = await _orderModelFactory.PrepareOrderListModelAsync(searchModel);
-          
+        //prepare model
+        var pendingOrders = await _orderModelFactory.PrepareOrderListModelAsync(searchModel);
+
 
         foreach (var orderModel in pendingOrders.Data)
         {
             var order = await _orderService.GetOrderByIdAsync(orderModel.Id);
             try
             {
-             
+
                 await _paymentProcessor.ConfirmPendingPaymentIntentAsync(order);
                 await _logger.InformationAsync($"[Stripe] Order {order.CustomOrderNumber} payment confirmed", customer: await _workContext.GetCurrentCustomerAsync());
             }
