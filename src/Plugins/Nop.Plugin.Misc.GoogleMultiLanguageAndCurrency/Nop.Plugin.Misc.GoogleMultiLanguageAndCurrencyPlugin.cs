@@ -18,6 +18,7 @@ using Nop.Core.Domain.Catalog;
 using System.Diagnostics.Tracing;
 using Nop.Web.Framework.Mvc.Routing;
 using Microsoft.AspNetCore.Routing;
+using Nop.Plugin.Misc.GoogleMultiLanguageAndCurrency.Components;
 
 namespace Nop.Plugin.Misc.GoogleMultiLanguageAndCurrency
 {
@@ -60,18 +61,17 @@ namespace Nop.Plugin.Misc.GoogleMultiLanguageAndCurrency
             await base.UninstallAsync();
         }
 
-        string IWidgetPlugin.GetWidgetViewComponentName(string widgetZone)
-        {
-            // Widget adınızı belirtin (örneğin, 'GoogleMultiLanguageAndCurrencyWidget')
-            return "GoogleMultiLanguageAndCurrencyWidget";
-        }
 
         async Task<IList<string>> IWidgetPlugin.GetWidgetZonesAsync()
         {
             return await Task.FromResult<IList<string>>(new List<string> { PublicWidgetZones.HeadHtmlTag });
         }
 
-     
+        public Type GetWidgetViewComponent(string widgetZone)
+        {
+          
+            return typeof(GoogleMultiLanguageAndCurrencyWidget);
+        }
     }
 
     
