@@ -34,8 +34,8 @@ using Microsoft.Extensions.Primitives;
 using Nop.Plugin.Payments.Stripe.Validators;
 using Nop.Plugin.Payments.StripeApplePay.Models;
 using Autofac.Core;
-using MySqlX.XDevAPI.Common;
 using Microsoft.Extensions.Options;
+using Nop.Plugin.Payments.StripeApplePay.Components;
 
 namespace Nop.Plugin.Payments.StripeApplePay
 {
@@ -192,7 +192,7 @@ namespace Nop.Plugin.Payments.StripeApplePay
                 }
 
 
-                if (!product.Sku.IsNullOrEmpty())
+                if (!string.IsNullOrEmpty(product.Sku))
                     productName = productName + "(" + product.Sku + ")";
 
 
@@ -624,7 +624,10 @@ namespace Nop.Plugin.Payments.StripeApplePay
         public string GetPublicViewComponentName() => "StripeApplePay";
         public async Task<string> GetPaymentMethodDescriptionAsync() => "Pay with Apple Pay/Google Pay using Stripe.";
 
-      
+        public Type GetPublicViewComponent()
+        {
+            return typeof(StripeApplePayViewComponent);
+        }
 
         public bool SkipPaymentInfo => false;
 
