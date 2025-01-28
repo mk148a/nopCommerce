@@ -100,7 +100,7 @@ namespace Nop.Plugin.Misc.GoogleMultiLanguageAndCurrency.Components
                     
                     if (actionKeys.Count > 0&&actionKeys.Any(x=>x.EndsWith("id")&& data.Values[x]!=null&& int.TryParse(data.Values[x].ToString(), out _)))
                     {
-                        var key = actionKeys.Single(x=>!x.IsNullOrEmpty());
+                        var key = actionKeys.Single(x=>!string.IsNullOrEmpty(x));
 
                         int entitiyId =int.Parse(data.Values[key].ToString());
 
@@ -114,7 +114,7 @@ namespace Nop.Plugin.Misc.GoogleMultiLanguageAndCurrency.Components
                             foreach (var activeLanguagee in activeLanguages)
                             {
                                 var activeSlug = await _urlRecordService.GetActiveSlugAsync(entitiyId, controllerName, activeLanguagee.Id);
-                                if (!activeSlug.IsNullOrEmpty())
+                                if (!string.IsNullOrEmpty(activeSlug))
                                 {
                                     urlRecord = await _urlRecordService.GetBySlugAsync(activeSlug);
                                     break;
@@ -191,11 +191,11 @@ namespace Nop.Plugin.Misc.GoogleMultiLanguageAndCurrency.Components
 
                             var alternateUrl = await _urlRecordService.GetActiveSlugAsync(urlRecord.EntityId,
                                 urlRecord.EntityName, currentStore.DefaultLanguageId);
-                            if (alternateUrl.IsNullOrEmpty())
+                            if (string.IsNullOrEmpty(alternateUrl))
                             {
                                 alternateUrl = await _urlRecordService.GetActiveSlugAsync(urlRecord.EntityId,
                                     urlRecord.EntityName, 0);
-                                if (alternateUrl.IsNullOrEmpty())
+                                if (string.IsNullOrEmpty(alternateUrl))
                                 {
                                     alternateUrl = urlRecord.Slug;
                                 }
@@ -219,15 +219,15 @@ namespace Nop.Plugin.Misc.GoogleMultiLanguageAndCurrency.Components
                                 //Todo:Burada sıçıyor bak
                                 var alternateUrl = await _urlRecordService.GetActiveSlugAsync(urlRecord.EntityId,
                                     urlRecord.EntityName, language.Id);
-                                if (alternateUrl.IsNullOrEmpty())
+                                if (string.IsNullOrEmpty(alternateUrl))
                                 {
                                     alternateUrl = await _urlRecordService.GetActiveSlugAsync(urlRecord.EntityId,
                                         urlRecord.EntityName, currentStore.DefaultLanguageId);
-                                    if (alternateUrl.IsNullOrEmpty())
+                                    if (string.IsNullOrEmpty(alternateUrl))
                                     {
                                         alternateUrl = await _urlRecordService.GetActiveSlugAsync(urlRecord.EntityId,
                                             urlRecord.EntityName, 0);
-                                        if (alternateUrl.IsNullOrEmpty())
+                                        if (string.IsNullOrEmpty(alternateUrl))
 
                                         {
                                             alternateUrl = urlRecord.Slug;
