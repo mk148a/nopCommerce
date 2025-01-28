@@ -1,0 +1,52 @@
+﻿@model Nop.Plugin.Payments.StripeApplePay.Models.PaymentInfoModel
+
+<script>
+    $(document).ready(function () {
+        $.getScript('https://js.stripe.com/v3/', function () {
+            var stripe = Stripe('@Model.StripePublishableKey');
+            var elements = stripe.elements();
+
+            var paymentRequest = stripe.paymentRequest({
+                country: '@Model.Country',
+                currency: '@Model.Currency',
+                total: {
+                    label: 'Total',
+                    amount: Math.round(@Model.OrderTotal) // Total amount in cents
+                },
+                requestPayerName: true,
+                requestPayerEmail: true,
+            });
+
+            var prButton = elements.create('paymentRequestButton', {
+                paymentRequest: paymentRequest
+            });
+
+            paymentRequest.canMakePayment().then(function (result) {
+                if (result) {
+                    prButton.mount('#payment-request-button');
+                } else {
+                    $('#payment-request-button').hide();
+                    $('#message').text('Apple Pay or Google Pay is currently unavailable. Please use Safari for Apple Pay or Chrome for Google Pay. Or add a payment method to your browser. For example, you can save a card in Chrome, add a card to your Google Pay account, or add a card to your Wallet for Safari.');
+                }
+            });
+
+            paymentRequest.on('cancel', function () {
+                // handle cancel event
+            });
+
+            paymentRequest.on('paymentmethod', function (ev) {
+                $('#PaymentMethodId').val(ev.paymentMethod.id);
+                ev.complete('success');
+                $('#payment-request-button').hide();
+                $('#message').text('Your payment method has been successfully selected. Please proceed to complete your order to finalize the payment.');
+            });
+        });
+    });
+</script>
+
+<input type="hidden" id="PaymentMethodId" asp-for="PaymentMethodId" name="PaymentMethodId" />
+
+<div id="payment-request-button"></div>
+<div id="messages">
+    <p id="message"></p>
+</div>
