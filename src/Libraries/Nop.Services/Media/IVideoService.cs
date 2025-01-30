@@ -15,7 +15,7 @@ public partial interface IVideoService
     /// A task that represents the asynchronous operation
     /// The task result contains the video
     /// </returns>
-    Task<ProductReviewVideo> GetVideoByIdAsync(int videoId);
+    Task<Video> GetVideoByIdAsync(int videoId);
 
     /// <summary>
     /// Gets videos by product identifier
@@ -25,7 +25,7 @@ public partial interface IVideoService
     /// A task that represents the asynchronous operation
     /// The task result contains the videos
     /// </returns>
-    Task<IList<ProductReviewVideo>> GetVideosByProductIdAsync(int productId);
+    Task<IList<Video>> GetVideosByProductIdAsync(int productId);
 
     /// <summary>
     /// Inserts a video
@@ -35,7 +35,7 @@ public partial interface IVideoService
     /// A task that represents the asynchronous operation
     /// The task result contains the video
     /// </returns>
-    Task<ProductReviewVideo> InsertVideoAsync(ProductReviewVideo video);
+    Task<Video> InsertVideoAsync(Video video);
 
     /// <summary>
     /// Updates the video
@@ -45,12 +45,12 @@ public partial interface IVideoService
     /// A task that represents the asynchronous operation
     /// The task result contains the video
     /// </returns>
-    Task<ProductReviewVideo> UpdateVideoAsync(ProductReviewVideo video);
+    Task<Video> UpdateVideoAsync(Video video);
 
     /// <summary>
     /// Deletes a video
     /// </summary>
     /// <param name="video">Video</param>
     /// <returns>A task that represents the asynchronous operation</returns>
-    Task DeleteVideoAsync(ProductReviewVideo video);
+    Task DeleteVideoAsync(Video video);
 }
