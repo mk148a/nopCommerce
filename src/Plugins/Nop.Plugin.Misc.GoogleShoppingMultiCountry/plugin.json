@@ -1,0 +1,11 @@
+﻿{
+  "Group": "Genius Software",
+  "FriendlyName": "Google Shopping Multi Country",
+  "SystemName": "Nop.Plugin.Misc.GoogleShoppingMultiCountry",
+  "Version": "1.22",
+  "SupportedVersions": [ "4.80" ],
+  "Author": "Genius Software",
+  "DisplayOrder": 1,
+  "FileName": "Nop.Plugin.Misc.GoogleShoppingMultiCountry.dll",
+  "Description": "This plugin create google merchant feed"
+}

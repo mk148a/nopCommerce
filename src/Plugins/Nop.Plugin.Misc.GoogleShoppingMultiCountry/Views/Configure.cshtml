@@ -1,0 +1,19 @@
+﻿@using Nop.Plugin.Misc.GoogleShoppingMultiCountry;
+@using Nop.Plugin.Misc.GoogleShoppingMultiCountry.Models;
+
+@model GoogleShoppingMultiCountryModel
+@{
+    Layout = "_ConfigurePlugin";
+    // <link rel="stylesheet" href="~/Plugins/Feed.GoogleShopping/Content/styles.css" />
+}
+
+<form asp-controller="GoogleShoppingMultiCountry" asp-action="Configure" method="post" id="google-shopping-form">
+    <nop-cards id="googlebase-cards">
+        <nop-card asp-name="googlebase-general" asp-icon="fa fa-info" asp-title="@T("Plugins.Misc.GoogleShoppingMultiCountry.General")" asp-hide-block-attribute-name="@GoogleShoppingMultiCountryDefaults.HideGeneralBlock" asp-hide="@Model.HideGeneralBlock" asp-advanced="false">
+            @await Html.PartialAsync("~/Plugins/Nop.Plugin.Misc.GoogleShoppingMultiCountry/Views/_Configure.General.cshtml", Model)
+        </nop-card>
+        <nop-card asp-name="googlebase-override" asp-icon="fa fa-exchange" asp-title="@T("Plugins.Misc.GoogleShoppingMultiCountry.Override")" asp-hide-block-attribute-name="@GoogleShoppingMultiCountryDefaults.HideProductSettingsBlock" asp-hide="@Model.HideProductSettingsBlock">
+            @await Html.PartialAsync("~/Plugins/Nop.Plugin.Misc.GoogleShoppingMultiCountry/Views/_Configure.Override.cshtml", Model)
+        </nop-card>
+    </nop-cards>
+</form>
