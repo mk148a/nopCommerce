@@ -20,7 +20,8 @@
 }
 
 <link rel="stylesheet" href="~/Plugins/SevenSpikes.Nop.Plugins.MegaMenu/Areas/Admin/Content/Styles/menuItemsStyles.css" />
-<link rel="stylesheet" href="~/lib_npm/fine-uploader/fine-uploader/fine-uploader.min.css" />
+<link rel="stylesheet" href="~/lib_npm/filepond/filepond.min.css" />
+<link rel="stylesheet" href="~/lib_npm/filepond-plugin-get-file/filepond-plugin-get-file.min.css" />
 
 @if (supportRtl)
 {
@@ -29,7 +30,9 @@
 
 <script src="~/Plugins/SevenSpikes.Nop.Plugins.MegaMenu/Areas/Admin/Content/Scripts/MenuItemsScript.min.js" asp-location="Footer"></script>
 <script src="~/Plugins/SevenSpikes.Nop.Plugins.MegaMenu/Areas/Admin/Content/Scripts/MegaMenuAdmin.min.js" asp-location="Footer"></script>
-<script src="~/lib_npm/fine-uploader/jquery.fine-uploader/jquery.fine-uploader.min.js" asp-location="Footer"></script>
+<script asp-exclude-from-bundle="true" src="~/lib_npm/filepond/filepond.min.js" asp-location="Footer"></script>
+<script asp-exclude-from-bundle="true" src="~/lib_npm/filepond-plugin-file-validate-type/filepond-plugin-file-validate-type.min.js" asp-location="Footer"></script>
+<script asp-exclude-from-bundle="true" src="~/lib_npm/filepond-plugin-get-file/filepond-plugin-get-file.min.js" asp-location="Footer"></script>
 
 <div class="content menu-items-content clearfix" id="update-nav-menu">
     <div class="float-left">
