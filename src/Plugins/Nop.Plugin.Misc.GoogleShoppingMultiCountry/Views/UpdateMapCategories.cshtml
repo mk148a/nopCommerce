@@ -1,0 +1,92 @@
+﻿@model Nop.Plugin.Misc.GoogleShoppingMultiCountry.Models.GoogleFeedCategoryModel
+<p>
+    @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+</p>
+<div asp-validation-summary="All"></div>
+<input asp-for="CategoryId" type="hidden" />
+
+@if (ViewBag.RefreshPage == true)
+{
+    <script>
+        try { window.opener.document.forms['@(Context.Request.Query["formId"])'].@(Context.Request.Query["btnId"]).click(); }
+        catch (e) { }
+        window.close();
+    </script>
+}
+
+<div class="cards-group">
+    <div class="card card-default card-popup">
+  
+        <div class="card-body"> 
+            @using (Html.BeginForm())
+            {
+                <div class="form-group row">
+                    <div class="col-sm-3">
+                        <nop-label asp-for="GoogleCategory"/>
+                    </div>
+                    <div class="col-sm-9">
+                        <nop-editor asp-for="GoogleCategory"/>
+                        <span asp-validation-for="GoogleCategory"></span>
+                    </div>
+                </div>}
+            <div class="form-group row">
+                <div class="col-sm-3">
+                    <nop-label asp-for="CategoryName"/>
+                </div>
+                <div class="col-sm-9">
+                    <nop-editor asp-for="CategoryName"/>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-sm-3">
+                    <nop-label asp-for="GoogleCategoryId"/>
+                </div>
+                <div class="col-sm-9">
+                    <nop-editor asp-for="GoogleCategoryId"/>
+                    <span asp-validation-for="GoogleCategoryId"></span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<script>
+
+    $(document).ready(function () {
+        console.log('start');
+        
+        var t = $("input[name='__RequestVerificationToken']").val();
+        
+        $("#GoogleCategory").autocomplete({
+            source: function (request, response) {
+                $.ajax({
+                    url: '@Url.Action("SearchGoogleTaxonomyPrefixAsync", "GoogleShoppingMultiCountry")',
+                    type: 'POST',
+                    dataType: "json",
+                    headers:
+                    {
+                        "RequestVerificationToken": t
+                    },
+                    data: { Prefix: request.term },
+                    success: function (data) {
+
+                        response($.map(data, function (item) {
+                           
+                            document.getElementById("GoogleCategoryId").value = item.GoogleTaxonomyId;
+                            console.log(item.GoogleTaxonomyId);
+                            return { label: item.parentTaxonomy, value: item.Name };
+
+                        }))
+                        }
+            })
+            },
+            messages: {
+                noResults: "", results: ""
+            }
+        });
+    })
+
+</script>
+

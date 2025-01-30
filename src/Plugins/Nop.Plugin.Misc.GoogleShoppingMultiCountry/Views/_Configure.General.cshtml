@@ -1,0 +1,111 @@
+﻿@using Microsoft.AspNetCore.Mvc.Routing
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using Nop.Core
+@using Nop.Web.Framework.TagHelpers.Admin
+@model Nop.Plugin.Misc.GoogleShoppingMultiCountry.Models.GoogleShoppingMultiCountryModel
+
+@await Component.InvokeAsync("StoreScopeConfiguration")
+@inject  IWebHelper _webHelper;
+
+<div class="card-body">
+    <div class="card card-default">
+        <div class="card-body">
+            @T("Plugins.Feed.GoogleShopping.GeneralInstructions")
+            <div class="form-group row">
+                <div class="col-md-3">
+                    <nop-override-store-checkbox asp-for="ProductPictureSize_OverrideForStore" asp-input="ProductPictureSize" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                    <nop-label asp-for="ProductPictureSize" />
+                </div>
+                <div class="col-md-9">
+                    <nop-editor asp-for="ProductPictureSize" />
+                    <span asp-validation-for="ProductPictureSize"></span>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-md-3">
+                    <nop-override-store-checkbox asp-for="PassShippingInfoWeight_OverrideForStore" asp-input="PassShippingInfoWeight" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                    <nop-label asp-for="PassShippingInfoWeight" />
+                </div>
+                <div class="col-md-9">
+                    <nop-editor asp-for="PassShippingInfoWeight" />
+                    <span asp-validation-for="PassShippingInfoWeight"></span>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-md-3">
+                    <nop-override-store-checkbox asp-for="PassShippingInfoDimensions_OverrideForStore" asp-input="PassShippingInfoDimensions" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                    <nop-label asp-for="PassShippingInfoDimensions" />
+                </div>
+                <div class="col-md-9">
+                    <nop-editor asp-for="PassShippingInfoDimensions" />
+                    <span asp-validation-for="PassShippingInfoDimensions"></span>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-md-3">
+                    <nop-override-store-checkbox asp-for="PricesConsiderPromotions_OverrideForStore" asp-input="PricesConsiderPromotions" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                    <nop-label asp-for="PricesConsiderPromotions" />
+                </div>
+                <div class="col-md-9">
+                    <nop-editor asp-for="PricesConsiderPromotions" />
+                    <span asp-validation-for="PricesConsiderPromotions"></span>
+                </div>
+            </div>
+           
+            <div class="form-group row">
+                <div class="col-md-3">
+                    <nop-override-store-checkbox asp-for="DefaultGoogleCategory_OverrideForStore" asp-input="DefaultGoogleCategory" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                    <nop-label asp-for="DefaultGoogleCategory" />
+                </div>
+                <div class="col-md-9">
+                    <nop-select asp-for="DefaultGoogleCategory" asp-items="Model.AvailableGoogleCategories" />
+                    <span asp-validation-for="DefaultGoogleCategory"></span>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-md-9">
+                    <input asp-for="DefaultGoogleCategoryId" asp-items="Model.AvailableGoogleCategories" style="display: none;" />
+                   
+                </div>
+            </div>
+            @if (Model.GeneratedFiles.Count > 0)
+            {
+                <div class="form-group row">
+                    <div class="col-md-3">
+                        <nop-label asp-for="GeneratedFiles" />
+                    </div>
+                    <div class="col-md-9">
+                        @for (int i = 0; i <= Model.GeneratedFiles.Count - 1; i++)
+                        {
+                            var generatedFile = Model.GeneratedFiles[i];
+                            @generatedFile.StoreName <text>-</text>@generatedFile.Language <text>-</text> <a href="@generatedFile.FileUrl" target="_blank">@generatedFile.FileUrl</a>
+                            if (i != Model.GeneratedFiles.Count - 1)
+                            {
+                                <br />
+                            }
+                        }
+                    </div>
+                </div>
+            }
+            <div class="form-group row">
+                <div class="col-md-3">
+                    &nbsp;
+                </div>
+                <div class="col-md-9">
+                    @{
+                        var storeLoc = _webHelper.GetStoreLocation();
+                        var sdsd = storeLoc.Remove(storeLoc.Length-1) + @Url.Action("MapCategories", "GoogleShoppingMultiCountry");
+                       
+                        Console.WriteLine(sdsd);
+                    }
+                    }
+                    <input type="button" name="mapCategories" class="btn bg-red" value="MapGoogleCategories" onclick="javascript:OpenWindow('@sdsd')" />
+                    @*                     <input type="submit" name="mapCategories" class="btn bg-red" value="MapGoogleCategories" onclick="javascript:OpenWindow(\'@Url.Content("~/Admin/GoogleShoppingMultiCountry/MapGoogleCategories/")'" />
+ *@
+                    <input type="submit" name="save" class="btn bg-blue" value="@T("Admin.Common.Save")"/>
+                    <input type="submit" name="generate" class="btn bg-green" value="@T("Plugins.Misc.GoogleShoppingMultiCountry.Generate")"/>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
