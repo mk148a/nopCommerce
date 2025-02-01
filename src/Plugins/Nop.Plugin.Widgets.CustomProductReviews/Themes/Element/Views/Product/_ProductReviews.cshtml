@@ -251,7 +251,24 @@
     </div>
 </div>
 <script asp-location="Footer">
+
+     $(document).ready(function () {
+        $('.product-review-links a,.product-no-reviews a').on('click', function (e) {
+            e.preventDefault();
+            var reviewForm = $("div.page.product-reviews"); // Güncellenmiş seçici
+            if (reviewForm.length > 0) {
+                $('html, body').animate({
+                    scrollTop: reviewForm.offset().top
+                }, 500);
+            } else {
+                console.error("Hata: #review-form veya div.page.product-reviews öğesi bulunamadı. Kaydırma işlemi yapılamadı.");
+            }
+        });
+    });
+
     var uploadButton = document.getElementById('add-review');
+
+       
 
     $('#review-form').submit(function (e) {
         var form = $(this);
