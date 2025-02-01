@@ -252,12 +252,18 @@
 </div>
 <script asp-location="Footer">
 
-       $(document).ready(function () {
+   
+    $(document).ready(function () {
         $('.product-review-links a,.product-no-reviews a').on('click', function (e) {
             e.preventDefault();
-            $('html, body').animate({
-                scrollTop: $("#review-form").offset().top
-            }, 500);
+            var reviewForm = $("#review-form"); // Öğeyi seç
+            if (reviewForm.length > 0) { // Öğenin varlığını kontrol et
+                $('html, body').animate({
+                    scrollTop: reviewForm.offset().top // Şimdi offset() güvenle çağrılabilir
+                }, 500);
+            } else {
+                console.error("Hata: #review-form öğesi bulunamadı. Kaydırma işlemi yapılamadı.");
+            }
         });
     });
 
