@@ -252,10 +252,12 @@
 </div>
 <script asp-location="Footer">
 
-        $(document).ready(function () {
+
+      $(document).ready(function () {
         $('.product-review-links a,.product-no-reviews a').on('click', function (e) {
             e.preventDefault();
-            var reviewForm = $("div.page.product-reviews"); // Güncellenmiş seçici
+            console.log("test");
+            var reviewForm = $("div.page.product-reviews");
             if (reviewForm.length > 0) {
                 $('html, body').animate({
                     scrollTop: reviewForm.offset().top
@@ -264,23 +266,22 @@
                 console.error("Hata: #review-form veya div.page.product-reviews öğesi bulunamadı. Kaydırma işlemi yapılamadı.");
             }
         });
-    });
 
-    var uploadButton = document.getElementById('add-review');
+         var uploadButton = document.getElementById('add-review');
 
-    $('#review-form').submit(function (e) {
-        var form = $(this);
+
+
+       $('#review-form').submit(function (e) {
         e.preventDefault();
         uploadButton.value = 'Submitting...';
         e.stopImmediatePropagation();
 
-        // Dosya yükleme kontrolü
         if (!readURLFileUpload()) {
             uploadButton.value = "@T("Reviews.SubmitButton")";
             return false;
         }
 
-        var formData = new FormData(form[0]);
+        var formData = new FormData(this);
         formData.append("productId", @Model.ProductId);
         var t = $("input[name='__RequestVerificationToken']").val();
         $(".form-message").html("");
@@ -300,32 +301,32 @@
             success: function (data) {
                 var strmsg = "";
                 uploadButton.value = "@T("Reviews.SubmitButton")";
-                
-                if (data.Message.length > 0) {
-                    strmsg += "<ul>";
-                    strmsg += "<li>" + data.Message  + "</li>";
-                    strmsg += "</ul>";
 
-            if (!data.Success) {
-                $("#message-error-review-form").html(strmsg);
-            } else {
-                $("#message-success-review-form").html(strmsg);
-                $("#review-form .review-form-body").css("display", "none");
-                document.getElementById("review-form").reset();
+                if (data.Success) {
+                    // Başarılı durum
+                    if (data.IsBackgroundProcess) {
+                        // Arka plan işlemi devam ediyor
+                        $("#message-success-review-form").html(data.Message);
+                    } else {
+                        // Direkt başarılı
+                        $("#message-success-review-form").html(data.Message);
+                    }
 
-                // Yorum listesini güncelle
-                $.get('@Url.Action("GetProductReviews", "CustomProductReviews")', { productId: @Model.ProductId }, function (html) {
-                    $("#product-review-list").html(html);
-                });
-            }
+                    // Yorum listesini güncelle
+                    $.get('@Url.Action("GetProductReviews", "CustomProductReviews")', { productId: @Model.ProductId }, function (html) {
+                        $("#product-review-list").html(html);
+                    });
+                } else {
+                    // Hata durumu
+                    $("#message-error-review-form").html(data.Message);
+                }
 
-            if (typeof grecaptcha != "undefined") {
-                grecaptcha.reset();
-            }
+                if (typeof grecaptcha != "undefined") {
+                    grecaptcha.reset();
+                }
 
-            $('html, body').animate({ scrollTop: $("#review-form").offset().top }, 'slow');
-        }
-    },
+                $('html, body').animate({ scrollTop: $("#review-form").offset().top }, 'slow');
+            },
             error: function (xhr, resp, text) {
                 console.log(xhr, resp, text);
                 $("#message-error-review-form").html("An error occurred while submitting the review. Please try again.");
@@ -363,10 +364,19 @@
         return false;
     });
 
-    function readURLFileUpload() {
+    function updateMediaDisplay() {
+        // Fotoğraf ve video yükleme işlemi tamamlandıktan sonra ekranda güncelleme yap
+        $(".picture-thumbs, .video-thumbs").each(function() {
+            $(this).find("img, video").each(function() {
+                $(this).attr("src", $(this).attr("src")); // Force reload media
+            });
+        });
+    }
+
+               function readURLFileUpload() {
         var fileSelect = document.getElementById('photos'),
-            supportedFileFormat = '.jpg,.jpeg,.png,.mp4,.mov,.webp,.webm',
-            files = fileSelect.files;
+            files = fileSelect.files,
+            allowedMimeTypes = ['image/jpeg', 'image/png', 'image/webp', 'video/mp4', 'video/quicktime', 'video/webm'];
 
         if (files.length > @setting.MaximumFile) {
             alert('File upload exceeds the allowed size. Your file sizes: ' + files.length + ' files / Maximum file size: ' + @setting.MaximumFile + ' files');
@@ -375,16 +385,16 @@
         }
 
         for (var i = 0; i < files.length; i++) {
-            var myfile = files[i],
-                value = myfile.type.toLocaleLowerCase(),
-                type = value.substr(value.lastIndexOf(".")).toString();
+            var myfile = files[i];
 
-            if (supportedFileFormat.indexOf(type) == -1) {
-                alert('File is not properly formatted. Supported formats: ' + supportedFileFormat);
+            // MIME türü kontrolü
+            if (!allowedMimeTypes.includes(myfile.type)) {
+                alert('File type is not allowed. Supported types: ' + allowedMimeTypes.join(', '));
                 $("#photos").val("");
                 return false;
             }
 
+            // Dosya boyutu kontrolü
             if (myfile.size > @setting.MaximumSize) {
                 alert('File upload exceeds the allowed size. Your file size: ' + myfile.size + ' bytes / Maximum file size: ' + @setting.MaximumSize + ' bytes');
                 $("#photos").val("");
@@ -393,7 +403,8 @@
         }
         return true;
     }
-</script>
+    });
 
+</script>
 
 
