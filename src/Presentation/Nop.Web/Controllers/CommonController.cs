@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Xml;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 using Nop.Core;
 using Nop.Core.Domain;
 using Nop.Core.Domain.Common;
@@ -191,6 +193,83 @@ public partial class CommonController : BasePublicController
         return View(model);
     }
 
+    private async Task<bool> CheckSpamAsync(string email)
+    {
+        try
+        {
+            var apiUrl = $"http://api.stopforumspam.org/api?email={email}";
+            var httpClient = new HttpClient();
+            var response = await httpClient.GetStringAsync(apiUrl);
+
+            var xmlDoc = new XmlDocument();
+            xmlDoc.LoadXml(response);
+
+            var appearsNode = xmlDoc.SelectSingleNode("//appears");
+            return appearsNode?.InnerText == "yes";
+        }
+        catch
+        {
+
+            return false;
+        }
+
+    }
+    private async Task AddIpToBlackListAsync(string ipAddress)
+    {
+        // Veritabanı bağlantısı ve sorgu
+        var connectionString = "Data Source=.;Initial Catalog=HoodArcheryShopV450bugfixLancelotDb;Integrated Security=False;Persist Security Info=False;User ID=Murat;Password=1234567890aA+;Trust Server Certificate=True;Max Pool Size=200";
+        using (var connection = new SqlConnection(connectionString))
+        {
+            await connection.OpenAsync();
+
+            // Önce IP adresinin BlackList'te olup olmadığını kontrol et
+            var checkQuery = "SELECT COUNT(*) FROM [IpBlockerNetcore].[dbo].[BlackList] WHERE IpAdresi = @IpAdresi";
+            using (var checkCommand = new SqlCommand(checkQuery, connection))
+            {
+                checkCommand.Parameters.AddWithValue("@IpAdresi", ipAddress);
+                var existingCount = (int)await checkCommand.ExecuteScalarAsync();
+
+                // Eğer IP adresi zaten BlackList'teyse, ekleme yapma
+                if (existingCount > 0)
+                {
+                    return;
+                }
+            }
+
+            // IP adresi BlackList'te yoksa, ekle
+            var insertQuery = @"
+            INSERT INTO [IpBlockerNetcore].[dbo].[BlackList] (DangerLevel, Date, IpAdresi, DomainName, Country)
+            VALUES (@DangerLevel, @Date, @IpAdresi, @DomainName, @Country)";
+
+            using (var insertCommand = new SqlCommand(insertQuery, connection))
+            {
+                insertCommand.Parameters.AddWithValue("@DangerLevel", 100); // DangerLevel = 100
+                insertCommand.Parameters.AddWithValue("@Date", DateTime.UtcNow);
+                insertCommand.Parameters.AddWithValue("@IpAdresi", ipAddress);
+                insertCommand.Parameters.AddWithValue("@DomainName", DBNull.Value); // DomainName boş bırakıldı
+                insertCommand.Parameters.AddWithValue("@Country", "Spammer"); // Country olarak "Spammer" eklendi
+
+                await insertCommand.ExecuteNonQueryAsync();
+            }
+        }
+    }
+    private async Task RemoveIpFromWhiteListAsync(string ipAddress)
+    {
+        // Veritabanı bağlantısı ve sorgu
+        var connectionString = "Data Source=.;Initial Catalog=HoodArcheryShopV450bugfixLancelotDb;Integrated Security=False;Persist Security Info=False;User ID=Murat;Password=1234567890aA+;Trust Server Certificate=True;Max Pool Size=200";
+        using (var connection = new SqlConnection(connectionString))
+        {
+            await connection.OpenAsync();
+            var query = "DELETE FROM [IpBlockerNetcore].[dbo].[WhiteList] WHERE IpAdresi = @IpAdresi";
+
+            using (var command = new SqlCommand(query, connection))
+            {
+                command.Parameters.AddWithValue("@IpAdresi", ipAddress);
+                await command.ExecuteNonQueryAsync();
+            }
+        }
+    }
+
     [HttpPost, ActionName("ContactUs")]
     [ValidateCaptcha]
     //available even when a store is closed
@@ -210,17 +289,60 @@ public partial class CommonController : BasePublicController
             var subject = _commonSettings.SubjectFieldOnContactUsForm ? model.Subject : null;
             var body = _htmlFormatter.FormatText(model.Enquiry, false, true, false, false, false, false);
 
-            await _workflowMessageService.SendContactUsMessageAsync((await _workContext.GetWorkingLanguageAsync()).Id,
-                model.Email, model.FullName, subject, body);
 
-            model.SuccessfullySent = true;
-            model.Result = await _localizationService.GetResourceAsync("ContactUs.YourEnquiryHasBeenSent");
+            try
+            {
+                // Müşteri ve IP adresini al
+                var customer = await _workContext.GetCurrentCustomerAsync();
+                var ipAddress = customer.LastIpAddress;
 
-            //activity log
-            await _customerActivityService.InsertActivityAsync("PublicStore.ContactUs",
-                await _localizationService.GetResourceAsync("ActivityLog.PublicStore.ContactUs"));
+                if (ipAddress != null)
+                {
+                    // StopForumSpam API'si ile e-posta kontrolü
+                    var isSpam = await CheckSpamAsync(model.Email);
+                    Console.WriteLine(customer.LastIpAddress + " nolu ipye ait spam sonucu:" + isSpam + " mail adresi:" + model.Email);
+                    if (isSpam)
+                    {
+                        // IP adresini BlackList'e ekle
+                        await AddIpToBlackListAsync(ipAddress);
 
-            return View(model);
+                        // Eğer IP adresi WhiteList'te varsa, onu kaldır
+                        await RemoveIpFromWhiteListAsync(ipAddress);
+
+                        // E-postayı gönderme ve kullanıcıya bilgi ver
+                        model.SuccessfullySent = false;
+                        model.Result = "Spam Detected";
+
+                        return View(model);
+                    }
+                }
+
+                // Eğer spam değilse, e-postayı gönder
+                await _workflowMessageService.SendContactUsMessageAsync((await _workContext.GetWorkingLanguageAsync()).Id,
+                    model.Email, model.FullName, subject, body);
+
+                model.SuccessfullySent = true;
+                model.Result = await _localizationService.GetResourceAsync("ContactUs.YourEnquiryHasBeenSent");
+
+                //activity log
+                await _customerActivityService.InsertActivityAsync("PublicStore.ContactUs",
+                    await _localizationService.GetResourceAsync("ActivityLog.PublicStore.ContactUs"));
+
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                // Hata durumunda loglama yapabilirsiniz
+                Console.WriteLine("ContactUsSend error", ex);
+                model.SuccessfullySent = false;
+                model.Result = "Error";
+
+                return View(model);
+            }
+
+
+
+
         }
 
         return View(model);
