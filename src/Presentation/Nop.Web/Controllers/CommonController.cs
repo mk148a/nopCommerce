@@ -1,4 +1,5 @@
 ﻿using System.Xml;
+using DocumentFormat.OpenXml.EMMA;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Nop.Core;
@@ -10,6 +11,7 @@ using Nop.Core.Domain.Security;
 using Nop.Core.Domain.Tax;
 using Nop.Core.Domain.Vendors;
 using Nop.Core.Http;
+using Nop.Data;
 using Nop.Services.Common;
 using Nop.Services.Directory;
 using Nop.Services.Html;
@@ -207,8 +209,10 @@ public partial class CommonController : BasePublicController
             var appearsNode = xmlDoc.SelectSingleNode("//appears");
             return appearsNode?.InnerText == "yes";
         }
-        catch
+        catch(Exception ex)
         {
+            Console.WriteLine("CheckSpamAsync Error -" +DateTime.Now+ "- Email:"+email
+                +" "+ex.Message);
 
             return false;
         }
@@ -217,8 +221,9 @@ public partial class CommonController : BasePublicController
     private async Task AddIpToBlackListAsync(string ipAddress)
     {
         // Veritabanı bağlantısı ve sorgu
-        var connectionString = "Data Source=.;Initial Catalog=HoodArcheryShopV450bugfixLancelotDb;Integrated Security=False;Persist Security Info=False;User ID=Murat;Password=1234567890aA+;Trust Server Certificate=True;Max Pool Size=200";
-        using (var connection = new SqlConnection(connectionString))
+        var dataSettings = DataSettingsManager.LoadSettings();
+
+        using (var connection = new SqlConnection(dataSettings.ConnectionString))
         {
             await connection.OpenAsync();
 
@@ -256,8 +261,9 @@ public partial class CommonController : BasePublicController
     private async Task RemoveIpFromWhiteListAsync(string ipAddress)
     {
         // Veritabanı bağlantısı ve sorgu
-        var connectionString = "Data Source=.;Initial Catalog=HoodArcheryShopV450bugfixLancelotDb;Integrated Security=False;Persist Security Info=False;User ID=Murat;Password=1234567890aA+;Trust Server Certificate=True;Max Pool Size=200";
-        using (var connection = new SqlConnection(connectionString))
+        var dataSettings = DataSettingsManager.LoadSettings();
+
+        using (var connection = new SqlConnection(dataSettings.ConnectionString))
         {
             await connection.OpenAsync();
             var query = "DELETE FROM [IpBlockerNetcore].[dbo].[WhiteList] WHERE IpAdresi = @IpAdresi";
