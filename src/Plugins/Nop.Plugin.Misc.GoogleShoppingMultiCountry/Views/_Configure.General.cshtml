@@ -10,7 +10,7 @@
 <div class="card-body">
     <div class="card card-default">
         <div class="card-body">
-            @T("Plugins.Feed.GoogleShopping.GeneralInstructions")
+            @T("Plugins.Feed.GoogleShoppingMultiCountry.GeneralInstructions")
             <div class="form-group row">
                 <div class="col-md-3">
                     <nop-override-store-checkbox asp-for="ProductPictureSize_OverrideForStore" asp-input="ProductPictureSize" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
@@ -103,7 +103,7 @@
                     @*                     <input type="submit" name="mapCategories" class="btn bg-red" value="MapGoogleCategories" onclick="javascript:OpenWindow(\'@Url.Content("~/Admin/GoogleShoppingMultiCountry/MapGoogleCategories/")'" />
  *@
                     <input type="submit" name="save" class="btn bg-blue" value="@T("Admin.Common.Save")"/>
-                    <input type="submit" name="generate" class="btn bg-green" value="@T("Plugins.Misc.GoogleShoppingMultiCountry.Generate")"/>
+                    <input type="submit" name="generate" class="btn bg-green" value="@T("Plugins.Feed.GoogleShoppingMultiCountry.Generate")"/>
                 </div>
             </div>
         </div>

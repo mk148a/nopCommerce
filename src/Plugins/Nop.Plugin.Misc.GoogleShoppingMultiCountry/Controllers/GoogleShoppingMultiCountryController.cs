@@ -27,6 +27,7 @@ using Nop.Web.Framework;
 using Nop.Web.Framework.Models.Extensions;
 using JsonResult = Microsoft.AspNetCore.Mvc.JsonResult;
 using SelectListItem = Microsoft.AspNetCore.Mvc.Rendering.SelectListItem;
+using Nop.Core.Caching;
 
 
 namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry.Controllers
@@ -55,6 +56,7 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry.Controllers
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly IWorkContext _workContext;
         private readonly ICategoryService _categoryService;
+        private readonly IStaticCacheManager _staticCacheManager;
 
         #endregion
 
@@ -77,7 +79,8 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry.Controllers
             IWebHostEnvironment webHostEnvironment,
             IWorkContext workContext,
             ILanguageService languageService,
-          ICategoryService categoryService)
+          ICategoryService categoryService,
+          IStaticCacheManager staticCacheManager)
         {
             _currencyService = currencyService;
             _genericAttributeService = genericAttributeService;
@@ -97,6 +100,7 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry.Controllers
             _workContext = workContext;
             _languageService = languageService;
             _categoryService = categoryService;
+            _staticCacheManager = staticCacheManager;
         }
 
         #endregion
@@ -255,9 +259,9 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry.Controllers
             try
             {
                 //plugin
-                var pluginDescriptor = await _pluginService.GetPluginDescriptorBySystemNameAsync<IPlugin>("Nop.Plugin.Misc.GoogleShoppingMultiCountry");
+                var pluginDescriptor = await _pluginService.GetPluginDescriptorBySystemNameAsync<IPlugin>("Misc.GoogleShoppingMultiCountry");
                 if (pluginDescriptor == null || pluginDescriptor.Instance<IPlugin>() is not GoogleShoppingMultiCountry plugin)
-                    throw new Exception(await _localizationService.GetResourceAsync("Plugins.Feed.GoogleShopping.ExceptionLoadPlugin"));
+                    throw new Exception(await _localizationService.GetResourceAsync("Plugins.Feed.GoogleShoppingMultiCountry.ExceptionLoadPlugin"));
 
                 var stores = new List<Store>();
                 var storeById = await _storeService.GetStoreByIdAsync(storeScope);
@@ -269,7 +273,7 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry.Controllers
                 foreach (var store in stores)
                     await plugin.GenerateStaticFileAsync(store);
 
-                _notificationService.SuccessNotification(await _localizationService.GetResourceAsync("Plugins.Feed.GoogleShopping.SuccessResult"));
+                _notificationService.SuccessNotification(await _localizationService.GetResourceAsync("Plugins.Feed.GoogleShoppingMultiCountry.SuccessResult"));
             }
             catch (Exception exc)
             {
@@ -392,7 +396,41 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry.Controllers
             return View("~/Plugins/Nop.Plugin.Misc.GoogleShoppingMultiCountry/Views/Edit.cshtml", model);
         }
 
+        [HttpPost]
+        [AuthorizeAdmin]
+        [Area(AreaNames.ADMIN)]
+        public async Task<IActionResult> SetCustomGoods()
+        {
+            try
+            {
+                var products = await _productService.SearchProductsAsync(showHidden: true);
+                foreach (var product in products)
+                {
+                    var googleProduct = await _googleService.GetByProductIdAsync(product.Id);
+                    if (googleProduct != null)
+                    {
+                        googleProduct.CustomGoods = true;
+                        await _googleService.UpdateGoogleProductRecordAsync(googleProduct);
+                    }
+                    else
+                    {
+                        // Eğer ürünün Google product kaydı yoksa yeni bir kayıt oluştur
+                        googleProduct = new GoogleFeedProductRecord
+                        {
+                            ProductId = product.Id,
+                            CustomGoods = true
+                        };
+                        await _googleService.InsertGoogleProductRecordAsync(googleProduct);
+                    }
+                }
 
+                return Json(new { Result = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { Result = false, Error = ex.Message });
+            }
+        }
 
         #region CategoriesGoogleCategoriesMapping
 
@@ -459,18 +497,27 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry.Controllers
             return model;
         }
 
-        [Microsoft.AspNetCore.Mvc.HttpPost, Microsoft.AspNetCore.Mvc.ActionName("SearchGoogleTaxonomyPrefixAsync")]
-        [AutoValidateAntiforgeryToken]
+        [HttpPost]
+        [AuthorizeAdmin]
+        [Area(AreaNames.ADMIN)]
         public async Task<JsonResult> SearchGoogleTaxonomyPrefixAsync(string Prefix)
         {
-            //Note : you can bind same list from database
-            var taxonomyList=await _googleService.GetTaxonomyListEntityAsync();
-            //Searching records from list using LINQ query
-            var Taxonomies = (from N in taxonomyList
-                        where N.Name.ToLower().Contains(Prefix.ToLower())
-                              select new { N.Name, N.GoogleTaxonomyId, parentTaxonomy =  _googleService.GetFullTaxonomyNameByTaxonomyId(N.GoogleTaxonomyId) });
+            if (string.IsNullOrEmpty(Prefix) || Prefix.Length < 2)
+                return Json(new List<object>());
 
-            return Json(Taxonomies, new Newtonsoft.Json.JsonSerializerSettings());
+            var cacheKey = new CacheKey($"GoogleTaxonomySearch.{Prefix}");
+            var result = await _staticCacheManager.GetAsync(cacheKey, async () =>
+            {
+                var taxonomies = await _googleService.SearchGoogleTaxonomy(Prefix);
+                return taxonomies.Select(N => new
+                {
+                    N.Name,
+                    N.GoogleTaxonomyId,
+                    parentTaxonomy = _googleService.GetFullTaxonomyNameByTaxonomyId(N.GoogleTaxonomyId)
+                }).ToList();
+            });
+
+            return Json(result);
         }
 
 

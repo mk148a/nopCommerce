@@ -1,27 +1,102 @@
-﻿@model Nop.Plugin.Misc.GoogleShoppingMultiCountry.Models.GoogleFeedCategoryModel
-
+﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using Nop.Plugin.Misc.GoogleShoppingMultiCountry.Models
+@using Nop.Web.Framework.TagHelpers.Admin
+@using Nop.Web.Framework.TagHelpers.Shared
+@model GoogleFeedCategoryModel
 @{
-    Layout = "~/Areas/Admin/Views/Shared/_AdminPopupLayout.cshtml";
+    Layout = "_ConfigurePlugin";
 }
 
-<form asp-controller="GoogleShoppingMultiCountry" asp-action="EditMapCategories"
-      asp-route-btnId="@Context.Request.Query["btnId"]"
-      asp-route-formId="@Context.Request.Query["formId"]">
+<link rel="stylesheet" href="~/Plugins/Misc.GoogleShoppingMultiCountry/Content/jquery-ui.css" />
+<script src="~/Plugins/Misc.GoogleShoppingMultiCountry/Content/jquery-ui.min.js" asp-location="Footer"></script>
+
+<form asp-controller="GoogleShoppingMultiCountry" asp-action="EditMapCategories" method="post">
+    @Html.AntiForgeryToken()
     <div class="content-header clearfix">
-        <h1 class="pull-left">
-            @T("Admin.Common.Edit")
+        <h1 class="float-left">
+            @T("Plugins.Feed.GoogleShoppingMultiCountry.MapCategories") 
         </h1>
-        <div class="pull-right">
-            <button type="submit" name="save" class="btn bg-blue">
-                <i class="fa fa-floppy-o"></i>
+        <div class="float-right">
+            <button type="submit" name="save" class="btn btn-primary">
+                <i class="far fa-save"></i>
                 @T("Admin.Common.Save")
             </button>
         </div>
     </div>
 
-    <div class="content">
+    <section class="content">
         <div class="form-horizontal">
-            @await Html.PartialAsync("~/Plugins/Nop.Plugin.Misc.GoogleShoppingMultiCountry/Views/UpdateMapCategories.cshtml", Model)
+            <div class="cards-group">
+                <div class="card card-default">
+                    <div class="card-body">
+                        <input type="hidden" asp-for="Id" />
+                        <input type="hidden" asp-for="CategoryId" />
+                        
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-label asp-for="CategoryName" />
+                            </div>
+                            <div class="col-md-9">
+                                <div class="input-group">
+                                    <input asp-for="CategoryName" class="form-control" readonly />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-label asp-for="GoogleCategory" />
+                            </div>
+                            <div class="col-md-9">
+                                <div class="input-group">
+                                    <input id="searchGoogleCategory" class="form-control" placeholder="@T("Plugins.Feed.GoogleShoppingMultiCountry.SearchGoogleCategory.Hint")" />
+                                    <input type="hidden" asp-for="GoogleCategoryId" id="selectedGoogleCategoryId" />
+                                    <input type="hidden" asp-for="GoogleCategory" id="selectedGoogleCategory" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
+    </section>
 </form>
+
+<script>
+    $(document).ready(function() {
+        let currentRequest = null;
+        
+        $("#searchGoogleCategory").autocomplete({
+            minLength: 2,
+            source: function(request, response) {
+                // Önceki isteği iptal et
+                if (currentRequest != null) {
+                    currentRequest.abort();
+                }
+                
+                currentRequest = $.ajax({
+                    url: "@Url.Action("SearchGoogleTaxonomyPrefix", "GoogleShoppingMultiCountry", new { area = "Admin" })",
+                    type: "POST",
+                    dataType: "json",
+                    data: {
+                        Prefix: request.term,
+                        __RequestVerificationToken: $('input[name=__RequestVerificationToken]').val()
+                    },
+                    success: function(data) {
+                        response($.map(data, function(item) {
+                            return {
+                                label: item.parentTaxonomy,
+                                value: item.parentTaxonomy,
+                                id: item.GoogleTaxonomyId
+                            };
+                        }));
+                    }
+                });
+            },
+            select: function(event, ui) {
+                $("#selectedGoogleCategoryId").val(ui.item.id);
+                $("#selectedGoogleCategory").val(ui.item.value);
+            }
+        });
+    });
+</script>

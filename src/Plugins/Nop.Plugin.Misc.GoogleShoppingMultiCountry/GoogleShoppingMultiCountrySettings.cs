@@ -2,8 +2,13 @@
 
 namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry
 {
-    public class GoogleShoppingMultiCountrySettings:ISettings
+    public class GoogleShoppingMultiCountrySettings : ISettings
     {
+        public GoogleShoppingMultiCountrySettings()
+        {
+            StaticFileName = "GoogleShopping.xml";
+        }
+
         /// <summary>
         /// Product picture size
         /// </summary>

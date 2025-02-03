@@ -21,27 +21,27 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry.Models
 
         public int ProductId { get; set; }
 
-        [NopResourceDisplayName("Plugins.Misc.GoogleShoppingMultiCountry.Products.ProductName")]
+        [NopResourceDisplayName("Plugins.Feed.GoogleShoppingMultiCountry.Products.ProductName")]
         public string ProductName { get; set; }
 
-        [NopResourceDisplayName("Plugins.Misc.GoogleShoppingMultiCountry.Products.GoogleCategory")]
+        [NopResourceDisplayName("Plugins.Feed.GoogleShoppingMultiCountry.Products.GoogleCategory")]
         public string GoogleCategory { get; set; }
 
-        [NopResourceDisplayName("Plugins.Misc.GoogleShoppingMultiCountry.Products.Gender")]
+        [NopResourceDisplayName("Plugins.Feed.GoogleShoppingMultiCountry.Products.Gender")]
         public string Gender { get; set; }
 
-        [NopResourceDisplayName("Plugins.Misc.GoogleShoppingMultiCountry.Products.AgeGroup")]
+        [NopResourceDisplayName("Plugins.Feed.GoogleShoppingMultiCountry.Products.AgeGroup")]
         public string AgeGroup { get; set; }
 
-        [NopResourceDisplayName("Plugins.Misc.GoogleShoppingMultiCountry.Products.Color")]
+        [NopResourceDisplayName("Plugins.Feed.GoogleShoppingMultiCountry.Products.Color")]
         public string Color { get; set; }
 
-        [NopResourceDisplayName("Plugins.Misc.GoogleShoppingMultiCountry.Products.Size")]
+        [NopResourceDisplayName("Plugins.Feed.GoogleShoppingMultiCountry.Products.Size")]
         public string GoogleSize { get; set; }
 
-        [NopResourceDisplayName("Plugins.Misc.GoogleShoppingMultiCountry.CustomGoods")]
+        [NopResourceDisplayName("Plugins.Feed.GoogleShoppingMultiCountry.Products.CustomGoods")]
         public bool CustomGoods { get; set; }
-        [NopResourceDisplayName("Plugins.Misc.GoogleShoppingMultiCountry.Products.LanguageId")]
+        [NopResourceDisplayName("Plugins.Feed.GoogleShoppingMultiCountry.Products.LanguageId")]
         public int LanguageId{ get; set; }
         public GoogleFeedProductSearchModel GoogleFeedProductListSearchModel { get; set; }
     }

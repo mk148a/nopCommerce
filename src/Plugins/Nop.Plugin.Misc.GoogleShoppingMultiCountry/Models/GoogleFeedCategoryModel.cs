@@ -21,12 +21,12 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry.Models
 
         public int CategoryId { get; set; }
 
-        [NopResourceDisplayName("Plugins.Misc.GoogleShoppingMultiCountry.Products.CategoryName")]
+        [NopResourceDisplayName("Plugins.Feed.GoogleShoppingMultiCountry.Products.CategoryName")]
         public string CategoryName { get; set; }
 
-        [NopResourceDisplayName("Plugins.Misc.GoogleShoppingMultiCountry.Products.GoogleCategory")]
+        [NopResourceDisplayName("Plugins.Feed.GoogleShoppingMultiCountry.Products.GoogleCategory")]
         public string GoogleCategory { get; set; }
-        [NopResourceDisplayName("Plugins.Misc.GoogleShoppingMultiCountry.Products.GoogleCategoryId")]
+        [NopResourceDisplayName("Plugins.Feed.GoogleShoppingMultiCountry.Products.GoogleCategoryId")]
         public int GoogleCategoryId { get; set; }
 
 

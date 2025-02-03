@@ -30,5 +30,7 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry.Services
         Task InsertCategoryGoogleTaxonomyRecordMappingAsync(CategoryGoogleTaxonomyRecordMapping categoryGoogleTaxonomyRecordMapping);
         Task UpdateCategoryGoogleTaxonomyRecordMappingAsync(CategoryGoogleTaxonomyRecordMapping categoryGoogleTaxonomyRecordMapping);
         string GetFullTaxonomyNameByTaxonomyId(int taxonomyId);
+        Task<IList<GoogleTaxonomyRecord>> SearchGoogleTaxonomy(string searchTerm);
+        Task<string> GetTaxonomyIdForProduct(int productId, int categoryId);
     }
 }

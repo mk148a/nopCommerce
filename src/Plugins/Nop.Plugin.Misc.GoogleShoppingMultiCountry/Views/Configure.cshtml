@@ -1,5 +1,6 @@
 ﻿@using Nop.Plugin.Misc.GoogleShoppingMultiCountry;
 @using Nop.Plugin.Misc.GoogleShoppingMultiCountry.Models;
+@using Nop.Web.Framework.Models.DataTables;
 
 @model GoogleShoppingMultiCountryModel
 @{
@@ -9,11 +10,115 @@
 
 <form asp-controller="GoogleShoppingMultiCountry" asp-action="Configure" method="post" id="google-shopping-form">
     <nop-cards id="googlebase-cards">
-        <nop-card asp-name="googlebase-general" asp-icon="fa fa-info" asp-title="@T("Plugins.Misc.GoogleShoppingMultiCountry.General")" asp-hide-block-attribute-name="@GoogleShoppingMultiCountryDefaults.HideGeneralBlock" asp-hide="@Model.HideGeneralBlock" asp-advanced="false">
+        <nop-card asp-name="googlebase-general" asp-icon="fa fa-info" asp-title="@T("Plugins.Feed.GoogleShoppingMultiCountry.General")" asp-hide-block-attribute-name="@GoogleShoppingMultiCountryDefaults.HideGeneralBlock" asp-hide="@Model.HideGeneralBlock" asp-advanced="false">
             @await Html.PartialAsync("~/Plugins/Nop.Plugin.Misc.GoogleShoppingMultiCountry/Views/_Configure.General.cshtml", Model)
         </nop-card>
-        <nop-card asp-name="googlebase-override" asp-icon="fa fa-exchange" asp-title="@T("Plugins.Misc.GoogleShoppingMultiCountry.Override")" asp-hide-block-attribute-name="@GoogleShoppingMultiCountryDefaults.HideProductSettingsBlock" asp-hide="@Model.HideProductSettingsBlock">
-            @await Html.PartialAsync("~/Plugins/Nop.Plugin.Misc.GoogleShoppingMultiCountry/Views/_Configure.Override.cshtml", Model)
+        <nop-card asp-name="googlebase-override" asp-icon="fa fa-exchange" asp-title="@T("Plugins.Feed.GoogleShoppingMultiCountry.Override")" asp-hide-block-attribute-name="@GoogleShoppingMultiCountryDefaults.HideProductSettingsBlock" asp-hide="@Model.HideProductSettingsBlock">
+            <div class="card card-default">
+                <div class="card-header">
+                    @T("Plugins.Feed.GoogleShoppingMultiCountry.Override")
+                    <div class="card-tools float-right">
+                        <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <p>
+                        @T("Plugins.Feed.GoogleShoppingMultiCountry.OverrideInstructions")
+                    </p>
+                    <div class="form-group row">
+                        <div class="col-md-12">
+                            <button type="button" id="setCustomGoods" class="btn btn-primary">
+                                @T("Plugins.Feed.GoogleShoppingMultiCountry.Products.SetCustomGoods")
+                            </button>
+                        </div>
+                    </div>
+                    @await Html.PartialAsync("Table", new DataTablesModel
+                    {
+                        Name = "products-grid",
+                        UrlRead = new DataUrl("GoogleProductList", "GoogleShoppingMultiCountry", null),
+                        Length = Model.GoogleFeedProductSearchModel.PageSize,
+                        LengthMenu = Model.GoogleFeedProductSearchModel.AvailablePageSizes,
+                        ColumnCollection = new List<ColumnProperty>
+                        {
+                            new ColumnProperty(nameof(GoogleFeedProductModel.ProductName))
+                            {
+                                Title = T("Plugins.Feed.GoogleShoppingMultiCountry.Products.ProductName").Text,
+                                Width = "300"
+                            },
+                            new ColumnProperty(nameof(GoogleFeedProductModel.GoogleCategory))
+                            {
+                                Title = T("Plugins.Feed.GoogleShoppingMultiCountry.Products.GoogleCategory").Text,
+                                Width = "100"
+                            },
+                            new ColumnProperty(nameof(GoogleFeedProductModel.Gender))
+                            {
+                                Title = T("Plugins.Feed.GoogleShoppingMultiCountry.Products.Gender").Text,
+                                Width = "50"
+                            },
+                            new ColumnProperty(nameof(GoogleFeedProductModel.AgeGroup))
+                            {
+                                Title = T("Plugins.Feed.GoogleShoppingMultiCountry.Products.AgeGroup").Text,
+                                Width = "50"
+                            },
+                            new ColumnProperty(nameof(GoogleFeedProductModel.Color))
+                            {
+                                Title = T("Plugins.Feed.GoogleShoppingMultiCountry.Products.Color").Text,
+                                Width = "70"
+                            },
+                            new ColumnProperty(nameof(GoogleFeedProductModel.GoogleSize))
+                            {
+                                Title = T("Plugins.Feed.GoogleShoppingMultiCountry.Products.Size").Text,
+                                Width = "50"
+                            },
+                            new ColumnProperty(nameof(GoogleFeedProductModel.CustomGoods))
+                            {
+                                Title = T("Plugins.Feed.GoogleShoppingMultiCountry.Products.CustomGoods").Text,
+                                Width = "50",
+                                Render = new RenderBoolean(),
+                                ClassName = NopColumnClassDefaults.CenterAll
+                            },
+                            new ColumnProperty(nameof(GoogleFeedProductModel.ProductId))
+                            {
+                                Title = T("Admin.Common.Edit").Text,
+                                Width = "50",
+                                ClassName = NopColumnClassDefaults.Button,
+                                Render = new RenderCustom("renderColumnEdit")
+                            }
+                        }
+                    })
+                </div>
+            </div>
         </nop-card>
     </nop-cards>
 </form>
+
+<script>
+    $(document).ready(function() {
+        $('#setCustomGoods').click(function() {
+            if (confirm('@T("Admin.Common.AreYouSure")')) {
+                $.ajax({
+                    cache: false,
+                    type: "POST",
+                    url: "@Url.Action("SetCustomGoods", "GoogleShoppingMultiCountry")",
+                    dataType: "json",
+                    success: function(data) {
+                        if (data.Result) {
+                            //refresh grid
+                            updateTable('#products-grid');
+                        } else {
+                            alert(data.Error);
+                        }
+                    }
+                });
+            }
+        });
+    });
+</script>
+
+<script>
+    function renderColumnEdit(data, type, row, meta) {
+        return '<button onclick=\"javascript:OpenWindow(\'@Url.Content("~/Admin/GoogleShoppingMultiCountry/Edit/")' + data + '?btnId=btnRefresh&formId=google-shopping-form\', 800, 450, true); return false;\" class="btn btn-default"><i class="fa fa-pencil"></i>@T("Admin.Common.Edit")</button>';
+    }
+</script>

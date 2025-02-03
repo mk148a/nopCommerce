@@ -1,5 +1,4 @@
-﻿@model Nop.Plugin.Misc.GoogleShoppingMultiCountry.Models.GoogleFeedProductModel
-
+﻿@model GoogleFeedProductModel
 @{
     Layout = "~/Areas/Admin/Views/Shared/_AdminPopupLayout.cshtml";
 }
@@ -13,7 +12,7 @@
         </h1>
         <div class="pull-right">
             <button type="submit" name="save" class="btn bg-blue">
-                <i class="fa fa-floppy-o"></i>
+                <i class="fas fa-save"></i>
                 @T("Admin.Common.Save")
             </button>
         </div>
@@ -21,7 +20,88 @@
 
     <div class="content">
         <div class="form-horizontal">
-            @await Html.PartialAsync("~/Plugins/Nop.Plugin.Misc.GoogleShoppingMultiCountry/Views/_MapCategories.cshtml", Model)
+            <div class="cards-group">
+                <div class="card card-default">
+                    <div class="card-body">
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-label asp-for="GoogleCategory" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="GoogleCategory" />
+                                <span asp-validation-for="GoogleCategory"></span>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-label asp-for="Gender" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="Gender" />
+                                <span asp-validation-for="Gender"></span>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-label asp-for="AgeGroup" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="AgeGroup" />
+                                <span asp-validation-for="AgeGroup"></span>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-label asp-for="Color" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="Color" />
+                                <span asp-validation-for="Color"></span>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-label asp-for="GoogleSize" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="GoogleSize" />
+                                <span asp-validation-for="GoogleSize"></span>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-label asp-for="CustomGoods" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="CustomGoods" />
+                                <span asp-validation-for="CustomGoods"></span>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-label asp-for="LanguageId" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="LanguageId" />
+                                <span asp-validation-for="LanguageId"></span>
+                            </div>
+                        </div>
+                        <input type="hidden" asp-for="Id" />
+                        <input type="hidden" asp-for="ProductId" />
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </form>
+
+@if (ViewBag.RefreshPage == true)
+{
+    <script>
+        try {
+            window.opener.document.forms['@(Context.Request.Query["formId"])'].submit();
+            window.close();
+        }
+        catch (e){}
+    </script>
+}

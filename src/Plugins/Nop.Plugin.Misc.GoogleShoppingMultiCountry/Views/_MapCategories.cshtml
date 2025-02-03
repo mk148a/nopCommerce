@@ -14,7 +14,7 @@
 <div class="card-body">
     <div class="card card-default">
         <div class="card-body">
-            @T("Plugins.Feed.GoogleShopping.OverrideInstructions")
+            @T("Plugins.Feed.GoogleShoppingMultiCountry.OverrideInstructions")
 
             @await Html.PartialAsync("Table", new DataTablesModel
             {
@@ -31,7 +31,7 @@
                     },
                     new ColumnProperty(nameof(GoogleFeedCategoryModel.GoogleCategory))
                     {
-                        Title = T("Plugins.Feed.GoogleShopping.Products.GoogleCategory").Text,
+                        Title = T("Plugins.Feed.GoogleShoppingMultiCountry.Products.GoogleCategory").Text,
                         Width = "100"
                     },
                     new ColumnProperty(nameof(GoogleFeedCategoryModel.GoogleCategoryId))
@@ -64,9 +64,9 @@
 
                     return '<div class="google-info">' +
                     '<dl>' +
-                    '<dt>@T("Plugins.Feed.GoogleShopping.Products.GoogleCategory"):</dt><dd>' + categoryName + '</dd>' +
-                    '<dt>@T("Plugins.Feed.GoogleShopping.Products.GoogleCategory"):</dt><dd>' + googleCategory + '</dd>' +
-                    '<dt>@T("Plugins.Feed.GoogleShopping.Products.GoogleCategory"):</dt><dd>' + googleCategoryId + '</dd>' +
+                    '<dt>@T("Plugins.Feed.GoogleShoppingMultiCountry.Products.GoogleCategory"):</dt><dd>' + categoryName + '</dd>' +
+                    '<dt>@T("Plugins.Feed.GoogleShoppingMultiCountry.Products.GoogleCategory"):</dt><dd>' + googleCategory + '</dd>' +
+                    '<dt>@T("Plugins.Feed.GoogleShoppingMultiCountry.Products.GoogleCategory"):</dt><dd>' + googleCategoryId + '</dd>' +
                     '</div>';
                     }
                     *@

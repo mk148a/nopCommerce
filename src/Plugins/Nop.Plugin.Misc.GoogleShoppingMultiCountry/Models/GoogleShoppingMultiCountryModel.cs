@@ -19,31 +19,31 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry.Models
 
         public int ActiveStoreScopeConfiguration { get; set; }
 
-        [NopResourceDisplayName("Plugins.Misc.GoogleShoppingMultiCountry.ProductPictureSize")]
+        [NopResourceDisplayName("Plugins.Feed.GoogleShoppingMultiCountry.ProductPictureSize")]
         public int ProductPictureSize { get; set; }
         public bool ProductPictureSize_OverrideForStore { get; set; }
 
 
-        [NopResourceDisplayName("Plugins.Misc.GoogleShoppingMultiCountry.DefaultGoogleCategory")]
+        [NopResourceDisplayName("Plugins.Feed.GoogleShoppingMultiCountry.DefaultGoogleCategory")]
         public string DefaultGoogleCategory { get; set; }
         public string DefaultGoogleCategoryId { get; set; }
         public IList<SelectListItem> AvailableGoogleCategories { get; set; }
         public bool DefaultGoogleCategory_OverrideForStore { get; set; }
         public bool DefaultGoogleCategoryId_OverrideForStore { get; set; }
 
-        [NopResourceDisplayName("Plugins.Misc.GoogleShoppingMultiCountry.PassShippingInfoWeight")]
+        [NopResourceDisplayName("Plugins.Feed.GoogleShoppingMultiCountry.PassShippingInfoWeight")]
         public bool PassShippingInfoWeight { get; set; }
         public bool PassShippingInfoWeight_OverrideForStore { get; set; }
 
-        [NopResourceDisplayName("Plugins.Misc.GoogleShoppingMultiCountry.PassShippingInfoDimensions")]
+        [NopResourceDisplayName("Plugins.Feed.GoogleShoppingMultiCountry.PassShippingInfoDimensions")]
         public bool PassShippingInfoDimensions { get; set; }
         public bool PassShippingInfoDimensions_OverrideForStore { get; set; }
 
-        [NopResourceDisplayName("Plugins.Misc.GoogleShoppingMultiCountry.PricesConsiderPromotions")]
+        [NopResourceDisplayName("Plugins.Feed.GoogleShoppingMultiCountry.PricesConsiderPromotions")]
         public bool PricesConsiderPromotions { get; set; }
         public bool PricesConsiderPromotions_OverrideForStore { get; set; }
 
-        [NopResourceDisplayName("Plugins.Misc.GoogleShoppingMultiCountry.StaticFilePath")]
+        [NopResourceDisplayName("Plugins.Feed.GoogleShoppingMultiCountry.StaticFilePath")]
         public IList<GeneratedFileModel> GeneratedFiles { get; set; }
 
         public bool HideGeneralBlock { get; set; }

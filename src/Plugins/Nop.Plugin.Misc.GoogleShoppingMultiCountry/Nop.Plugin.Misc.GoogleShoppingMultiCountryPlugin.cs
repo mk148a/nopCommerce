@@ -17,6 +17,7 @@ using Nop.Core;
 using Nop.Core.Domain.Catalog;
 using Nop.Core.Domain.Directory;
 using Nop.Core.Domain.Localization;
+using Nop.Core.Domain.ScheduleTasks;
 using Nop.Core.Domain.Seo;
 using Nop.Core.Domain.Stores;
 using Nop.Core.Infrastructure;
@@ -29,6 +30,7 @@ using Nop.Services.Directory;
 using Nop.Services.Localization;
 using Nop.Services.Media;
 using Nop.Services.Plugins;
+using Nop.Services.ScheduleTasks;
 using Nop.Services.Seo;
 using Nop.Services.Tax;
 using Nop.Web.Framework.Infrastructure;
@@ -65,6 +67,7 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly IWorkContext _workContext;
         private readonly MeasureSettings _measureSettings;
+        private readonly IScheduleTaskService _scheduleTaskService;
 
         #endregion
         #region Ctor
@@ -90,7 +93,8 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry
             IWebHelper webHelper,
             IWebHostEnvironment webHostEnvironment,
             IWorkContext workContext,
-            MeasureSettings measureSettings)
+            MeasureSettings measureSettings,
+            IScheduleTaskService scheduleTaskService)
 
         {
             _actionContextAccessor = actionContextAccessor;
@@ -116,6 +120,7 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry
             _webHelper = webHelper;
             _webHostEnvironment = webHostEnvironment;
             _workContext = workContext;
+            _scheduleTaskService = scheduleTaskService;
         }
         #endregion
 
@@ -146,10 +151,10 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry
             input = input.Replace("½", "");
             input = input.Replace("¾", "");
             //input = input.Replace("•", "");
-            //input = input.Replace("”", "");
-            //input = input.Replace("“", "");
-            //input = input.Replace("’", "");
-            //input = input.Replace("‘", "");
+            //input = input.Replace(""", "");
+            //input = input.Replace(""", "");
+            //input = input.Replace("'", "");
+            //input = input.Replace("'", "");
             //input = input.Replace("™", "");
             //input = input.Replace("®", "");
             //input = input.Replace("°", "");
@@ -206,10 +211,8 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry
         /// <returns>A task that represents the asynchronous operation</returns>
         public override async Task InstallAsync()
         {
-
             try
             {
-
                 //settings
                 var settings = new GoogleShoppingMultiCountrySettings
                 {
@@ -217,7 +220,7 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry
                     ProductPictureSize = 250,
                     PassShippingInfoWeight = false,
                     PassShippingInfoDimensions = false,
-                    StaticFileName = $"googleshoppingmulticountry_{CommonHelper.GenerateRandomDigitCode(10)}.xml",
+                    StaticFileName = $"googleshoppingmulticountry_5348726693.xml",
                     ExpirationNumberOfDays = 28
                 };
                 await _settingService.SaveSettingAsync(settings);
@@ -225,50 +228,69 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry
                 //locales
                 await _localizationService.AddOrUpdateLocaleResourceAsync(new Dictionary<string, string>
                 {
-                    ["Plugins.Misc.GoogleShoppingMultiCountry.Store"] = "Store",
-                    ["Plugins.Misc.GoogleShoppingMultiCountry.Store.Hint"] = "Select the store that will be used to generate the feed.",
-                    ["Plugins.Misc.GoogleShoppingMultiCountry.Currency"] = "Currency",
-                    ["Plugins.Misc.GoogleShoppingMultiCountry.Currency.Hint"] = "Select the default currency that will be used to generate the feed.",
-                    ["Plugins.Misc.GoogleShoppingMultiCountry.DefaultGoogleCategory"] = "Default Google category",
-                    ["Plugins.Misc.GoogleShoppingMultiCountry.DefaultGoogleCategory.Hint"] = "The default Google category to use if one is not specified.",
-                    ["Plugins.Misc.GoogleShoppingMultiCountry.ExceptionLoadPlugin"] = "Cannot load the plugin",
-                    ["Plugins.Misc.GoogleShoppingMultiCountry.General"] = "General",
-                    ["Plugins.Misc.GoogleShoppingMultiCountry.GeneralInstructions"] = "<p><ul><li>At least two unique product identifiers are required. So each of your product should have manufacturer (brand) and MPN (manufacturer part number) specified</li><li>Specify default tax values in your Google Merchant Center account settings</li><li>Specify default shipping values in your Google Merchant Center account settings</li><li>In order to get more info about required fields look at the following article <a href=\"http://www.google.com/support/merchants/bin/answer.py?answer=188494\" target=\"_blank\">http://www.google.com/support/merchants/bin/answer.py?answer=188494</a></li></ul></p>",
-                    ["Plugins.Misc.GoogleShoppingMultiCountry.Generate"] = "Generate feed",
-                    ["Plugins.Misc.GoogleShoppingMultiCountry.Override"] = "Override product settings",
-                    ["Plugins.Misc.GoogleShoppingMultiCountry.OverrideInstructions"] = "<p>You can download the list of allowed Google product category attributes <a href=\"http://www.google.com/support/merchants/bin/answer.py?answer=160081\" target=\"_blank\">here</a></p>",
-                    ["Plugins.Misc.GoogleShoppingMultiCountry.PassShippingInfoWeight"] = "Pass shipping info (weight)",
-                    ["Plugins.Misc.GoogleShoppingMultiCountry.PassShippingInfoWeight.Hint"] = "Check if you want to include shipping information (weight) in generated XML file.",
-                    ["Plugins.Misc.GoogleShoppingMultiCountry.PassShippingInfoDimensions"] = "Pass shipping info (dimensions)",
-                    ["Plugins.Misc.GoogleShoppingMultiCountry.PassShippingInfoDimensions.Hint"] = "Check if you want to include shipping information (dimensions) in generated XML file.",
-                    ["Plugins.Misc.GoogleShoppingMultiCountry.PricesConsiderPromotions"] = "Prices consider promotions",
-                    ["Plugins.Misc.GoogleShoppingMultiCountry.PricesConsiderPromotions.Hint"] = "Check if you want prices to be calculated with promotions (tier prices] = discounts] = special prices] = tax] = etc). But please note that it can significantly reduce time required to generate the feed file.",
-                    ["Plugins.Misc.GoogleShoppingMultiCountry.ProductPictureSize"] = "Product thumbnail image size",
-                    ["Plugins.Misc.GoogleShoppingMultiCountry.ProductPictureSize.Hint"] = "The default size (pixels) for product thumbnail images.",
-                    ["Plugins.Misc.GoogleShoppingMultiCountry.Products.ProductName"] = "Product",
-                    ["Plugins.Misc.GoogleShoppingMultiCountry.Products.ProductName.Hint"] = "Product Name",
-                    ["Plugins.Misc.GoogleShoppingMultiCountry.Products.GoogleCategory"] = "Google Category",
-                    ["Plugins.Misc.GoogleShoppingMultiCountry.Products.GoogleCategory.Hint"] = "Product category according to the Google product taxonomy.",
-                    ["Plugins.Misc.GoogleShoppingMultiCountry.Products.GoogleCategoryId"] = "Google Category Id",
-                    ["Plugins.Misc.GoogleShoppingMultiCountry.Products.GoogleCategory.Hint"] = "Product category Id according to the Google product taxonomy.",
-                    ["Plugins.Misc.GoogleShoppingMultiCountry.Products.Gender"] = "Gender",
-                    ["Plugins.Misc.GoogleShoppingMultiCountry.Products.Gender.Hint"] = "Gender of the people for whom the product is intended.",
-                    ["Plugins.Misc.GoogleShoppingMultiCountry.Products.AgeGroup"] = "Age group",
-                    ["Plugins.Misc.GoogleShoppingMultiCountry.Products.AgeGroup.Hint"] = "Age category of people for whom the goods are intended.",
-                    ["Plugins.Misc.GoogleShoppingMultiCountry.Products.Color"] = "Color",
-                    ["Plugins.Misc.GoogleShoppingMultiCountry.Products.Color.Hint"] = "Product color.",
-                    ["Plugins.Misc.GoogleShoppingMultiCountry.Products.LanguageId"] = "Language Id",
-                    ["Plugins.Misc.GoogleShoppingMultiCountry.Products.LanguageId.Hint"] = "Language Id.",
-                    ["Plugins.Misc.GoogleShoppingMultiCountry.Products.Size"] = "Size",
-                    ["Plugins.Misc.GoogleShoppingMultiCountry.Products.Size.Hint"] = "Product size.",
-                    ["Plugins.Misc.GoogleShoppingMultiCountry.Products.CustomGoods"] = "Custom goods",
-                    ["Plugins.Misc.GoogleShoppingMultiCountry.Products.CustomGoods.Hint"] = "Custom goods (no identifier exists).",
-                    ["Plugins.Misc.GoogleShoppingMultiCountry.SuccessResult"] = "Google Shopping feed has been successfully generated.",
-                    ["Plugins.Misc.GoogleShoppingMultiCountry.StaticFilePath"] = "Generated file path (static)",
-                    ["Plugins.Misc.GoogleShoppingMultiCountry.StaticFilePath.Hint"] = "A file path of the generated file. It's static for your store and can be shared with the Google Shopping service.",
-                    ["Plugins.Misc.GoogleShoppingMultiCountry.Products.CategoryName"] = "Category"
-
+                    ["Plugins.Feed.GoogleShoppingMultiCountry.Store"] = "Store",
+                    ["Plugins.Feed.GoogleShoppingMultiCountry.Store.Hint"] = "Select the store that will be used to generate the feed.",
+                    ["Plugins.Feed.GoogleShoppingMultiCountry.Currency"] = "Currency",
+                    ["Plugins.Feed.GoogleShoppingMultiCountry.Currency.Hint"] = "Select the default currency that will be used to generate the feed.",
+                    ["Plugins.Feed.GoogleShoppingMultiCountry.DefaultGoogleCategory"] = "Default Google category",
+                    ["Plugins.Feed.GoogleShoppingMultiCountry.DefaultGoogleCategory.Hint"] = "The default Google category to use if one is not specified.",
+                    ["Plugins.Feed.GoogleShoppingMultiCountry.ExceptionLoadPlugin"] = "Cannot load the plugin",
+                    ["Plugins.Feed.GoogleShoppingMultiCountry.General"] = "General",
+                    ["Plugins.Feed.GoogleShoppingMultiCountry.GeneralInstructions"] = "<p><ul><li>At least two unique product identifiers are required. So each of your product should have manufacturer (brand) and MPN (manufacturer part number) specified</li><li>Specify default tax values in your Google Merchant Center account settings</li><li>Specify default shipping values in your Google Merchant Center account settings</li><li>In order to get more info about required fields look at the following article <a href=\"http://www.google.com/support/merchants/bin/answer.py?answer=188494\" target=\"_blank\">http://www.google.com/support/merchants/bin/answer.py?answer=188494</a></li></ul></p>",
+                    ["Plugins.Feed.GoogleShoppingMultiCountry.Generate"] = "Generate feed",
+                    ["Plugins.Feed.GoogleShoppingMultiCountry.Override"] = "Override product settings",
+                    ["Plugins.Feed.GoogleShoppingMultiCountry.OverrideInstructions"] = "<p>You can download the list of allowed Google product category attributes <a href=\"http://www.google.com/support/merchants/bin/answer.py?answer=160081\" target=\"_blank\">here</a></p>",
+                    ["Plugins.Feed.GoogleShoppingMultiCountry.PassShippingInfoWeight"] = "Pass shipping info (weight)",
+                    ["Plugins.Feed.GoogleShoppingMultiCountry.PassShippingInfoWeight.Hint"] = "Check if you want to include shipping information (weight) in generated XML file.",
+                    ["Plugins.Feed.GoogleShoppingMultiCountry.PassShippingInfoDimensions"] = "Pass shipping info (dimensions)",
+                    ["Plugins.Feed.GoogleShoppingMultiCountry.PassShippingInfoDimensions.Hint"] = "Check if you want to include shipping information (dimensions) in generated XML file.",
+                    ["Plugins.Feed.GoogleShoppingMultiCountry.PricesConsiderPromotions"] = "Prices consider promotions",
+                    ["Plugins.Feed.GoogleShoppingMultiCountry.PricesConsiderPromotions.Hint"] = "Check if you want prices to be calculated with promotions (tier prices, discounts, special prices, tax, etc). But please note that it can significantly reduce time required to generate the feed file.",
+                    ["Plugins.Feed.GoogleShoppingMultiCountry.ProductPictureSize"] = "Product thumbnail image size",
+                    ["Plugins.Feed.GoogleShoppingMultiCountry.ProductPictureSize.Hint"] = "The default size (pixels) for product thumbnail images.",
+                    ["Plugins.Feed.GoogleShoppingMultiCountry.Products.ProductName"] = "Product",
+                    ["Plugins.Feed.GoogleShoppingMultiCountry.Products.ProductName.Hint"] = "Product Name",
+                    ["Plugins.Feed.GoogleShoppingMultiCountry.Products.GoogleCategory"] = "Google Category",
+                    ["Plugins.Feed.GoogleShoppingMultiCountry.Products.GoogleCategory.Hint"] = "Product category according to the Google product taxonomy.",
+                    ["Plugins.Feed.GoogleShoppingMultiCountry.Products.CategoryName"] = "Category Name",
+                    ["Plugins.Feed.GoogleShoppingMultiCountry.Products.GoogleCategoryId"] = "Google Category Id",
+                    ["Plugins.Feed.GoogleShoppingMultiCountry.Products.GoogleCategory.Hint"] = "Product category Id according to the Google product taxonomy.",
+                    ["Plugins.Feed.GoogleShoppingMultiCountry.Products.Gender"] = "Gender",
+                    ["Plugins.Feed.GoogleShoppingMultiCountry.Products.Gender.Hint"] = "Gender of the people for whom the product is intended.",
+                    ["Plugins.Feed.GoogleShoppingMultiCountry.Products.AgeGroup"] = "Age group",
+                    ["Plugins.Feed.GoogleShoppingMultiCountry.Products.AgeGroup.Hint"] = "Age category of people for whom the goods are intended.",
+                    ["Plugins.Feed.GoogleShoppingMultiCountry.Products.Color"] = "Color",
+                    ["Plugins.Feed.GoogleShoppingMultiCountry.Products.Color.Hint"] = "Product color.",
+                    ["Plugins.Feed.GoogleShoppingMultiCountry.Products.LanguageId"] = "Language Id",
+                    ["Plugins.Feed.GoogleShoppingMultiCountry.Products.LanguageId.Hint"] = "Language Id.",
+                    ["Plugins.Feed.GoogleShoppingMultiCountry.Products.Size"] = "Size",
+                    ["Plugins.Feed.GoogleShoppingMultiCountry.Products.Size.Hint"] = "Product size.",
+                    ["Plugins.Feed.GoogleShoppingMultiCountry.Products.CustomGoods"] = "Custom goods",
+                    ["Plugins.Feed.GoogleShoppingMultiCountry.Products.SetCustomGoods"] = "Set Custom Goods",
+                    ["Plugins.Feed.GoogleShoppingMultiCountry.Generate"] = "Generate",
+                    ["Plugins.Feed.GoogleShoppingMultiCountry.Products.CustomGoods.Hint"] = "Custom goods (no identifier exists).",
+                    ["Plugins.Feed.GoogleShoppingMultiCountry.SuccessResult"] = "Google Shopping feed has been successfully generated.",
+                    ["Plugins.Feed.GoogleShoppingMultiCountry.StaticFilePath"] = "Generated file path (static)",
+                    ["Plugins.Feed.GoogleShoppingMultiCountry.StaticFilePath.Hint"] = "A file path of the generated file. It's static for your store and can be shared with the Google Shopping service.",
+                    ["Plugins.Feed.GoogleShoppingMultiCountry.Products.CategoryName"] = "Category",
+                    ["Plugins.Feed.GoogleShoppingMultiCountry.MapCategories"] = "Map Categories",
+                    ["Plugins.Feed.GoogleShoppingMultiCountry.MapCategories.Hint"] = "Map your store categories to Google Shopping categories",
+                    ["Plugins.Feed.GoogleShoppingMultiCountry.SearchGoogleCategory"] = "Search Google Category",
+                    ["Plugins.Feed.GoogleShoppingMultiCountry.SearchGoogleCategory.Hint"] = "Enter category name to search"
                 });
+
+                // Schedule task
+                var task = await _scheduleTaskService.GetTaskByTypeAsync(typeof(GoogleFeedUpdateTask).FullName);
+                if (task == null)
+                {
+                    await _scheduleTaskService.InsertTaskAsync(new ScheduleTask
+                    {
+                        Enabled = true,
+                        Seconds = 86400, // 24 saat
+                        Name = "Google Shopping Feed Update",
+                        Type = typeof(GoogleFeedUpdateTask).FullName,
+                    });
+                }
 
                 await base.InstallAsync();
 
@@ -286,11 +308,16 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry
         /// <returns>A task that represents the asynchronous operation</returns>
         public override async Task UninstallAsync()
         {
+            // Schedule task
+            var task = await _scheduleTaskService.GetTaskByTypeAsync(typeof(GoogleFeedUpdateTask).FullName);
+            if (task != null)
+                await _scheduleTaskService.DeleteTaskAsync(task);
+
             //settings
             await _settingService.DeleteSettingAsync<GoogleShoppingMultiCountrySettings>();
 
             //locales
-            await _localizationService.DeleteLocaleResourcesAsync("Plugins.Misc.GoogleShoppingMultiCountry");
+            await _localizationService.DeleteLocaleResourcesAsync("Plugins.Feed.GoogleShoppingMultiCountry");
 
             await base.UninstallAsync();
         }
@@ -310,17 +337,31 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry
         /// </summary>
         /// <param name="store">Store</param>
         /// <returns>A task that represents the asynchronous operation</returns>
-        public virtual async Task GenerateStaticFileAsync(Store store)
+        public async Task GenerateStaticFileAsync(Store store)
         {
             if (store == null)
                 throw new ArgumentNullException(nameof(store));
-            foreach (var language in await _languageService.GetAllLanguagesAsync(false,store.Id))
+
+            var languages = await _languageService.GetAllLanguagesAsync(false, store.Id);
+            if (!languages.Any())
+                throw new Exception("No languages configured");
+
+            foreach (var language in languages)
             {
-                var filePath = _nopFileProvider.Combine(_webHostEnvironment.WebRootPath, "files", "exportimport", store.Id + "-"+language.UniqueSeoCode +"-"+ _googleShoppingMultiCountrySettings.StaticFileName);
-                using var fs = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.ReadWrite);
-                await GenerateFeedAsync(fs, store, language);
+                if (string.IsNullOrEmpty(_googleShoppingMultiCountrySettings.StaticFileName))
+                    throw new Exception("StaticFileName setting is not configured");
+
+                var fileName = $"{store.Id}-{language.UniqueSeoCode}-{_googleShoppingMultiCountrySettings.StaticFileName}";
+                var filePath = _nopFileProvider.Combine(_webHostEnvironment.WebRootPath, "files", "exportimport", fileName);
+
+                using var stream = new FileStream(filePath, FileMode.Create, FileAccess.Write);
+                var settings = new XmlWriterSettings
+                {
+                    Encoding = Encoding.UTF8,
+                    Indent = true
+                };
+                await GenerateFeedAsync(stream, store, language);
             }
-         
         }
         /// <summary>
         /// Generate a feed
@@ -387,6 +428,7 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry
                 }
                 foreach (var productToProcess in productsToProcess)
                 {
+                    var googleProduct = await _googleService.GetByProductIdAsync(productToProcess.Id);
                     writer.WriteStartElement("item");
 
                     #region Basic Product Information
@@ -416,24 +458,22 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry
                    await writer.WriteEndElementAsync(); // description
 
                     //google product category [google_product_category] - Google's category of the item
-                    //the category of the product according to Google’s product taxonomy. http://www.google.com/support/merchants/bin/answer.py?answer=160081
+                    //the category of the product according to Google's product taxonomy. http://www.google.com/support/merchants/bin/answer.py?answer=160081
                     var googleProductCategory = "";
-                    //var googleProduct = _googleService.GetByProductId(product.Id);
-                    var googleProduct = allGoogleProducts.FirstOrDefault(x => x.ProductId == product.Id);
-                    if (googleProduct != null)
-                        googleProductCategory = googleProduct.Taxonomy; //Todo:Buraya taxonomy Id alma özelliği ekle
+                    var defaultProductCategory = (await _categoryService.GetProductCategoriesByProductIdAsync(productToProcess.Id)).FirstOrDefault();
+                    if (defaultProductCategory != null)
+                    {
+                        googleProductCategory = await _googleService.GetTaxonomyIdForProduct(productToProcess.Id, defaultProductCategory.CategoryId);
+                    }
                     if (string.IsNullOrEmpty(googleProductCategory))
                         googleProductCategory = googleShoppingSettings.DefaultGoogleCategoryId;
                     if (string.IsNullOrEmpty(googleProductCategory))
                         throw new NopException("Default Google category is not set");
-                  await  writer.WriteStartElementAsync("g", "google_product_category", googleBaseNamespace);
-                  await  writer.WriteCDataAsync(googleProductCategory);
-                  await  writer.WriteFullEndElementAsync(); // g:google_product_category
+                    await writer.WriteStartElementAsync("g", "google_product_category", googleBaseNamespace);
+                    await writer.WriteCDataAsync(googleProductCategory);
+                    await writer.WriteFullEndElementAsync(); // g:google_product_category
 
                     //product type [product_type] - Your category of the item
-                    var defaultProductCategory = (await _categoryService
-                        .GetProductCategoriesByProductIdAsync(productToProcess.Id))
-                        .FirstOrDefault();
                     if (defaultProductCategory != null)
                     {
                         //TODO localize categories
@@ -443,9 +483,9 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry
                             languageId: lang.Id);
                         if (!string.IsNullOrEmpty(category))
                         {
-                         await   writer.WriteStartElementAsync("g", "product_type", googleBaseNamespace);
-                          await  writer.WriteCDataAsync(category);
-                          await  writer.WriteFullEndElementAsync(); // g:product_type
+                            await writer.WriteStartElementAsync("g", "product_type", googleBaseNamespace);
+                            await writer.WriteCDataAsync(category);
+                            await writer.WriteFullEndElementAsync(); // g:product_type
                         }
                     }
 
@@ -453,7 +493,7 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry
                     var urlHelper = GetUrlHelper();
                     
 
-                    var productUrl = urlHelper.RouteUrl("Product", new { SeName = await _urlRecordService.GetSeNameAsync(productToProcess, languageId: lang.Id) }, await GetHttpProtocolAsync());
+                    var productUrl = urlHelper.RouteUrl("ProductDetails", new { SeName = await _urlRecordService.GetSeNameAsync(productToProcess, languageId: lang.Id) }, await GetHttpProtocolAsync());
                     var pathBase = urlHelper.ActionContext.HttpContext.Request.PathBase;
                     var scheme = new Uri(productUrl).GetComponents(UriComponents.SchemeAndServer,
                         UriFormat.Unescaped);
@@ -605,7 +645,7 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry
                     #region Apparel Products
 
                     /* Apparel includes all products that fall under 'Apparel & Accessories' (including all sub-categories)
-                     * in Google’s product taxonomy.
+                     * in Google's product taxonomy.
                     */
 
                     //gender [gender] - Gender of the item
