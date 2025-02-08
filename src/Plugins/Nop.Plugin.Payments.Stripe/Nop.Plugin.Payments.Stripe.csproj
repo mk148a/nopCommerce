@@ -23,9 +23,12 @@
     <None Remove="logo.png" />
 	<None Remove="plugin.json" />
     <None Remove="Areas\Admin\Views\_ViewImports.cshtml" />
+    <None Remove="Views\CompleteRedirectionPayment.cshtml" />
     <None Remove="Views\Configure.cshtml" />
+    <None Remove="Views\Confirm3DSecure.cshtml" />
     <None Remove="Views\PaymentError.cshtml" />
     <None Remove="Views\PaymentInfo.cshtml" />
+    <None Remove="Views\Processing.cshtml" />
     <None Remove="Views\_ViewImports.cshtml" />
   </ItemGroup>
 

@@ -1,0 +1,45 @@
+---
+description: 
+globs: 
+---
+#File Organization:
+
+    All code should be well-organized, following NopCommerce plugin structure and best practices.
+    Use standard folder naming conventions for models, views, and controllers.
+    Document every file to ensure clarity for future developers.
+
+#Coding Standards:
+
+    Follow C# coding best practices and conventions (camelCase for variables, PascalCase for classes and methods).
+    Use async/await for any I/O operations to improve performance.
+    Ensure code is maintainable and modular, favoring reusable components.
+
+#Dependency Management:
+
+    Manage external dependencies using NuGet packages.
+    Ensure that configurations are securely stored in the settings and not hardcoded.
+    Always check for compatibility with NopCommerce 4.80 before adding new dependencies.
+
+#UI/UX:
+
+    The plugin should seamlessly integrate with the NopCommerce admin interface.
+    Create a clean and user-friendly UI.
+    Ensure responsive design for any user interface.
+
+
+
+#Documentation:
+
+    Provide a detailed README file explaining the installation, configuration, and usage of the plugin.
+    Include code comments and explanations for complex logic.
+
+#Security:
+
+    Ensure all sensitive data (like API keys and customer data) is encrypted and protected.
+    The plugin should follow OWASP security guidelines for web applications.
+    Ensure no data leaks or vulnerabilities .
+
+#Version Control:
+
+    Use Git for version control and follow branching strategies (e.g., GitFlow) for managing development, testing, and production releases.
+    Ensure that all changes are documented in commit messages with clear descriptions of the updates.

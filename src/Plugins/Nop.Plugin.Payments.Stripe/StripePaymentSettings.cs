@@ -19,5 +19,15 @@ namespace Nop.Plugin.Payments.Stripe
         /// Gets or sets a value indicating whether to "additional fee" is specified as percentage
         /// </summary>
         public bool AdditionalFeePercentage { get; set; }
+
+        /// <summary>
+        /// Stripe Webhook Secret Key
+        /// </summary>
+        public string WebhookSecret { get; set; }
+        
+        /// <summary>
+        /// Enable 3D Secure
+        /// </summary>
+        public bool Enable3DS { get; set; }
     }
 }

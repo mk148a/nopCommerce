@@ -2,17 +2,20 @@
 @using Nop.Web.Framework.TagHelpers.Shared
 @using Nop.Core
 @using Microsoft.AspNetCore.Mvc.TagHelpers
+@using Nop.Plugin.Payments.Stripe
 @model Nop.Plugin.Payments.Stripe.Models.PaymentInfoModel
+@inject StripePaymentSettings stripeSettings
+
 @{
     Layout = "";
-
 }
-
 
 @inject IWorkContext _workContext;
 @inject ICurrencyService currencyService;
 @inject IWebHelper webHelper;
 
+<input type="hidden" id="stripePublicKey" value="@stripeSettings.PublishableKey" />
+<input type="hidden" id="stripe3dsIframe" />
 
 @if (Model.PaymentResult == false)
 {
@@ -68,9 +71,78 @@ else
         </tr>
     </table>
 
-
-    
+    @if (!string.IsNullOrEmpty(Model.Html))
+    {
+        <div id="stripe-3ds-container" style="display:none;">
+            <iframe id="stripe-3ds-iframe" name="stripe-3ds-iframe" frameborder="0" width="100%" height="600"></iframe>
+        </div>
+    }
 }
+
+@section Scripts {
+    <script src="https://js.stripe.com/v3/"></script>
+    <script>
+        var stripe = Stripe('@stripeSettings.PublishableKey');
+        var elements = stripe.elements();
+        
+        // Mevcut kart form elementleri...
+        
+        async function handlePayment(paymentIntentId) {
+            const { error, paymentIntent } = await stripe.confirmCardPayment(paymentIntentId, {
+                payment_method: {
+                    card: card,
+                    billing_details: {
+                        name: document.getElementById('CardholderName').value
+                    }
+                }
+            });
+            
+            if (error) {
+                // Hata durumunda
+                displayError(error.message);
+            } else if (paymentIntent.status === 'requires_action') {
+                // 3D Secure gerekiyorsa
+                handleRequiresAction(paymentIntent);
+            } else if (paymentIntent.status === 'succeeded') {
+                // Başarılı ödeme
+                orderPlaced();
+            }
+        }
+        
+        function handleRequiresAction(paymentIntent) {
+            const container = document.getElementById('stripe-3ds-container');
+            const iframe = document.getElementById('stripe-3ds-iframe');
+            
+            container.style.display = 'block';
+            
+            stripe.handleCardAction(paymentIntent.client_secret)
+                .then(function(result) {
+                    if (result.error) {
+                        displayError(result.error.message);
+                    } else {
+                        // 3D Secure doğrulaması başarılı
+                        confirmPayment(result.paymentIntent.id);
+                    }
+                });
+        }
+        
+        function confirmPayment(paymentIntentId) {
+            $.ajax({
+                url: '@Url.Action("Confirm3DSecure", "PaymentStripe")',
+                type: 'POST',
+                data: { paymentIntentId: paymentIntentId },
+                success: function(response) {
+                    if (response.success) {
+                        orderPlaced();
+                    } else {
+                        displayError(response.error);
+                    }
+                }
+            });
+        }
+    </script>
+}
+
 @* 
 <script type="text/javascript">
 

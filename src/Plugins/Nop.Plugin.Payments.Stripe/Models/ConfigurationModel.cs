@@ -30,6 +30,15 @@ namespace Nop.Plugin.Payments.Stripe.Models
         public string PaymentErrorUrl { get; set; }
         public bool PaymentErrorUrl_OverrideForStore { get; set; }
 
-     
+        [NopResourceDisplayName("Plugins.Payments.Stripe.Fields.WebhookSecret")]
+        public string WebhookSecret { get; set; }
+        public bool WebhookSecret_OverrideForStore { get; set; }
+
+        [NopResourceDisplayName("Plugins.Payments.Stripe.Fields.Enable3DS")]
+        public bool Enable3DS { get; set; }
+        public bool Enable3DS_OverrideForStore { get; set; }
+
+
+
     }
 }

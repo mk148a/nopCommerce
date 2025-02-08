@@ -1,0 +1,37 @@
+@model string
+
+<div id="stripe-3ds-container">
+    <form id="stripe-3ds-form" method="post">
+        <div id="stripe-3ds-element"></div>
+        <div id="stripe-3ds-error" class="alert alert-danger" style="display:none;"></div>
+    </form>
+</div>
+
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+    var stripe = Stripe('@(await Component.InvokeAsync("StripePublicKey"))');
+    var clientSecret = '@Model';
+    
+    // 3D Secure işlemini başlat
+    stripe.confirmCardPayment(clientSecret, {
+        payment_method: {
+            card: {
+                // Kart bilgileri zaten PaymentIntent'te mevcut
+            }
+        },
+        return_url: '@Url.RouteUrl("CheckoutCompleted")'
+    }).then(function(result) {
+        if (result.error) {
+            displayError(result.error.message);
+        } else {
+            // 3D Secure doğrulaması başarılı veya gerekli değil
+            window.location.href = '@Url.RouteUrl("CheckoutCompleted")';
+        }
+    });
+    
+    function displayError(message) {
+        var errorElement = document.getElementById('stripe-3ds-error');
+        errorElement.textContent = message;
+        errorElement.style.display = 'block';
+    }
+</script> 
