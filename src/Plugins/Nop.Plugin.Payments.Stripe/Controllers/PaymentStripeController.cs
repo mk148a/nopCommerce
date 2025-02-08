@@ -13,12 +13,15 @@ using Nop.Web.Framework;
 using Nop.Web.Framework.Controllers;
 using Nop.Web.Framework.Mvc.Filters;
 using Stripe;
+using System.IO;
+using Microsoft.AspNetCore.Http;
+using Nop.Core.Domain.Orders;
+using Nop.Core.Domain.Payments;
+using Nop.Core.Http.Extensions;
+using Nop.Services.Logging;
 
 namespace Nop.Plugin.Payments.Stripe.Controllers
 {
-    [AuthorizeAdmin]
-    [Area(AreaNames.ADMIN)]
-    [AutoValidateAntiforgeryToken]
     public class PaymentStripeController : BasePaymentController
     {
         #region Fields
@@ -31,6 +34,8 @@ namespace Nop.Plugin.Payments.Stripe.Controllers
         private readonly IOrderService _orderService;
         private readonly IWorkContext _workContext;
         private readonly StripePaymentSettings _stripePaymentSettings;
+        private readonly ILogger _logger;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         #endregion
 
@@ -43,7 +48,9 @@ namespace Nop.Plugin.Payments.Stripe.Controllers
             IStoreContext storeContext,
             IOrderService orderService,
             IWorkContext workContext,
-            StripePaymentSettings stripePaymentSettings)
+            StripePaymentSettings stripePaymentSettings,
+            ILogger logger,
+            IHttpContextAccessor httpContextAccessor)
         {
             _localizationService = localizationService;
             _notificationService = notificationService;
@@ -52,7 +59,9 @@ namespace Nop.Plugin.Payments.Stripe.Controllers
             _storeContext = storeContext;
             _orderService = orderService;
             _workContext = workContext;
-            _stripePaymentSettings= stripePaymentSettings;
+            _stripePaymentSettings = stripePaymentSettings;
+            _logger = logger;
+            _httpContextAccessor= httpContextAccessor;
         }
 
         #endregion
@@ -60,6 +69,10 @@ namespace Nop.Plugin.Payments.Stripe.Controllers
         #region Methods
 
         /// <returns>A task that represents the asynchronous operation</returns>
+        /// 
+        [AuthorizeAdmin]
+        [Area(AreaNames.ADMIN)]
+        [AutoValidateAntiforgeryToken]
         public async Task<IActionResult> Configure()
         {
             if (!await _permissionService.AuthorizeAsync(StandardPermission.Configuration.MANAGE_PAYMENT_METHODS))
@@ -73,13 +86,16 @@ namespace Nop.Plugin.Payments.Stripe.Controllers
             {
                 PublishableKey = stripePaymentSettings.PublishableKey,
                 SecretKey = stripePaymentSettings.SecretKey,
-                ActiveStoreScopeConfiguration = storeScope
+                ActiveStoreScopeConfiguration = storeScope,
+                WebhookSecret=stripePaymentSettings.WebhookSecret,
             };
 
             if (storeScope > 0)
             {
                 model.PublishableKey_OverrideForStore = await _settingService.SettingExistsAsync(stripePaymentSettings, x => x.PublishableKey, storeScope);
-                model.SecretKey_OverrideForStore = await _settingService.SettingExistsAsync(stripePaymentSettings, x => x.SecretKey, storeScope);
+                model.SecretKey_OverrideForStore =
+                    await _settingService.SettingExistsAsync(stripePaymentSettings, x => x.SecretKey, storeScope);
+                model.WebhookSecret_OverrideForStore = await _settingService.SettingExistsAsync(stripePaymentSettings, x => x.WebhookSecret, storeScope);
 
             }
 
@@ -88,6 +104,9 @@ namespace Nop.Plugin.Payments.Stripe.Controllers
 
         [HttpPost]
         /// <returns>A task that represents the asynchronous operation</returns>
+        [AuthorizeAdmin]
+        [Area(AreaNames.ADMIN)]
+        [AutoValidateAntiforgeryToken]
         public async Task<IActionResult> Configure(ConfigurationModel model)
         {
             if (!await _permissionService.AuthorizeAsync(StandardPermission.Configuration.MANAGE_PAYMENT_METHODS))
@@ -103,6 +122,8 @@ namespace Nop.Plugin.Payments.Stripe.Controllers
             //save settings
             stripePaymentSettings.PublishableKey = model.PublishableKey;
             stripePaymentSettings.SecretKey = model.SecretKey;
+            stripePaymentSettings.Enable3DS = model.Enable3DS;
+            stripePaymentSettings.WebhookSecret = model.WebhookSecret;
             
 
 
@@ -113,6 +134,8 @@ namespace Nop.Plugin.Payments.Stripe.Controllers
 
             await _settingService.SaveSettingOverridablePerStoreAsync(stripePaymentSettings, x => x.PublishableKey, model.PublishableKey_OverrideForStore, storeScope, false);
             await _settingService.SaveSettingOverridablePerStoreAsync(stripePaymentSettings, x => x.SecretKey, model.SecretKey_OverrideForStore, storeScope, false);
+            await _settingService.SaveSettingOverridablePerStoreAsync(stripePaymentSettings, x => x.Enable3DS, model.Enable3DS_OverrideForStore, storeScope, false);
+            await _settingService.SaveSettingOverridablePerStoreAsync(stripePaymentSettings, x => x.WebhookSecret, model.WebhookSecret_OverrideForStore, storeScope, false);
             
 
             //now clear settings cache
@@ -124,6 +147,8 @@ namespace Nop.Plugin.Payments.Stripe.Controllers
         }
 
         /// <returns>A task that represents the asynchronous operation</returns>
+
+       
         public async Task<IActionResult> CancelOrder()
         {
             var order = (await _orderService.SearchOrdersAsync((await _storeContext.GetCurrentStoreAsync()).Id,
@@ -178,6 +203,144 @@ namespace Nop.Plugin.Payments.Stripe.Controllers
                 "processing" => await _localizationService.GetResourceAsync("Plugins.Payments.Stripe.StatusProcessing"),
                 _ => await _localizationService.GetResourceAsync("Plugins.Payments.Stripe.StatusUnknown")
             };
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Confirm3DSecure(string paymentIntentId)
+        {
+            try
+            {
+                var service = new PaymentIntentService();
+                var paymentIntent = await service.GetAsync(paymentIntentId);
+                
+                if (paymentIntent.Status == "succeeded")
+                {
+                    var order = await _orderService.GetOrderByGuidAsync(Guid.Parse(paymentIntent.Metadata["order_guid"]));
+                    if (order != null)
+                    {
+                        order.PaymentStatus = PaymentStatus.Paid;
+                        order.OrderStatus = OrderStatus.Processing;
+                        await _orderService.UpdateOrderAsync(order);
+                        
+                        return Json(new { success = true });
+                    }
+                }
+                
+                return Json(new { success = false, error = "Payment could not be confirmed" });
+            }
+            catch (Exception ex)
+            {
+                await _logger.ErrorAsync("Stripe 3D Secure confirmation error", ex);
+                return Json(new { success = false, error = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        public async Task<IActionResult> WebhookHandler()
+        {
+            var json = await new StreamReader(HttpContext.Request.Body).ReadToEndAsync();
+            
+            try
+            {
+                Console.WriteLine(json);
+                var stripeEvent = EventUtility.ConstructEvent(
+                    json,
+                    Request.Headers["Stripe-Signature"],
+                    _stripePaymentSettings.WebhookSecret
+                );
+                
+                switch (stripeEvent.Type)
+                {
+                    case "payment_intent.succeeded":
+                        var paymentIntent = stripeEvent.Data.Object as PaymentIntent;
+                        await HandleSuccessfulPayment(paymentIntent);
+                        break;
+                        
+                    case "payment_intent.payment_failed":
+                        var failedPaymentIntent = stripeEvent.Data.Object as PaymentIntent;
+                        await HandleFailedPayment(failedPaymentIntent);
+                        break;
+                }
+                
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                await _logger.ErrorAsync("Stripe webhook error", ex);
+                return BadRequest();
+            }
+        }
+
+        private async Task HandleSuccessfulPayment(PaymentIntent paymentIntent)
+        {
+            var order = await _orderService.GetOrderByGuidAsync(Guid.Parse(paymentIntent.Metadata["order_guid"]));
+            if (order != null)
+            {
+                order.PaymentStatus = PaymentStatus.Paid;
+                order.OrderStatus = OrderStatus.Processing;
+                await _orderService.UpdateOrderAsync(order);
+            }
+        }
+
+        private async Task HandleFailedPayment(PaymentIntent paymentIntent)
+        {
+            var order = await _orderService.GetOrderByGuidAsync(Guid.Parse(paymentIntent.Metadata["order_guid"]));
+            if (order != null)
+            {
+                order.PaymentStatus = PaymentStatus.Voided;
+                order.OrderStatus = OrderStatus.Cancelled;
+                await _orderService.UpdateOrderAsync(order);
+            }
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        public async Task<IActionResult> Check3DSecureStatus(string paymentIntentId)
+        {
+            try
+            {
+                var service = new PaymentIntentService();
+                var paymentIntent = await service.GetAsync(paymentIntentId, null, GetStripeApiRequestOptions());
+
+                if (paymentIntent.Status == "succeeded")
+                {
+                    var order = await _orderService.GetOrderByGuidAsync(Guid.Parse(paymentIntent.Metadata["order_guid"]));
+                    if (order != null)
+                    {
+                        order.PaymentStatus = PaymentStatus.Paid;
+                        order.OrderStatus = OrderStatus.Processing;
+                        await _orderService.UpdateOrderAsync(order);
+                        return Json(new { success = true });
+                    }
+                }
+                
+                return Json(new { success = false, error = "Payment could not be completed" });
+            }
+            catch (Exception ex)
+            {
+                await _logger.ErrorAsync("Error checking 3D Secure status", ex);
+                return Json(new { success = false, error = ex.Message });
+            }
+        }   
+        
+        [HttpPost]
+        [AllowAnonymous]
+        public async Task<IActionResult> SaveError(string error)
+        {
+            try
+            {
+                 await _httpContextAccessor.HttpContext.Session.SetAsync("Stripe3DSError", error);
+
+                 return Json(new { success = true });
+
+               
+            }
+            catch (Exception ex)
+            {
+                await _logger.ErrorAsync("Error saving 3D Secure error message", ex);
+                return Json(new { success = false, error = ex.Message });
+            }
         }
 
         #endregion
