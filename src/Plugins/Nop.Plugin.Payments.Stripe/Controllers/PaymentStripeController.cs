@@ -243,7 +243,7 @@ namespace Nop.Plugin.Payments.Stripe.Controllers
             
             try
             {
-                Console.WriteLine(json);
+             
                 var stripeEvent = EventUtility.ConstructEvent(
                     json,
                     Request.Headers["Stripe-Signature"],
@@ -261,8 +261,16 @@ namespace Nop.Plugin.Payments.Stripe.Controllers
                         var failedPaymentIntent = stripeEvent.Data.Object as PaymentIntent;
                         await HandleFailedPayment(failedPaymentIntent);
                         break;
+                    case "charge.succeeded":
+                        var charge = stripeEvent.Data.Object as Charge;
+                        await HandleSuccessfulPayment(charge);
+                        break;
+                    case "charge.failed":
+                        var chargefail = stripeEvent.Data.Object as Charge;
+                        await HandleFailedPayment(chargefail);
+                        break;
                 }
-                
+
                 return Ok();
             }
             catch (Exception ex)
@@ -271,7 +279,16 @@ namespace Nop.Plugin.Payments.Stripe.Controllers
                 return BadRequest();
             }
         }
-
+        private async Task HandleSuccessfulPayment(Charge charge)
+        {
+            var order = await _orderService.GetOrderByGuidAsync(Guid.Parse(charge.Metadata["order_guid"]));
+            if (order != null)
+            {
+                order.PaymentStatus = PaymentStatus.Paid;
+                order.OrderStatus = OrderStatus.Processing;
+                await _orderService.UpdateOrderAsync(order);
+            }
+        }
         private async Task HandleSuccessfulPayment(PaymentIntent paymentIntent)
         {
             var order = await _orderService.GetOrderByGuidAsync(Guid.Parse(paymentIntent.Metadata["order_guid"]));
@@ -286,6 +303,17 @@ namespace Nop.Plugin.Payments.Stripe.Controllers
         private async Task HandleFailedPayment(PaymentIntent paymentIntent)
         {
             var order = await _orderService.GetOrderByGuidAsync(Guid.Parse(paymentIntent.Metadata["order_guid"]));
+            if (order != null)
+            {
+                order.PaymentStatus = PaymentStatus.Voided;
+                order.OrderStatus = OrderStatus.Cancelled;
+                await _orderService.UpdateOrderAsync(order);
+            }
+        }
+
+        private async Task HandleFailedPayment(Charge charge)
+        {
+            var order = await _orderService.GetOrderByGuidAsync(Guid.Parse(charge.Metadata["order_guid"]));
             if (order != null)
             {
                 order.PaymentStatus = PaymentStatus.Voided;

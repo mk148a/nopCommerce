@@ -452,7 +452,7 @@ namespace Nop.Plugin.Payments.Stripe
                 // Description ve Metadata'yı güncelle
                 var updateOptionsDescription = new PaymentIntentUpdateOptions
                 {
-                    Description = "Order Number:" + orderId + Environment.NewLine + paymentIntent.Description,
+                    Description = "Order Number:" + orderId + Environment.NewLine + (paymentIntent?.Description ?? ""),
                     Metadata = new Dictionary<string, string> { { "order_id", orderId.ToString() } }
                 };
 
@@ -478,39 +478,46 @@ namespace Nop.Plugin.Payments.Stripe
                         var returnUrl = paymentIntent.NextAction.RedirectToUrl.ReturnUrl;
 
                         // JavaScript ile iframe oluştur ve 3D Secure sayfasını göster
-                        var script = $@"
-                            <div id='stripe3DSecureContainer' style='position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:9999;display:flex;justify-content:center;align-items:center;'>
-                                <div style='background:white;padding:20px;border-radius:5px;width:80%;max-width:600px;'>
-                                    <iframe src='{threeDSecureUrl}' id='stripe3DSecureFrame' style='width:100%;height:600px;border:none;'></iframe>
-                                </div>
-                            </div>
-                            <script>
-                                window.addEventListener('message', function(ev) {{
-                                    if (ev.data === '3DS-authentication-complete') {{
-                                        // 3D Secure işlemi tamamlandı, sonucu kontrol et
-                                        fetch('/PaymentStripe/Check3DSecureStatus?paymentIntentId={paymentIntentId}', {{
-                                            method: 'POST',
-                                            headers: {{
-                                                'Content-Type': 'application/json'
-                                            }}
-                                        }})
-                                        .then(response => response.json())
-                                        .then(result => {{
-                                            if (result.success) {{
-                                                window.location.href = '/checkout/completed?orderId={postProcessPaymentRequest.Order.Id};
-                                                console.log('success');
-                                            }} else {{
-                                                alert('Payment failed: ' + result.error);
-                                                window.location.href = '/checkout/completed?orderId={postProcessPaymentRequest.Order.Id}';
-                                            }}
-                                        }});
-                                    }}
-                                }}, false);
-                            </script>";
+                        //var script = $@"
+                        //    <div id='stripe3DSecureContainer' style='position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:9999;display:flex;justify-content:center;align-items:center;'>
+                        //        <div style='background:white;padding:20px;border-radius:5px;width:80%;max-width:600px;'>
+                        //            <iframe src='{threeDSecureUrl}' id='stripe3DSecureFrame' style='width:100%;height:600px;border:none;'></iframe>
+                        //        </div>
+                        //    </div>
+                        //    <script>
+                        //        window.addEventListener('message', function(ev) {{
+                        //            if (ev.data === '3DS-authentication-complete') {{
+                        //                // 3D Secure işlemi tamamlandı, sonucu kontrol et
+                        //                fetch('/PaymentStripe/Check3DSecureStatus?paymentIntentId={paymentIntentId}', {{
+                        //                    method: 'POST',
+                        //                    headers: {{
+                        //                        'Content-Type': 'application/json'
+                        //                    }}
+                        //                }})
+                        //                .then(response => response.json())
+                        //                .then(result => {{
+                        //                    if (result.success) {{
+                        //                        window.location.href = '/checkout/completed?orderId={postProcessPaymentRequest.Order.Id};
+                        //                        console.log('success');
+                        //                    }} else {{
+                        //                        alert('Payment failed: ' + result.error);
+                        //                        window.location.href = '/checkout/completed?orderId={postProcessPaymentRequest.Order.Id}';
+                        //                    }}
+                        //                }});
+                        //            }}
+                        //        }}, false);
+                        //    </script>";
 
-                        await _httpContextAccessor.HttpContext.Response.WriteAsync(script);
+                         _httpContextAccessor.HttpContext.Response.Redirect(threeDSecureUrl);
 
+                        var order = await _orderService.GetOrderByGuidAsync(Guid.Parse(paymentIntent.Metadata["order_guid"]));
 
+                        //while (order.OrderStatus == OrderStatus.Pending)
+                        //{
+                        //    order = await _orderService.GetOrderByGuidAsync(Guid.Parse(paymentIntent.Metadata["order_guid"]));
+                        //}
+
+                        //await Task.Delay(1000);
                     }
                 }
                 else if (paymentIntent.Status == "requires_confirmation")
@@ -526,22 +533,28 @@ namespace Nop.Plugin.Payments.Stripe
                     {
                         postProcessPaymentRequest.Order.PaymentStatus = PaymentStatus.Paid;
                         postProcessPaymentRequest.Order.OrderStatus = OrderStatus.Processing;
+                        postProcessPaymentRequest.Order.AuthorizationTransactionId = paymentIntent.LatestChargeId;
+                        postProcessPaymentRequest.Order.AuthorizationTransactionResult = $"Transaction was processed by using {paymentIntent.LatestCharge?.Source.Object}. Status is {paymentIntent.Status}";
+
+                        await _orderService.InsertOrderNoteAsync(new OrderNote
+                        {
+                            OrderId = postProcessPaymentRequest.Order.Id,
+                            Note = $"Transaction was processed by using {paymentIntent.LatestCharge?.Source.Object}. Status is {paymentIntent.Status}",
+                            DisplayToCustomer = false,
+                            CreatedOnUtc = DateTime.UtcNow
+                        });
+
                         await _orderService.UpdateOrderAsync(postProcessPaymentRequest.Order);
+                        await _logger.InformationAsync($"Order updated to Paid: OrderID={postProcessPaymentRequest.Order.Id}");
+                        await Task.FromResult(true);
                     }
                     else
                     {
+                        await Task.FromResult(false);
                         throw new NopException($"Unexpected PaymentIntent status: {confirmResult.Status}");
                     }
                 }
                 else if (paymentIntent.Status == "succeeded")
-                {
-                    postProcessPaymentRequest.Order.PaymentStatus = PaymentStatus.Paid;
-                    postProcessPaymentRequest.Order.OrderStatus = OrderStatus.Processing;
-                    await _orderService.UpdateOrderAsync(postProcessPaymentRequest.Order);
-                }
-
-                paymentIntent = await service.GetAsync(paymentIntentId, null, GetStripeApiRequestOptions());
-                if (paymentIntent.Status == "succeeded")
                 {
                     postProcessPaymentRequest.Order.PaymentStatus = PaymentStatus.Paid;
                     postProcessPaymentRequest.Order.OrderStatus = OrderStatus.Processing;
@@ -558,7 +571,8 @@ namespace Nop.Plugin.Payments.Stripe
 
                     await _orderService.UpdateOrderAsync(postProcessPaymentRequest.Order);
                     await _logger.InformationAsync($"Order updated to Paid: OrderID={postProcessPaymentRequest.Order.Id}");
-
+                    await Task.FromResult(true);
+                   
                 }
                 else
                 {
@@ -566,8 +580,7 @@ namespace Nop.Plugin.Payments.Stripe
                     await _logger.ErrorAsync($"PaymentIntent onaylanamadı: ID={paymentIntent.Id}, Status={paymentIntent.Status}, Error={paymentIntent.LastPaymentError?.Message}");
                     postProcessPaymentRequest.Order.OrderStatus = OrderStatus.Cancelled;
                     await _orderService.UpdateOrderAsync(postProcessPaymentRequest.Order);
-
-
+                    await Task.FromResult(false);
 
                 }
             }
@@ -584,6 +597,7 @@ namespace Nop.Plugin.Payments.Stripe
                     order.OrderStatus = OrderStatus.Cancelled;
                     await _orderService.UpdateOrderAsync(order);
                 }
+                await Task.FromResult(false);
                 throw new NopException($"Stripe error: {ex.Message}");
             }
         }
