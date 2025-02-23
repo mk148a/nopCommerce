@@ -1,5 +1,8 @@
 using System.Runtime.ExceptionServices;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Nop.Core;
@@ -25,6 +28,8 @@ public class GoogleBotAggregatorPlugin : BasePlugin, IMiscPlugin
     private readonly IGoogleBotService _googleBotService;
     private readonly ILocalizationService _localizationService;
     private readonly ILanguageService _languageService;
+    private readonly IActionContextAccessor _actionContextAccessor;
+    private readonly IUrlHelperFactory _urlHelperFactory;
 
     #endregion
 
@@ -35,13 +40,17 @@ public class GoogleBotAggregatorPlugin : BasePlugin, IMiscPlugin
         IWebHelper webHelper,
         IGoogleBotService googleBotService,
         ILocalizationService localizationService,
-        ILanguageService languageService)
+        ILanguageService languageService,
+        IActionContextAccessor actionContextAccessor,
+        IUrlHelperFactory urlHelperFactory)
     {
         _settingService = settingService;
         _webHelper = webHelper;
         _googleBotService = googleBotService;
         _localizationService = localizationService;
         _languageService = languageService;
+        _actionContextAccessor = actionContextAccessor;
+        _urlHelperFactory = urlHelperFactory;
     }
 
     #endregion
@@ -53,7 +62,7 @@ public class GoogleBotAggregatorPlugin : BasePlugin, IMiscPlugin
     /// </summary>
     public override string GetConfigurationPageUrl()
     {
-        return $"{_webHelper.GetStoreLocation()}Admin/GoogleBotAggregator/Configure";
+        return _urlHelperFactory.GetUrlHelper(_actionContextAccessor.ActionContext).RouteUrl(GoogleBotDefaults.ConfigurationRouteName);
     }
 
     /// <summary>

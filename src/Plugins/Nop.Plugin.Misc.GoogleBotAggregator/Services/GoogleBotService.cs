@@ -1,9 +1,11 @@
 using System.Text.RegularExpressions;
 using Nop.Core;
+using Nop.Core.Domain.Catalog;
 using Nop.Core.Domain.Customers;
 using Nop.Core.Domain.Orders;
 using Nop.Data;
 using Nop.Plugin.Misc.GoogleBotAggregator.Domain;
+using Nop.Services.Catalog;
 using Nop.Services.Common;
 using Nop.Services.Customers;
 using Nop.Services.Orders;
@@ -21,6 +23,7 @@ public class GoogleBotService : IGoogleBotService
     private readonly ICustomerService _customerService;
     private readonly IGenericAttributeService _genericAttributeService;
     private readonly IShoppingCartService _shoppingCartService;
+    private readonly IProductService _productService;
     private readonly GoogleBotAggregatorSettings _settings;
 
     #endregion
@@ -32,12 +35,14 @@ public class GoogleBotService : IGoogleBotService
         ICustomerService customerService,
         IGenericAttributeService genericAttributeService,
         IShoppingCartService shoppingCartService,
+        IProductService productService,
         GoogleBotAggregatorSettings settings)
     {
         _googleBotCustomerRepository = googleBotCustomerRepository;
         _customerService = customerService;
         _genericAttributeService = genericAttributeService;
         _shoppingCartService = shoppingCartService;
+        _productService = productService;
         _settings = settings;
     }
 
@@ -158,11 +163,14 @@ public class GoogleBotService : IGoogleBotService
         // Her bir ürünü hedef müşterinin sepetine ekle
         foreach (var item in sourceShoppingCart)
         {
-            await _shoppingCartService.AddToCartAsync(targetCustomer, 
-                await _shoppingCartService.GetProductByIdAsync(item.ProductId),
-                ShoppingCartType.ShoppingCart, item.StoreId, item.AttributesXml,
-                item.CustomerEnteredPrice, item.RentalStartDateUtc, item.RentalEndDateUtc,
-                item.Quantity);
+            var product = await _productService.GetProductByIdAsync(item.ProductId);
+            if (product != null)
+            {
+                await _shoppingCartService.AddToCartAsync(targetCustomer, product,
+                    ShoppingCartType.ShoppingCart, item.StoreId, item.AttributesXml,
+                    item.CustomerEnteredPrice, item.RentalStartDateUtc, item.RentalEndDateUtc,
+                    item.Quantity);
+            }
         }
 
         // Kaynak müşterinin sepetini temizle
