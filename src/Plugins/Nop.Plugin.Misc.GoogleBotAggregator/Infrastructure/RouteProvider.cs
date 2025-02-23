@@ -15,9 +15,9 @@ public class RouteProvider : IRouteProvider
     /// <param name="endpointRouteBuilder">Route builder</param>
     public void RegisterRoutes(IEndpointRouteBuilder endpointRouteBuilder)
     {
-        endpointRouteBuilder.MapControllerRoute(name: GoogleBotDefaults.ConfigurationRouteName,
-            pattern: "Admin/GoogleBotAggregator/Configure",
-            defaults: new { controller = "GoogleBotAggregator", action = "Configure", area = "Admin" });
+        //endpointRouteBuilder.MapControllerRoute(name: GoogleBotDefaults.ConfigurationRouteName,
+        //    pattern: "Admin/GoogleBotAggregator/Configure",
+        //    defaults: new { controller = "GoogleBotAggregator", action = "Configure", area = "Admin" });
     }
 
     /// <summary>
