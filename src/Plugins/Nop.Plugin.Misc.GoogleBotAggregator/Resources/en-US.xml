@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Language Name="English">
+  <LocaleResource Name="Plugins.Misc.GoogleBotAggregator">
+    <Value>Google Bot Aggregator</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.GoogleBotAggregator.ExcludeFromAnalytics">
+    <Value>Exclude from analytics</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.GoogleBotAggregator.ExcludeFromAnalytics.Hint">
+    <Value>Check to exclude Google Bot traffic from analytics</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.GoogleBotAggregator.MergeShoppingCarts">
+    <Value>Merge shopping carts</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.GoogleBotAggregator.MergeShoppingCarts.Hint">
+    <Value>Check to merge shopping carts from Google Bot traffic</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.GoogleBotAggregator.GoogleBotCustomerEmail">
+    <Value>Google Bot customer email</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.GoogleBotAggregator.GoogleBotCustomerEmail.Hint">
+    <Value>Enter the email address for Google Bot customer account</Value>
+  </LocaleResource>
+</Language> 

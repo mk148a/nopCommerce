@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Language Name="Türkçe">
+  <LocaleResource Name="Plugins.Misc.GoogleBotAggregator">
+    <Value>Google Bot Toplayıcı</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.GoogleBotAggregator.ExcludeFromAnalytics">
+    <Value>Analizlerden hariç tut</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.GoogleBotAggregator.ExcludeFromAnalytics.Hint">
+    <Value>Google Bot trafiğini analizlerden hariç tutmak için işaretleyin</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.GoogleBotAggregator.MergeShoppingCarts">
+    <Value>Sepetleri birleştir</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.GoogleBotAggregator.MergeShoppingCarts.Hint">
+    <Value>Google Bot trafiğinden gelen sepetleri birleştirmek için işaretleyin</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.GoogleBotAggregator.GoogleBotCustomerEmail">
+    <Value>Google Bot müşteri e-postası</Value>
+  </LocaleResource>
+  <LocaleResource Name="Plugins.Misc.GoogleBotAggregator.GoogleBotCustomerEmail.Hint">
+    <Value>Google Bot müşteri hesabı için e-posta adresini girin</Value>
+  </LocaleResource>
+</Language> 
