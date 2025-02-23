@@ -1,4 +1,4 @@
-namespace Nop.Plugin.Misc.GoogleBotAggregator;
+﻿namespace Nop.Plugin.Misc.GoogleBotAggregator;
 
 /// <summary>
 /// Represents plugin constants
@@ -8,7 +8,7 @@ public static class GoogleBotDefaults
     /// <summary>
     /// Gets the plugin system name
     /// </summary>
-    public static string SystemName => "Misc.GoogleBotAggregator";
+    public static string SystemName => "Nop.Plugin.Misc.GoogleBotAggregator";
 
     /// <summary>
     /// Gets the configuration route name

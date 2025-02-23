@@ -1,4 +1,4 @@
-using System.Runtime.ExceptionServices;
+﻿using System.Runtime.ExceptionServices;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
@@ -62,7 +62,8 @@ public class GoogleBotAggregatorPlugin : BasePlugin, IMiscPlugin
     /// </summary>
     public override string GetConfigurationPageUrl()
     {
-        return _urlHelperFactory.GetUrlHelper(_actionContextAccessor.ActionContext).RouteUrl(GoogleBotDefaults.ConfigurationRouteName);
+         return $"{_webHelper.GetStoreLocation()}Admin/GoogleBotAggregator/Configure";
+        //return _urlHelperFactory.GetUrlHelper(_actionContextAccessor.ActionContext).RouteUrl(GoogleBotDefaults.ConfigurationRouteName);
     }
 
     /// <summary>

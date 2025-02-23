@@ -45,7 +45,7 @@ public class GoogleBotAggregatorController : BasePluginController
 
     #region Methods
 
-    [CheckPermission(StandardPermission.Configuration.MANAGE_PLUGINS)]
+    
     public IActionResult Configure()
     {
         var model = new ConfigurationModel
@@ -59,7 +59,6 @@ public class GoogleBotAggregatorController : BasePluginController
     }
 
     [HttpPost]
-    [CheckPermission(StandardPermission.Configuration.MANAGE_PLUGINS)]
     public async Task<IActionResult> Configure(ConfigurationModel model)
     {
         if (!ModelState.IsValid)
