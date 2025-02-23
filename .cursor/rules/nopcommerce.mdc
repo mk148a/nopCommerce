@@ -1,45 +1,88 @@
 ---
-description: Nopcommerce
+description: 
 globs: 
 ---
-#File Organization:
+---
+description: "NopCommerce Plugin Development for Google Bot Aggregator Plugin. This plugin consolidates traffic from GoogleBot and similar sources under a single membership ('Google Bot') and excludes such traffic from analytics."
+globs:
+  - "**/*.cs"
+  - "**/*.csproj"
+  - "**/*.cshtml"
+  - "README.md"
+  - "docs/**/*"
+docs:
+  - "https://docs.nopcommerce.com/en/developer/tutorials/guide-to-expanding-the-functionality-of-the-basic-functions-of-nop-commerce-through-a-plugin.html"
+- "https://docs.nopcommerce.com/en/developer/tutorials/guide-to-creating-a-page-containing-a-reporting-table-of-datatables.html"
+- "https://docs.nopcommerce.com/en/developer/tutorials/data-validation.html"
+- "https://docs.nopcommerce.com/en/developer/tutorials/events.html"
+- "https://docs.nopcommerce.com/en/developer/tutorials/settings.html"
+- "https://docs.nopcommerce.com/en/developer/tutorials/appsettings-json-file.html"
+- "https://docs.nopcommerce.com/en/developer/tutorials/description-of-the-web-config-file-in-project.html"
+- "https://docs.nopcommerce.com/en/developer/tutorials/permissions.html"
+- "https://docs.nopcommerce.com/en/developer/tutorials/scheduled-tasks.html"
+- "https://docs.nopcommerce.com/en/developer/tutorials/type-finder.html"
+- "https://docs.nopcommerce.com/en/developer/tutorials/azure-deploy.html"
+- "https://docs.nopcommerce.com/en/developer/tutorials/csp-headers.html"
+- "https://docs.nopcommerce.com/en/developer/tutorials/unit-tests.html"
+- "https://docs.nopcommerce.com/en/developer/plugins/how-to-write-plugin-4.80.html"
+- "https://docs.nopcommerce.com/en/developer/plugins/payment-method.html"
+- "https://docs.nopcommerce.com/en/developer/plugins/shipping-plugin.html"
+- "https://docs.nopcommerce.com/en/developer/plugins/plugin-with-data-access.html"
+- "https://docs.nopcommerce.com/en/developer/plugins/plugin-with-data-access-4.20.html"
+- "https://docs.nopcommerce.com/en/developer/plugins/menu-item.html"
+- "https://docs.nopcommerce.com/en/developer/plugins/resource-files.html"
+- "https://docs.nopcommerce.com/en/developer/plugins/plugin.json.html"
+- "https://docs.nopcommerce.com/en/developer/design/overview.html"
+- "https://docs.nopcommerce.com/en/developer/design/installing-theme.html"
+- "https://docs.nopcommerce.com/en/developer/design/new-theme.html"
+- "https://docs.nopcommerce.com/en/developer/design/understanding-layout.html"
+- "https://docs.nopcommerce.com/en/developer/design/customizing-theme.html"
+- "https://docs.nopcommerce.com/en/developer/design/right-to-left-theme.html"
+- "https://docs.nopcommerce.com/en/developer/design/widgets.html"
+- "https://docs.nopcommerce.com/en/developer/design/responsive.html"
+- "https://docs.nopcommerce.com/en/developer/design/tips-and-tricks.html"
+- "https://docs.nopcommerce.com/en/developer/design/contributing-theme.html"
+- "https://docs.nopcommerce.com/en/developer/design/entity-events-system.html"
+- "https://docs.nopcommerce.com/en/developer/tutorials/coding-standards.html"
+- "https://docs.nopcommerce.com/en/developer/tutorials/architecture-of-nopCommerce.html"
+- "https://docs.nopcommerce.com/en/developer/tutorials/source-code-organization.html"
+- "https://docs.nopcommerce.com/en/developer/tutorials/instruction-on-how-to-start-developing-on-nopcommerce.html"
+- "https://docs.nopcommerce.com/en/developer/tutorials/db-schema.html"
+- "https://docs.nopcommerce.com/en/developer/tutorials/update-existing-entity.html"
+- "https://docs.nopcommerce.com/en/developer/tutorials/migrations.html"
+- "https://docs.nopcommerce.com/en/developer/tutorials/inversion-of-control.html"
+- "https://docs.nopcommerce.com/en/developer/tutorials/register-new-routes.html"
+- "https://docs.nopcommerce.com/en/developer/tutorials/description-of-plugin-system.html"
+---
 
-    All code should be well-organized, following NopCommerce plugin structure and best practices.
-    Use standard folder naming conventions for models, views, and controllers.
-    Document every file to ensure clarity for future developers.
+# File Organization:
+- Tüm kod, NopCommerce plugin yapısına uygun şekilde organize edilmelidir.
+- Models, Views, Controllers gibi klasörler standart isimlendirme kurallarına uygun olmalıdır.
+- Gelecekteki geliştiriciler için her dosya detaylı olarak belgelenmelidir.
 
-#Coding Standards:
+# Coding Standards:
+- C# kodlama en iyi uygulamaları ve konvansiyonları takip edilmelidir (örneğin, değişkenler için camelCase, sınıf ve metotlar için PascalCase).
+- I/O işlemleri için async/await kullanılarak performans artırılmalıdır.
+- Kod modüler ve yeniden kullanılabilir bileşenlere göre yazılmalıdır.
 
-    Follow C# coding best practices and conventions (camelCase for variables, PascalCase for classes and methods).
-    Use async/await for any I/O operations to improve performance.
-    Ensure code is maintainable and modular, favoring reusable components.
+# Dependency Management:
+- Harici bağımlılıklar NuGet paketleri aracılığıyla yönetilmelidir.
+- Konfigürasyon ayarları güvenli bir şekilde saklanmalı, hardcoded değerlerden kaçınılmalıdır.
+- Yeni bağımlılık eklemeden önce NopCommerce 4.80 uyumluluğu kontrol edilmelidir.
 
-#Dependency Management:
+# UI/UX:
+- Plugin, NopCommerce admin arayüzü ile sorunsuz entegrasyon göstermelidir.
+- Temiz, kullanıcı dostu ve responsive bir tasarım sağlanmalıdır.
 
-    Manage external dependencies using NuGet packages.
-    Ensure that configurations are securely stored in the settings and not hardcoded.
-    Always check for compatibility with NopCommerce 4.80 before adding new dependencies.
+# Documentation:
+- Kurulum, konfigürasyon ve kullanım ile ilgili detaylı README dosyası oluşturulmalıdır.
+- Kompleks mantıklar için kod içi yorumlar ve açıklamalar eklenmelidir.
 
-#UI/UX:
+# Security:
+- Tüm hassas veriler (API anahtarları, müşteri verileri vb.) şifrelenerek korunmalıdır.
+- Plugin, web uygulamaları için OWASP güvenlik yönergelerini takip etmelidir.
+- Veri sızıntısı veya güvenlik açığı oluşmamalıdır.
 
-    The plugin should seamlessly integrate with the NopCommerce admin interface.
-    Create a clean and user-friendly UI.
-    Ensure responsive design for any user interface.
-
-
-
-#Documentation:
-
-    Provide a detailed README file explaining the installation, configuration, and usage of the plugin.
-    Include code comments and explanations for complex logic.
-
-#Security:
-
-    Ensure all sensitive data (like API keys and customer data) is encrypted and protected.
-    The plugin should follow OWASP security guidelines for web applications.
-    Ensure no data leaks or vulnerabilities .
-
-#Version Control:
-
-    Use Git for version control and follow branching strategies (e.g., GitFlow) for managing development, testing, and production releases.
-    Ensure that all changes are documented in commit messages with clear descriptions of the updates.
+# Version Control:
+- Git kullanılarak sürüm kontrolü yapılmalı ve GitFlow gibi branching stratejileri uygulanmalıdır.
+- Tüm değişiklikler, açıklayıcı commit mesajlarıyla belgelenmelidir.
