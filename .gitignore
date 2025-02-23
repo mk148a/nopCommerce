@@ -209,3 +209,6 @@ src/Tests/Nop.Tests/Connections.resx
 /src/Presentation/Nop.Web/Themes/NopElementTheme_4.7.40.36
 /src/Presentation/Nop.Web/wwwroot/videos
 /src/Presentation/Nop.Web/logffmpeg.txt
+/src/Presentation/Nop.Web/wwwroot/images/default-avatar.jpg
+/src/Presentation/Nop.Web/wwwroot/images/default-image.gif
+/src/Presentation/Nop.Web/wwwroot/images/default-image.png
