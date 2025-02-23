@@ -1,8 +1,10 @@
-using Nop.Core.Domain.Customers;
+﻿using Nop.Core.Domain.Customers;
 using Nop.Core.Domain.Logging;
 using Nop.Core.Events;
 using Nop.Services.Common;
+using Nop.Services.Customers;
 using Nop.Services.Events;
+using Nop.Services.Logging;
 
 namespace Nop.Plugin.Misc.GoogleBotAggregator.Infrastructure;
 
@@ -14,6 +16,7 @@ public class GoogleBotEventConsumer : IConsumer<EntityInsertedEvent<ActivityLog>
     #region Fields
 
     private readonly IGenericAttributeService _genericAttributeService;
+    private readonly ICustomerService _customerService;
     private readonly GoogleBotAggregatorSettings _settings;
 
     #endregion
@@ -22,9 +25,11 @@ public class GoogleBotEventConsumer : IConsumer<EntityInsertedEvent<ActivityLog>
 
     public GoogleBotEventConsumer(
         IGenericAttributeService genericAttributeService,
+        ICustomerService customerService,
         GoogleBotAggregatorSettings settings)
     {
         _genericAttributeService = genericAttributeService;
+        _customerService = customerService;
         _settings = settings;
     }
 
@@ -43,17 +48,20 @@ public class GoogleBotEventConsumer : IConsumer<EntityInsertedEvent<ActivityLog>
             return;
 
         var activityLog = eventMessage.Entity;
-        if (activityLog?.CustomerId == null)
+        if (activityLog == null)
             return;
 
-        var customer = await _genericAttributeService.GetAttributeAsync<Customer>(activityLog.CustomerId.Value, "Customer");
+        var customer = await _customerService.GetCustomerByIdAsync(activityLog.CustomerId);
         if (customer == null)
             return;
 
-        // Google Bot müşterisi ise aktiviteyi kaydetme
+        // Google Bot müşterisi ise aktiviteyi işaretle
         var isGoogleBot = await _genericAttributeService.GetAttributeAsync<bool>(customer, "IsGoogleBot");
         if (isGoogleBot)
-            activityLog.Enabled = false;
+        {
+            // Yoruma [GoogleBot] işareti ekle
+            activityLog.Comment = $"[GoogleBot] {activityLog.Comment}";
+        }
     }
 
     #endregion

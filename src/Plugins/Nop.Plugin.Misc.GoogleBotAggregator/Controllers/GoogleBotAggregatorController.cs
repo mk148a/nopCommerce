@@ -3,6 +3,7 @@ using Nop.Plugin.Misc.GoogleBotAggregator.Models;
 using Nop.Services.Configuration;
 using Nop.Services.Localization;
 using Nop.Services.Messages;
+using Nop.Services.Security;
 using Nop.Web.Framework;
 using Nop.Web.Framework.Controllers;
 using Nop.Web.Framework.Mvc.Filters;
@@ -20,6 +21,7 @@ public class GoogleBotAggregatorController : BasePluginController
     private readonly INotificationService _notificationService;
     private readonly ILocalizationService _localizationService;
     private readonly GoogleBotAggregatorSettings _googleBotAggregatorSettings;
+    private readonly IPermissionService _permissionService;
 
     #endregion
 
@@ -29,18 +31,21 @@ public class GoogleBotAggregatorController : BasePluginController
         ISettingService settingService,
         INotificationService notificationService,
         ILocalizationService localizationService,
-        GoogleBotAggregatorSettings googleBotAggregatorSettings)
+        GoogleBotAggregatorSettings googleBotAggregatorSettings,
+        IPermissionService permissionService)
     {
         _settingService = settingService;
         _notificationService = notificationService;
         _localizationService = localizationService;
         _googleBotAggregatorSettings = googleBotAggregatorSettings;
+        _permissionService = permissionService;
     }
 
     #endregion
 
     #region Methods
 
+    [CheckPermission(StandardPermission.Configuration.MANAGE_PLUGINS)]
     public IActionResult Configure()
     {
         var model = new ConfigurationModel
@@ -54,6 +59,7 @@ public class GoogleBotAggregatorController : BasePluginController
     }
 
     [HttpPost]
+    [CheckPermission(StandardPermission.Configuration.MANAGE_PLUGINS)]
     public async Task<IActionResult> Configure(ConfigurationModel model)
     {
         if (!ModelState.IsValid)

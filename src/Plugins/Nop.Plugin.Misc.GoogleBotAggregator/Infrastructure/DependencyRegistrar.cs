@@ -1,9 +1,7 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Nop.Core.Configuration;
 using Nop.Core.Infrastructure;
-using Nop.Core.Infrastructure.DependencyManagement;
 using Nop.Plugin.Misc.GoogleBotAggregator.Services;
 
 namespace Nop.Plugin.Misc.GoogleBotAggregator.Infrastructure;
@@ -11,22 +9,30 @@ namespace Nop.Plugin.Misc.GoogleBotAggregator.Infrastructure;
 /// <summary>
 /// Represents object for the configuring services on application startup
 /// </summary>
-public class DependencyRegistrar : IDependencyRegistrar
+public class DependencyRegistrar : INopStartup
 {
     /// <summary>
-    /// Register services and interfaces
+    /// Add and configure any of the middleware
     /// </summary>
     /// <param name="services">Collection of service descriptors</param>
-    /// <param name="typeFinder">Type finder</param>
-    /// <param name="appSettings">App settings</param>
-    public virtual void Register(IServiceCollection services, ITypeFinder typeFinder, AppSettings appSettings)
+    /// <param name="configuration">Configuration of the application</param>
+    public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
     {
         services.AddScoped<IGoogleBotService, GoogleBotService>();
         services.AddScoped<GoogleBotEventConsumer>();
     }
 
     /// <summary>
-    /// Gets order of this dependency registrar implementation
+    /// Configure the using of added middleware
     /// </summary>
-    public int Order => 1;
+    /// <param name="application">Builder for configuring an application's request pipeline</param>
+    public void Configure(IApplicationBuilder application)
+    {
+        application.UseGoogleBot();
+    }
+
+    /// <summary>
+    /// Gets order of this startup configuration implementation
+    /// </summary>
+    public int Order => 3000;
 } 
