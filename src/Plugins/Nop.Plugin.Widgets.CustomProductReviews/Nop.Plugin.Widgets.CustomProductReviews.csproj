@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFrameworks>net9.0</TargetFrameworks>
 	  <OutputPath>..\..\Presentation\Nop.Web\Plugins\Widgets.CustomProductReviews</OutputPath>
     <OutDir>$(OutputPath)</OutDir>
     <!--Set this parameter to true to get the dlls copied from the NuGet cache to the output of your project.
@@ -85,13 +85,20 @@
     <Folder Include="Extensions\" />
     <Folder Include="Factories\" />
   </ItemGroup>
+  <!-- .NET 8 derlenirken Nop'un yüklediği 4.x ile uyumlu derle -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
+    <PackageReference Include="System.Drawing.Common" Version="4.0.0" IncludeAssets="compile" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.Win32.SystemEvents" Version="4.0.0" IncludeAssets="compile" PrivateAssets="all" />
+  </ItemGroup>
 
-  <ItemGroup>
+  <!-- .NET 9 derlenirken 9.x ile derle; yine runtime'a kopyalama -->
+  <ItemGroup>  
     <PackageReference Include="Mime-Detective" Version="24.12.2" />
     <PackageReference Include="NReco.VideoConverter" Version="1.2.1" />
     <PackageReference Include="SixLabors.ImageSharp" Version="3.1.6" />
   </ItemGroup>
 
+  
   <ItemGroup>
     <None Update="Content\ajax-loader.gif">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

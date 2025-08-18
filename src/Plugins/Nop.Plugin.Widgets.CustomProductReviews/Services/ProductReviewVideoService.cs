@@ -1,21 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
+﻿
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
+
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.StaticFiles;
 using Nop.Core;
-using Nop.Core.Domain.Catalog;
-using Nop.Core.Domain.Logging;
 using Nop.Core.Domain.Media;
 using Nop.Core.Infrastructure;
 using Nop.Data;
-using Nop.Plugin.Widgets.CustomCustomProductReviews;
 using Nop.Plugin.Widgets.CustomProductReviews.Domains;
-using Nop.Services.Catalog;
 using Nop.Services.Configuration;
 using Nop.Services.Media;
 using Nop.Services.Seo;

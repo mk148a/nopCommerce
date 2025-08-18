@@ -209,3 +209,4 @@ src/Tests/Nop.Tests/Connections.resx
 /src/Presentation/Nop.Web/Themes/NopElementTheme_4.7.40.36
 /src/Presentation/Nop.Web/wwwroot/videos
 /src/Presentation/Nop.Web/logffmpeg.txt
+*.zip

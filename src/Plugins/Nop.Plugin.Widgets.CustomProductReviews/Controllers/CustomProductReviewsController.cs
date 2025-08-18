@@ -1,56 +1,35 @@
-﻿using System;
-using System.Collections.Generic;
+﻿#if NET9_0_OR_GREATER
+using Img = SixLabors.ImageSharp.Image;
+#else
+using Img = System.Drawing.Image;
+#endif
 using System.Diagnostics;
-using System.Drawing;
-using System.IO;
-using System.Linq;
-using System.Security.Policy;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.Extensions.FileProviders;
+
 using Nop.Core;
 using Nop.Core.Domain.Catalog;
-using Nop.Core.Domain.Common;
 using Nop.Core.Domain.Localization;
-using Nop.Core.Domain.Media;
 using Nop.Core.Domain.Orders;
 using Nop.Core.Domain.Security;
-using Nop.Core.Domain.Shipping;
 using Nop.Core.Events;
-using Nop.Core.Infrastructure;
-using Nop.Data;
 using Nop.Plugin.Widgets.CustomProductReviews.Domains;
 using Nop.Plugin.Widgets.CustomProductReviews.Services;
 using Nop.Services.Catalog;
-using Nop.Services.Common;
 using Nop.Services.Customers;
-using Nop.Services.Directory;
-using Nop.Services.Html;
 using Nop.Services.Localization;
 using Nop.Services.Logging;
 using Nop.Services.Media;
 using Nop.Services.Messages;
 using Nop.Services.Orders;
-using Nop.Services.Security;
 using Nop.Services.Seo;
-using Nop.Services.Stores;
 using Nop.Web.Factories;
 using Nop.Web.Framework.Controllers;
 using Nop.Web.Framework.Mvc.Filters;
-
-using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Webp;
-using SixLabors.ImageSharp.Processing;
 
-using System.Runtime.InteropServices;
-using DocumentFormat.OpenXml.Drawing;
 using Nop.Web.Models.Catalog;
 using Nop.Web.Framework.Mvc.Routing;
-using Nop.Plugin.Widgets.CustomProductReviews.Components;
-using DocumentFormat.OpenXml.Presentation;
 using MimeDetective;
 using Picture = Nop.Core.Domain.Media.Picture;
 
@@ -428,7 +407,7 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Controllers
                 {
                     sw.Start();
 
-                    using (var image = Image.Load(data.BinaryData))
+                    using (var image = SixLabors.ImageSharp.Image.Load(data.BinaryData))
                     using (var ms = new MemoryStream())
                     {
                        await image.SaveAsync(ms, new WebpEncoder { Quality = 90 });
