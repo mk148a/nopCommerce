@@ -71,8 +71,17 @@ public class GoogleBotAggregatorPlugin : BasePlugin, IMiscPlugin
     /// </summary>
     public override async Task InstallAsync()
     {
-        //settings
-        await _settingService.SaveSettingAsync(new GoogleBotAggregatorSettings());
+        try
+        {
+            //settings
+            await _settingService.SaveSettingAsync(new GoogleBotAggregatorSettings());
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+           
+        }
+       
 
         //locales
         await _localizationService.AddOrUpdateLocaleResourceAsync(new Dictionary<string, string>
