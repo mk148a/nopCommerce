@@ -1,0 +1,20 @@
+Hood/Navlungo changes applied:
+
+1) FixedByWeightByTotalComputationMethod.GetShippingOptionsAsync
+   - In by-weight mode, shipping methods without a matching ShippingByWeightByTotalRecord are now skipped.
+   - This prevents unavailable carriers from appearing as $0.00 in checkout/product shipping estimate.
+
+2) Install defaults
+   - ShippingByWeightByTotalEnabled=true and LimitMethodsToCreated=true for fresh installs.
+   - Existing stores are also protected by code change #1.
+
+3) Basic shipment tracker
+   - Added Services/NavlungoShipmentTracker.cs.
+   - GetShipmentTrackerAsync now returns this tracker.
+   - It gives nopCommerce an external tracking URL through 17TRACK.
+   - It does not scrape carrier websites and does not invent tracking history.
+
+Deployment:
+- Build this plugin inside the matching nopCommerce 4.80 source solution.
+- Replace the existing Shipping.FixedByWeightByTotal plugin files/DLL in Presentation/Nop.Web/Plugins/Shipping.FixedByWeightByTotal.
+- Restart the application and clear cache.

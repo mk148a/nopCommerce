@@ -1,0 +1,16 @@
+@model IList<Nop.Plugin.Shipping.FixedByWeightByTotal.Models.ShippingDimensions.NavlungoShipmentLinkModel>
+@{
+    var shipmentId = (int?)(ViewBag.ShipmentId as int?);
+    var orderId = (int?)(ViewBag.OrderId as int?);
+    var trackingNumber = ViewBag.TrackingNumber as string;
+}
+
+<a class="btn btn-warning" target="_blank"
+   href="@Url.Action("NavlungoShipmentLinks", "FixedByWeightByTotal", new { shipmentId = shipmentId, orderId = orderId, trackingNumber = trackingNumber })">
+    <i class="fas fa-truck"></i>
+    Navlungo links
+    @if (Model != null && Model.Count > 0)
+    {
+        <span class="badge badge-light">@Model.Count</span>
+    }
+</a>

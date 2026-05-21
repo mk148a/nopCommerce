@@ -1,0 +1,96 @@
+@model IList<Nop.Plugin.Shipping.FixedByWeightByTotal.Models.ShippingDimensions.NavlungoShipmentLinkModel>
+@{
+    Layout = "_ConfigurePlugin";
+    var shipmentId = ViewBag.ShipmentId;
+    var orderId = ViewBag.OrderId;
+    var trackingNumber = ViewBag.TrackingNumber as string;
+}
+
+<div class="content-header clearfix">
+    <h1 class="float-left">Navlungo shipment / consignment links</h1>
+    <div class="float-right">
+        <a href="@Url.Action("Configure", "FixedByWeightByTotal")" class="btn btn-secondary">Back to rates</a>
+    </div>
+</div>
+
+<div class="card card-default">
+    <div class="card-body">
+        <form method="get" action="@Url.Action("NavlungoShipmentLinks", "FixedByWeightByTotal")" class="form-inline">
+            <label class="mr-2">ShipmentId</label>
+            <input name="shipmentId" class="form-control mr-2" value="@shipmentId" />
+            <label class="mr-2">OrderId</label>
+            <input name="orderId" class="form-control mr-2" value="@orderId" />
+            <label class="mr-2">Tracking</label>
+            <input name="trackingNumber" class="form-control mr-2" value="@trackingNumber" />
+            <button class="btn btn-primary" type="submit">Search</button>
+        </form>
+    </div>
+</div>
+
+<div class="card card-default">
+    <div class="card-body table-responsive">
+        <table class="table table-bordered table-hover table-sm">
+            <thead>
+            <tr>
+                <th>Nop</th>
+                <th>Navlungo</th>
+                <th>Tracking</th>
+                <th>Documents / consignment</th>
+                <th>Weight</th>
+                <th>Date</th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        Shipment: @item.NopShipmentId<br />
+                        Order: @item.CustomOrderNumber (@item.OrderId)
+                    </td>
+                    <td>
+                        <strong>@item.ShipmentNo</strong><br />
+                        @if (!string.IsNullOrWhiteSpace(item.NavlungoDetailUrl))
+                        {
+                            <a href="@item.NavlungoDetailUrl" target="_blank" class="btn btn-xs btn-info">Open Navlungo shipment</a>
+                        }
+                    </td>
+                    <td>
+                        Carrier: @item.CarrierTrackingNo<br />
+                        Navlungo: @item.NavlungoTrackingNo<br />
+                        @if (!string.IsNullOrWhiteSpace(item.CarrierTrackingUrl))
+                        {
+                            <a href="@item.CarrierTrackingUrl" target="_blank">Carrier tracking</a>
+                        }
+                    </td>
+                    <td>
+                        @if (!string.IsNullOrWhiteSpace(item.DocumentsLinks))
+                        {
+                            foreach (var link in item.DocumentsLinks.Split('|', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+                            {
+                                <a href="@link" target="_blank">Document</a><br />
+                            }
+                        }
+                        @if (!string.IsNullOrWhiteSpace(item.PackageImageLinks))
+                        {
+                            foreach (var link in item.PackageImageLinks.Split('|', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+                            {
+                                <a href="@link" target="_blank">Package image/document</a><br />
+                            }
+                        }
+                        @if (string.IsNullOrWhiteSpace(item.DocumentsLinks) && string.IsNullOrWhiteSpace(item.PackageImageLinks))
+                        {
+                            <span class="text-muted">No direct document URL in imported data. Use Open Navlungo shipment.</span>
+                        }
+                    </td>
+                    <td>
+                        Actual: @item.TotalActualWeightKg kg<br />
+                        Chargeable: @item.TotalChargeableWeightKg kg
+                    </td>
+                    <td>@item.RequestDateTR</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>

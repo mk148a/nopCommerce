@@ -11,6 +11,10 @@ public record ConfigurationModel : BaseSearchModel
 
     public bool ShippingByWeightByTotalEnabled { get; set; }
 
+    public bool HoodNavlungoChargeableWeightEnabled { get; set; }
+    public decimal HoodNavlungoDimensionalWeightDivisor { get; set; }
+    public decimal HoodNavlungoRateWeightMultiplier { get; set; }
+
     public ConfigurationModel()
     {
         AvailableCountries = new List<SelectListItem>();

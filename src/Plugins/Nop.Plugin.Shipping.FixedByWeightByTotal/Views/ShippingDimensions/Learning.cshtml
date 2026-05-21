@@ -1,0 +1,88 @@
+﻿@model IList<Nop.Plugin.Shipping.FixedByWeightByTotal.Models.ShippingDimensions.ShippingLearningSuggestionModel>
+@{
+    Layout = "_ConfigurePlugin";
+    var minimumSampleCount = (int)(ViewBag.MinimumSampleCount ?? 1);
+}
+
+<div class="content-header clearfix">
+    <h1 class="float-left">Navlungo Shipping Learning</h1>
+    <div class="float-right">
+        <a href="@Url.Action("Configure", "FixedByWeightByTotal")" class="btn btn-secondary">Back to rates</a>
+        <a href="@Url.Action("CategoryBulkApplyDimensions", "FixedByWeightByTotal")" class="btn btn-warning">Bulk apply category</a>
+        <a href="@Url.Action("ShippingDimensionExclusions", "FixedByWeightByTotal")" class="btn btn-danger">Exclusions</a>
+    </div>
+</div>
+
+<div class="card card-default">
+    <div class="card-body">
+        <p>
+            This page reads <code>dbo.NavlungoProductMeasureStatsSafe</code> and creates dimension rules for the chargeable-weight calculator.
+            Use minimum sample count 2 or 3 before applying automatically.
+        </p>
+        <form method="get" action="@Url.Action("NavlungoLearning", "FixedByWeightByTotal")" class="form-inline mb-3">
+            <label class="mr-2">Minimum sample count</label>
+            <input type="number" name="minimumSampleCount" value="@minimumSampleCount" min="1" class="form-control mr-2" />
+            <button type="submit" class="btn btn-primary">Refresh suggestions</button>
+        </form>
+        <button type="button" id="apply-learning" class="btn btn-success">Apply suggestions</button>
+        <label class="ml-3"><input type="checkbox" id="overwriteExisting" /> overwrite existing rules</label>
+    </div>
+</div>
+
+<div class="card card-default">
+    <div class="card-body table-responsive">
+        <table class="table table-bordered table-hover table-sm">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Rule</th>
+                    <th>Samples</th>
+                    <th>L/W/H cm</th>
+                    <th>Weight g</th>
+                    <th>Chargeable kg</th>
+                    <th>Confidence</th>
+                    <th>Example</th>
+                    <th>Details</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.ProductId<br />@item.ProductName</td>
+                    <td>@item.RuleType<br /><small>@item.AttributeHash</small></td>
+                    <td>@item.SampleCount</td>
+                    <td>@item.SuggestedLengthCm / @item.SuggestedWidthCm / @item.SuggestedHeightCm</td>
+                    <td>@item.SuggestedWeightGram</td>
+                    <td>@item.SuggestedChargeableWeightKg</td>
+                    <td>@item.Confidence</td>
+                    <td>@item.ExampleShipmentNo / Order @item.ExampleOrderId<br /><small>@item.ExampleAttributeDescription</small></td>
+                    <td>
+                        <a class="btn btn-sm btn-info" target="_blank"
+                           href="@Url.Action("NavlungoLearningDetails", "FixedByWeightByTotal", new { productId = item.ProductId, attributeHash = item.AttributeHash, productAttributeValueId = item.ProductAttributeValueId, ruleType = item.RuleType })">
+                            Details
+                        </a>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('#apply-learning').on('click', function () {
+            if (!confirm('Apply learning suggestions to Hood dimension rules?')) return;
+            var postData = {
+                minimumSampleCount: $('input[name="minimumSampleCount"]').val(),
+                overwriteExisting: $('#overwriteExisting').is(':checked')
+            };
+            addAntiForgeryToken(postData);
+            $.post('@Url.Action("ApplyNavlungoLearning", "FixedByWeightByTotal")', postData, function (r) {
+                alert('Applied: ' + r.Applied);
+                location.reload();
+            });
+        });
+    });
+</script>

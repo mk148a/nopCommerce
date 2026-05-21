@@ -36,6 +36,17 @@
     </div>
 </div>
 
+
+<div class="card card-default">
+    <div class="card-header"><strong>Hood/Navlungo tools</strong></div>
+    <div class="card-body">
+        <a href="@Url.Action("NavlungoLearning", "FixedByWeightByTotal")" class="btn btn-info">Navlungo Shipping Learning</a>
+        <a href="@Url.Action("ShippingDimensionRules", "FixedByWeightByTotal")" class="btn btn-primary">Dimension Rules</a>
+        <a href="@Url.Action("CategoryBulkApplyDimensions", "FixedByWeightByTotal")" class="btn btn-warning">Category Bulk Apply</a>
+        <a href="@Url.Action("ShippingDimensionExclusions", "FixedByWeightByTotal")" class="btn btn-danger">Exclusions</a>
+        <a href="@Url.Action("NavlungoShipmentLinks", "FixedByWeightByTotal")" class="btn btn-secondary">Shipment / Consignment Links</a>
+    </div>
+</div>
 <script>
     function checkAdvancedSettingsMode(advanced) {
         if (advanced) {
@@ -77,3 +88,45 @@
 
 @await Html.PartialAsync("~/Plugins/Shipping.FixedByWeightByTotal/Views/_FixedRate.cshtml")
 @await Html.PartialAsync("~/Plugins/Shipping.FixedByWeightByTotal/Views/_ByWeightByTotal.cshtml", Model)
+
+<div class="card card-default mt-3 advanced-setting">
+    <div class="card-header">
+        <strong>Hood/Navlungo chargeable weight</strong>
+    </div>
+    <div class="card-body">
+        <div class="form-group row">
+            <div class="col-md-3">Enable chargeable weight</div>
+            <div class="col-md-9"><input type="checkbox" id="HoodNavlungoChargeableWeightEnabled" @(Model.HoodNavlungoChargeableWeightEnabled ? "checked" : "") /></div>
+        </div>
+        <div class="form-group row">
+            <div class="col-md-3">Dimensional divisor</div>
+            <div class="col-md-9"><input class="form-control" id="HoodNavlungoDimensionalWeightDivisor" value="@Model.HoodNavlungoDimensionalWeightDivisor" /></div>
+        </div>
+        <div class="form-group row">
+            <div class="col-md-3">Rate weight multiplier</div>
+            <div class="col-md-9">
+                <input class="form-control" id="HoodNavlungoRateWeightMultiplier" value="@Model.HoodNavlungoRateWeightMultiplier" />
+                <small>Use 1000 when FixedByWeightByTotal rate tables are gram-based. Use 1 for kg-based tables.</small>
+            </div>
+        </div>
+        <button type="button" id="save-hood-navlungo-settings" class="btn btn-primary">Save Hood/Navlungo settings</button>
+        <a class="btn btn-info" href="@Url.Action("NavlungoLearning", "FixedByWeightByTotal")">Navlungo Shipping Learning</a>
+        <a class="btn btn-secondary" href="@Url.Action("ShippingDimensionRules", "FixedByWeightByTotal")">Dimension Rules</a>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('#save-hood-navlungo-settings').on('click', function () {
+            var postData = {
+                LimitMethodsToCreated: @Model.LimitMethodsToCreated.ToString().ToLowerInvariant(),
+                ShippingByWeightByTotalEnabled: $('#advanced-settings-mode').is(':checked'),
+                HoodNavlungoChargeableWeightEnabled: $('#HoodNavlungoChargeableWeightEnabled').is(':checked'),
+                HoodNavlungoDimensionalWeightDivisor: $('#HoodNavlungoDimensionalWeightDivisor').val(),
+                HoodNavlungoRateWeightMultiplier: $('#HoodNavlungoRateWeightMultiplier').val()
+            };
+            addAntiForgeryToken(postData);
+            $.post('@Url.Action("Configure", "FixedByWeightByTotal")', postData, function () { alert('Saved'); });
+        });
+    });
+</script>

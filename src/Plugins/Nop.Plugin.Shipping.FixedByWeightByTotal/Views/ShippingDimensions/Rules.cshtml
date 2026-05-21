@@ -1,0 +1,97 @@
+﻿@model IList<Nop.Plugin.Shipping.FixedByWeightByTotal.Domain.HoodProductShippingDimensionRule>
+@{
+    Layout = "_ConfigurePlugin";
+    var productId = (int)(ViewBag.ProductId ?? 0);
+}
+
+<div class="content-header clearfix">
+    <h1 class="float-left">Hood/Navlungo Shipping Dimension Rules</h1>
+    <div class="float-right">
+        <a href="@Url.Action("Configure", "FixedByWeightByTotal")" class="btn btn-secondary">Back to rates</a>
+        <a href="@Url.Action("NavlungoLearning", "FixedByWeightByTotal")" class="btn btn-info">Learning</a>
+    </div>
+</div>
+
+<div class="card card-default">
+    <div class="card-body">
+        <form method="get" action="@Url.Action("ShippingDimensionRules", "FixedByWeightByTotal")" class="form-inline mb-3">
+            <label class="mr-2">ProductId</label>
+            <input type="number" name="productId" value="@productId" min="0" class="form-control mr-2" />
+            <button type="submit" class="btn btn-primary">Load</button>
+        </form>
+
+        <h4>Add / update rule</h4>
+        <div class="row">
+            <input type="hidden" id="rule-id" value="0" />
+            <div class="col-md-2"><label>ProductId</label><input id="productId" class="form-control" value="@productId" /></div>
+            <div class="col-md-2"><label>Attribute value id</label><input id="productAttributeValueId" class="form-control" /></div>
+            <div class="col-md-2"><label>Rule type</label><select id="ruleType" class="form-control"><option>PRODUCT_DEFAULT</option><option>ATTRIBUTE_VALUE</option><option>ATTRIBUTE_COMBINATION</option><option>ARROW_PCS</option></select></div>
+            <div class="col-md-3"><label>Attribute IDs CSV</label><input id="attributeValueIdsCsv" class="form-control" placeholder="423,430,440" /></div>
+            <div class="col-md-1"><label>L</label><input id="lengthCm" class="form-control" /></div>
+            <div class="col-md-1"><label>W</label><input id="widthCm" class="form-control" /></div>
+            <div class="col-md-1"><label>H</label><input id="heightCm" class="form-control" /></div>
+            <div class="col-md-2 mt-2"><label>Weight g</label><input id="weightGram" class="form-control" /></div>
+            <div class="col-md-2 mt-2"><label>Divisor</label><input id="divisor" class="form-control" value="5000" /></div>
+            <div class="col-md-2 mt-2"><label>Package count</label><input id="packageCount" class="form-control" value="1" /></div>
+            <div class="col-md-2 mt-4"><label><input type="checkbox" id="isShipSeparately" /> ship separately</label></div>
+            <div class="col-md-2 mt-4"><label><input type="checkbox" id="isActive" checked /> active</label></div>
+            <div class="col-md-2 mt-4"><button type="button" id="save-rule" class="btn btn-success">Save</button></div>
+        </div>
+    </div>
+</div>
+
+<div class="card card-default">
+    <div class="card-body table-responsive">
+        <table class="table table-bordered table-hover table-sm">
+            <thead><tr><th>Id</th><th>Product</th><th>Value</th><th>Hash</th><th>Type</th><th>L/W/H</th><th>Weight g</th><th>Divisor</th><th>Active</th><th>Source</th><th></th></tr></thead>
+            <tbody>
+            @foreach (var r in Model)
+            {
+                <tr>
+                    <td>@r.Id</td>
+                    <td>@r.ProductId</td>
+                    <td>@r.ProductAttributeValueId<br />@r.AttributeValueIdsCsv</td>
+                    <td><small>@r.AttributeHash</small></td>
+                    <td>@r.RuleType</td>
+                    <td>@r.LengthCm / @r.WidthCm / @r.HeightCm</td>
+                    <td>@r.WeightGram</td>
+                    <td>@r.Divisor</td>
+                    <td>@r.IsActive</td>
+                    <td>@r.Source<br />@r.ExampleShipmentNo / @r.ExampleOrderId</td>
+                    <td><button type="button" class="btn btn-sm btn-danger delete-rule" data-id="@r.Id">Delete</button></td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('#save-rule').on('click', function () {
+            var postData = {
+                id: $('#rule-id').val(),
+                productId: $('#productId').val(),
+                productAttributeValueId: $('#productAttributeValueId').val() || null,
+                attributeValueIdsCsv: $('#attributeValueIdsCsv').val(),
+                ruleType: $('#ruleType').val(),
+                lengthCm: $('#lengthCm').val(),
+                widthCm: $('#widthCm').val(),
+                heightCm: $('#heightCm').val(),
+                weightGram: $('#weightGram').val() || null,
+                divisor: $('#divisor').val(),
+                packageCount: $('#packageCount').val(),
+                isShipSeparately: $('#isShipSeparately').is(':checked'),
+                isActive: $('#isActive').is(':checked')
+            };
+            addAntiForgeryToken(postData);
+            $.post('@Url.Action("SaveShippingDimensionRule", "FixedByWeightByTotal")', postData, function () { location.reload(); });
+        });
+        $('.delete-rule').on('click', function () {
+            if (!confirm('Delete rule?')) return;
+            var postData = { id: $(this).data('id') };
+            addAntiForgeryToken(postData);
+            $.post('@Url.Action("DeleteShippingDimensionRule", "FixedByWeightByTotal")', postData, function () { location.reload(); });
+        });
+    });
+</script>

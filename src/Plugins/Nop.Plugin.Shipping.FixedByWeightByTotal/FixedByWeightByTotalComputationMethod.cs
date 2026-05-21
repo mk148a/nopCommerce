@@ -1,20 +1,25 @@
 ﻿using Nop.Core;
 using Nop.Core.Domain.Shipping;
+using Microsoft.AspNetCore.Mvc;
+using Nop.Plugin.Shipping.FixedByWeightByTotal.Components;
 using Nop.Plugin.Shipping.FixedByWeightByTotal.Domain;
 using Nop.Plugin.Shipping.FixedByWeightByTotal.Services;
+using Nop.Plugin.Shipping.FixedByWeightByTotal.Services.ShippingDimensions;
+using Nop.Services.Cms;
 using Nop.Services.Configuration;
 using Nop.Services.Localization;
 using Nop.Services.Orders;
 using Nop.Services.Plugins;
 using Nop.Services.Shipping;
 using Nop.Services.Shipping.Tracking;
+using Nop.Web.Framework.Infrastructure;
 
 namespace Nop.Plugin.Shipping.FixedByWeightByTotal;
 
 /// <summary>
 /// Fixed rate or by weight shipping computation method 
 /// </summary>
-public class FixedByWeightByTotalComputationMethod : BasePlugin, IShippingRateComputationMethod
+public class FixedByWeightByTotalComputationMethod : BasePlugin, IShippingRateComputationMethod, IWidgetPlugin
 {
     #region Fields
 
@@ -23,6 +28,7 @@ public class FixedByWeightByTotalComputationMethod : BasePlugin, IShippingRateCo
     protected readonly IShoppingCartService _shoppingCartService;
     protected readonly ISettingService _settingService;
     protected readonly IShippingByWeightByTotalService _shippingByWeightByTotalService;
+    protected readonly IProductShippingDimensionService _productShippingDimensionService;
     protected readonly IShippingService _shippingService;
     protected readonly IStoreContext _storeContext;
     protected readonly IWebHelper _webHelper;
@@ -36,6 +42,7 @@ public class FixedByWeightByTotalComputationMethod : BasePlugin, IShippingRateCo
         IShoppingCartService shoppingCartService,
         ISettingService settingService,
         IShippingByWeightByTotalService shippingByWeightByTotalService,
+        IProductShippingDimensionService productShippingDimensionService,
         IShippingService shippingService,
         IStoreContext storeContext,
         IWebHelper webHelper)
@@ -45,6 +52,7 @@ public class FixedByWeightByTotalComputationMethod : BasePlugin, IShippingRateCo
         _shoppingCartService = shoppingCartService;
         _settingService = settingService;
         _shippingByWeightByTotalService = shippingByWeightByTotalService;
+        _productShippingDimensionService = productShippingDimensionService;
         _shippingService = shippingService;
         _storeContext = storeContext;
         _webHelper = webHelper;
@@ -108,6 +116,27 @@ public class FixedByWeightByTotalComputationMethod : BasePlugin, IShippingRateCo
         return Math.Max(shippingTotal, decimal.Zero);
     }
 
+
+    /// <summary>
+    /// Calculates effective rate-table weight using product/attribute shipping dimension rules.
+    /// If no rule exists for an item, native nopCommerce product dimensions and weight adjustments are used.
+    /// </summary>
+    protected async Task<decimal> GetHoodNavlungoChargeableWeightAsync(GetShippingOptionRequest getShippingOptionRequest)
+    {
+        var total = decimal.Zero;
+
+        foreach (var packageItem in getShippingOptionRequest.Items)
+        {
+            if (await _shippingService.IsFreeShippingAsync(packageItem.ShoppingCartItem))
+                continue;
+
+            var measure = await _productShippingDimensionService.GetCartItemMeasureAsync(packageItem.ShoppingCartItem);
+            total += measure.RateLookupWeight;
+        }
+
+        return total;
+    }
+
     #endregion
 
     #region Methods
@@ -160,8 +189,12 @@ public class FixedByWeightByTotalComputationMethod : BasePlugin, IShippingRateCo
                 subTotal += (await _shoppingCartService.GetSubTotalAsync(packageItem.ShoppingCartItem, true)).subTotal;
             }
 
-            //get weight of shipped items (excluding items with free shipping)
-            var weight = await _shippingService.GetTotalWeightAsync(getShippingOptionRequest, ignoreFreeShippedItems: true);
+            //get chargeable weight of shipped items (excluding items with free shipping).
+            //Hood/Navlungo fix: calculate max(actual weight, dimensional weight) per selected attribute values,
+            //then pass that effective weight to the existing FixedByWeightByTotal rate table.
+            var weight = _fixedByWeightByTotalSettings.HoodNavlungoChargeableWeightEnabled
+                ? await GetHoodNavlungoChargeableWeightAsync(getShippingOptionRequest)
+                : await _shippingService.GetTotalWeightAsync(getShippingOptionRequest, ignoreFreeShippedItems: true);
 
             foreach (var shippingMethod in await _shippingService.GetAllShippingMethodsAsync(countryId))
             {
@@ -172,14 +205,17 @@ public class FixedByWeightByTotalComputationMethod : BasePlugin, IShippingRateCo
                     shippingMethod.Id, storeId, warehouseId, countryId, stateProvinceId, zip, weight, subTotal);
                 if (shippingByWeightByTotalRecord == null)
                 {
-                    if (_fixedByWeightByTotalSettings.LimitMethodsToCreated)
-                        continue;
+                    // Hood/Navlungo fix:
+                    // Do not show shipping methods without a configured matching rate.
+                    // The original plugin could show unconfigured methods as 0.00 when
+                    // LimitMethodsToCreated was disabled. For rate tables imported per
+                    // country/weight/carrier, that lets customers choose unavailable
+                    // carriers. A method must have an actual matching record to be offered.
+                    continue;
                 }
-                else
-                {
-                    rate = GetRate(shippingByWeightByTotalRecord, subTotal, weight);
-                    transitDays = shippingByWeightByTotalRecord.TransitDays;
-                }
+
+                rate = GetRate(shippingByWeightByTotalRecord, subTotal, weight);
+                transitDays = shippingByWeightByTotalRecord.TransitDays;
 
                 response.ShippingOptions.Add(new ShippingOption
                 {
@@ -242,7 +278,7 @@ public class FixedByWeightByTotalComputationMethod : BasePlugin, IShippingRateCo
     /// </returns>
     public Task<IShipmentTracker> GetShipmentTrackerAsync()
     {
-        return Task.FromResult<IShipmentTracker>(null);
+        return Task.FromResult<IShipmentTracker>(new NavlungoShipmentTracker());
     }
 
     /// <summary>
@@ -263,6 +299,8 @@ public class FixedByWeightByTotalComputationMethod : BasePlugin, IShippingRateCo
         await _settingService.SaveSettingAsync(new FixedByWeightByTotalSettings
         {
             LoadAllRecord = true,
+            ShippingByWeightByTotalEnabled = true,
+            LimitMethodsToCreated = true,
         });
 
         //locales
@@ -333,6 +371,27 @@ public class FixedByWeightByTotalComputationMethod : BasePlugin, IShippingRateCo
 
         await base.UninstallAsync();
     }
+
+
+
+    #region Widget plugin
+
+    public bool HideInWidgetList => false;
+
+    public Type GetWidgetViewComponent(string widgetZone)
+    {
+        return typeof(HoodNavlungoShipmentLinksViewComponent);
+    }
+
+    public Task<IList<string>> GetWidgetZonesAsync()
+    {
+        return Task.FromResult<IList<string>>(new List<string>
+        {
+            AdminWidgetZones.OrderShipmentDetailsButtons
+        });
+    }
+
+    #endregion
 
     #endregion
 }
