@@ -11,10 +11,15 @@ public interface IProductShippingDimensionService
     Task InsertRuleAsync(HoodProductShippingDimensionRule rule);
     Task UpdateRuleAsync(HoodProductShippingDimensionRule rule);
     Task DeleteRuleAsync(HoodProductShippingDimensionRule rule);
+    Task SaveAttributeValueDimensionAsync(int productId, int productAttributeValueId, bool enabled, string ruleType, decimal? lengthCm, decimal? widthCm, decimal? heightCm, decimal? weightGram, decimal divisor, int packageCount, bool isShipSeparately);
 
     Task<IList<ShippingLearningSuggestionModel>> GetLearningSuggestionsAsync(int minimumSampleCount = 1);
+    Task<IList<ShippingDriverAttributeModel>> GetProductAttributeDriverOptionsAsync(int productId);
+    Task SaveShippingDriverAttributeAsync(int productId, int productAttributeMappingId, string ruleType, bool isActive = true);
+    Task DeleteShippingDriverAttributeAsync(int id);
     Task<IList<ShippingLearningDetailModel>> GetLearningSuggestionDetailsAsync(int productId, string attributeHash = null, int? productAttributeValueId = null, string ruleType = null);
-    Task<int> ApplyLearningSuggestionsAsync(int minimumSampleCount = 2, bool overwriteExisting = false);
+    Task<int> ApplyLearningSuggestionsAsync(int minimumSampleCount = 2, bool overwriteExisting = false, string ruleTypeFilter = null);
+    Task<int> ApplyLearningProductProfileAsync(int productId, int minimumSampleCount = 1, bool overwriteExisting = false, string profileType = null);
 
     Task<IList<HoodProductShippingDimensionExclusion>> GetExclusionsAsync(bool activeOnly = true);
     Task SaveExclusionAsync(int productId, string reason, bool isActive = true);

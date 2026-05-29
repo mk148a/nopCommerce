@@ -2,6 +2,8 @@
 @{
     Layout = "_ConfigurePlugin";
     var productId = (int)(ViewBag.ProductId ?? 0);
+    var driverAttributes = ViewBag.DriverAttributeOptions as IList<Nop.Plugin.Shipping.FixedByWeightByTotal.Models.ShippingDimensions.ShippingDriverAttributeModel>
+        ?? new List<Nop.Plugin.Shipping.FixedByWeightByTotal.Models.ShippingDimensions.ShippingDriverAttributeModel>();
 }
 
 <div class="content-header clearfix">
@@ -20,6 +22,81 @@
             <button type="submit" class="btn btn-primary">Load</button>
         </form>
 
+        </div>
+</div>
+
+
+@if (productId > 0)
+{
+    <div class="card card-default">
+        <div class="card-header">
+            <h3 class="card-title">Shipping driver attributes</h3>
+        </div>
+        <div class="card-body">
+            <p class="text-muted mb-2">
+                Select which product attribute controls shipping package size/weight. Example: arrows = <strong>Pcs</strong>, armor = <strong>Armor Sets</strong>.
+                Navlungo Learning will create one rule per selected attribute value instead of only full combination rules.
+            </p>
+            @if (!driverAttributes.Any())
+            {
+                <div class="alert alert-warning">No product attributes found for this product.</div>
+            }
+            else
+            {
+                <table class="table table-bordered table-sm">
+                    <thead>
+                        <tr>
+                            <th>MappingId</th>
+                            <th>Attribute</th>
+                            <th>Rule type</th>
+                            <th>Active</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var a in driverAttributes)
+                    {
+                        <tr>
+                            <td>@a.ProductAttributeMappingId</td>
+                            <td>@a.ProductAttributeName</td>
+                            <td>
+                                <select class="form-control driver-rule-type" data-mapping-id="@a.ProductAttributeMappingId">
+                                    @if (string.Equals(a.RuleType, "ATTRIBUTE_VALUE", StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        <option value="ATTRIBUTE_VALUE" selected="selected">ATTRIBUTE_VALUE</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="ATTRIBUTE_VALUE">ATTRIBUTE_VALUE</option>
+                                    }
+                                    @if (string.Equals(a.RuleType, "ARROW_PCS", StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        <option value="ARROW_PCS" selected="selected">ARROW_PCS</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="ARROW_PCS">ARROW_PCS</option>
+                                    }
+                                </select>
+                            </td>
+                            <td>@a.IsActive</td>
+                            <td>
+                                <button type="button" class="btn btn-sm btn-primary save-driver" data-id="@a.Id" data-mapping-id="@a.ProductAttributeMappingId">Use for shipping</button>
+                                @if (a.Id > 0)
+                                {
+                                    <button type="button" class="btn btn-sm btn-danger delete-driver" data-id="@a.Id">Remove</button>
+                                }
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </div>
+}
+<div class="card card-default">
+    <div class="card-body">
         <h4>Add / update rule</h4>
         <div class="row">
             <input type="hidden" id="rule-id" value="0" />
@@ -68,6 +145,24 @@
 
 <script>
     $(function () {
+        $('.save-driver').on('click', function () {
+            var mappingId = $(this).data('mapping-id');
+            var postData = {
+                productId: @productId,
+                productAttributeMappingId: mappingId,
+                ruleType: $('.driver-rule-type[data-mapping-id="' + mappingId + '"]').val(),
+                isActive: true
+            };
+            addAntiForgeryToken(postData);
+            $.post('@Url.Action("SaveShippingDriverAttribute", "FixedByWeightByTotal")', postData, function () { location.reload(); });
+        });
+        $('.delete-driver').on('click', function () {
+            if (!confirm('Remove shipping driver attribute?')) return;
+            var postData = { id: $(this).data('id') };
+            addAntiForgeryToken(postData);
+            $.post('@Url.Action("DeleteShippingDriverAttribute", "FixedByWeightByTotal")', postData, function () { location.reload(); });
+        });
+
         $('#save-rule').on('click', function () {
             var postData = {
                 id: $('#rule-id').val(),

@@ -1,10 +1,13 @@
-﻿using Nop.Core;
+using System.Globalization;
+using System.Text.RegularExpressions;
+using Nop.Core;
 using Nop.Core.Domain.Shipping;
 using Microsoft.AspNetCore.Mvc;
 using Nop.Plugin.Shipping.FixedByWeightByTotal.Components;
 using Nop.Plugin.Shipping.FixedByWeightByTotal.Domain;
 using Nop.Plugin.Shipping.FixedByWeightByTotal.Services;
 using Nop.Plugin.Shipping.FixedByWeightByTotal.Services.ShippingDimensions;
+using Nop.Plugin.Shipping.FixedByWeightByTotal.Services.ProductionTime;
 using Nop.Services.Cms;
 using Nop.Services.Configuration;
 using Nop.Services.Localization;
@@ -29,6 +32,7 @@ public class FixedByWeightByTotalComputationMethod : BasePlugin, IShippingRateCo
     protected readonly ISettingService _settingService;
     protected readonly IShippingByWeightByTotalService _shippingByWeightByTotalService;
     protected readonly IProductShippingDimensionService _productShippingDimensionService;
+    protected readonly IProductProductionTimeService _productProductionTimeService;
     protected readonly IShippingService _shippingService;
     protected readonly IStoreContext _storeContext;
     protected readonly IWebHelper _webHelper;
@@ -43,6 +47,7 @@ public class FixedByWeightByTotalComputationMethod : BasePlugin, IShippingRateCo
         ISettingService settingService,
         IShippingByWeightByTotalService shippingByWeightByTotalService,
         IProductShippingDimensionService productShippingDimensionService,
+        IProductProductionTimeService productProductionTimeService,
         IShippingService shippingService,
         IStoreContext storeContext,
         IWebHelper webHelper)
@@ -53,6 +58,7 @@ public class FixedByWeightByTotalComputationMethod : BasePlugin, IShippingRateCo
         _settingService = settingService;
         _shippingByWeightByTotalService = shippingByWeightByTotalService;
         _productShippingDimensionService = productShippingDimensionService;
+        _productProductionTimeService = productProductionTimeService;
         _shippingService = shippingService;
         _storeContext = storeContext;
         _webHelper = webHelper;
@@ -86,6 +92,107 @@ public class FixedByWeightByTotalComputationMethod : BasePlugin, IShippingRateCo
     protected async Task<int?> GetTransitDaysAsync(int shippingMethodId)
     {
         return await _settingService.GetSettingByKeyAsync<int?>(string.Format(FixedByWeightByTotalDefaults.TRANSIT_DAYS_SETTINGS_KEY, shippingMethodId));
+    }
+
+    protected static string NormalizePublicShippingMethodName(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            return string.Empty;
+
+        var cleaned = Regex.Replace(name, @"^\s*NAVLUNGO\s+", string.Empty, RegexOptions.IgnoreCase).Trim();
+        cleaned = Regex.Replace(cleaned, @"\s+", " ");
+
+        var words = cleaned.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        for (var i = 0; i < words.Length; i++)
+        {
+            var token = words[i].Trim();
+            var upper = token.ToUpperInvariant();
+            words[i] = upper switch
+            {
+                "UPS" => "UPS",
+                "FEDEX" => "FedEx",
+                "DHL" => "DHL",
+                "USPS" => "USPS",
+                "TNT" => "TNT",
+                "THY" => "THY",
+                "PTT" => "PTT",
+                "DPD" => "DPD",
+                "GLS" => "GLS",
+                "EXPRESS" => "Express",
+                "EXPEDITED" => "Expedited",
+                "ECONOMY" => "Economy",
+                "STANDARD" => "Standard",
+                "PRIORITY" => "Priority",
+                _ => CultureInfo.InvariantCulture.TextInfo.ToTitleCase(token.ToLowerInvariant())
+            };
+        }
+
+        return string.Join(' ', words).Trim();
+    }
+
+    protected static string FormatDays(int minDays, int maxDays)
+    {
+        minDays = Math.Max(0, minDays);
+        maxDays = Math.Max(minDays, maxDays);
+
+        if (maxDays <= 0)
+            return string.Empty;
+
+        if (minDays <= 0 || minDays == maxDays)
+            return maxDays == 1 ? "1 day" : $"{maxDays} days";
+
+        return $"{minDays}-{maxDays} days";
+    }
+
+    protected static string FormatEstimatedDeliveryDateRange(int minDaysFromToday, int maxDaysFromToday)
+    {
+        minDaysFromToday = Math.Max(0, minDaysFromToday);
+        maxDaysFromToday = Math.Max(minDaysFromToday, maxDaysFromToday);
+
+        // Use the web server's local date as the order date baseline. This matches the store/admin date context
+        // without adding a new nopCommerce service dependency to the shipping plugin constructor.
+        var start = DateTime.Today.AddDays(minDaysFromToday);
+        var end = DateTime.Today.AddDays(maxDaysFromToday);
+        var culture = CultureInfo.CurrentUICulture;
+
+        if (start.Date == end.Date)
+            return start.ToString("MMM d, yyyy", culture);
+
+        if (start.Year == end.Year && start.Month == end.Month)
+            return $"{start.ToString("MMM d", culture)} - {end.ToString("d, yyyy", culture)}";
+
+        if (start.Year == end.Year)
+            return $"{start.ToString("MMM d", culture)} - {end.ToString("MMM d, yyyy", culture)}";
+
+        return $"{start.ToString("MMM d, yyyy", culture)} - {end.ToString("MMM d, yyyy", culture)}";
+    }
+
+    protected static string BuildShippingOptionDescription(int? transitDays, (int MinDays, int MaxDays) productionRange)
+    {
+        var parts = new List<string>();
+
+        if (transitDays.HasValue && transitDays.Value > 0)
+            parts.Add($"Transit time: {FormatDays(transitDays.Value, transitDays.Value)}");
+
+        if (productionRange.MaxDays > 0)
+        {
+            parts.Add($"Production time: {FormatDays(productionRange.MinDays, productionRange.MaxDays)}");
+
+            if (transitDays.HasValue && transitDays.Value > 0)
+            {
+                var estimatedMin = Math.Max(0, productionRange.MinDays) + transitDays.Value;
+                var estimatedMax = Math.Max(productionRange.MaxDays, productionRange.MinDays) + transitDays.Value;
+                parts.Add($"Estimated delivery date: {FormatEstimatedDeliveryDateRange(estimatedMin, estimatedMax)}");
+            }
+            else
+            {
+                parts.Add("Estimated delivery date: calculated after shipping method confirmation");
+            }
+
+            parts.Add("Shipping starts after production.");
+        }
+
+        return string.Join("<br />", parts);
     }
 
     /// <summary>
@@ -196,6 +303,13 @@ public class FixedByWeightByTotalComputationMethod : BasePlugin, IShippingRateCo
                 ? await GetHoodNavlungoChargeableWeightAsync(getShippingOptionRequest)
                 : await _shippingService.GetTotalWeightAsync(getShippingOptionRequest, ignoreFreeShippedItems: true);
 
+            // Handmade / made-to-order products require production time before carrier transit starts.
+            // Add the longest production lead time in the package to the returned transit days so product-page
+            // estimates and checkout delivery dates do not show carrier transit alone.
+            var productionRange = await _productProductionTimeService.GetProductionDayRangeForCartItemsAsync(
+                getShippingOptionRequest.Items.Select(i => i.ShoppingCartItem));
+            var productionMaxDays = productionRange.MaxDays;
+
             foreach (var shippingMethod in await _shippingService.GetAllShippingMethodsAsync(countryId))
             {
                 int? transitDays = null;
@@ -216,11 +330,19 @@ public class FixedByWeightByTotalComputationMethod : BasePlugin, IShippingRateCo
 
                 rate = GetRate(shippingByWeightByTotalRecord, subTotal, weight);
                 transitDays = shippingByWeightByTotalRecord.TransitDays;
+                if (productionMaxDays > 0)
+                    transitDays = (transitDays ?? 0) + productionMaxDays;
+
+                var publicMethodName = NormalizePublicShippingMethodName(await _localizationService.GetLocalizedAsync(shippingMethod, x => x.Name));
+                var methodDescription = BuildShippingOptionDescription(shippingByWeightByTotalRecord.TransitDays, productionRange);
+                var adminDescription = await _localizationService.GetLocalizedAsync(shippingMethod, x => x.Description);
+                if (!string.IsNullOrWhiteSpace(adminDescription))
+                    methodDescription = string.IsNullOrWhiteSpace(methodDescription) ? adminDescription : methodDescription + "<br />" + adminDescription;
 
                 response.ShippingOptions.Add(new ShippingOption
                 {
-                    Name = await _localizationService.GetLocalizedAsync(shippingMethod, x => x.Name),
-                    Description = await _localizationService.GetLocalizedAsync(shippingMethod, x => x.Description),
+                    Name = publicMethodName,
+                    Description = methodDescription,
                     Rate = rate,
                     TransitDays = transitDays
                 });
@@ -230,12 +352,28 @@ public class FixedByWeightByTotalComputationMethod : BasePlugin, IShippingRateCo
         {
             //shipping rate calculation by fixed rate
             var restrictByCountryId = getShippingOptionRequest.ShippingAddress?.CountryId;
-            response.ShippingOptions = await (await _shippingService.GetAllShippingMethodsAsync(restrictByCountryId)).SelectAwait(async shippingMethod => new ShippingOption
+            var productionRange = await _productProductionTimeService.GetProductionDayRangeForCartItemsAsync(
+                getShippingOptionRequest.Items.Select(i => i.ShoppingCartItem));
+
+            response.ShippingOptions = await (await _shippingService.GetAllShippingMethodsAsync(restrictByCountryId)).SelectAwait(async shippingMethod =>
             {
-                Name = await _localizationService.GetLocalizedAsync(shippingMethod, x => x.Name),
-                Description = await _localizationService.GetLocalizedAsync(shippingMethod, x => x.Description),
-                Rate = await GetRateAsync(shippingMethod.Id),
-                TransitDays = await GetTransitDaysAsync(shippingMethod.Id)
+                var carrierTransitDays = await GetTransitDaysAsync(shippingMethod.Id);
+                var transitDays = carrierTransitDays;
+                if (productionRange.MaxDays > 0)
+                    transitDays = (transitDays ?? 0) + productionRange.MaxDays;
+
+                var methodDescription = BuildShippingOptionDescription(carrierTransitDays, productionRange);
+                var adminDescription = await _localizationService.GetLocalizedAsync(shippingMethod, x => x.Description);
+                if (!string.IsNullOrWhiteSpace(adminDescription))
+                    methodDescription = string.IsNullOrWhiteSpace(methodDescription) ? adminDescription : methodDescription + "<br />" + adminDescription;
+
+                return new ShippingOption
+                {
+                    Name = NormalizePublicShippingMethodName(await _localizationService.GetLocalizedAsync(shippingMethod, x => x.Name)),
+                    Description = methodDescription,
+                    Rate = await GetRateAsync(shippingMethod.Id),
+                    TransitDays = transitDays
+                };
             }).ToListAsync();
         }
 
@@ -380,6 +518,19 @@ public class FixedByWeightByTotalComputationMethod : BasePlugin, IShippingRateCo
 
     public Type GetWidgetViewComponent(string widgetZone)
     {
+        if (string.Equals(widgetZone, AdminWidgetZones.ProductAttributeValueDetailsBottom, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(widgetZone, AdminWidgetZones.ProductAttributeValueDetailsTop, StringComparison.OrdinalIgnoreCase))
+            return typeof(HoodAttributeValueShippingDimensionViewComponent);
+
+        if (string.Equals(widgetZone, AdminWidgetZones.OrderShipmentDetailsButtons, StringComparison.OrdinalIgnoreCase))
+            return typeof(HoodNavlungoShipmentLinksViewComponent);
+
+        if (IsAdminProductEditZone(widgetZone))
+            return typeof(HoodProductProductionTimeAdminViewComponent);
+
+        if (IsPublicProductDetailsZone(widgetZone))
+            return typeof(HoodProductProductionTimeViewComponent);
+
         return typeof(HoodNavlungoShipmentLinksViewComponent);
     }
 
@@ -387,8 +538,33 @@ public class FixedByWeightByTotalComputationMethod : BasePlugin, IShippingRateCo
     {
         return Task.FromResult<IList<string>>(new List<string>
         {
-            AdminWidgetZones.OrderShipmentDetailsButtons
+            AdminWidgetZones.OrderShipmentDetailsButtons,
+            AdminWidgetZones.ProductAttributeValueDetailsBottom,
+
+            // Admin product edit page.
+            AdminWidgetZones.ProductDetailsBlock,
+
+            // Public product details page. For Element theme this must stay inside the .overview column.
+            // EssentialBottom / BeforeCollateral are outside the overview float and can break the gallery/overview layout.
+            PublicWidgetZones.ProductDetailsOverviewBottom
         });
+    }
+
+    private static bool IsAdminProductEditZone(string widgetZone)
+    {
+        if (string.IsNullOrWhiteSpace(widgetZone))
+            return false;
+
+        return string.Equals(widgetZone, AdminWidgetZones.ProductDetailsBlock, StringComparison.OrdinalIgnoreCase)
+            || widgetZone.Contains("admin_product_details", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool IsPublicProductDetailsZone(string widgetZone)
+    {
+        if (string.IsNullOrWhiteSpace(widgetZone))
+            return false;
+
+        return string.Equals(widgetZone, PublicWidgetZones.ProductDetailsOverviewBottom, StringComparison.OrdinalIgnoreCase);
     }
 
     #endregion

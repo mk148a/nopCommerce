@@ -14,6 +14,7 @@ public class ProductShippingDimensionService : IProductShippingDimensionService
     private readonly FixedByWeightByTotalSettings _settings;
     private readonly IRepository<HoodProductShippingDimensionRule> _ruleRepository;
     private readonly IRepository<HoodProductShippingDimensionExclusion> _exclusionRepository;
+    private readonly IRepository<HoodProductShippingDriverAttribute> _driverAttributeRepository;
     private readonly IRepository<ProductCategory> _productCategoryRepository;
     private readonly IRepository<Category> _categoryRepository;
     private readonly IRepository<Product> _productRepository;
@@ -27,6 +28,7 @@ public class ProductShippingDimensionService : IProductShippingDimensionService
     public ProductShippingDimensionService(FixedByWeightByTotalSettings settings,
         IRepository<HoodProductShippingDimensionRule> ruleRepository,
         IRepository<HoodProductShippingDimensionExclusion> exclusionRepository,
+        IRepository<HoodProductShippingDriverAttribute> driverAttributeRepository,
         IRepository<ProductCategory> productCategoryRepository,
         IRepository<Category> categoryRepository,
         IRepository<Product> productRepository,
@@ -40,6 +42,7 @@ public class ProductShippingDimensionService : IProductShippingDimensionService
         _settings = settings;
         _ruleRepository = ruleRepository;
         _exclusionRepository = exclusionRepository;
+        _driverAttributeRepository = driverAttributeRepository;
         _productCategoryRepository = productCategoryRepository;
         _categoryRepository = categoryRepository;
         _productRepository = productRepository;
@@ -99,6 +102,75 @@ public class ProductShippingDimensionService : IProductShippingDimensionService
         await _ruleRepository.DeleteAsync(rule, false);
     }
 
+    public async Task SaveAttributeValueDimensionAsync(int productId, int productAttributeValueId, bool enabled, string ruleType, decimal? lengthCm, decimal? widthCm, decimal? heightCm, decimal? weightGram, decimal divisor, int packageCount, bool isShipSeparately)
+    {
+        if (productAttributeValueId <= 0)
+            return;
+
+        if (productId <= 0)
+        {
+            var value = await _productAttributeValueRepository.GetByIdAsync(productAttributeValueId);
+            if (value != null)
+            {
+                var mapping = await _productAttributeMappingRepository.GetByIdAsync(value.ProductAttributeMappingId);
+                productId = mapping?.ProductId ?? 0;
+            }
+        }
+
+        if (productId <= 0)
+            return;
+
+        var rules = await GetRulesByProductIdAsync(productId, activeOnly: false);
+        var rule = rules.FirstOrDefault(r => r.ProductAttributeValueId == productAttributeValueId
+            && (string.Equals(r.RuleType, "ARROW_PCS", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(r.RuleType, "ATTRIBUTE_VALUE", StringComparison.OrdinalIgnoreCase)));
+
+        if (!enabled)
+        {
+            if (rule != null)
+            {
+                rule.IsActive = false;
+                rule.UpdatedOnUtc = DateTime.UtcNow;
+                await UpdateRuleAsync(rule);
+            }
+            return;
+        }
+
+        var l = lengthCm ?? 0;
+        var w = widthCm ?? 0;
+        var h = heightCm ?? 0;
+        if (l <= 0 || w <= 0 || h <= 0)
+            return;
+
+        rule ??= new HoodProductShippingDimensionRule
+        {
+            ProductId = productId,
+            ProductAttributeValueId = productAttributeValueId,
+            CreatedOnUtc = DateTime.UtcNow
+        };
+
+        rule.ProductId = productId;
+        rule.ProductAttributeValueId = productAttributeValueId;
+        rule.AttributeValueIdsCsv = null;
+        rule.AttributeHash = null;
+        rule.RuleType = string.IsNullOrWhiteSpace(ruleType) ? "ATTRIBUTE_VALUE" : ruleType.Trim().ToUpperInvariant();
+        rule.LengthCm = l;
+        rule.WidthCm = w;
+        rule.HeightCm = h;
+        rule.WeightGram = weightGram;
+        rule.Divisor = divisor <= 0 ? GetDivisor() : divisor;
+        rule.PackageCount = packageCount <= 0 ? 1 : packageCount;
+        rule.IsShipSeparately = isShipSeparately;
+        rule.IsActive = true;
+        rule.Source = "ProductAttributeValue popup";
+        rule.Confidence = "MANUAL";
+
+        if (rule.Id > 0)
+            await UpdateRuleAsync(rule);
+        else
+            await InsertRuleAsync(rule);
+    }
+
     public string BuildAttributeValueIdsCsv(IEnumerable<int> attributeValueIds)
     {
         return string.Join(',', attributeValueIds.Distinct().OrderBy(id => id));
@@ -107,8 +179,103 @@ public class ProductShippingDimensionService : IProductShippingDimensionService
     public string BuildAttributeHash(string attributeValueIdsCsv)
     {
         var normalized = BuildAttributeValueIdsCsv(ParseCsvIds(attributeValueIdsCsv));
-        var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(normalized));
+        return ComputeSha256Hex(normalized);
+    }
+
+    private static string ComputeSha256Hex(string value)
+    {
+        var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(value ?? string.Empty));
         return Convert.ToHexString(bytes);
+    }
+
+
+
+    public async Task<IList<ShippingDriverAttributeModel>> GetProductAttributeDriverOptionsAsync(int productId)
+    {
+        if (productId <= 0)
+            return new List<ShippingDriverAttributeModel>();
+
+        var tableCheck = await _dataProvider.QueryAsync<TableExistsResult>(@"
+SELECT CASE WHEN OBJECT_ID(N'dbo.HoodProductShippingDriverAttribute', N'U') IS NULL THEN 0 ELSE 1 END AS ExistsFlag");
+
+        var hasDriverTable = tableCheck.FirstOrDefault()?.ExistsFlag == 1;
+
+        var sql = hasDriverTable
+            ? $@"
+SELECT
+    ISNULL(D.Id, 0) AS Id,
+    PAM.ProductId,
+    PAM.Id AS ProductAttributeMappingId,
+    PA.Id AS ProductAttributeId,
+    PA.Name AS ProductAttributeName,
+    CAST(PAM.AttributeControlTypeId AS nvarchar(50)) AS ControlTypeName,
+    ISNULL(D.RuleType, N'ATTRIBUTE_VALUE') AS RuleType,
+    CAST(ISNULL(D.IsActive, 0) AS bit) AS IsActive,
+    CAST(CASE WHEN D.Id IS NULL THEN 0 ELSE 1 END AS bit) AS IsConfigured
+FROM dbo.Product_ProductAttribute_Mapping PAM
+JOIN dbo.ProductAttribute PA ON PA.Id = PAM.ProductAttributeId
+LEFT JOIN dbo.HoodProductShippingDriverAttribute D
+    ON D.ProductAttributeMappingId = PAM.Id
+WHERE PAM.ProductId = {productId}
+ORDER BY PAM.DisplayOrder, PA.Name;"
+            : $@"
+SELECT
+    CAST(0 AS int) AS Id,
+    PAM.ProductId,
+    PAM.Id AS ProductAttributeMappingId,
+    PA.Id AS ProductAttributeId,
+    PA.Name AS ProductAttributeName,
+    CAST(PAM.AttributeControlTypeId AS nvarchar(50)) AS ControlTypeName,
+    CAST(N'ATTRIBUTE_VALUE' AS nvarchar(50)) AS RuleType,
+    CAST(0 AS bit) AS IsActive,
+    CAST(0 AS bit) AS IsConfigured
+FROM dbo.Product_ProductAttribute_Mapping PAM
+JOIN dbo.ProductAttribute PA ON PA.Id = PAM.ProductAttributeId
+WHERE PAM.ProductId = {productId}
+ORDER BY PAM.DisplayOrder, PA.Name;";
+
+        return await _dataProvider.QueryAsync<ShippingDriverAttributeModel>(sql);
+    }
+
+    public async Task SaveShippingDriverAttributeAsync(int productId, int productAttributeMappingId, string ruleType, bool isActive = true)
+    {
+        if (productId <= 0 || productAttributeMappingId <= 0)
+            return;
+
+        var mapping = await _productAttributeMappingRepository.GetByIdAsync(productAttributeMappingId);
+        if (mapping == null || mapping.ProductId != productId)
+            return;
+
+        var productAttribute = await _productAttributeRepository.GetByIdAsync(mapping.ProductAttributeId);
+        var existing = (await _driverAttributeRepository.GetAllAsync(query => query.Where(x => x.ProductAttributeMappingId == productAttributeMappingId)))
+            .FirstOrDefault();
+
+        existing ??= new HoodProductShippingDriverAttribute
+        {
+            ProductId = productId,
+            ProductAttributeMappingId = productAttributeMappingId,
+            CreatedOnUtc = DateTime.UtcNow
+        };
+
+        existing.ProductId = productId;
+        existing.ProductAttributeMappingId = productAttributeMappingId;
+        existing.ProductAttributeId = mapping.ProductAttributeId;
+        existing.ProductAttributeName = productAttribute?.Name;
+        existing.RuleType = string.IsNullOrWhiteSpace(ruleType) ? "ATTRIBUTE_VALUE" : ruleType.Trim().ToUpperInvariant();
+        existing.IsActive = isActive;
+        existing.UpdatedOnUtc = DateTime.UtcNow;
+
+        if (existing.Id > 0)
+            await _driverAttributeRepository.UpdateAsync(existing, false);
+        else
+            await _driverAttributeRepository.InsertAsync(existing, false);
+    }
+
+    public async Task DeleteShippingDriverAttributeAsync(int id)
+    {
+        var item = await _driverAttributeRepository.GetByIdAsync(id);
+        if (item != null)
+            await _driverAttributeRepository.DeleteAsync(item, false);
     }
 
     public async Task<ChargeableShippingMeasure> GetCartItemMeasureAsync(ShoppingCartItem shoppingCartItem)
@@ -123,12 +290,16 @@ public class ProductShippingDimensionService : IProductShippingDimensionService
         var selectedIds = selectedValues.Select(v => v.Id).Distinct().OrderBy(id => id).ToList();
         var selectedCsv = BuildAttributeValueIdsCsv(selectedIds);
         var selectedHash = BuildAttributeHash(selectedCsv);
+        var attributesXmlHash = ComputeSha256Hex(shoppingCartItem.AttributesXml ?? string.Empty);
+        var emptyHash = ComputeSha256Hex(string.Empty);
         var rules = await GetRulesByProductIdAsync(product.Id);
 
         var rule = rules.FirstOrDefault(r =>
                 string.Equals(r.RuleType, "ATTRIBUTE_COMBINATION", StringComparison.OrdinalIgnoreCase) &&
                 !string.IsNullOrWhiteSpace(r.AttributeHash) &&
-                string.Equals(r.AttributeHash, selectedHash, StringComparison.OrdinalIgnoreCase))
+                !string.Equals(r.AttributeHash, emptyHash, StringComparison.OrdinalIgnoreCase) &&
+                (string.Equals(r.AttributeHash, attributesXmlHash, StringComparison.OrdinalIgnoreCase)
+                 || string.Equals(r.AttributeHash, selectedHash, StringComparison.OrdinalIgnoreCase)))
             ?? rules.FirstOrDefault(r =>
                 r.ProductAttributeValueId.HasValue &&
                 selectedIds.Contains(r.ProductAttributeValueId.Value) &&
@@ -165,42 +336,252 @@ public class ProductShippingDimensionService : IProductShippingDimensionService
         };
 
         var multiplier = _settings.HoodNavlungoRateWeightMultiplier <= 0 ? 1000m : _settings.HoodNavlungoRateWeightMultiplier;
-        measure.RateLookupWeight = measure.ChargeableWeightKg * multiplier * shoppingCartItem.Quantity;
+        // PackageCount means this cart item ships as N identical packages.
+        // The chargeable weight is calculated per package, then multiplied by package count and cart quantity.
+        measure.RateLookupWeight = measure.ChargeableWeightKg * measure.PackageCount * multiplier * shoppingCartItem.Quantity;
 
         return measure;
     }
 
     public async Task<IList<ShippingLearningSuggestionModel>> GetLearningSuggestionsAsync(int minimumSampleCount = 1)
     {
-        var existsRows = await _dataProvider.QueryAsync<TableExistsResult>(
-            "SELECT CASE WHEN OBJECT_ID(N'dbo.NavlungoProductMeasureStatsSafe', N'U') IS NULL THEN 0 ELSE 1 END AS ExistsFlag");
+        var existsRows = await _dataProvider.QueryAsync<TableExistsResult>(@"
+SELECT CASE
+    WHEN OBJECT_ID(N'dbo.NavlungoProductMeasureStatsSafe', N'U') IS NOT NULL
+     AND OBJECT_ID(N'dbo.NavlungoOrderMatchFinal', N'U') IS NOT NULL
+     AND OBJECT_ID(N'dbo.NavlungoPackages_20260515', N'U') IS NOT NULL
+    THEN 1 ELSE 0 END AS ExistsFlag");
 
         if (existsRows.FirstOrDefault()?.ExistsFlag != 1)
             return new List<ShippingLearningSuggestionModel>();
 
-        // Reads previously prepared Navlungo analysis table. The admin page can apply these suggestions without manual SQL edits.
+        var min = Math.Max(1, minimumSampleCount);
+
+        // Returns two suggestion layers:
+        // 1) ATTRIBUTE_COMBINATION from prepared NavlungoProductMeasureStatsSafe.
+        // 2) ARROW_PCS directly from trusted matched shipments by parsing the Pcs/ProductAttributeValueId from OrderItem.AttributesXml.
+        // ARROW_PCS suggestions can be applied to ProductAttributeValue popup fields automatically.
         var sql = $@"
-SELECT
-    S.ProductId,
-    P.Name AS ProductName,
-    CAST(NULL AS int) AS ProductAttributeValueId,
-    CAST(NULL AS nvarchar(400)) AS ProductAttributeValueName,
-    S.AttributeHash,
-    CAST(N'ATTRIBUTE_COMBINATION' AS nvarchar(50)) AS RuleType,
-    S.SampleCount,
-    S.SuggestedLengthCm,
-    S.SuggestedWidthCm,
-    S.SuggestedHeightCm,
-    CAST(S.SuggestedActualWeightKg * 1000.0 AS decimal(18,4)) AS SuggestedWeightGram,
-    S.SuggestedChargeableWeightKg,
-    CAST(CASE WHEN S.SampleCount >= 3 THEN N'HIGH' WHEN S.SampleCount = 2 THEN N'MEDIUM' ELSE N'REVIEW' END AS nvarchar(50)) AS Confidence,
-    S.ExampleShipmentNo,
-    S.ExampleOrderId,
-    S.ExampleAttributeDescription
-FROM dbo.NavlungoProductMeasureStatsSafe S
-LEFT JOIN dbo.Product P ON P.Id = S.ProductId
-WHERE S.SampleCount >= {Math.Max(1, minimumSampleCount)}
-ORDER BY S.SampleCount DESC, S.SuggestedChargeableWeightKg DESC;";
+;WITH ProductAttributeCounts AS
+(
+    SELECT
+        ProductId,
+        COUNT(*) AS AttributeMappingCount
+    FROM dbo.Product_ProductAttribute_Mapping
+    GROUP BY ProductId
+),
+CombinationSuggestions AS
+(
+    SELECT
+        S.ProductId,
+        P.Name AS ProductName,
+        CAST(NULL AS int) AS ProductAttributeValueId,
+        CAST(NULL AS nvarchar(400)) AS ProductAttributeValueName,
+        CASE
+            WHEN ISNULL(PAC.AttributeMappingCount, 0) = 0
+              OR UPPER(ISNULL(S.AttributeHash, N'')) = N'E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855'
+            THEN CAST(NULL AS varchar(64))
+            ELSE S.AttributeHash
+        END AS AttributeHash,
+        CAST(CASE
+            WHEN ISNULL(PAC.AttributeMappingCount, 0) = 0
+              OR UPPER(ISNULL(S.AttributeHash, N'')) = N'E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855'
+            THEN N'PRODUCT_DEFAULT'
+            ELSE N'ATTRIBUTE_COMBINATION'
+        END AS nvarchar(50)) AS RuleType,
+        S.SampleCount,
+        S.SuggestedLengthCm,
+        S.SuggestedWidthCm,
+        S.SuggestedHeightCm,
+        CAST(S.SuggestedActualWeightKg * 1000.0 AS decimal(18,4)) AS SuggestedWeightGram,
+        S.SuggestedChargeableWeightKg,
+        CAST(CASE WHEN S.SampleCount >= 3 THEN N'HIGH' WHEN S.SampleCount = 2 THEN N'MEDIUM' ELSE N'REVIEW' END AS nvarchar(50)) AS Confidence,
+        S.ExampleShipmentNo,
+        S.ExampleOrderId,
+        S.ExampleAttributeDescription
+    FROM dbo.NavlungoProductMeasureStatsSafe S
+    LEFT JOIN dbo.Product P ON P.Id = S.ProductId
+    LEFT JOIN ProductAttributeCounts PAC ON PAC.ProductId = S.ProductId
+    WHERE S.SampleCount >= {min}
+),
+OrderLineStats AS
+(
+    SELECT
+        OrderId,
+        COUNT(*) AS LineCount,
+        SUM(Quantity) AS TotalQuantity
+    FROM dbo.OrderItem
+    GROUP BY OrderId
+),
+TrustedSingleItem AS
+(
+    SELECT
+        M.shipmentUuid,
+        M.shipmentNo,
+        M.OrderId,
+        OI.ProductId,
+        OI.AttributesXml,
+        OI.AttributeDescription
+    FROM dbo.NavlungoOrderMatchFinal M
+    JOIN OrderLineStats LS
+        ON LS.OrderId = M.OrderId
+    JOIN dbo.OrderItem OI
+        ON OI.OrderId = M.OrderId
+    WHERE
+        M.MatchDecision IN
+        (
+            'EXACT_TRACKING_SAFE',
+            'HIGH_CONFIDENCE_SAFE',
+            'PROBABLE_SAFE'
+        )
+        AND LS.LineCount = 1
+        AND LS.TotalQuantity = 1
+        AND ISNULL(M.packageCount, 0) = 1
+),
+SelectedAttributeValues AS
+(
+    SELECT
+        T.*,
+        TRY_CONVERT(INT, V.N.value('(text())[1]', 'nvarchar(100)')) AS ProductAttributeValueId
+    FROM TrustedSingleItem T
+    CROSS APPLY (SELECT TRY_CONVERT(XML, T.AttributesXml) AS AttributesXmlTyped) AX
+    CROSS APPLY AX.AttributesXmlTyped.nodes('/Attributes/ProductAttribute/ProductAttributeValue/Value') V(N)
+),
+PcsValues AS
+(
+    SELECT
+        SAV.*,
+        PA.Name AS AttributeName,
+        PAV.Name AS AttributeValueName
+    FROM SelectedAttributeValues SAV
+    JOIN dbo.ProductAttributeValue PAV
+        ON PAV.Id = SAV.ProductAttributeValueId
+    JOIN dbo.Product_ProductAttribute_Mapping PAM
+        ON PAM.Id = PAV.ProductAttributeMappingId
+    JOIN dbo.ProductAttribute PA
+        ON PA.Id = PAM.ProductAttributeId
+    WHERE
+        LOWER(PA.Name) IN (N'pcs', N'adet')
+        OR LOWER(PA.Name) LIKE N'%pcs%'
+        OR LOWER(PA.Name) LIKE N'%adet%'
+),
+Pkg AS
+(
+    SELECT
+        P.shipmentUuid,
+        P.packageIndex,
+        P.lengthCm,
+        P.widthCm,
+        P.heightCm,
+        P.weightKg,
+        P.chargeableWeightKg,
+        P.volumetricWeightDesi,
+        P.calculatedDesi_LxWxH_5000,
+        D.LongCm,
+        D.ShortCm,
+        P.lengthCm + P.widthCm + P.heightCm - D.LongCm - D.ShortCm AS MidCm
+    FROM dbo.NavlungoPackages_20260515 P
+    CROSS APPLY
+    (
+        SELECT
+            MAX(v) AS LongCm,
+            MIN(v) AS ShortCm
+        FROM (VALUES (P.lengthCm), (P.widthCm), (P.heightCm)) X(v)
+    ) D
+    WHERE
+        P.lengthCm IS NOT NULL
+        AND P.widthCm IS NOT NULL
+        AND P.heightCm IS NOT NULL
+        AND P.weightKg IS NOT NULL
+),
+ArrowPcsSuggestions AS
+(
+    SELECT
+        PV.ProductId,
+        PR.Name AS ProductName,
+        PV.ProductAttributeValueId,
+        MAX(PV.AttributeValueName) AS ProductAttributeValueName,
+        CAST(NULL AS varchar(64)) AS AttributeHash,
+        CAST(N'ARROW_PCS' AS nvarchar(50)) AS RuleType,
+        COUNT(*) AS SampleCount,
+        MAX(PKG.LongCm) AS SuggestedLengthCm,
+        MAX(PKG.MidCm) AS SuggestedWidthCm,
+        MAX(PKG.ShortCm) AS SuggestedHeightCm,
+        CAST(MAX(PKG.weightKg * 1000.0) AS decimal(18,4)) AS SuggestedWeightGram,
+        MAX(PKG.chargeableWeightKg) AS SuggestedChargeableWeightKg,
+        CAST(CASE WHEN COUNT(*) >= 3 THEN N'HIGH' WHEN COUNT(*) = 2 THEN N'MEDIUM' ELSE N'REVIEW' END AS nvarchar(50)) AS Confidence,
+        MAX(PV.shipmentNo) AS ExampleShipmentNo,
+        MAX(PV.OrderId) AS ExampleOrderId,
+        MAX(PV.AttributeDescription) AS ExampleAttributeDescription
+    FROM PcsValues PV
+    JOIN Pkg PKG
+        ON PKG.shipmentUuid = PV.shipmentUuid
+    LEFT JOIN dbo.Product PR
+        ON PR.Id = PV.ProductId
+    GROUP BY
+        PV.ProductId,
+        PR.Name,
+        PV.ProductAttributeValueId
+    HAVING COUNT(*) >= {min}
+),
+DriverAttributeSuggestions AS
+(
+    SELECT
+        SAV.ProductId,
+        PR.Name AS ProductName,
+        SAV.ProductAttributeValueId,
+        MAX(PAV.Name) AS ProductAttributeValueName,
+        CAST(NULL AS varchar(64)) AS AttributeHash,
+        CAST(CASE
+            WHEN UPPER(ISNULL(D.RuleType, N'')) IN (N'ARROW_PCS', N'ATTRIBUTE_VALUE') THEN UPPER(D.RuleType)
+            ELSE N'ATTRIBUTE_VALUE'
+        END AS nvarchar(50)) AS RuleType,
+        COUNT(*) AS SampleCount,
+        MAX(PKG.LongCm) AS SuggestedLengthCm,
+        MAX(PKG.MidCm) AS SuggestedWidthCm,
+        MAX(PKG.ShortCm) AS SuggestedHeightCm,
+        CAST(MAX(PKG.weightKg * 1000.0) AS decimal(18,4)) AS SuggestedWeightGram,
+        MAX(PKG.chargeableWeightKg) AS SuggestedChargeableWeightKg,
+        CAST(CASE WHEN COUNT(*) >= 3 THEN N'HIGH' WHEN COUNT(*) = 2 THEN N'MEDIUM' ELSE N'REVIEW' END AS nvarchar(50)) AS Confidence,
+        MAX(SAV.shipmentNo) AS ExampleShipmentNo,
+        MAX(SAV.OrderId) AS ExampleOrderId,
+        MAX(SAV.AttributeDescription) AS ExampleAttributeDescription
+    FROM SelectedAttributeValues SAV
+    JOIN dbo.ProductAttributeValue PAV
+        ON PAV.Id = SAV.ProductAttributeValueId
+    JOIN dbo.HoodProductShippingDriverAttribute D
+        ON D.ProductId = SAV.ProductId
+       AND D.ProductAttributeMappingId = PAV.ProductAttributeMappingId
+       AND D.IsActive = 1
+    JOIN Pkg PKG
+        ON PKG.shipmentUuid = SAV.shipmentUuid
+    LEFT JOIN dbo.Product PR
+        ON PR.Id = SAV.ProductId
+    GROUP BY
+        SAV.ProductId,
+        PR.Name,
+        SAV.ProductAttributeValueId,
+        CASE
+            WHEN UPPER(ISNULL(D.RuleType, N'')) IN (N'ARROW_PCS', N'ATTRIBUTE_VALUE') THEN UPPER(D.RuleType)
+            ELSE N'ATTRIBUTE_VALUE'
+        END
+    HAVING COUNT(*) >= {min}
+)
+SELECT *
+FROM
+(
+    SELECT * FROM CombinationSuggestions
+    UNION ALL
+    SELECT * FROM ArrowPcsSuggestions
+    UNION ALL
+    SELECT * FROM DriverAttributeSuggestions
+) X
+ORDER BY
+    CASE X.RuleType WHEN N'ARROW_PCS' THEN 1 WHEN N'PRODUCT_DEFAULT' THEN 2 WHEN N'ATTRIBUTE_VALUE' THEN 3 ELSE 4 END,
+    X.SampleCount DESC,
+    X.SuggestedChargeableWeightKg DESC,
+    X.ProductId,
+    X.ProductAttributeValueName;";
 
         return await _dataProvider.QueryAsync<ShippingLearningSuggestionModel>(sql);
     }
@@ -352,40 +733,82 @@ ORDER BY
         return details;
     }
 
-    public async Task<int> ApplyLearningSuggestionsAsync(int minimumSampleCount = 2, bool overwriteExisting = false)
+    public async Task<int> ApplyLearningSuggestionsAsync(int minimumSampleCount = 2, bool overwriteExisting = false, string ruleTypeFilter = null)
     {
         var suggestions = await GetLearningSuggestionsAsync(minimumSampleCount);
         var applied = 0;
+
+        var filterSet = string.IsNullOrWhiteSpace(ruleTypeFilter)
+            ? new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            : ruleTypeFilter.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .Select(x => x.Trim().ToUpperInvariant())
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        if (filterSet.Any())
+            suggestions = suggestions.Where(s => filterSet.Contains((s.RuleType ?? string.Empty).Trim().ToUpperInvariant())).ToList();
 
         foreach (var s in suggestions)
         {
             if (await IsProductExcludedFromAutomationAsync(s.ProductId))
                 continue;
 
-            var existing = (await GetRulesByProductIdAsync(s.ProductId, activeOnly: false))
-                .FirstOrDefault(r => !string.IsNullOrWhiteSpace(s.AttributeHash) && string.Equals(r.AttributeHash, s.AttributeHash, StringComparison.OrdinalIgnoreCase));
+            var existingRules = await GetRulesByProductIdAsync(s.ProductId, activeOnly: false);
+            var existing = existingRules.FirstOrDefault(r =>
+            {
+                if (!string.Equals(r.RuleType ?? string.Empty, s.RuleType ?? string.Empty, StringComparison.OrdinalIgnoreCase))
+                    return false;
+
+                if (string.Equals(s.RuleType, "PRODUCT_DEFAULT", StringComparison.OrdinalIgnoreCase))
+                    return true;
+
+                if (s.ProductAttributeValueId.HasValue && s.ProductAttributeValueId.Value > 0)
+                    return r.ProductAttributeValueId == s.ProductAttributeValueId.Value;
+
+                if (!string.IsNullOrWhiteSpace(s.AttributeHash))
+                    return string.Equals(r.AttributeHash ?? string.Empty, s.AttributeHash, StringComparison.OrdinalIgnoreCase);
+
+                return false;
+            });
 
             if (existing != null && !overwriteExisting)
+            {
+                if (string.Equals(existing.RuleType, "PRODUCT_DEFAULT", StringComparison.OrdinalIgnoreCase))
+                    await ApplyProductDefaultToNativeProductAsync(existing);
+
                 continue;
+            }
 
             var rule = existing ?? new HoodProductShippingDimensionRule
             {
                 ProductId = s.ProductId,
-                AttributeHash = s.AttributeHash,
-                RuleType = s.RuleType,
                 CreatedOnUtc = DateTime.UtcNow
             };
 
+            rule.ProductId = s.ProductId;
+            rule.ProductAttributeValueId = s.ProductAttributeValueId;
+            rule.AttributeHash = string.IsNullOrWhiteSpace(s.AttributeHash) ? null : s.AttributeHash;
+            rule.AttributeValueIdsCsv = null;
+            rule.RuleType = string.IsNullOrWhiteSpace(s.RuleType) ? "ATTRIBUTE_COMBINATION" : s.RuleType.Trim().ToUpperInvariant();
             rule.LengthCm = s.SuggestedLengthCm;
             rule.WidthCm = s.SuggestedWidthCm;
             rule.HeightCm = s.SuggestedHeightCm;
-            rule.WeightGram = s.SuggestedWeightGram;
             rule.Divisor = GetDivisor();
+            // PRODUCT_DEFAULT is also written to native nopCommerce Product.Weight.
+            // Native FixedByWeight paths do not understand dimensional weight, so for product-level
+            // defaults store the billable/effective weight: max(actual weight, volumetric weight).
+            rule.WeightGram = string.Equals(rule.RuleType, "PRODUCT_DEFAULT", StringComparison.OrdinalIgnoreCase)
+                ? GetEffectiveBillingWeightGram(s, rule.LengthCm, rule.WidthCm, rule.HeightCm, rule.Divisor)
+                : s.SuggestedWeightGram;
             rule.PackageCount = 1;
+            rule.IsShipSeparately = string.Equals(rule.RuleType, "ARROW_PCS", StringComparison.OrdinalIgnoreCase) || rule.IsShipSeparately;
             rule.IsActive = true;
             rule.SampleCount = s.SampleCount;
             rule.Confidence = s.Confidence;
-            rule.Source = "Navlungo Learning";
+            rule.Source = string.Equals(rule.RuleType, "ARROW_PCS", StringComparison.OrdinalIgnoreCase)
+                ? "Navlungo Learning - ARROW_PCS"
+                : string.Equals(rule.RuleType, "PRODUCT_DEFAULT", StringComparison.OrdinalIgnoreCase)
+                    ? "Navlungo Learning - PRODUCT_DEFAULT"
+                    : "Navlungo Learning";
             rule.ExampleShipmentNo = s.ExampleShipmentNo;
             rule.ExampleOrderId = s.ExampleOrderId;
 
@@ -394,10 +817,221 @@ ORDER BY
             else
                 await UpdateRuleAsync(rule);
 
+            if (string.Equals(rule.RuleType, "PRODUCT_DEFAULT", StringComparison.OrdinalIgnoreCase))
+                await ApplyProductDefaultToNativeProductAsync(rule);
+
             applied++;
         }
 
         return applied;
+    }
+
+
+    public async Task<int> ApplyLearningProductProfileAsync(int productId, int minimumSampleCount = 1, bool overwriteExisting = false, string profileType = null)
+    {
+        if (productId <= 0)
+            return 0;
+
+        var suggestions = (await GetLearningSuggestionsAsync(Math.Max(1, minimumSampleCount)))
+            .Where(s => s.ProductId == productId)
+            .ToList();
+
+        if (!suggestions.Any())
+            return 0;
+
+        if (await IsProductExcludedFromAutomationAsync(productId))
+            return 0;
+
+        var normalizedProfile = string.IsNullOrWhiteSpace(profileType)
+            ? "ALL"
+            : profileType.Trim().ToUpperInvariant();
+
+        if (normalizedProfile == "PRODUCT_DEFAULT")
+        {
+            var maxChargeable = suggestions
+                .OrderByDescending(s => s.SuggestedChargeableWeightKg)
+                .ThenByDescending(s => s.SuggestedWeightGram)
+                .First();
+
+            var productDefault = new ShippingLearningSuggestionModel
+            {
+                ProductId = productId,
+                ProductName = maxChargeable.ProductName,
+                ProductAttributeValueId = null,
+                ProductAttributeValueName = null,
+                AttributeHash = null,
+                RuleType = "PRODUCT_DEFAULT",
+                SampleCount = suggestions.Sum(s => Math.Max(1, s.SampleCount)),
+                // Use the exact package dimensions from the shipment with the highest chargeable kg.
+                // Do not combine max length from one variant + max width from another variant; that creates an artificial oversized box.
+                SuggestedLengthCm = maxChargeable.SuggestedLengthCm,
+                SuggestedWidthCm = maxChargeable.SuggestedWidthCm,
+                SuggestedHeightCm = maxChargeable.SuggestedHeightCm,
+                // ApplyOneLearningSuggestionAsync will convert this to billable/effective gram for PRODUCT_DEFAULT.
+                SuggestedWeightGram = maxChargeable.SuggestedWeightGram,
+                SuggestedChargeableWeightKg = maxChargeable.SuggestedChargeableWeightKg,
+                Confidence = suggestions.Any(s => string.Equals(s.Confidence, "HIGH", StringComparison.OrdinalIgnoreCase))
+                    ? "HIGH"
+                    : suggestions.Any(s => string.Equals(s.Confidence, "MEDIUM", StringComparison.OrdinalIgnoreCase))
+                        ? "MEDIUM"
+                        : "REVIEW",
+                ExampleShipmentNo = maxChargeable.ExampleShipmentNo,
+                ExampleOrderId = maxChargeable.ExampleOrderId,
+                ExampleAttributeDescription = maxChargeable.ExampleAttributeDescription
+            };
+
+            return await ApplyOneLearningSuggestionAsync(productDefault, overwriteExisting, "Navlungo Learning - PRODUCT_PROFILE_DEFAULT");
+        }
+
+        IEnumerable<ShippingLearningSuggestionModel> filtered = suggestions;
+        if (normalizedProfile != "ALL")
+        {
+            filtered = suggestions.Where(s => string.Equals(s.RuleType, normalizedProfile, StringComparison.OrdinalIgnoreCase));
+
+            // A product configured as ATTRIBUTE_VALUE may also have ARROW_PCS suggestions.
+            // Keep ARROW_PCS separate when specifically selected, but allow ALL to apply all layers.
+        }
+
+        var applied = 0;
+        foreach (var suggestion in filtered)
+            applied += await ApplyOneLearningSuggestionAsync(suggestion, overwriteExisting, $"Navlungo Learning - PRODUCT_PROFILE_{normalizedProfile}");
+
+        return applied;
+    }
+
+    private async Task<int> ApplyOneLearningSuggestionAsync(ShippingLearningSuggestionModel s, bool overwriteExisting, string sourceOverride = null)
+    {
+        if (s == null || s.ProductId <= 0)
+            return 0;
+
+        if (await IsProductExcludedFromAutomationAsync(s.ProductId))
+            return 0;
+
+        var ruleType = string.IsNullOrWhiteSpace(s.RuleType)
+            ? "ATTRIBUTE_COMBINATION"
+            : s.RuleType.Trim().ToUpperInvariant();
+
+        var existingRules = await GetRulesByProductIdAsync(s.ProductId, activeOnly: false);
+        var existing = existingRules.FirstOrDefault(r =>
+        {
+            if (!string.Equals(r.RuleType ?? string.Empty, ruleType, StringComparison.OrdinalIgnoreCase))
+                return false;
+
+            if (string.Equals(ruleType, "PRODUCT_DEFAULT", StringComparison.OrdinalIgnoreCase))
+                return true;
+
+            if (s.ProductAttributeValueId.HasValue && s.ProductAttributeValueId.Value > 0)
+                return r.ProductAttributeValueId == s.ProductAttributeValueId.Value;
+
+            if (!string.IsNullOrWhiteSpace(s.AttributeHash))
+                return string.Equals(r.AttributeHash ?? string.Empty, s.AttributeHash, StringComparison.OrdinalIgnoreCase);
+
+            return false;
+        });
+
+        if (existing != null && !overwriteExisting)
+        {
+            if (string.Equals(existing.RuleType, "PRODUCT_DEFAULT", StringComparison.OrdinalIgnoreCase))
+                await ApplyProductDefaultToNativeProductAsync(existing);
+
+            return 0;
+        }
+
+        var rule = existing ?? new HoodProductShippingDimensionRule
+        {
+            ProductId = s.ProductId,
+            CreatedOnUtc = DateTime.UtcNow
+        };
+
+        rule.ProductId = s.ProductId;
+        rule.ProductAttributeValueId = s.ProductAttributeValueId;
+        rule.AttributeHash = string.IsNullOrWhiteSpace(s.AttributeHash) ? null : s.AttributeHash;
+        rule.AttributeValueIdsCsv = null;
+        rule.RuleType = ruleType;
+        rule.LengthCm = s.SuggestedLengthCm;
+        rule.WidthCm = s.SuggestedWidthCm;
+        rule.HeightCm = s.SuggestedHeightCm;
+        rule.Divisor = GetDivisor();
+        // PRODUCT_DEFAULT can be used by native nopCommerce fixed-weight calculation paths.
+        // Therefore store billable/effective gram for product defaults: max(actual, L*W*H/divisor).
+        rule.WeightGram = string.Equals(ruleType, "PRODUCT_DEFAULT", StringComparison.OrdinalIgnoreCase)
+            ? GetEffectiveBillingWeightGram(s, rule.LengthCm, rule.WidthCm, rule.HeightCm, rule.Divisor)
+            : s.SuggestedWeightGram;
+        rule.PackageCount = 1;
+        rule.IsShipSeparately = string.Equals(ruleType, "ARROW_PCS", StringComparison.OrdinalIgnoreCase) || rule.IsShipSeparately;
+        rule.IsActive = true;
+        rule.SampleCount = s.SampleCount;
+        rule.Confidence = s.Confidence;
+        rule.Source = !string.IsNullOrWhiteSpace(sourceOverride)
+            ? sourceOverride
+            : string.Equals(ruleType, "ARROW_PCS", StringComparison.OrdinalIgnoreCase)
+                ? "Navlungo Learning - ARROW_PCS"
+                : string.Equals(ruleType, "PRODUCT_DEFAULT", StringComparison.OrdinalIgnoreCase)
+                    ? "Navlungo Learning - PRODUCT_DEFAULT"
+                    : "Navlungo Learning";
+        rule.ExampleShipmentNo = s.ExampleShipmentNo;
+        rule.ExampleOrderId = s.ExampleOrderId;
+
+        if (existing == null)
+            await InsertRuleAsync(rule);
+        else
+            await UpdateRuleAsync(rule);
+
+        if (string.Equals(rule.RuleType, "PRODUCT_DEFAULT", StringComparison.OrdinalIgnoreCase))
+            await ApplyProductDefaultToNativeProductAsync(rule);
+
+        return 1;
+    }
+
+    private decimal GetEffectiveBillingWeightGram(ShippingLearningSuggestionModel suggestion, decimal lengthCm, decimal widthCm, decimal heightCm, decimal divisor)
+    {
+        if (suggestion == null)
+            return 0m;
+
+        var actualWeightGram = Math.Max(0m, suggestion.SuggestedWeightGram);
+        var navlungoChargeableGram = suggestion.SuggestedChargeableWeightKg > 0
+            ? suggestion.SuggestedChargeableWeightKg * 1000m
+            : 0m;
+        var dimensionalWeightGram = divisor > 0 && lengthCm > 0 && widthCm > 0 && heightCm > 0
+            ? (lengthCm * widthCm * heightCm / divisor) * 1000m
+            : 0m;
+
+        return Math.Max(actualWeightGram, Math.Max(navlungoChargeableGram, dimensionalWeightGram));
+    }
+
+    private async Task ApplyProductDefaultToNativeProductAsync(HoodProductShippingDimensionRule rule)
+    {
+        if (rule == null || !string.Equals(rule.RuleType, "PRODUCT_DEFAULT", StringComparison.OrdinalIgnoreCase))
+            return;
+
+        var product = await _productService.GetProductByIdAsync(rule.ProductId);
+        if (product == null)
+            return;
+
+        var divisor = rule.Divisor > 0 ? rule.Divisor : GetDivisor();
+        var dimensionalWeightGram = divisor > 0 && rule.LengthCm > 0 && rule.WidthCm > 0 && rule.HeightCm > 0
+            ? (rule.LengthCm * rule.WidthCm * rule.HeightCm / divisor) * 1000m
+            : 0m;
+        var actualOrLearnedWeightGram = rule.WeightGram.HasValue && rule.WeightGram.Value >= 0 ? rule.WeightGram.Value : 0m;
+        var nativeBillingWeightGram = Math.Max(actualOrLearnedWeightGram, dimensionalWeightGram);
+
+        // Native nopCommerce Product.Weight is weight-only. For product defaults we write effective/billable weight
+        // so dimensional-weight products are not undercharged in native paths or any fallback path.
+        if (nativeBillingWeightGram >= 0)
+            product.Weight = nativeBillingWeightGram;
+
+        if (rule.LengthCm > 0)
+            product.Length = rule.LengthCm;
+
+        if (rule.WidthCm > 0)
+            product.Width = rule.WidthCm;
+
+        if (rule.HeightCm > 0)
+            product.Height = rule.HeightCm;
+
+        product.ShipSeparately = rule.IsShipSeparately;
+
+        await _productService.UpdateProductAsync(product);
     }
 
 
@@ -526,11 +1160,15 @@ ORDER BY
                     existing.ExampleShipmentNo = targetRule.ExampleShipmentNo;
                     existing.ExampleOrderId = targetRule.ExampleOrderId;
                     await UpdateRuleAsync(existing);
+                    if (string.Equals(existing.RuleType, "PRODUCT_DEFAULT", StringComparison.OrdinalIgnoreCase))
+                        await ApplyProductDefaultToNativeProductAsync(existing);
                     result.Updated++;
                 }
                 else
                 {
                     await InsertRuleAsync(targetRule);
+                    if (string.Equals(targetRule.RuleType, "PRODUCT_DEFAULT", StringComparison.OrdinalIgnoreCase))
+                        await ApplyProductDefaultToNativeProductAsync(targetRule);
                     result.Created++;
                 }
             }
@@ -652,7 +1290,9 @@ ORDER BY A.requestDateTR DESC;";
 
         var links = (await _dataProvider.QueryAsync<NavlungoShipmentLinkModel>(sql)).ToList();
         foreach (var link in links)
-            link.CarrierTrackingUrl = BuildCarrierTrackingUrl(link.CarrierTrackingNo);
+        {
+            link.CarrierTrackingUrl = BuildCarrierTrackingUrl(!string.IsNullOrWhiteSpace(link.CarrierTrackingNo) ? link.CarrierTrackingNo : link.NavlungoTrackingNo);
+        }
 
         return links;
     }
@@ -799,13 +1439,17 @@ ORDER BY A.requestDateTR DESC;";
         var t = trackingNumber.Trim();
         var u = Uri.EscapeDataString(t);
 
+        // Navlungo numbers are not reliably indexed by 17track. Use Navlungo public tracking page.
+        if (t.StartsWith("NVL", StringComparison.OrdinalIgnoreCase))
+            return $"https://navlungo.com/track?carrier=nvl&trackingNumber={u}";
+
         if (t.StartsWith("1Z", StringComparison.OrdinalIgnoreCase))
             return $"https://www.ups.com/track?tracknum={u}";
 
         if (t.StartsWith("R", StringComparison.OrdinalIgnoreCase) || t.StartsWith("C", StringComparison.OrdinalIgnoreCase) || t.EndsWith("TR", StringComparison.OrdinalIgnoreCase))
             return $"https://gonderitakip.ptt.gov.tr/Track/Verify?q={u}";
 
-        return $"https://www.google.com/search?q={Uri.EscapeDataString(t + " tracking")}";
+        return $"https://navlungo.com/track?carrier=nvl&trackingNumber={u}";
     }
 
     private static IEnumerable<int> ParseCsvIds(string csv)

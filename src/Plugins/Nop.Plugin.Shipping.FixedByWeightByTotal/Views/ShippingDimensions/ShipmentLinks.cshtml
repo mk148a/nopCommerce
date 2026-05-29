@@ -58,7 +58,11 @@
                     <td>
                         Carrier: @item.CarrierTrackingNo<br />
                         Navlungo: @item.NavlungoTrackingNo<br />
-                        @if (!string.IsNullOrWhiteSpace(item.CarrierTrackingUrl))
+                        @if (!string.IsNullOrWhiteSpace(item.NavlungoTrackingNo))
+                        {
+                            <a href="https://navlungo.com/track?carrier=nvl&trackingNumber=@Uri.EscapeDataString(item.NavlungoTrackingNo)" target="_blank">Navlungo tracking</a><br />
+                        }
+                        @if (!string.IsNullOrWhiteSpace(item.CarrierTrackingNo) && !string.IsNullOrWhiteSpace(item.CarrierTrackingUrl))
                         {
                             <a href="@item.CarrierTrackingUrl" target="_blank">Carrier tracking</a>
                         }

@@ -2,85 +2,317 @@
 @{
     Layout = "_ConfigurePlugin";
     var minimumSampleCount = (int)(ViewBag.MinimumSampleCount ?? 1);
+    var groupByProduct = (bool)(ViewBag.GroupByProduct ?? false);
+    var productGroups = Model
+        .GroupBy(x => new { x.ProductId, x.ProductName })
+        .Select(g => new
+        {
+            ProductId = g.Key.ProductId,
+            ProductName = g.Key.ProductName,
+            Suggestions = g.OrderBy(x => x.RuleType).ThenByDescending(x => x.SampleCount).ThenByDescending(x => x.SuggestedChargeableWeightKg).ToList(),
+            SuggestionCount = g.Count(),
+            TotalSamples = g.Sum(x => x.SampleCount),
+            MaxSampleCount = g.Max(x => x.SampleCount),
+            MaxLengthCm = g.Max(x => x.SuggestedLengthCm),
+            MaxWidthCm = g.Max(x => x.SuggestedWidthCm),
+            MaxHeightCm = g.Max(x => x.SuggestedHeightCm),
+            MaxWeightGram = g.Max(x => x.SuggestedWeightGram),
+            MaxChargeableKg = g.Max(x => x.SuggestedChargeableWeightKg),
+            HighCount = g.Count(x => string.Equals(x.Confidence, "HIGH", StringComparison.OrdinalIgnoreCase)),
+            MediumCount = g.Count(x => string.Equals(x.Confidence, "MEDIUM", StringComparison.OrdinalIgnoreCase)),
+            ReviewCount = g.Count(x => string.Equals(x.Confidence, "REVIEW", StringComparison.OrdinalIgnoreCase)),
+            ArrowPcsCount = g.Count(x => string.Equals(x.RuleType, "ARROW_PCS", StringComparison.OrdinalIgnoreCase)),
+            AttributeValueCount = g.Count(x => string.Equals(x.RuleType, "ATTRIBUTE_VALUE", StringComparison.OrdinalIgnoreCase)),
+            ProductDefaultCount = g.Count(x => string.Equals(x.RuleType, "PRODUCT_DEFAULT", StringComparison.OrdinalIgnoreCase)),
+            AttributeCombinationCount = g.Count(x => string.Equals(x.RuleType, "ATTRIBUTE_COMBINATION", StringComparison.OrdinalIgnoreCase))
+        })
+        .OrderByDescending(g => g.HighCount)
+        .ThenByDescending(g => g.MediumCount)
+        .ThenByDescending(g => g.MaxChargeableKg)
+        .ThenBy(g => g.ProductId)
+        .ToList();
 }
 
 <div class="content-header clearfix">
     <h1 class="float-left">Navlungo Shipping Learning</h1>
     <div class="float-right">
-        <a href="@Url.Action("Configure", "FixedByWeightByTotal")" class="btn btn-secondary">Back to rates</a>
-        <a href="@Url.Action("CategoryBulkApplyDimensions", "FixedByWeightByTotal")" class="btn btn-warning">Bulk apply category</a>
-        <a href="@Url.Action("ShippingDimensionExclusions", "FixedByWeightByTotal")" class="btn btn-danger">Exclusions</a>
+        <a href="@Url.Action("Configure", "FixedByWeightByTotal")" class="btn btn-secondary" title="Return to the FixedByWeightByTotal rate configuration page." data-toggle="tooltip">Back to rates</a>
+        <a href="@Url.Action("CategoryBulkApplyDimensions", "FixedByWeightByTotal")" class="btn btn-warning" title="Copy existing dimension rules from one source product to other products in a category." data-toggle="tooltip">Bulk apply category</a>
+        <a href="@Url.Action("ShippingDimensionExclusions", "FixedByWeightByTotal")" class="btn btn-danger" title="Exclude products from automatic Navlungo Learning apply actions. Manual rules still work." data-toggle="tooltip">Exclusions</a>
     </div>
 </div>
 
 <div class="card card-default">
     <div class="card-body">
         <p>
-            This page reads <code>dbo.NavlungoProductMeasureStatsSafe</code> and creates dimension rules for the chargeable-weight calculator.
-            Use minimum sample count 2 or 3 before applying automatically.
+            This page reads <code>dbo.NavlungoProductMeasureStatsSafe</code> and matched shipment/package data, then creates dimension rules for the chargeable-weight calculator.
+            Use <strong>minimum sample count 2 or 3</strong> before automatic bulk apply. A single sample is marked <strong>REVIEW</strong> and should usually be checked manually.
         </p>
         <form method="get" action="@Url.Action("NavlungoLearning", "FixedByWeightByTotal")" class="form-inline mb-3">
             <label class="mr-2">Minimum sample count</label>
-            <input type="number" name="minimumSampleCount" value="@minimumSampleCount" min="1" class="form-control mr-2" />
-            <button type="submit" class="btn btn-primary">Refresh suggestions</button>
+            <input type="number" name="minimumSampleCount" value="@minimumSampleCount" min="1" class="form-control mr-2" title="Only suggestions with this sample count or higher are shown/applied." data-toggle="tooltip" />
+            <label class="mr-3" title="Show one row per product. Click a product row to see all learned suggestions below it." data-toggle="tooltip">
+                <input type="checkbox" name="groupByProduct" value="true" @Html.Raw(groupByProduct ? "checked=\"checked\"" : "") /> products only
+            </label>
+            <button type="submit" class="btn btn-primary" title="Reload suggestions using the selected filters." data-toggle="tooltip">Refresh suggestions</button>
         </form>
-        <button type="button" id="apply-learning" class="btn btn-success">Apply suggestions</button>
-        <label class="ml-3"><input type="checkbox" id="overwriteExisting" /> overwrite existing rules</label>
+
+        <div class="mb-2">
+            <button type="button" class="btn btn-success apply-learning" data-filter="" title="Apply all visible suggestion types that match the current minimum sample count. Be careful when minimum sample count is 1 because REVIEW rows are included." data-toggle="tooltip">Apply all suggestions</button>
+            <button type="button" class="btn btn-primary apply-learning" data-filter="ARROW_PCS" title="Apply only Pcs-based arrow rules. These populate attribute value popup shipping dimensions and ship separately by default." data-toggle="tooltip">Apply ARROW_PCS / Pcs rules</button>
+            <button type="button" class="btn btn-primary apply-learning" data-filter="ATTRIBUTE_VALUE" title="Apply only rules based on the product's selected shipping-driver attribute, for example Armor Sets or Quiver Set." data-toggle="tooltip">Apply driver attribute rules</button>
+            <button type="button" class="btn btn-info apply-learning" data-filter="PRODUCT_DEFAULT" title="Apply only product-level defaults. Native product Weight/Length/Width/Height fields are also updated. Weight is stored as billable/effective grams when volumetric weight is larger." data-toggle="tooltip">Apply product default rules</button>
+            <button type="button" class="btn btn-secondary apply-learning" data-filter="ATTRIBUTE_COMBINATION" title="Apply exact full-variation rules. These are safest when multiple attributes together change the package." data-toggle="tooltip">Apply combination rules</button>
+            <label class="ml-3" title="If checked, existing Hood/Navlungo dimension rules are replaced with the newly learned values." data-toggle="tooltip"><input type="checkbox" id="overwriteExisting" /> overwrite existing rules</label>
+        </div>
+
+        <div class="alert alert-info mb-0">
+            <strong>Profile guide:</strong>
+            <span title="One package profile for the whole product. When applied, native Product.Weight is written as billable/effective weight: max(actual grams, L×W×H/divisor). This prevents dimensional-weight products from being charged only by actual kg." data-toggle="tooltip">PRODUCT_DEFAULT</span> |
+            <span title="One rule per selected driver attribute value. Example: Armor Sets = Full Set / Only Pauldrons." data-toggle="tooltip">ATTRIBUTE_VALUE</span> |
+            <span title="One rule per exact selected attribute combination. Example: Armor Set + Size + Color." data-toggle="tooltip">ATTRIBUTE_COMBINATION</span> |
+            <span title="Special ATTRIBUTE_VALUE mode for arrow Pcs values such as 6/12/24." data-toggle="tooltip">ARROW_PCS</span>
+        </div>
     </div>
 </div>
 
-<div class="card card-default">
-    <div class="card-body table-responsive">
-        <table class="table table-bordered table-hover table-sm">
-            <thead>
-                <tr>
-                    <th>Product</th>
-                    <th>Rule</th>
-                    <th>Samples</th>
-                    <th>L/W/H cm</th>
-                    <th>Weight g</th>
-                    <th>Chargeable kg</th>
-                    <th>Confidence</th>
-                    <th>Example</th>
-                    <th>Details</th>
-                </tr>
-            </thead>
-            <tbody>
-            @foreach (var item in Model)
-            {
-                <tr>
-                    <td>@item.ProductId<br />@item.ProductName</td>
-                    <td>@item.RuleType<br /><small>@item.AttributeHash</small></td>
-                    <td>@item.SampleCount</td>
-                    <td>@item.SuggestedLengthCm / @item.SuggestedWidthCm / @item.SuggestedHeightCm</td>
-                    <td>@item.SuggestedWeightGram</td>
-                    <td>@item.SuggestedChargeableWeightKg</td>
-                    <td>@item.Confidence</td>
-                    <td>@item.ExampleShipmentNo / Order @item.ExampleOrderId<br /><small>@item.ExampleAttributeDescription</small></td>
-                    <td>
-                        <a class="btn btn-sm btn-info" target="_blank"
-                           href="@Url.Action("NavlungoLearningDetails", "FixedByWeightByTotal", new { productId = item.ProductId, attributeHash = item.AttributeHash, productAttributeValueId = item.ProductAttributeValueId, ruleType = item.RuleType })">
-                            Details
-                        </a>
-                    </td>
-                </tr>
-            }
-            </tbody>
-        </table>
+@if (groupByProduct)
+{
+    <div class="card card-default">
+        <div class="card-body table-responsive">
+            <table class="table table-bordered table-hover table-sm">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Suggestions</th>
+                        <th>Rule mix</th>
+                        <th>Max L/W/H cm</th>
+                        <th>Max weight g</th>
+                        <th>Max chargeable kg</th>
+                        <th>Confidence</th>
+                        <th>Profile / actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var product in productGroups)
+                {
+                    var recommendedProfile = product.ArrowPcsCount > 0
+                        ? "ARROW_PCS"
+                        : product.AttributeValueCount > 0
+                            ? "ATTRIBUTE_VALUE"
+                            : product.ProductDefaultCount > 0
+                                ? "PRODUCT_DEFAULT"
+                                : "ATTRIBUTE_COMBINATION";
+                    <tr class="learning-product-row" data-product-id="@product.ProductId" style="cursor:pointer" title="Click to show/hide all learned shipment suggestions for this product." data-toggle="tooltip">
+                        <td><strong>@product.ProductId</strong><br />@product.ProductName</td>
+                        <td>@product.SuggestionCount rules<br /><small>@product.TotalSamples total samples, max @product.MaxSampleCount</small></td>
+                        <td>
+                            <small>
+                                DEFAULT: @product.ProductDefaultCount<br />
+                                VALUE: @product.AttributeValueCount<br />
+                                ARROW_PCS: @product.ArrowPcsCount<br />
+                                COMBO: @product.AttributeCombinationCount
+                            </small>
+                        </td>
+                        <td>@product.MaxLengthCm / @product.MaxWidthCm / @product.MaxHeightCm</td>
+                        <td>@product.MaxWeightGram</td>
+                        <td>@product.MaxChargeableKg</td>
+                        <td>
+                            <span class="badge badge-success" title="3+ samples" data-toggle="tooltip">HIGH @product.HighCount</span><br />
+                            <span class="badge badge-warning" title="2 samples" data-toggle="tooltip">MEDIUM @product.MediumCount</span><br />
+                            <span class="badge badge-secondary" title="1 sample. Manual review recommended." data-toggle="tooltip">REVIEW @product.ReviewCount</span>
+                        </td>
+                        <td onclick="event.stopPropagation();">
+                            <select class="form-control form-control-sm product-profile mb-1" data-product-id="@product.ProductId" title="Choose how this product should learn/apply shipping dimensions." data-toggle="tooltip">
+                                @if (recommendedProfile == "PRODUCT_DEFAULT")
+                                {
+                                    <option value="PRODUCT_DEFAULT" selected="selected">PRODUCT_DEFAULT</option>
+                                }
+                                else
+                                {
+                                    <option value="PRODUCT_DEFAULT">PRODUCT_DEFAULT</option>
+                                }
+                                @if (recommendedProfile == "ATTRIBUTE_VALUE")
+                                {
+                                    <option value="ATTRIBUTE_VALUE" selected="selected">ATTRIBUTE_VALUE</option>
+                                }
+                                else
+                                {
+                                    <option value="ATTRIBUTE_VALUE">ATTRIBUTE_VALUE</option>
+                                }
+                                @if (recommendedProfile == "ATTRIBUTE_COMBINATION")
+                                {
+                                    <option value="ATTRIBUTE_COMBINATION" selected="selected">ATTRIBUTE_COMBINATION</option>
+                                }
+                                else
+                                {
+                                    <option value="ATTRIBUTE_COMBINATION">ATTRIBUTE_COMBINATION</option>
+                                }
+                                @if (recommendedProfile == "ARROW_PCS")
+                                {
+                                    <option value="ARROW_PCS" selected="selected">ARROW_PCS</option>
+                                }
+                                else
+                                {
+                                    <option value="ARROW_PCS">ARROW_PCS</option>
+                                }
+                                <option value="ALL">ALL</option>
+                            </select>
+                            <button type="button" class="btn btn-sm btn-success apply-product-profile" data-product-id="@product.ProductId" title="Apply only this product using the selected profile. This does not affect other products." data-toggle="tooltip">Apply profile</button>
+                            <a class="btn btn-sm btn-info" target="_blank" href="@Url.Action("ShippingDimensionRules", "FixedByWeightByTotal", new { productId = product.ProductId })" title="Open this product's rule list and choose shipping-driver attributes such as Pcs or Armor Sets." data-toggle="tooltip">Rules / driver</a>
+                        </td>
+                    </tr>
+                    <tr class="product-detail-row" data-product-id="@product.ProductId" style="display:none;">
+                        <td colspan="8">
+                            <table class="table table-bordered table-sm mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Rule</th>
+                                        <th>Samples</th>
+                                        <th>L/W/H cm</th>
+                                        <th>Weight g</th>
+                                        <th>Chargeable kg</th>
+                                        <th>Confidence</th>
+                                        <th>Example</th>
+                                        <th>Details</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                @foreach (var item in product.Suggestions)
+                                {
+                                    <tr>
+                                        <td>
+                                            <strong>@item.RuleType</strong><br />
+                                            @if (item.ProductAttributeValueId.HasValue)
+                                            {
+                                                <small>Value: @item.ProductAttributeValueName (#@item.ProductAttributeValueId)</small>
+                                            }
+                                            else if (string.Equals(item.RuleType, "PRODUCT_DEFAULT", StringComparison.OrdinalIgnoreCase))
+                                            {
+                                                <small>Product default / no product attributes</small>
+                                            }
+                                            else
+                                            {
+                                                <small>@item.AttributeHash</small>
+                                            }
+                                        </td>
+                                        <td>@item.SampleCount</td>
+                                        <td>@item.SuggestedLengthCm / @item.SuggestedWidthCm / @item.SuggestedHeightCm</td>
+                                        <td>@item.SuggestedWeightGram</td>
+                                        <td>@item.SuggestedChargeableWeightKg</td>
+                                        <td>@item.Confidence</td>
+                                        <td>@item.ExampleShipmentNo / Order @item.ExampleOrderId<br /><small>@item.ExampleAttributeDescription</small></td>
+                                        <td>
+                                            <a class="btn btn-sm btn-info" target="_blank" href="@Url.Action("NavlungoLearningDetails", "FixedByWeightByTotal", new { productId = item.ProductId, attributeHash = item.AttributeHash, productAttributeValueId = item.ProductAttributeValueId, ruleType = item.RuleType })" title="Open the exact matched shipments/packages that created this suggestion." data-toggle="tooltip">Details</a>
+                                        </td>
+                                    </tr>
+                                }
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
     </div>
-</div>
+}
+else
+{
+    <div class="card card-default">
+        <div class="card-body table-responsive">
+            <table class="table table-bordered table-hover table-sm">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Rule</th>
+                        <th>Samples</th>
+                        <th>L/W/H cm</th>
+                        <th>Weight g</th>
+                        <th>Chargeable kg</th>
+                        <th>Confidence</th>
+                        <th>Example</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td><a href="@Url.Action("ShippingDimensionRules", "FixedByWeightByTotal", new { productId = item.ProductId })" target="_blank" title="Open this product's shipping dimension rules and driver attribute settings." data-toggle="tooltip">@item.ProductId</a><br />@item.ProductName</td>
+                        <td>
+                            <strong>@item.RuleType</strong><br />
+                            @if (item.ProductAttributeValueId.HasValue)
+                            {
+                                <small>Value: @item.ProductAttributeValueName (#@item.ProductAttributeValueId)</small>
+                            }
+                            else if (string.Equals(item.RuleType, "PRODUCT_DEFAULT", StringComparison.OrdinalIgnoreCase))
+                            {
+                                <small>Product default / no product attributes</small>
+                            }
+                            else
+                            {
+                                <small>@item.AttributeHash</small>
+                            }
+                        </td>
+                        <td>@item.SampleCount</td>
+                        <td>@item.SuggestedLengthCm / @item.SuggestedWidthCm / @item.SuggestedHeightCm</td>
+                        <td>@item.SuggestedWeightGram</td>
+                        <td>@item.SuggestedChargeableWeightKg</td>
+                        <td>@item.Confidence</td>
+                        <td>@item.ExampleShipmentNo / Order @item.ExampleOrderId<br /><small>@item.ExampleAttributeDescription</small></td>
+                        <td>
+                            <a class="btn btn-sm btn-info" target="_blank" href="@Url.Action("NavlungoLearningDetails", "FixedByWeightByTotal", new { productId = item.ProductId, attributeHash = item.AttributeHash, productAttributeValueId = item.ProductAttributeValueId, ruleType = item.RuleType })" title="Open the exact matched shipments/packages that created this suggestion." data-toggle="tooltip">Details</a>
+                            <a class="btn btn-sm btn-secondary" target="_blank" href="@Url.Action("ShippingDimensionRules", "FixedByWeightByTotal", new { productId = item.ProductId })" title="Open product rules and choose which product attribute controls shipping." data-toggle="tooltip">Rules</a>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
 
 <script>
     $(function () {
-        $('#apply-learning').on('click', function () {
-            if (!confirm('Apply learning suggestions to Hood dimension rules?')) return;
+        if ($.fn.tooltip) {
+            $('[data-toggle="tooltip"]').tooltip({ container: 'body' });
+        }
+
+        $('.learning-product-row').on('click', function () {
+            var productId = $(this).data('product-id');
+            $('.product-detail-row[data-product-id="' + productId + '"]').toggle();
+        });
+
+        $('.apply-learning').on('click', function () {
+            var filter = $(this).data('filter') || '';
+            var label = filter ? filter : 'ALL';
+            if (!confirm('Apply ' + label + ' learning suggestions to Hood dimension rules?')) return;
             var postData = {
                 minimumSampleCount: $('input[name="minimumSampleCount"]').val(),
-                overwriteExisting: $('#overwriteExisting').is(':checked')
+                overwriteExisting: $('#overwriteExisting').is(':checked'),
+                ruleTypeFilter: filter
             };
             addAntiForgeryToken(postData);
             $.post('@Url.Action("ApplyNavlungoLearning", "FixedByWeightByTotal")', postData, function (r) {
-                alert('Applied: ' + r.Applied);
+                alert('Applied: ' + r.Applied + ' [' + (r.RuleTypeFilter || 'ALL') + ']');
+                location.reload();
+            });
+        });
+
+        $('.apply-product-profile').on('click', function () {
+            var productId = $(this).data('product-id');
+            var profile = $('.product-profile[data-product-id="' + productId + '"]').val();
+            if (!confirm('Apply product ' + productId + ' as ' + profile + '?')) return;
+            var postData = {
+                productId: productId,
+                minimumSampleCount: $('input[name="minimumSampleCount"]').val(),
+                overwriteExisting: $('#overwriteExisting').is(':checked'),
+                profileType: profile
+            };
+            addAntiForgeryToken(postData);
+            $.post('@Url.Action("ApplyNavlungoProductProfile", "FixedByWeightByTotal")', postData, function (r) {
+                alert('Product ' + r.ProductId + ' applied: ' + r.Applied + ' [' + (r.ProfileType || 'ALL') + ']');
                 location.reload();
             });
         });

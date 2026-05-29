@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Nop.Core.Infrastructure;
 using Nop.Plugin.Shipping.FixedByWeightByTotal.Services;
 using Nop.Plugin.Shipping.FixedByWeightByTotal.Services.ShippingDimensions;
+using Nop.Plugin.Shipping.FixedByWeightByTotal.Services.ProductionTime;
 
 namespace Nop.Plugin.Shipping.FixedByWeightByTotal.Infrastructure;
 
@@ -21,6 +22,7 @@ public class NopStartup : INopStartup
     {
         services.AddScoped<IShippingByWeightByTotalService, ShippingByWeightByTotalService>();
         services.AddScoped<IProductShippingDimensionService, ProductShippingDimensionService>();
+        services.AddScoped<IProductProductionTimeService, ProductProductionTimeService>();
     }
 
     /// <summary>
