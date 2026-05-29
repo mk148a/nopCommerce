@@ -13,6 +13,8 @@
 
   <ItemGroup>
     <None Remove="Content\js\test.ts" />
+    <None Remove="Content\review-media.css" />
+    <None Remove="Content\js\review-media.js" />
     <None Remove="logo.jpg" />
 	<None Remove="plugin.json" />
     <None Remove="Areas\Admin\Views\_ViewImports.cshtml" />
@@ -26,6 +28,12 @@
 
   <ItemGroup>
     <Content Include="Content\js\test.ts">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\review-media.css">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\js\review-media.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="logo.jpg">

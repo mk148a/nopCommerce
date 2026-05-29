@@ -1,0 +1,1892 @@
+[
+  {
+    "Lang": "en",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ProductReviewsFor",
+    "ResourceValue": "Product reviews for"
+  },
+  {
+    "Lang": "en",
+    "ResourceName": "plugins.widgets.customproductreviews.productreviewsfor",
+    "ResourceValue": "Product reviews for"
+  },
+  {
+    "Lang": "en",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.AttachFiles",
+    "ResourceValue": "Attach files"
+  },
+  {
+    "Lang": "en",
+    "ResourceName": "plugins.widgets.customproductreviews.attachfiles",
+    "ResourceValue": "Attach files"
+  },
+  {
+    "Lang": "en",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.MaxFilesInUpload",
+    "ResourceValue": "Maximum files in upload: {0}"
+  },
+  {
+    "Lang": "en",
+    "ResourceName": "plugins.widgets.customproductreviews.maxfilesinupload",
+    "ResourceValue": "Maximum files in upload: {0}"
+  },
+  {
+    "Lang": "en",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.HoverToZoom",
+    "ResourceValue": "Hover to zoom"
+  },
+  {
+    "Lang": "en",
+    "ResourceName": "plugins.widgets.customproductreviews.hovertozoom",
+    "ResourceValue": "Hover to zoom"
+  },
+  {
+    "Lang": "en",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ViewLargerReviewPhoto",
+    "ResourceValue": "View larger review photo"
+  },
+  {
+    "Lang": "en",
+    "ResourceName": "plugins.widgets.customproductreviews.viewlargerreviewphoto",
+    "ResourceValue": "View larger review photo"
+  },
+  {
+    "Lang": "en",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ReviewVideo",
+    "ResourceValue": "Review video"
+  },
+  {
+    "Lang": "en",
+    "ResourceName": "plugins.widgets.customproductreviews.reviewvideo",
+    "ResourceValue": "Review video"
+  },
+  {
+    "Lang": "en",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.VideoNotSupported",
+    "ResourceValue": "Your browser does not support the video tag."
+  },
+  {
+    "Lang": "en",
+    "ResourceName": "plugins.widgets.customproductreviews.videonotsupported",
+    "ResourceValue": "Your browser does not support the video tag."
+  },
+  {
+    "Lang": "en",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.MediaProcessingStarted",
+    "ResourceValue": "Your uploaded media will continue to be processed in the background."
+  },
+  {
+    "Lang": "en",
+    "ResourceName": "plugins.widgets.customproductreviews.mediaprocessingstarted",
+    "ResourceValue": "Your uploaded media will continue to be processed in the background."
+  },
+  {
+    "Lang": "en",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.MediaProcessingCompletedAutomatically",
+    "ResourceValue": "After processing, the media will be automatically added to your review."
+  },
+  {
+    "Lang": "en",
+    "ResourceName": "plugins.widgets.customproductreviews.mediaprocessingcompletedautomatically",
+    "ResourceValue": "After processing, the media will be automatically added to your review."
+  },
+  {
+    "Lang": "en",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.UnsupportedFileFormat",
+    "ResourceValue": "File format is not supported for upload."
+  },
+  {
+    "Lang": "en",
+    "ResourceName": "plugins.widgets.customproductreviews.unsupportedfileformat",
+    "ResourceValue": "File format is not supported for upload."
+  },
+  {
+    "Lang": "en",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.UploadFileFormatError",
+    "ResourceValue": "Upload file format error."
+  },
+  {
+    "Lang": "en",
+    "ResourceName": "plugins.widgets.customproductreviews.uploadfileformaterror",
+    "ResourceValue": "Upload file format error."
+  },
+  {
+    "Lang": "en",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.GeneralError",
+    "ResourceValue": "A general error occurred. Please try again."
+  },
+  {
+    "Lang": "en",
+    "ResourceName": "plugins.widgets.customproductreviews.generalerror",
+    "ResourceValue": "A general error occurred. Please try again."
+  },
+  {
+    "Lang": "en",
+    "ResourceName": "Product Reviews For",
+    "ResourceValue": "Product reviews for"
+  },
+  {
+    "Lang": "en",
+    "ResourceName": "Product Reviews For ",
+    "ResourceValue": "Product reviews for"
+  },
+  {
+    "Lang": "en",
+    "ResourceName": "product reviews for",
+    "ResourceValue": "Product reviews for"
+  },
+  {
+    "Lang": "tr",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ProductReviewsFor",
+    "ResourceValue": "Ürün yorumları:"
+  },
+  {
+    "Lang": "tr",
+    "ResourceName": "plugins.widgets.customproductreviews.productreviewsfor",
+    "ResourceValue": "Ürün yorumları:"
+  },
+  {
+    "Lang": "tr",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.AttachFiles",
+    "ResourceValue": "Dosya ekle"
+  },
+  {
+    "Lang": "tr",
+    "ResourceName": "plugins.widgets.customproductreviews.attachfiles",
+    "ResourceValue": "Dosya ekle"
+  },
+  {
+    "Lang": "tr",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.MaxFilesInUpload",
+    "ResourceValue": "Yüklenebilecek maksimum dosya sayısı: {0}"
+  },
+  {
+    "Lang": "tr",
+    "ResourceName": "plugins.widgets.customproductreviews.maxfilesinupload",
+    "ResourceValue": "Yüklenebilecek maksimum dosya sayısı: {0}"
+  },
+  {
+    "Lang": "tr",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.HoverToZoom",
+    "ResourceValue": "Büyütmek için üzerine gel"
+  },
+  {
+    "Lang": "tr",
+    "ResourceName": "plugins.widgets.customproductreviews.hovertozoom",
+    "ResourceValue": "Büyütmek için üzerine gel"
+  },
+  {
+    "Lang": "tr",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ViewLargerReviewPhoto",
+    "ResourceValue": "Yorum fotoğrafını büyüt"
+  },
+  {
+    "Lang": "tr",
+    "ResourceName": "plugins.widgets.customproductreviews.viewlargerreviewphoto",
+    "ResourceValue": "Yorum fotoğrafını büyüt"
+  },
+  {
+    "Lang": "tr",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ReviewVideo",
+    "ResourceValue": "Yorum videosu"
+  },
+  {
+    "Lang": "tr",
+    "ResourceName": "plugins.widgets.customproductreviews.reviewvideo",
+    "ResourceValue": "Yorum videosu"
+  },
+  {
+    "Lang": "tr",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.VideoNotSupported",
+    "ResourceValue": "Tarayıcınız video etiketini desteklemiyor."
+  },
+  {
+    "Lang": "tr",
+    "ResourceName": "plugins.widgets.customproductreviews.videonotsupported",
+    "ResourceValue": "Tarayıcınız video etiketini desteklemiyor."
+  },
+  {
+    "Lang": "tr",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.MediaProcessingStarted",
+    "ResourceValue": "Yüklediğiniz medya arka planda işlenmeye devam edecek."
+  },
+  {
+    "Lang": "tr",
+    "ResourceName": "plugins.widgets.customproductreviews.mediaprocessingstarted",
+    "ResourceValue": "Yüklediğiniz medya arka planda işlenmeye devam edecek."
+  },
+  {
+    "Lang": "tr",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.MediaProcessingCompletedAutomatically",
+    "ResourceValue": "İşlem tamamlandığında medya otomatik olarak yorumunuza eklenecek."
+  },
+  {
+    "Lang": "tr",
+    "ResourceName": "plugins.widgets.customproductreviews.mediaprocessingcompletedautomatically",
+    "ResourceValue": "İşlem tamamlandığında medya otomatik olarak yorumunuza eklenecek."
+  },
+  {
+    "Lang": "tr",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.UnsupportedFileFormat",
+    "ResourceValue": "Dosya formatı yükleme için desteklenmiyor."
+  },
+  {
+    "Lang": "tr",
+    "ResourceName": "plugins.widgets.customproductreviews.unsupportedfileformat",
+    "ResourceValue": "Dosya formatı yükleme için desteklenmiyor."
+  },
+  {
+    "Lang": "tr",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.UploadFileFormatError",
+    "ResourceValue": "Dosya yükleme format hatası."
+  },
+  {
+    "Lang": "tr",
+    "ResourceName": "plugins.widgets.customproductreviews.uploadfileformaterror",
+    "ResourceValue": "Dosya yükleme format hatası."
+  },
+  {
+    "Lang": "tr",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.GeneralError",
+    "ResourceValue": "Genel bir hata oluştu. Lütfen tekrar deneyin."
+  },
+  {
+    "Lang": "tr",
+    "ResourceName": "plugins.widgets.customproductreviews.generalerror",
+    "ResourceValue": "Genel bir hata oluştu. Lütfen tekrar deneyin."
+  },
+  {
+    "Lang": "tr",
+    "ResourceName": "Product Reviews For",
+    "ResourceValue": "Ürün yorumları:"
+  },
+  {
+    "Lang": "tr",
+    "ResourceName": "Product Reviews For ",
+    "ResourceValue": "Ürün yorumları:"
+  },
+  {
+    "Lang": "tr",
+    "ResourceName": "product reviews for",
+    "ResourceValue": "Ürün yorumları:"
+  },
+  {
+    "Lang": "de",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ProductReviewsFor",
+    "ResourceValue": "Produktbewertungen für"
+  },
+  {
+    "Lang": "de",
+    "ResourceName": "plugins.widgets.customproductreviews.productreviewsfor",
+    "ResourceValue": "Produktbewertungen für"
+  },
+  {
+    "Lang": "de",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.AttachFiles",
+    "ResourceValue": "Dateien anhängen"
+  },
+  {
+    "Lang": "de",
+    "ResourceName": "plugins.widgets.customproductreviews.attachfiles",
+    "ResourceValue": "Dateien anhängen"
+  },
+  {
+    "Lang": "de",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.MaxFilesInUpload",
+    "ResourceValue": "Maximale Anzahl Dateien: {0}"
+  },
+  {
+    "Lang": "de",
+    "ResourceName": "plugins.widgets.customproductreviews.maxfilesinupload",
+    "ResourceValue": "Maximale Anzahl Dateien: {0}"
+  },
+  {
+    "Lang": "de",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.HoverToZoom",
+    "ResourceValue": "Zum Vergrößern darüberfahren"
+  },
+  {
+    "Lang": "de",
+    "ResourceName": "plugins.widgets.customproductreviews.hovertozoom",
+    "ResourceValue": "Zum Vergrößern darüberfahren"
+  },
+  {
+    "Lang": "de",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ViewLargerReviewPhoto",
+    "ResourceValue": "Bewertungsfoto vergrößern"
+  },
+  {
+    "Lang": "de",
+    "ResourceName": "plugins.widgets.customproductreviews.viewlargerreviewphoto",
+    "ResourceValue": "Bewertungsfoto vergrößern"
+  },
+  {
+    "Lang": "de",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ReviewVideo",
+    "ResourceValue": "Bewertungsvideo"
+  },
+  {
+    "Lang": "de",
+    "ResourceName": "plugins.widgets.customproductreviews.reviewvideo",
+    "ResourceValue": "Bewertungsvideo"
+  },
+  {
+    "Lang": "de",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.VideoNotSupported",
+    "ResourceValue": "Ihr Browser unterstützt das Video-Tag nicht."
+  },
+  {
+    "Lang": "de",
+    "ResourceName": "plugins.widgets.customproductreviews.videonotsupported",
+    "ResourceValue": "Ihr Browser unterstützt das Video-Tag nicht."
+  },
+  {
+    "Lang": "de",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.MediaProcessingStarted",
+    "ResourceValue": "Ihre hochgeladenen Medien werden im Hintergrund weiter verarbeitet."
+  },
+  {
+    "Lang": "de",
+    "ResourceName": "plugins.widgets.customproductreviews.mediaprocessingstarted",
+    "ResourceValue": "Ihre hochgeladenen Medien werden im Hintergrund weiter verarbeitet."
+  },
+  {
+    "Lang": "de",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.MediaProcessingCompletedAutomatically",
+    "ResourceValue": "Nach der Verarbeitung werden die Medien automatisch Ihrer Bewertung hinzugefügt."
+  },
+  {
+    "Lang": "de",
+    "ResourceName": "plugins.widgets.customproductreviews.mediaprocessingcompletedautomatically",
+    "ResourceValue": "Nach der Verarbeitung werden die Medien automatisch Ihrer Bewertung hinzugefügt."
+  },
+  {
+    "Lang": "de",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.UnsupportedFileFormat",
+    "ResourceValue": "Das Dateiformat wird für den Upload nicht unterstützt."
+  },
+  {
+    "Lang": "de",
+    "ResourceName": "plugins.widgets.customproductreviews.unsupportedfileformat",
+    "ResourceValue": "Das Dateiformat wird für den Upload nicht unterstützt."
+  },
+  {
+    "Lang": "de",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.UploadFileFormatError",
+    "ResourceValue": "Fehler beim Upload-Dateiformat."
+  },
+  {
+    "Lang": "de",
+    "ResourceName": "plugins.widgets.customproductreviews.uploadfileformaterror",
+    "ResourceValue": "Fehler beim Upload-Dateiformat."
+  },
+  {
+    "Lang": "de",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.GeneralError",
+    "ResourceValue": "Ein allgemeiner Fehler ist aufgetreten. Bitte versuchen Sie es erneut."
+  },
+  {
+    "Lang": "de",
+    "ResourceName": "plugins.widgets.customproductreviews.generalerror",
+    "ResourceValue": "Ein allgemeiner Fehler ist aufgetreten. Bitte versuchen Sie es erneut."
+  },
+  {
+    "Lang": "de",
+    "ResourceName": "Product Reviews For",
+    "ResourceValue": "Produktbewertungen für"
+  },
+  {
+    "Lang": "de",
+    "ResourceName": "Product Reviews For ",
+    "ResourceValue": "Produktbewertungen für"
+  },
+  {
+    "Lang": "de",
+    "ResourceName": "product reviews for",
+    "ResourceValue": "Produktbewertungen für"
+  },
+  {
+    "Lang": "fr",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ProductReviewsFor",
+    "ResourceValue": "Avis produit pour"
+  },
+  {
+    "Lang": "fr",
+    "ResourceName": "plugins.widgets.customproductreviews.productreviewsfor",
+    "ResourceValue": "Avis produit pour"
+  },
+  {
+    "Lang": "fr",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.AttachFiles",
+    "ResourceValue": "Joindre des fichiers"
+  },
+  {
+    "Lang": "fr",
+    "ResourceName": "plugins.widgets.customproductreviews.attachfiles",
+    "ResourceValue": "Joindre des fichiers"
+  },
+  {
+    "Lang": "fr",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.MaxFilesInUpload",
+    "ResourceValue": "Nombre maximal de fichiers : {0}"
+  },
+  {
+    "Lang": "fr",
+    "ResourceName": "plugins.widgets.customproductreviews.maxfilesinupload",
+    "ResourceValue": "Nombre maximal de fichiers : {0}"
+  },
+  {
+    "Lang": "fr",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.HoverToZoom",
+    "ResourceValue": "Survolez pour zoomer"
+  },
+  {
+    "Lang": "fr",
+    "ResourceName": "plugins.widgets.customproductreviews.hovertozoom",
+    "ResourceValue": "Survolez pour zoomer"
+  },
+  {
+    "Lang": "fr",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ViewLargerReviewPhoto",
+    "ResourceValue": "Agrandir la photo de l’avis"
+  },
+  {
+    "Lang": "fr",
+    "ResourceName": "plugins.widgets.customproductreviews.viewlargerreviewphoto",
+    "ResourceValue": "Agrandir la photo de l’avis"
+  },
+  {
+    "Lang": "fr",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ReviewVideo",
+    "ResourceValue": "Vidéo de l’avis"
+  },
+  {
+    "Lang": "fr",
+    "ResourceName": "plugins.widgets.customproductreviews.reviewvideo",
+    "ResourceValue": "Vidéo de l’avis"
+  },
+  {
+    "Lang": "fr",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.VideoNotSupported",
+    "ResourceValue": "Votre navigateur ne prend pas en charge la balise vidéo."
+  },
+  {
+    "Lang": "fr",
+    "ResourceName": "plugins.widgets.customproductreviews.videonotsupported",
+    "ResourceValue": "Votre navigateur ne prend pas en charge la balise vidéo."
+  },
+  {
+    "Lang": "fr",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.MediaProcessingStarted",
+    "ResourceValue": "Vos médias téléversés continueront à être traités en arrière-plan."
+  },
+  {
+    "Lang": "fr",
+    "ResourceName": "plugins.widgets.customproductreviews.mediaprocessingstarted",
+    "ResourceValue": "Vos médias téléversés continueront à être traités en arrière-plan."
+  },
+  {
+    "Lang": "fr",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.MediaProcessingCompletedAutomatically",
+    "ResourceValue": "Après traitement, les médias seront ajoutés automatiquement à votre avis."
+  },
+  {
+    "Lang": "fr",
+    "ResourceName": "plugins.widgets.customproductreviews.mediaprocessingcompletedautomatically",
+    "ResourceValue": "Après traitement, les médias seront ajoutés automatiquement à votre avis."
+  },
+  {
+    "Lang": "fr",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.UnsupportedFileFormat",
+    "ResourceValue": "Le format de fichier n’est pas pris en charge pour le téléversement."
+  },
+  {
+    "Lang": "fr",
+    "ResourceName": "plugins.widgets.customproductreviews.unsupportedfileformat",
+    "ResourceValue": "Le format de fichier n’est pas pris en charge pour le téléversement."
+  },
+  {
+    "Lang": "fr",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.UploadFileFormatError",
+    "ResourceValue": "Erreur de format de fichier téléversé."
+  },
+  {
+    "Lang": "fr",
+    "ResourceName": "plugins.widgets.customproductreviews.uploadfileformaterror",
+    "ResourceValue": "Erreur de format de fichier téléversé."
+  },
+  {
+    "Lang": "fr",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.GeneralError",
+    "ResourceValue": "Une erreur générale s’est produite. Veuillez réessayer."
+  },
+  {
+    "Lang": "fr",
+    "ResourceName": "plugins.widgets.customproductreviews.generalerror",
+    "ResourceValue": "Une erreur générale s’est produite. Veuillez réessayer."
+  },
+  {
+    "Lang": "fr",
+    "ResourceName": "Product Reviews For",
+    "ResourceValue": "Avis produit pour"
+  },
+  {
+    "Lang": "fr",
+    "ResourceName": "Product Reviews For ",
+    "ResourceValue": "Avis produit pour"
+  },
+  {
+    "Lang": "fr",
+    "ResourceName": "product reviews for",
+    "ResourceValue": "Avis produit pour"
+  },
+  {
+    "Lang": "es",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ProductReviewsFor",
+    "ResourceValue": "Reseñas del producto para"
+  },
+  {
+    "Lang": "es",
+    "ResourceName": "plugins.widgets.customproductreviews.productreviewsfor",
+    "ResourceValue": "Reseñas del producto para"
+  },
+  {
+    "Lang": "es",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.AttachFiles",
+    "ResourceValue": "Adjuntar archivos"
+  },
+  {
+    "Lang": "es",
+    "ResourceName": "plugins.widgets.customproductreviews.attachfiles",
+    "ResourceValue": "Adjuntar archivos"
+  },
+  {
+    "Lang": "es",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.MaxFilesInUpload",
+    "ResourceValue": "Máximo de archivos: {0}"
+  },
+  {
+    "Lang": "es",
+    "ResourceName": "plugins.widgets.customproductreviews.maxfilesinupload",
+    "ResourceValue": "Máximo de archivos: {0}"
+  },
+  {
+    "Lang": "es",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.HoverToZoom",
+    "ResourceValue": "Pasa el cursor para ampliar"
+  },
+  {
+    "Lang": "es",
+    "ResourceName": "plugins.widgets.customproductreviews.hovertozoom",
+    "ResourceValue": "Pasa el cursor para ampliar"
+  },
+  {
+    "Lang": "es",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ViewLargerReviewPhoto",
+    "ResourceValue": "Ver foto de reseña ampliada"
+  },
+  {
+    "Lang": "es",
+    "ResourceName": "plugins.widgets.customproductreviews.viewlargerreviewphoto",
+    "ResourceValue": "Ver foto de reseña ampliada"
+  },
+  {
+    "Lang": "es",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ReviewVideo",
+    "ResourceValue": "Vídeo de la reseña"
+  },
+  {
+    "Lang": "es",
+    "ResourceName": "plugins.widgets.customproductreviews.reviewvideo",
+    "ResourceValue": "Vídeo de la reseña"
+  },
+  {
+    "Lang": "es",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.VideoNotSupported",
+    "ResourceValue": "Tu navegador no admite la etiqueta de vídeo."
+  },
+  {
+    "Lang": "es",
+    "ResourceName": "plugins.widgets.customproductreviews.videonotsupported",
+    "ResourceValue": "Tu navegador no admite la etiqueta de vídeo."
+  },
+  {
+    "Lang": "es",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.MediaProcessingStarted",
+    "ResourceValue": "Tus archivos multimedia se seguirán procesando en segundo plano."
+  },
+  {
+    "Lang": "es",
+    "ResourceName": "plugins.widgets.customproductreviews.mediaprocessingstarted",
+    "ResourceValue": "Tus archivos multimedia se seguirán procesando en segundo plano."
+  },
+  {
+    "Lang": "es",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.MediaProcessingCompletedAutomatically",
+    "ResourceValue": "Después del procesamiento, los archivos se añadirán automáticamente a tu reseña."
+  },
+  {
+    "Lang": "es",
+    "ResourceName": "plugins.widgets.customproductreviews.mediaprocessingcompletedautomatically",
+    "ResourceValue": "Después del procesamiento, los archivos se añadirán automáticamente a tu reseña."
+  },
+  {
+    "Lang": "es",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.UnsupportedFileFormat",
+    "ResourceValue": "El formato del archivo no es compatible para la carga."
+  },
+  {
+    "Lang": "es",
+    "ResourceName": "plugins.widgets.customproductreviews.unsupportedfileformat",
+    "ResourceValue": "El formato del archivo no es compatible para la carga."
+  },
+  {
+    "Lang": "es",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.UploadFileFormatError",
+    "ResourceValue": "Error de formato del archivo cargado."
+  },
+  {
+    "Lang": "es",
+    "ResourceName": "plugins.widgets.customproductreviews.uploadfileformaterror",
+    "ResourceValue": "Error de formato del archivo cargado."
+  },
+  {
+    "Lang": "es",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.GeneralError",
+    "ResourceValue": "Se produjo un error general. Inténtalo de nuevo."
+  },
+  {
+    "Lang": "es",
+    "ResourceName": "plugins.widgets.customproductreviews.generalerror",
+    "ResourceValue": "Se produjo un error general. Inténtalo de nuevo."
+  },
+  {
+    "Lang": "es",
+    "ResourceName": "Product Reviews For",
+    "ResourceValue": "Reseñas del producto para"
+  },
+  {
+    "Lang": "es",
+    "ResourceName": "Product Reviews For ",
+    "ResourceValue": "Reseñas del producto para"
+  },
+  {
+    "Lang": "es",
+    "ResourceName": "product reviews for",
+    "ResourceValue": "Reseñas del producto para"
+  },
+  {
+    "Lang": "it",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ProductReviewsFor",
+    "ResourceValue": "Recensioni prodotto per"
+  },
+  {
+    "Lang": "it",
+    "ResourceName": "plugins.widgets.customproductreviews.productreviewsfor",
+    "ResourceValue": "Recensioni prodotto per"
+  },
+  {
+    "Lang": "it",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.AttachFiles",
+    "ResourceValue": "Allega file"
+  },
+  {
+    "Lang": "it",
+    "ResourceName": "plugins.widgets.customproductreviews.attachfiles",
+    "ResourceValue": "Allega file"
+  },
+  {
+    "Lang": "it",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.MaxFilesInUpload",
+    "ResourceValue": "Numero massimo di file: {0}"
+  },
+  {
+    "Lang": "it",
+    "ResourceName": "plugins.widgets.customproductreviews.maxfilesinupload",
+    "ResourceValue": "Numero massimo di file: {0}"
+  },
+  {
+    "Lang": "it",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.HoverToZoom",
+    "ResourceValue": "Passa sopra per ingrandire"
+  },
+  {
+    "Lang": "it",
+    "ResourceName": "plugins.widgets.customproductreviews.hovertozoom",
+    "ResourceValue": "Passa sopra per ingrandire"
+  },
+  {
+    "Lang": "it",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ViewLargerReviewPhoto",
+    "ResourceValue": "Visualizza foto recensione ingrandita"
+  },
+  {
+    "Lang": "it",
+    "ResourceName": "plugins.widgets.customproductreviews.viewlargerreviewphoto",
+    "ResourceValue": "Visualizza foto recensione ingrandita"
+  },
+  {
+    "Lang": "it",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ReviewVideo",
+    "ResourceValue": "Video recensione"
+  },
+  {
+    "Lang": "it",
+    "ResourceName": "plugins.widgets.customproductreviews.reviewvideo",
+    "ResourceValue": "Video recensione"
+  },
+  {
+    "Lang": "it",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.VideoNotSupported",
+    "ResourceValue": "Il tuo browser non supporta il tag video."
+  },
+  {
+    "Lang": "it",
+    "ResourceName": "plugins.widgets.customproductreviews.videonotsupported",
+    "ResourceValue": "Il tuo browser non supporta il tag video."
+  },
+  {
+    "Lang": "it",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.MediaProcessingStarted",
+    "ResourceValue": "I media caricati continueranno a essere elaborati in background."
+  },
+  {
+    "Lang": "it",
+    "ResourceName": "plugins.widgets.customproductreviews.mediaprocessingstarted",
+    "ResourceValue": "I media caricati continueranno a essere elaborati in background."
+  },
+  {
+    "Lang": "it",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.MediaProcessingCompletedAutomatically",
+    "ResourceValue": "Dopo l’elaborazione, i media saranno aggiunti automaticamente alla recensione."
+  },
+  {
+    "Lang": "it",
+    "ResourceName": "plugins.widgets.customproductreviews.mediaprocessingcompletedautomatically",
+    "ResourceValue": "Dopo l’elaborazione, i media saranno aggiunti automaticamente alla recensione."
+  },
+  {
+    "Lang": "it",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.UnsupportedFileFormat",
+    "ResourceValue": "Il formato del file non è supportato per il caricamento."
+  },
+  {
+    "Lang": "it",
+    "ResourceName": "plugins.widgets.customproductreviews.unsupportedfileformat",
+    "ResourceValue": "Il formato del file non è supportato per il caricamento."
+  },
+  {
+    "Lang": "it",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.UploadFileFormatError",
+    "ResourceValue": "Errore nel formato del file caricato."
+  },
+  {
+    "Lang": "it",
+    "ResourceName": "plugins.widgets.customproductreviews.uploadfileformaterror",
+    "ResourceValue": "Errore nel formato del file caricato."
+  },
+  {
+    "Lang": "it",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.GeneralError",
+    "ResourceValue": "Si è verificato un errore generale. Riprova."
+  },
+  {
+    "Lang": "it",
+    "ResourceName": "plugins.widgets.customproductreviews.generalerror",
+    "ResourceValue": "Si è verificato un errore generale. Riprova."
+  },
+  {
+    "Lang": "it",
+    "ResourceName": "Product Reviews For",
+    "ResourceValue": "Recensioni prodotto per"
+  },
+  {
+    "Lang": "it",
+    "ResourceName": "Product Reviews For ",
+    "ResourceValue": "Recensioni prodotto per"
+  },
+  {
+    "Lang": "it",
+    "ResourceName": "product reviews for",
+    "ResourceValue": "Recensioni prodotto per"
+  },
+  {
+    "Lang": "nl",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ProductReviewsFor",
+    "ResourceValue": "Productbeoordelingen voor"
+  },
+  {
+    "Lang": "nl",
+    "ResourceName": "plugins.widgets.customproductreviews.productreviewsfor",
+    "ResourceValue": "Productbeoordelingen voor"
+  },
+  {
+    "Lang": "nl",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.AttachFiles",
+    "ResourceValue": "Bestanden bijvoegen"
+  },
+  {
+    "Lang": "nl",
+    "ResourceName": "plugins.widgets.customproductreviews.attachfiles",
+    "ResourceValue": "Bestanden bijvoegen"
+  },
+  {
+    "Lang": "nl",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.MaxFilesInUpload",
+    "ResourceValue": "Maximaal aantal bestanden: {0}"
+  },
+  {
+    "Lang": "nl",
+    "ResourceName": "plugins.widgets.customproductreviews.maxfilesinupload",
+    "ResourceValue": "Maximaal aantal bestanden: {0}"
+  },
+  {
+    "Lang": "nl",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.HoverToZoom",
+    "ResourceValue": "Beweeg erover om te zoomen"
+  },
+  {
+    "Lang": "nl",
+    "ResourceName": "plugins.widgets.customproductreviews.hovertozoom",
+    "ResourceValue": "Beweeg erover om te zoomen"
+  },
+  {
+    "Lang": "nl",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ViewLargerReviewPhoto",
+    "ResourceValue": "Bekijk grotere reviewfoto"
+  },
+  {
+    "Lang": "nl",
+    "ResourceName": "plugins.widgets.customproductreviews.viewlargerreviewphoto",
+    "ResourceValue": "Bekijk grotere reviewfoto"
+  },
+  {
+    "Lang": "nl",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ReviewVideo",
+    "ResourceValue": "Reviewvideo"
+  },
+  {
+    "Lang": "nl",
+    "ResourceName": "plugins.widgets.customproductreviews.reviewvideo",
+    "ResourceValue": "Reviewvideo"
+  },
+  {
+    "Lang": "nl",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.VideoNotSupported",
+    "ResourceValue": "Uw browser ondersteunt de videotag niet."
+  },
+  {
+    "Lang": "nl",
+    "ResourceName": "plugins.widgets.customproductreviews.videonotsupported",
+    "ResourceValue": "Uw browser ondersteunt de videotag niet."
+  },
+  {
+    "Lang": "nl",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.MediaProcessingStarted",
+    "ResourceValue": "Uw geüploade media worden op de achtergrond verder verwerkt."
+  },
+  {
+    "Lang": "nl",
+    "ResourceName": "plugins.widgets.customproductreviews.mediaprocessingstarted",
+    "ResourceValue": "Uw geüploade media worden op de achtergrond verder verwerkt."
+  },
+  {
+    "Lang": "nl",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.MediaProcessingCompletedAutomatically",
+    "ResourceValue": "Na verwerking worden de media automatisch aan uw beoordeling toegevoegd."
+  },
+  {
+    "Lang": "nl",
+    "ResourceName": "plugins.widgets.customproductreviews.mediaprocessingcompletedautomatically",
+    "ResourceValue": "Na verwerking worden de media automatisch aan uw beoordeling toegevoegd."
+  },
+  {
+    "Lang": "nl",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.UnsupportedFileFormat",
+    "ResourceValue": "Het bestandsformaat wordt niet ondersteund voor uploaden."
+  },
+  {
+    "Lang": "nl",
+    "ResourceName": "plugins.widgets.customproductreviews.unsupportedfileformat",
+    "ResourceValue": "Het bestandsformaat wordt niet ondersteund voor uploaden."
+  },
+  {
+    "Lang": "nl",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.UploadFileFormatError",
+    "ResourceValue": "Fout in uploadbestandsformaat."
+  },
+  {
+    "Lang": "nl",
+    "ResourceName": "plugins.widgets.customproductreviews.uploadfileformaterror",
+    "ResourceValue": "Fout in uploadbestandsformaat."
+  },
+  {
+    "Lang": "nl",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.GeneralError",
+    "ResourceValue": "Er is een algemene fout opgetreden. Probeer het opnieuw."
+  },
+  {
+    "Lang": "nl",
+    "ResourceName": "plugins.widgets.customproductreviews.generalerror",
+    "ResourceValue": "Er is een algemene fout opgetreden. Probeer het opnieuw."
+  },
+  {
+    "Lang": "nl",
+    "ResourceName": "Product Reviews For",
+    "ResourceValue": "Productbeoordelingen voor"
+  },
+  {
+    "Lang": "nl",
+    "ResourceName": "Product Reviews For ",
+    "ResourceValue": "Productbeoordelingen voor"
+  },
+  {
+    "Lang": "nl",
+    "ResourceName": "product reviews for",
+    "ResourceValue": "Productbeoordelingen voor"
+  },
+  {
+    "Lang": "ru",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ProductReviewsFor",
+    "ResourceValue": "Отзывы о товаре"
+  },
+  {
+    "Lang": "ru",
+    "ResourceName": "plugins.widgets.customproductreviews.productreviewsfor",
+    "ResourceValue": "Отзывы о товаре"
+  },
+  {
+    "Lang": "ru",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.AttachFiles",
+    "ResourceValue": "Прикрепить файлы"
+  },
+  {
+    "Lang": "ru",
+    "ResourceName": "plugins.widgets.customproductreviews.attachfiles",
+    "ResourceValue": "Прикрепить файлы"
+  },
+  {
+    "Lang": "ru",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.MaxFilesInUpload",
+    "ResourceValue": "Максимальное количество файлов: {0}"
+  },
+  {
+    "Lang": "ru",
+    "ResourceName": "plugins.widgets.customproductreviews.maxfilesinupload",
+    "ResourceValue": "Максимальное количество файлов: {0}"
+  },
+  {
+    "Lang": "ru",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.HoverToZoom",
+    "ResourceValue": "Наведите для увеличения"
+  },
+  {
+    "Lang": "ru",
+    "ResourceName": "plugins.widgets.customproductreviews.hovertozoom",
+    "ResourceValue": "Наведите для увеличения"
+  },
+  {
+    "Lang": "ru",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ViewLargerReviewPhoto",
+    "ResourceValue": "Увеличить фото отзыва"
+  },
+  {
+    "Lang": "ru",
+    "ResourceName": "plugins.widgets.customproductreviews.viewlargerreviewphoto",
+    "ResourceValue": "Увеличить фото отзыва"
+  },
+  {
+    "Lang": "ru",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ReviewVideo",
+    "ResourceValue": "Видео отзыва"
+  },
+  {
+    "Lang": "ru",
+    "ResourceName": "plugins.widgets.customproductreviews.reviewvideo",
+    "ResourceValue": "Видео отзыва"
+  },
+  {
+    "Lang": "ru",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.VideoNotSupported",
+    "ResourceValue": "Ваш браузер не поддерживает видео."
+  },
+  {
+    "Lang": "ru",
+    "ResourceName": "plugins.widgets.customproductreviews.videonotsupported",
+    "ResourceValue": "Ваш браузер не поддерживает видео."
+  },
+  {
+    "Lang": "ru",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.MediaProcessingStarted",
+    "ResourceValue": "Загруженные медиа будут обработаны в фоновом режиме."
+  },
+  {
+    "Lang": "ru",
+    "ResourceName": "plugins.widgets.customproductreviews.mediaprocessingstarted",
+    "ResourceValue": "Загруженные медиа будут обработаны в фоновом режиме."
+  },
+  {
+    "Lang": "ru",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.MediaProcessingCompletedAutomatically",
+    "ResourceValue": "После обработки медиа будут автоматически добавлены к отзыву."
+  },
+  {
+    "Lang": "ru",
+    "ResourceName": "plugins.widgets.customproductreviews.mediaprocessingcompletedautomatically",
+    "ResourceValue": "После обработки медиа будут автоматически добавлены к отзыву."
+  },
+  {
+    "Lang": "ru",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.UnsupportedFileFormat",
+    "ResourceValue": "Формат файла не поддерживается для загрузки."
+  },
+  {
+    "Lang": "ru",
+    "ResourceName": "plugins.widgets.customproductreviews.unsupportedfileformat",
+    "ResourceValue": "Формат файла не поддерживается для загрузки."
+  },
+  {
+    "Lang": "ru",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.UploadFileFormatError",
+    "ResourceValue": "Ошибка формата загружаемого файла."
+  },
+  {
+    "Lang": "ru",
+    "ResourceName": "plugins.widgets.customproductreviews.uploadfileformaterror",
+    "ResourceValue": "Ошибка формата загружаемого файла."
+  },
+  {
+    "Lang": "ru",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.GeneralError",
+    "ResourceValue": "Произошла ошибка. Пожалуйста, попробуйте снова."
+  },
+  {
+    "Lang": "ru",
+    "ResourceName": "plugins.widgets.customproductreviews.generalerror",
+    "ResourceValue": "Произошла ошибка. Пожалуйста, попробуйте снова."
+  },
+  {
+    "Lang": "ru",
+    "ResourceName": "Product Reviews For",
+    "ResourceValue": "Отзывы о товаре"
+  },
+  {
+    "Lang": "ru",
+    "ResourceName": "Product Reviews For ",
+    "ResourceValue": "Отзывы о товаре"
+  },
+  {
+    "Lang": "ru",
+    "ResourceName": "product reviews for",
+    "ResourceValue": "Отзывы о товаре"
+  },
+  {
+    "Lang": "ar",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ProductReviewsFor",
+    "ResourceValue": "مراجعات المنتج لـ"
+  },
+  {
+    "Lang": "ar",
+    "ResourceName": "plugins.widgets.customproductreviews.productreviewsfor",
+    "ResourceValue": "مراجعات المنتج لـ"
+  },
+  {
+    "Lang": "ar",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.AttachFiles",
+    "ResourceValue": "إرفاق ملفات"
+  },
+  {
+    "Lang": "ar",
+    "ResourceName": "plugins.widgets.customproductreviews.attachfiles",
+    "ResourceValue": "إرفاق ملفات"
+  },
+  {
+    "Lang": "ar",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.MaxFilesInUpload",
+    "ResourceValue": "الحد الأقصى لعدد الملفات: {0}"
+  },
+  {
+    "Lang": "ar",
+    "ResourceName": "plugins.widgets.customproductreviews.maxfilesinupload",
+    "ResourceValue": "الحد الأقصى لعدد الملفات: {0}"
+  },
+  {
+    "Lang": "ar",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.HoverToZoom",
+    "ResourceValue": "مرّر للتكبير"
+  },
+  {
+    "Lang": "ar",
+    "ResourceName": "plugins.widgets.customproductreviews.hovertozoom",
+    "ResourceValue": "مرّر للتكبير"
+  },
+  {
+    "Lang": "ar",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ViewLargerReviewPhoto",
+    "ResourceValue": "عرض صورة المراجعة بحجم أكبر"
+  },
+  {
+    "Lang": "ar",
+    "ResourceName": "plugins.widgets.customproductreviews.viewlargerreviewphoto",
+    "ResourceValue": "عرض صورة المراجعة بحجم أكبر"
+  },
+  {
+    "Lang": "ar",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ReviewVideo",
+    "ResourceValue": "فيديو المراجعة"
+  },
+  {
+    "Lang": "ar",
+    "ResourceName": "plugins.widgets.customproductreviews.reviewvideo",
+    "ResourceValue": "فيديو المراجعة"
+  },
+  {
+    "Lang": "ar",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.VideoNotSupported",
+    "ResourceValue": "متصفحك لا يدعم وسم الفيديو."
+  },
+  {
+    "Lang": "ar",
+    "ResourceName": "plugins.widgets.customproductreviews.videonotsupported",
+    "ResourceValue": "متصفحك لا يدعم وسم الفيديو."
+  },
+  {
+    "Lang": "ar",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.MediaProcessingStarted",
+    "ResourceValue": "سيستمر معالجة الوسائط المرفوعة في الخلفية."
+  },
+  {
+    "Lang": "ar",
+    "ResourceName": "plugins.widgets.customproductreviews.mediaprocessingstarted",
+    "ResourceValue": "سيستمر معالجة الوسائط المرفوعة في الخلفية."
+  },
+  {
+    "Lang": "ar",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.MediaProcessingCompletedAutomatically",
+    "ResourceValue": "بعد المعالجة، ستتم إضافة الوسائط تلقائيًا إلى مراجعتك."
+  },
+  {
+    "Lang": "ar",
+    "ResourceName": "plugins.widgets.customproductreviews.mediaprocessingcompletedautomatically",
+    "ResourceValue": "بعد المعالجة، ستتم إضافة الوسائط تلقائيًا إلى مراجعتك."
+  },
+  {
+    "Lang": "ar",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.UnsupportedFileFormat",
+    "ResourceValue": "تنسيق الملف غير مدعوم للرفع."
+  },
+  {
+    "Lang": "ar",
+    "ResourceName": "plugins.widgets.customproductreviews.unsupportedfileformat",
+    "ResourceValue": "تنسيق الملف غير مدعوم للرفع."
+  },
+  {
+    "Lang": "ar",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.UploadFileFormatError",
+    "ResourceValue": "خطأ في تنسيق الملف المرفوع."
+  },
+  {
+    "Lang": "ar",
+    "ResourceName": "plugins.widgets.customproductreviews.uploadfileformaterror",
+    "ResourceValue": "خطأ في تنسيق الملف المرفوع."
+  },
+  {
+    "Lang": "ar",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.GeneralError",
+    "ResourceValue": "حدث خطأ عام. يرجى المحاولة مرة أخرى."
+  },
+  {
+    "Lang": "ar",
+    "ResourceName": "plugins.widgets.customproductreviews.generalerror",
+    "ResourceValue": "حدث خطأ عام. يرجى المحاولة مرة أخرى."
+  },
+  {
+    "Lang": "ar",
+    "ResourceName": "Product Reviews For",
+    "ResourceValue": "مراجعات المنتج لـ"
+  },
+  {
+    "Lang": "ar",
+    "ResourceName": "Product Reviews For ",
+    "ResourceValue": "مراجعات المنتج لـ"
+  },
+  {
+    "Lang": "ar",
+    "ResourceName": "product reviews for",
+    "ResourceValue": "مراجعات المنتج لـ"
+  },
+  {
+    "Lang": "pt",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ProductReviewsFor",
+    "ResourceValue": "Avaliações do produto para"
+  },
+  {
+    "Lang": "pt",
+    "ResourceName": "plugins.widgets.customproductreviews.productreviewsfor",
+    "ResourceValue": "Avaliações do produto para"
+  },
+  {
+    "Lang": "pt",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.AttachFiles",
+    "ResourceValue": "Anexar arquivos"
+  },
+  {
+    "Lang": "pt",
+    "ResourceName": "plugins.widgets.customproductreviews.attachfiles",
+    "ResourceValue": "Anexar arquivos"
+  },
+  {
+    "Lang": "pt",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.MaxFilesInUpload",
+    "ResourceValue": "Máximo de arquivos: {0}"
+  },
+  {
+    "Lang": "pt",
+    "ResourceName": "plugins.widgets.customproductreviews.maxfilesinupload",
+    "ResourceValue": "Máximo de arquivos: {0}"
+  },
+  {
+    "Lang": "pt",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.HoverToZoom",
+    "ResourceValue": "Passe o mouse para ampliar"
+  },
+  {
+    "Lang": "pt",
+    "ResourceName": "plugins.widgets.customproductreviews.hovertozoom",
+    "ResourceValue": "Passe o mouse para ampliar"
+  },
+  {
+    "Lang": "pt",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ViewLargerReviewPhoto",
+    "ResourceValue": "Ver foto da avaliação ampliada"
+  },
+  {
+    "Lang": "pt",
+    "ResourceName": "plugins.widgets.customproductreviews.viewlargerreviewphoto",
+    "ResourceValue": "Ver foto da avaliação ampliada"
+  },
+  {
+    "Lang": "pt",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ReviewVideo",
+    "ResourceValue": "Vídeo da avaliação"
+  },
+  {
+    "Lang": "pt",
+    "ResourceName": "plugins.widgets.customproductreviews.reviewvideo",
+    "ResourceValue": "Vídeo da avaliação"
+  },
+  {
+    "Lang": "pt",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.VideoNotSupported",
+    "ResourceValue": "Seu navegador não suporta a tag de vídeo."
+  },
+  {
+    "Lang": "pt",
+    "ResourceName": "plugins.widgets.customproductreviews.videonotsupported",
+    "ResourceValue": "Seu navegador não suporta a tag de vídeo."
+  },
+  {
+    "Lang": "pt",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.MediaProcessingStarted",
+    "ResourceValue": "A mídia enviada continuará sendo processada em segundo plano."
+  },
+  {
+    "Lang": "pt",
+    "ResourceName": "plugins.widgets.customproductreviews.mediaprocessingstarted",
+    "ResourceValue": "A mídia enviada continuará sendo processada em segundo plano."
+  },
+  {
+    "Lang": "pt",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.MediaProcessingCompletedAutomatically",
+    "ResourceValue": "Após o processamento, a mídia será adicionada automaticamente à sua avaliação."
+  },
+  {
+    "Lang": "pt",
+    "ResourceName": "plugins.widgets.customproductreviews.mediaprocessingcompletedautomatically",
+    "ResourceValue": "Após o processamento, a mídia será adicionada automaticamente à sua avaliação."
+  },
+  {
+    "Lang": "pt",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.UnsupportedFileFormat",
+    "ResourceValue": "O formato do arquivo não é compatível para upload."
+  },
+  {
+    "Lang": "pt",
+    "ResourceName": "plugins.widgets.customproductreviews.unsupportedfileformat",
+    "ResourceValue": "O formato do arquivo não é compatível para upload."
+  },
+  {
+    "Lang": "pt",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.UploadFileFormatError",
+    "ResourceValue": "Erro de formato do arquivo enviado."
+  },
+  {
+    "Lang": "pt",
+    "ResourceName": "plugins.widgets.customproductreviews.uploadfileformaterror",
+    "ResourceValue": "Erro de formato do arquivo enviado."
+  },
+  {
+    "Lang": "pt",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.GeneralError",
+    "ResourceValue": "Ocorreu um erro geral. Tente novamente."
+  },
+  {
+    "Lang": "pt",
+    "ResourceName": "plugins.widgets.customproductreviews.generalerror",
+    "ResourceValue": "Ocorreu um erro geral. Tente novamente."
+  },
+  {
+    "Lang": "pt",
+    "ResourceName": "Product Reviews For",
+    "ResourceValue": "Avaliações do produto para"
+  },
+  {
+    "Lang": "pt",
+    "ResourceName": "Product Reviews For ",
+    "ResourceValue": "Avaliações do produto para"
+  },
+  {
+    "Lang": "pt",
+    "ResourceName": "product reviews for",
+    "ResourceValue": "Avaliações do produto para"
+  },
+  {
+    "Lang": "pl",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ProductReviewsFor",
+    "ResourceValue": "Opinie produktu dla"
+  },
+  {
+    "Lang": "pl",
+    "ResourceName": "plugins.widgets.customproductreviews.productreviewsfor",
+    "ResourceValue": "Opinie produktu dla"
+  },
+  {
+    "Lang": "pl",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.AttachFiles",
+    "ResourceValue": "Dołącz pliki"
+  },
+  {
+    "Lang": "pl",
+    "ResourceName": "plugins.widgets.customproductreviews.attachfiles",
+    "ResourceValue": "Dołącz pliki"
+  },
+  {
+    "Lang": "pl",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.MaxFilesInUpload",
+    "ResourceValue": "Maksymalna liczba plików: {0}"
+  },
+  {
+    "Lang": "pl",
+    "ResourceName": "plugins.widgets.customproductreviews.maxfilesinupload",
+    "ResourceValue": "Maksymalna liczba plików: {0}"
+  },
+  {
+    "Lang": "pl",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.HoverToZoom",
+    "ResourceValue": "Najedź, aby powiększyć"
+  },
+  {
+    "Lang": "pl",
+    "ResourceName": "plugins.widgets.customproductreviews.hovertozoom",
+    "ResourceValue": "Najedź, aby powiększyć"
+  },
+  {
+    "Lang": "pl",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ViewLargerReviewPhoto",
+    "ResourceValue": "Powiększ zdjęcie z opinii"
+  },
+  {
+    "Lang": "pl",
+    "ResourceName": "plugins.widgets.customproductreviews.viewlargerreviewphoto",
+    "ResourceValue": "Powiększ zdjęcie z opinii"
+  },
+  {
+    "Lang": "pl",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ReviewVideo",
+    "ResourceValue": "Film z opinii"
+  },
+  {
+    "Lang": "pl",
+    "ResourceName": "plugins.widgets.customproductreviews.reviewvideo",
+    "ResourceValue": "Film z opinii"
+  },
+  {
+    "Lang": "pl",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.VideoNotSupported",
+    "ResourceValue": "Twoja przeglądarka nie obsługuje znacznika wideo."
+  },
+  {
+    "Lang": "pl",
+    "ResourceName": "plugins.widgets.customproductreviews.videonotsupported",
+    "ResourceValue": "Twoja przeglądarka nie obsługuje znacznika wideo."
+  },
+  {
+    "Lang": "pl",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.MediaProcessingStarted",
+    "ResourceValue": "Przesłane media będą dalej przetwarzane w tle."
+  },
+  {
+    "Lang": "pl",
+    "ResourceName": "plugins.widgets.customproductreviews.mediaprocessingstarted",
+    "ResourceValue": "Przesłane media będą dalej przetwarzane w tle."
+  },
+  {
+    "Lang": "pl",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.MediaProcessingCompletedAutomatically",
+    "ResourceValue": "Po przetworzeniu media zostaną automatycznie dodane do opinii."
+  },
+  {
+    "Lang": "pl",
+    "ResourceName": "plugins.widgets.customproductreviews.mediaprocessingcompletedautomatically",
+    "ResourceValue": "Po przetworzeniu media zostaną automatycznie dodane do opinii."
+  },
+  {
+    "Lang": "pl",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.UnsupportedFileFormat",
+    "ResourceValue": "Format pliku nie jest obsługiwany."
+  },
+  {
+    "Lang": "pl",
+    "ResourceName": "plugins.widgets.customproductreviews.unsupportedfileformat",
+    "ResourceValue": "Format pliku nie jest obsługiwany."
+  },
+  {
+    "Lang": "pl",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.UploadFileFormatError",
+    "ResourceValue": "Błąd formatu przesyłanego pliku."
+  },
+  {
+    "Lang": "pl",
+    "ResourceName": "plugins.widgets.customproductreviews.uploadfileformaterror",
+    "ResourceValue": "Błąd formatu przesyłanego pliku."
+  },
+  {
+    "Lang": "pl",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.GeneralError",
+    "ResourceValue": "Wystąpił błąd ogólny. Spróbuj ponownie."
+  },
+  {
+    "Lang": "pl",
+    "ResourceName": "plugins.widgets.customproductreviews.generalerror",
+    "ResourceValue": "Wystąpił błąd ogólny. Spróbuj ponownie."
+  },
+  {
+    "Lang": "pl",
+    "ResourceName": "Product Reviews For",
+    "ResourceValue": "Opinie produktu dla"
+  },
+  {
+    "Lang": "pl",
+    "ResourceName": "Product Reviews For ",
+    "ResourceValue": "Opinie produktu dla"
+  },
+  {
+    "Lang": "pl",
+    "ResourceName": "product reviews for",
+    "ResourceValue": "Opinie produktu dla"
+  },
+  {
+    "Lang": "zh",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ProductReviewsFor",
+    "ResourceValue": "产品评价："
+  },
+  {
+    "Lang": "zh",
+    "ResourceName": "plugins.widgets.customproductreviews.productreviewsfor",
+    "ResourceValue": "产品评价："
+  },
+  {
+    "Lang": "zh",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.AttachFiles",
+    "ResourceValue": "附加文件"
+  },
+  {
+    "Lang": "zh",
+    "ResourceName": "plugins.widgets.customproductreviews.attachfiles",
+    "ResourceValue": "附加文件"
+  },
+  {
+    "Lang": "zh",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.MaxFilesInUpload",
+    "ResourceValue": "最多上传文件数：{0}"
+  },
+  {
+    "Lang": "zh",
+    "ResourceName": "plugins.widgets.customproductreviews.maxfilesinupload",
+    "ResourceValue": "最多上传文件数：{0}"
+  },
+  {
+    "Lang": "zh",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.HoverToZoom",
+    "ResourceValue": "悬停放大"
+  },
+  {
+    "Lang": "zh",
+    "ResourceName": "plugins.widgets.customproductreviews.hovertozoom",
+    "ResourceValue": "悬停放大"
+  },
+  {
+    "Lang": "zh",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ViewLargerReviewPhoto",
+    "ResourceValue": "查看更大的评价图片"
+  },
+  {
+    "Lang": "zh",
+    "ResourceName": "plugins.widgets.customproductreviews.viewlargerreviewphoto",
+    "ResourceValue": "查看更大的评价图片"
+  },
+  {
+    "Lang": "zh",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ReviewVideo",
+    "ResourceValue": "评价视频"
+  },
+  {
+    "Lang": "zh",
+    "ResourceName": "plugins.widgets.customproductreviews.reviewvideo",
+    "ResourceValue": "评价视频"
+  },
+  {
+    "Lang": "zh",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.VideoNotSupported",
+    "ResourceValue": "您的浏览器不支持视频标签。"
+  },
+  {
+    "Lang": "zh",
+    "ResourceName": "plugins.widgets.customproductreviews.videonotsupported",
+    "ResourceValue": "您的浏览器不支持视频标签。"
+  },
+  {
+    "Lang": "zh",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.MediaProcessingStarted",
+    "ResourceValue": "您上传的媒体将继续在后台处理。"
+  },
+  {
+    "Lang": "zh",
+    "ResourceName": "plugins.widgets.customproductreviews.mediaprocessingstarted",
+    "ResourceValue": "您上传的媒体将继续在后台处理。"
+  },
+  {
+    "Lang": "zh",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.MediaProcessingCompletedAutomatically",
+    "ResourceValue": "处理完成后，媒体将自动添加到您的评价中。"
+  },
+  {
+    "Lang": "zh",
+    "ResourceName": "plugins.widgets.customproductreviews.mediaprocessingcompletedautomatically",
+    "ResourceValue": "处理完成后，媒体将自动添加到您的评价中。"
+  },
+  {
+    "Lang": "zh",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.UnsupportedFileFormat",
+    "ResourceValue": "不支持上传此文件格式。"
+  },
+  {
+    "Lang": "zh",
+    "ResourceName": "plugins.widgets.customproductreviews.unsupportedfileformat",
+    "ResourceValue": "不支持上传此文件格式。"
+  },
+  {
+    "Lang": "zh",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.UploadFileFormatError",
+    "ResourceValue": "上传文件格式错误。"
+  },
+  {
+    "Lang": "zh",
+    "ResourceName": "plugins.widgets.customproductreviews.uploadfileformaterror",
+    "ResourceValue": "上传文件格式错误。"
+  },
+  {
+    "Lang": "zh",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.GeneralError",
+    "ResourceValue": "发生一般错误。请重试。"
+  },
+  {
+    "Lang": "zh",
+    "ResourceName": "plugins.widgets.customproductreviews.generalerror",
+    "ResourceValue": "发生一般错误。请重试。"
+  },
+  {
+    "Lang": "zh",
+    "ResourceName": "Product Reviews For",
+    "ResourceValue": "产品评价："
+  },
+  {
+    "Lang": "zh",
+    "ResourceName": "Product Reviews For ",
+    "ResourceValue": "产品评价："
+  },
+  {
+    "Lang": "zh",
+    "ResourceName": "product reviews for",
+    "ResourceValue": "产品评价："
+  },
+  {
+    "Lang": "ja",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ProductReviewsFor",
+    "ResourceValue": "商品のレビュー："
+  },
+  {
+    "Lang": "ja",
+    "ResourceName": "plugins.widgets.customproductreviews.productreviewsfor",
+    "ResourceValue": "商品のレビュー："
+  },
+  {
+    "Lang": "ja",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.AttachFiles",
+    "ResourceValue": "ファイルを添付"
+  },
+  {
+    "Lang": "ja",
+    "ResourceName": "plugins.widgets.customproductreviews.attachfiles",
+    "ResourceValue": "ファイルを添付"
+  },
+  {
+    "Lang": "ja",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.MaxFilesInUpload",
+    "ResourceValue": "最大アップロードファイル数: {0}"
+  },
+  {
+    "Lang": "ja",
+    "ResourceName": "plugins.widgets.customproductreviews.maxfilesinupload",
+    "ResourceValue": "最大アップロードファイル数: {0}"
+  },
+  {
+    "Lang": "ja",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.HoverToZoom",
+    "ResourceValue": "ホバーして拡大"
+  },
+  {
+    "Lang": "ja",
+    "ResourceName": "plugins.widgets.customproductreviews.hovertozoom",
+    "ResourceValue": "ホバーして拡大"
+  },
+  {
+    "Lang": "ja",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ViewLargerReviewPhoto",
+    "ResourceValue": "レビュー写真を拡大表示"
+  },
+  {
+    "Lang": "ja",
+    "ResourceName": "plugins.widgets.customproductreviews.viewlargerreviewphoto",
+    "ResourceValue": "レビュー写真を拡大表示"
+  },
+  {
+    "Lang": "ja",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ReviewVideo",
+    "ResourceValue": "レビュー動画"
+  },
+  {
+    "Lang": "ja",
+    "ResourceName": "plugins.widgets.customproductreviews.reviewvideo",
+    "ResourceValue": "レビュー動画"
+  },
+  {
+    "Lang": "ja",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.VideoNotSupported",
+    "ResourceValue": "お使いのブラウザは video タグに対応していません。"
+  },
+  {
+    "Lang": "ja",
+    "ResourceName": "plugins.widgets.customproductreviews.videonotsupported",
+    "ResourceValue": "お使いのブラウザは video タグに対応していません。"
+  },
+  {
+    "Lang": "ja",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.MediaProcessingStarted",
+    "ResourceValue": "アップロードされたメディアはバックグラウンドで処理されます。"
+  },
+  {
+    "Lang": "ja",
+    "ResourceName": "plugins.widgets.customproductreviews.mediaprocessingstarted",
+    "ResourceValue": "アップロードされたメディアはバックグラウンドで処理されます。"
+  },
+  {
+    "Lang": "ja",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.MediaProcessingCompletedAutomatically",
+    "ResourceValue": "処理後、メディアは自動的にレビューに追加されます。"
+  },
+  {
+    "Lang": "ja",
+    "ResourceName": "plugins.widgets.customproductreviews.mediaprocessingcompletedautomatically",
+    "ResourceValue": "処理後、メディアは自動的にレビューに追加されます。"
+  },
+  {
+    "Lang": "ja",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.UnsupportedFileFormat",
+    "ResourceValue": "このファイル形式はアップロードに対応していません。"
+  },
+  {
+    "Lang": "ja",
+    "ResourceName": "plugins.widgets.customproductreviews.unsupportedfileformat",
+    "ResourceValue": "このファイル形式はアップロードに対応していません。"
+  },
+  {
+    "Lang": "ja",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.UploadFileFormatError",
+    "ResourceValue": "アップロードファイル形式エラー。"
+  },
+  {
+    "Lang": "ja",
+    "ResourceName": "plugins.widgets.customproductreviews.uploadfileformaterror",
+    "ResourceValue": "アップロードファイル形式エラー。"
+  },
+  {
+    "Lang": "ja",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.GeneralError",
+    "ResourceValue": "一般的なエラーが発生しました。もう一度お試しください。"
+  },
+  {
+    "Lang": "ja",
+    "ResourceName": "plugins.widgets.customproductreviews.generalerror",
+    "ResourceValue": "一般的なエラーが発生しました。もう一度お試しください。"
+  },
+  {
+    "Lang": "ja",
+    "ResourceName": "Product Reviews For",
+    "ResourceValue": "商品のレビュー："
+  },
+  {
+    "Lang": "ja",
+    "ResourceName": "Product Reviews For ",
+    "ResourceValue": "商品のレビュー："
+  },
+  {
+    "Lang": "ja",
+    "ResourceName": "product reviews for",
+    "ResourceValue": "商品のレビュー："
+  },
+  {
+    "Lang": "ko",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ProductReviewsFor",
+    "ResourceValue": "제품 리뷰:"
+  },
+  {
+    "Lang": "ko",
+    "ResourceName": "plugins.widgets.customproductreviews.productreviewsfor",
+    "ResourceValue": "제품 리뷰:"
+  },
+  {
+    "Lang": "ko",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.AttachFiles",
+    "ResourceValue": "파일 첨부"
+  },
+  {
+    "Lang": "ko",
+    "ResourceName": "plugins.widgets.customproductreviews.attachfiles",
+    "ResourceValue": "파일 첨부"
+  },
+  {
+    "Lang": "ko",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.MaxFilesInUpload",
+    "ResourceValue": "최대 업로드 파일 수: {0}"
+  },
+  {
+    "Lang": "ko",
+    "ResourceName": "plugins.widgets.customproductreviews.maxfilesinupload",
+    "ResourceValue": "최대 업로드 파일 수: {0}"
+  },
+  {
+    "Lang": "ko",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.HoverToZoom",
+    "ResourceValue": "확대하려면 마우스를 올리세요"
+  },
+  {
+    "Lang": "ko",
+    "ResourceName": "plugins.widgets.customproductreviews.hovertozoom",
+    "ResourceValue": "확대하려면 마우스를 올리세요"
+  },
+  {
+    "Lang": "ko",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ViewLargerReviewPhoto",
+    "ResourceValue": "리뷰 사진 크게 보기"
+  },
+  {
+    "Lang": "ko",
+    "ResourceName": "plugins.widgets.customproductreviews.viewlargerreviewphoto",
+    "ResourceValue": "리뷰 사진 크게 보기"
+  },
+  {
+    "Lang": "ko",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ReviewVideo",
+    "ResourceValue": "리뷰 동영상"
+  },
+  {
+    "Lang": "ko",
+    "ResourceName": "plugins.widgets.customproductreviews.reviewvideo",
+    "ResourceValue": "리뷰 동영상"
+  },
+  {
+    "Lang": "ko",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.VideoNotSupported",
+    "ResourceValue": "브라우저가 video 태그를 지원하지 않습니다."
+  },
+  {
+    "Lang": "ko",
+    "ResourceName": "plugins.widgets.customproductreviews.videonotsupported",
+    "ResourceValue": "브라우저가 video 태그를 지원하지 않습니다."
+  },
+  {
+    "Lang": "ko",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.MediaProcessingStarted",
+    "ResourceValue": "업로드한 미디어가 백그라운드에서 계속 처리됩니다."
+  },
+  {
+    "Lang": "ko",
+    "ResourceName": "plugins.widgets.customproductreviews.mediaprocessingstarted",
+    "ResourceValue": "업로드한 미디어가 백그라운드에서 계속 처리됩니다."
+  },
+  {
+    "Lang": "ko",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.MediaProcessingCompletedAutomatically",
+    "ResourceValue": "처리가 완료되면 미디어가 자동으로 리뷰에 추가됩니다."
+  },
+  {
+    "Lang": "ko",
+    "ResourceName": "plugins.widgets.customproductreviews.mediaprocessingcompletedautomatically",
+    "ResourceValue": "처리가 완료되면 미디어가 자동으로 리뷰에 추가됩니다."
+  },
+  {
+    "Lang": "ko",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.UnsupportedFileFormat",
+    "ResourceValue": "업로드할 수 없는 파일 형식입니다."
+  },
+  {
+    "Lang": "ko",
+    "ResourceName": "plugins.widgets.customproductreviews.unsupportedfileformat",
+    "ResourceValue": "업로드할 수 없는 파일 형식입니다."
+  },
+  {
+    "Lang": "ko",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.UploadFileFormatError",
+    "ResourceValue": "업로드 파일 형식 오류."
+  },
+  {
+    "Lang": "ko",
+    "ResourceName": "plugins.widgets.customproductreviews.uploadfileformaterror",
+    "ResourceValue": "업로드 파일 형식 오류."
+  },
+  {
+    "Lang": "ko",
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.GeneralError",
+    "ResourceValue": "일반 오류가 발생했습니다. 다시 시도하세요."
+  },
+  {
+    "Lang": "ko",
+    "ResourceName": "plugins.widgets.customproductreviews.generalerror",
+    "ResourceValue": "일반 오류가 발생했습니다. 다시 시도하세요."
+  },
+  {
+    "Lang": "ko",
+    "ResourceName": "Product Reviews For",
+    "ResourceValue": "제품 리뷰:"
+  },
+  {
+    "Lang": "ko",
+    "ResourceName": "Product Reviews For ",
+    "ResourceValue": "제품 리뷰:"
+  },
+  {
+    "Lang": "ko",
+    "ResourceName": "product reviews for",
+    "ResourceValue": "제품 리뷰:"
+  }
+]

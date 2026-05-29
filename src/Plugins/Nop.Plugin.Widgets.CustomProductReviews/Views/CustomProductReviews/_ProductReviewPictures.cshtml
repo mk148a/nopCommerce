@@ -1,14 +1,75 @@
 ﻿@model List<PictureModel>
 @using Nop.Web.Models.Media
 
-@if (Model.Count > 0)
+@functions {
+    string HoodCprText(string key, string fallback)
+    {
+        var value = T(key).ToString();
+        if (string.IsNullOrWhiteSpace(value) ||
+            value.IndexOf("plugins.widgets.customproductreviews", System.StringComparison.OrdinalIgnoreCase) >= 0 ||
+            value.IndexOf("customproductreviews", System.StringComparison.OrdinalIgnoreCase) >= 0)
+        {
+            return fallback;
+        }
+
+        return value;
+    }
+}
+
+@{
+    var viewLargerReviewPhoto = HoodCprText("Plugins.Widgets.CustomProductReviews.ViewLargerReviewPhoto", "View larger review photo");
+    if (string.IsNullOrWhiteSpace(viewLargerReviewPhoto) ||
+        viewLargerReviewPhoto.IndexOf("plugins.widgets.customproductreviews", System.StringComparison.OrdinalIgnoreCase) >= 0)
+    {
+        viewLargerReviewPhoto = "View larger review photo";
+    }
+
+    var hoverToZoom = HoodCprText("Plugins.Widgets.CustomProductReviews.HoverToZoom", "Hover to zoom");
+    if (string.IsNullOrWhiteSpace(hoverToZoom) ||
+        hoverToZoom.IndexOf("plugins.widgets.customproductreviews", System.StringComparison.OrdinalIgnoreCase) >= 0)
+    {
+        hoverToZoom = "Hover to zoom";
+    }
+}
+
+@if (Model != null && Model.Count > 0)
 {
-    <div class="picture-thumbs">
+    <div class="picture-thumbs cpr-review-picture-thumbs" id="main-review-img">
         @foreach (var picture in Model)
         {
-            <div class="thumb-item">
-                <a href="@picture.FullSizeImageUrl" target="_blank">
-                    <img src="@picture.ThumbImageUrl" alt="@picture.AlternateText" title="@picture.Title" data-defaultsize="@picture.ImageUrl"/>
+            var full = picture.FullSizeImageUrl;
+            var thumb = picture.ImageUrl;
+            var rawTitle = !string.IsNullOrWhiteSpace(picture.Title) ? picture.Title : hoverToZoom;
+            var rawAlt = !string.IsNullOrWhiteSpace(picture.AlternateText) ? picture.AlternateText : viewLargerReviewPhoto;
+
+            if (rawTitle.IndexOf("plugins.widgets.customproductreviews", System.StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                rawTitle = hoverToZoom;
+            }
+
+            if (rawAlt.IndexOf("plugins.widgets.customproductreviews", System.StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                rawAlt = viewLargerReviewPhoto;
+            }
+
+            <div class="thumb-item cpr-review-thumb">
+                <a class="cpr-review-media-link cpr-cloudzoom-link"
+                   href="@full"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   data-cpr-full="@full"
+                   data-cpr-thumb="@thumb"
+                   data-cpr-title="@rawTitle"
+                   data-cpr-cloudzoom="true"
+                   aria-label="@viewLargerReviewPhoto">
+                    <img class="cpr-review-image"
+                         src="@thumb"
+                         alt="@rawAlt"
+                         title="@rawTitle"
+                         width="180"
+                         height="240"
+                         loading="lazy"
+                         decoding="async" />
                 </a>
             </div>
         }

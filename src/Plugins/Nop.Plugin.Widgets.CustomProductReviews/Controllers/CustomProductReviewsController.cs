@@ -187,7 +187,20 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Controllers
         public virtual async Task<IActionResult> ProductReviewsAdd(int productId, ProductReviewsModel model, bool captchaValid, List<IFormFile> photos)
         {
             bool fileIsValid = true;
-            if (photos.Count>0)
+            var settings = EngineContext.Current.Resolve<Nop.Services.Configuration.ISettingService>();
+            var reviewSettings = await settings.LoadSettingAsync<CustomProductReviewsSettings>((await _storeContext.GetCurrentStoreAsync()).Id)
+                                 ?? await settings.LoadSettingAsync<CustomProductReviewsSettings>();
+            var maximumFile = reviewSettings?.MaximumFile > 0 ? reviewSettings.MaximumFile : 5;
+            if (photos != null && photos.Count > maximumFile)
+            {
+                return Json(new
+                {
+                    Success = false,
+                    Message = string.Format(await _localizationService.GetResourceAsync("Plugins.Widgets.CustomProductReviews.MaxFilesInUpload"), maximumFile),
+                    IsBackgroundProcess = false
+                });
+            }
+            if (photos != null && photos.Count > 0)
             {
               
                 foreach (var file in photos)
@@ -206,7 +219,7 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Controllers
                 return Json(new
                 {
                     Success = false,
-                    Message ="File Format Is Not Supported For Upload",
+                    Message = await _localizationService.GetResourceAsync("Plugins.Widgets.CustomProductReviews.UnsupportedFileFormat"),
                     IsBackgroundProcess = false // Hata durumunda arka plan işlemi yok
                 });
             }
@@ -295,7 +308,7 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Controllers
                 {
                     List<UploadDataBinary> dataList = new List<UploadDataBinary>();
 
-                    foreach (var photo in photos)
+                    foreach (var photo in photos ?? new List<IFormFile>())
                     {
                         var uploadData = new UploadDataBinary
                         {
@@ -365,20 +378,20 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Controllers
                     return Json(new
                     {
                         Success = false,
-                        Message = "Upload File Format Error",
+                        Message = await _localizationService.GetResourceAsync("Plugins.Widgets.CustomProductReviews.UploadFileFormatError"),
                         IsBackgroundProcess = false // Hata durumunda arka plan işlemi yok
                     });
                 }
                 // Başarılı mesajı göster
                 if (!isApproved)
                     _notificationService.SuccessNotification(await _localizationService.GetResourceAsync("Reviews.SeeAfterApproving") + Environment.NewLine +
-                        " Your uploaded media (photo or video) will continue to be processed in the background." + Environment.NewLine +
-                        " After processing, the media will be automatically added to your review.");
+                        " " + await _localizationService.GetResourceAsync("Plugins.Widgets.CustomProductReviews.MediaProcessingStarted") + Environment.NewLine +
+                        " " + await _localizationService.GetResourceAsync("Plugins.Widgets.CustomProductReviews.MediaProcessingCompletedAutomatically"));
                 else
                     _notificationService.SuccessNotification(
                         await _localizationService.GetResourceAsync("Reviews.SuccessfullyAdded") + Environment.NewLine +
-                        " Your uploaded media (photo or video) will continue to be processed in the background." + Environment.NewLine +
-                        " After processing, the media will be automatically added to your review.");
+                        " " + await _localizationService.GetResourceAsync("Plugins.Widgets.CustomProductReviews.MediaProcessingStarted") + Environment.NewLine +
+                        " " + await _localizationService.GetResourceAsync("Plugins.Widgets.CustomProductReviews.MediaProcessingCompletedAutomatically"));
 
                 var message = isApproved
                     ? await _localizationService.GetResourceAsync("Reviews.SuccessfullyAdded")
@@ -388,8 +401,8 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Controllers
                 {
                     Success = true,
                     Message = message + Environment.NewLine +
-                              "Your uploaded media (photo or video) will continue to be processed in the background." + Environment.NewLine +
-                              "After processing, the media will be automatically added to your review.",
+                              await _localizationService.GetResourceAsync("Plugins.Widgets.CustomProductReviews.MediaProcessingStarted") + Environment.NewLine +
+                              await _localizationService.GetResourceAsync("Plugins.Widgets.CustomProductReviews.MediaProcessingCompletedAutomatically"),
                     IsBackgroundProcess = true // Başarılı durumda arka plan işlemi var
                 });
             }
@@ -399,7 +412,7 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Controllers
             return Json(new
             {
                 Success = false,
-                Message = "General Error",
+                Message = await _localizationService.GetResourceAsync("Plugins.Widgets.CustomProductReviews.GeneralError"),
                 IsBackgroundProcess = false // Hata durumunda arka plan işlemi yok
             });
         }

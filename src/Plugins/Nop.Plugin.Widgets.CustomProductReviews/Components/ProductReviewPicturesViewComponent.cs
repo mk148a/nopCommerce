@@ -103,14 +103,15 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Components
            else
            {
                //default picture size
-               var defaultPictureSize = _mediaSettings.ProductDetailsPictureSize;
+               var defaultPictureSize = Math.Min(_mediaSettings.ProductDetailsPictureSize > 0 ? _mediaSettings.ProductDetailsPictureSize : 240, 240);
                 foreach (var mapping in reviewMappings)
                {
                    var picId = mapping.PictureId;
                    if (picId != null)
                    {
                        var pic = await _pictureService.GetPictureByIdAsync(picId.Value);
-                       reviewPicList.Add(pic);
+                       if (pic != null)
+                           reviewPicList.Add(pic);
                        
 
 

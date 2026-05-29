@@ -2,10 +2,12 @@
   "Group": "Genius Software",
   "FriendlyName": "Custom Product Reviews",
   "SystemName": "Nop.Plugin.Widgets.CustomProductReviews",
-  "Version": "1.05",
-  "SupportedVersions": [ "4.80" ],
+  "Version": "1.06",
+  "SupportedVersions": [
+    "4.80"
+  ],
   "Author": "Genius Software",
   "DisplayOrder": 1,
   "FileName": "Nop.Plugin.Widgets.CustomProductReviews.dll",
-  "Description": "This plugin allows add customized product reviews"
+  "Description": "This plugin allows customers to add product reviews with SEO-friendly photo/video media uploads and localized resources."
 }

@@ -302,3 +302,43 @@ clear: both;
 }
 
 
+
+
+/* HOOD 1.06 stable review media override. Full implementation lives in review-media.css. */
+.product-review-item .thumb-item-content { display: none !important; }
+.product-review-item .mediacontainer { display: block; clear: both; width: 100%; margin: 14px 0 18px; overflow: visible; }
+.product-review-item .picture-thumbs.cpr-review-picture-thumbs { display: flex; flex-wrap: wrap; gap: 14px; align-items: flex-start; }
+.product-review-item .cpr-review-thumb { width: 190px; height: 250px; overflow: hidden; padding: 0; max-width: 190px; max-height: 250px; }
+.product-review-item img.cpr-review-image { max-width: 180px; max-height: 240px; width: auto; height: auto; object-fit: contain; }
+.product-review-item .product-review-helpfulness { clear: both; position: static; margin-top: 8px; }
+
+
+/* HOOD 1.07: stable review layout lives in review-media.css. */
+.product-review-item .thumb-item-content{display:none!important;visibility:hidden!important;pointer-events:none!important;}
+@media(min-width:769px){.product-review-list .product-review-item{display:grid!important;grid-template-columns:minmax(150px,230px) minmax(0,1fr)!important;column-gap:34px!important;align-items:start!important}.product-review-list .product-review-item .review-item-head{grid-column:1!important;grid-row:1!important;float:none!important;border:0!important;padding:0!important}.product-review-list .product-review-item .review-content{grid-column:2!important;grid-row:1!important;clear:none!important;float:none!important;margin:0!important;padding:0!important}}
+
+
+/* HOOD 1.08.2: kill old theme-level review zoom patches.
+   These legacy nodes come from old hood-v10-4/v10-5/v10-6/v10-7 theme scripts,
+   not from this plugin. If they are still loaded, they create ghost images at page bottom. */
+.hood-review-zoom-v107,
+.hood-review-zoom-v107-backdrop,
+.hood-review-zoom-v107-caption,
+.hood-review-zoom-v107-close,
+.hood-review-zoom-overlay,
+.hood-review-zoom-backdrop,
+.hood-review-zoom {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  position: absolute !important;
+  left: -99999px !important;
+  top: -99999px !important;
+  width: 0 !important;
+  height: 0 !important;
+  max-width: 0 !important;
+  max-height: 0 !important;
+  overflow: hidden !important;
+  z-index: -1 !important;
+}

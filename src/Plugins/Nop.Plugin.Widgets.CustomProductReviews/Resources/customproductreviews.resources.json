@@ -1,0 +1,1082 @@
+[
+  {
+    "LanguageId": 1,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ProductReviewsFor",
+    "ResourceValue": "Product reviews for"
+  },
+  {
+    "LanguageId": 1,
+    "ResourceName": "plugins.widgets.customproductreviews.productreviewsfor",
+    "ResourceValue": "Product reviews for"
+  },
+  {
+    "LanguageId": 1,
+    "ResourceName": "product reviews for",
+    "ResourceValue": "Product reviews for"
+  },
+  {
+    "LanguageId": 1,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ViewLargerReviewPhoto",
+    "ResourceValue": "View larger review photo"
+  },
+  {
+    "LanguageId": 1,
+    "ResourceName": "plugins.widgets.customproductreviews.viewlargerreviewphoto",
+    "ResourceValue": "View larger review photo"
+  },
+  {
+    "LanguageId": 1,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.HoverToZoom",
+    "ResourceValue": "Hover to zoom"
+  },
+  {
+    "LanguageId": 1,
+    "ResourceName": "plugins.widgets.customproductreviews.hovertozoom",
+    "ResourceValue": "Hover to zoom"
+  },
+  {
+    "LanguageId": 1,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.AttachFiles",
+    "ResourceValue": "Attach files"
+  },
+  {
+    "LanguageId": 1,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.MaxFilesInUpload",
+    "ResourceValue": "Max file in upload: {0}"
+  },
+  {
+    "LanguageId": 2,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ProductReviewsFor",
+    "ResourceValue": "Product reviews for"
+  },
+  {
+    "LanguageId": 2,
+    "ResourceName": "plugins.widgets.customproductreviews.productreviewsfor",
+    "ResourceValue": "Product reviews for"
+  },
+  {
+    "LanguageId": 2,
+    "ResourceName": "product reviews for",
+    "ResourceValue": "Product reviews for"
+  },
+  {
+    "LanguageId": 2,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ViewLargerReviewPhoto",
+    "ResourceValue": "View larger review photo"
+  },
+  {
+    "LanguageId": 2,
+    "ResourceName": "plugins.widgets.customproductreviews.viewlargerreviewphoto",
+    "ResourceValue": "View larger review photo"
+  },
+  {
+    "LanguageId": 2,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.HoverToZoom",
+    "ResourceValue": "Hover to zoom"
+  },
+  {
+    "LanguageId": 2,
+    "ResourceName": "plugins.widgets.customproductreviews.hovertozoom",
+    "ResourceValue": "Hover to zoom"
+  },
+  {
+    "LanguageId": 2,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.AttachFiles",
+    "ResourceValue": "Attach files"
+  },
+  {
+    "LanguageId": 2,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.MaxFilesInUpload",
+    "ResourceValue": "Max file in upload: {0}"
+  },
+  {
+    "LanguageId": 3,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ProductReviewsFor",
+    "ResourceValue": "Product reviews for"
+  },
+  {
+    "LanguageId": 3,
+    "ResourceName": "plugins.widgets.customproductreviews.productreviewsfor",
+    "ResourceValue": "Product reviews for"
+  },
+  {
+    "LanguageId": 3,
+    "ResourceName": "product reviews for",
+    "ResourceValue": "Product reviews for"
+  },
+  {
+    "LanguageId": 3,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ViewLargerReviewPhoto",
+    "ResourceValue": "View larger review photo"
+  },
+  {
+    "LanguageId": 3,
+    "ResourceName": "plugins.widgets.customproductreviews.viewlargerreviewphoto",
+    "ResourceValue": "View larger review photo"
+  },
+  {
+    "LanguageId": 3,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.HoverToZoom",
+    "ResourceValue": "Hover to zoom"
+  },
+  {
+    "LanguageId": 3,
+    "ResourceName": "plugins.widgets.customproductreviews.hovertozoom",
+    "ResourceValue": "Hover to zoom"
+  },
+  {
+    "LanguageId": 3,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.AttachFiles",
+    "ResourceValue": "Attach files"
+  },
+  {
+    "LanguageId": 3,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.MaxFilesInUpload",
+    "ResourceValue": "Max file in upload: {0}"
+  },
+  {
+    "LanguageId": 4,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ProductReviewsFor",
+    "ResourceValue": "Product reviews for"
+  },
+  {
+    "LanguageId": 4,
+    "ResourceName": "plugins.widgets.customproductreviews.productreviewsfor",
+    "ResourceValue": "Product reviews for"
+  },
+  {
+    "LanguageId": 4,
+    "ResourceName": "product reviews for",
+    "ResourceValue": "Product reviews for"
+  },
+  {
+    "LanguageId": 4,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ViewLargerReviewPhoto",
+    "ResourceValue": "View larger review photo"
+  },
+  {
+    "LanguageId": 4,
+    "ResourceName": "plugins.widgets.customproductreviews.viewlargerreviewphoto",
+    "ResourceValue": "View larger review photo"
+  },
+  {
+    "LanguageId": 4,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.HoverToZoom",
+    "ResourceValue": "Hover to zoom"
+  },
+  {
+    "LanguageId": 4,
+    "ResourceName": "plugins.widgets.customproductreviews.hovertozoom",
+    "ResourceValue": "Hover to zoom"
+  },
+  {
+    "LanguageId": 4,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.AttachFiles",
+    "ResourceValue": "Attach files"
+  },
+  {
+    "LanguageId": 4,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.MaxFilesInUpload",
+    "ResourceValue": "Max file in upload: {0}"
+  },
+  {
+    "LanguageId": 5,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ProductReviewsFor",
+    "ResourceValue": "Product reviews for"
+  },
+  {
+    "LanguageId": 5,
+    "ResourceName": "plugins.widgets.customproductreviews.productreviewsfor",
+    "ResourceValue": "Product reviews for"
+  },
+  {
+    "LanguageId": 5,
+    "ResourceName": "product reviews for",
+    "ResourceValue": "Product reviews for"
+  },
+  {
+    "LanguageId": 5,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ViewLargerReviewPhoto",
+    "ResourceValue": "View larger review photo"
+  },
+  {
+    "LanguageId": 5,
+    "ResourceName": "plugins.widgets.customproductreviews.viewlargerreviewphoto",
+    "ResourceValue": "View larger review photo"
+  },
+  {
+    "LanguageId": 5,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.HoverToZoom",
+    "ResourceValue": "Hover to zoom"
+  },
+  {
+    "LanguageId": 5,
+    "ResourceName": "plugins.widgets.customproductreviews.hovertozoom",
+    "ResourceValue": "Hover to zoom"
+  },
+  {
+    "LanguageId": 5,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.AttachFiles",
+    "ResourceValue": "Attach files"
+  },
+  {
+    "LanguageId": 5,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.MaxFilesInUpload",
+    "ResourceValue": "Max file in upload: {0}"
+  },
+  {
+    "LanguageId": 6,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ProductReviewsFor",
+    "ResourceValue": "Product reviews for"
+  },
+  {
+    "LanguageId": 6,
+    "ResourceName": "plugins.widgets.customproductreviews.productreviewsfor",
+    "ResourceValue": "Product reviews for"
+  },
+  {
+    "LanguageId": 6,
+    "ResourceName": "product reviews for",
+    "ResourceValue": "Product reviews for"
+  },
+  {
+    "LanguageId": 6,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ViewLargerReviewPhoto",
+    "ResourceValue": "View larger review photo"
+  },
+  {
+    "LanguageId": 6,
+    "ResourceName": "plugins.widgets.customproductreviews.viewlargerreviewphoto",
+    "ResourceValue": "View larger review photo"
+  },
+  {
+    "LanguageId": 6,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.HoverToZoom",
+    "ResourceValue": "Hover to zoom"
+  },
+  {
+    "LanguageId": 6,
+    "ResourceName": "plugins.widgets.customproductreviews.hovertozoom",
+    "ResourceValue": "Hover to zoom"
+  },
+  {
+    "LanguageId": 6,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.AttachFiles",
+    "ResourceValue": "Attach files"
+  },
+  {
+    "LanguageId": 6,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.MaxFilesInUpload",
+    "ResourceValue": "Max file in upload: {0}"
+  },
+  {
+    "LanguageId": 7,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ProductReviewsFor",
+    "ResourceValue": "Product reviews for"
+  },
+  {
+    "LanguageId": 7,
+    "ResourceName": "plugins.widgets.customproductreviews.productreviewsfor",
+    "ResourceValue": "Product reviews for"
+  },
+  {
+    "LanguageId": 7,
+    "ResourceName": "product reviews for",
+    "ResourceValue": "Product reviews for"
+  },
+  {
+    "LanguageId": 7,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ViewLargerReviewPhoto",
+    "ResourceValue": "View larger review photo"
+  },
+  {
+    "LanguageId": 7,
+    "ResourceName": "plugins.widgets.customproductreviews.viewlargerreviewphoto",
+    "ResourceValue": "View larger review photo"
+  },
+  {
+    "LanguageId": 7,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.HoverToZoom",
+    "ResourceValue": "Hover to zoom"
+  },
+  {
+    "LanguageId": 7,
+    "ResourceName": "plugins.widgets.customproductreviews.hovertozoom",
+    "ResourceValue": "Hover to zoom"
+  },
+  {
+    "LanguageId": 7,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.AttachFiles",
+    "ResourceValue": "Attach files"
+  },
+  {
+    "LanguageId": 7,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.MaxFilesInUpload",
+    "ResourceValue": "Max file in upload: {0}"
+  },
+  {
+    "LanguageId": 9,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ProductReviewsFor",
+    "ResourceValue": "Product reviews for"
+  },
+  {
+    "LanguageId": 9,
+    "ResourceName": "plugins.widgets.customproductreviews.productreviewsfor",
+    "ResourceValue": "Product reviews for"
+  },
+  {
+    "LanguageId": 9,
+    "ResourceName": "product reviews for",
+    "ResourceValue": "Product reviews for"
+  },
+  {
+    "LanguageId": 9,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ViewLargerReviewPhoto",
+    "ResourceValue": "View larger review photo"
+  },
+  {
+    "LanguageId": 9,
+    "ResourceName": "plugins.widgets.customproductreviews.viewlargerreviewphoto",
+    "ResourceValue": "View larger review photo"
+  },
+  {
+    "LanguageId": 9,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.HoverToZoom",
+    "ResourceValue": "Hover to zoom"
+  },
+  {
+    "LanguageId": 9,
+    "ResourceName": "plugins.widgets.customproductreviews.hovertozoom",
+    "ResourceValue": "Hover to zoom"
+  },
+  {
+    "LanguageId": 9,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.AttachFiles",
+    "ResourceValue": "Attach files"
+  },
+  {
+    "LanguageId": 9,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.MaxFilesInUpload",
+    "ResourceValue": "Max file in upload: {0}"
+  },
+  {
+    "LanguageId": 10,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ProductReviewsFor",
+    "ResourceValue": "Product reviews for"
+  },
+  {
+    "LanguageId": 10,
+    "ResourceName": "plugins.widgets.customproductreviews.productreviewsfor",
+    "ResourceValue": "Product reviews for"
+  },
+  {
+    "LanguageId": 10,
+    "ResourceName": "product reviews for",
+    "ResourceValue": "Product reviews for"
+  },
+  {
+    "LanguageId": 10,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ViewLargerReviewPhoto",
+    "ResourceValue": "View larger review photo"
+  },
+  {
+    "LanguageId": 10,
+    "ResourceName": "plugins.widgets.customproductreviews.viewlargerreviewphoto",
+    "ResourceValue": "View larger review photo"
+  },
+  {
+    "LanguageId": 10,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.HoverToZoom",
+    "ResourceValue": "Hover to zoom"
+  },
+  {
+    "LanguageId": 10,
+    "ResourceName": "plugins.widgets.customproductreviews.hovertozoom",
+    "ResourceValue": "Hover to zoom"
+  },
+  {
+    "LanguageId": 10,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.AttachFiles",
+    "ResourceValue": "Attach files"
+  },
+  {
+    "LanguageId": 10,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.MaxFilesInUpload",
+    "ResourceValue": "Max file in upload: {0}"
+  },
+  {
+    "LanguageId": 11,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ProductReviewsFor",
+    "ResourceValue": "Product reviews for"
+  },
+  {
+    "LanguageId": 11,
+    "ResourceName": "plugins.widgets.customproductreviews.productreviewsfor",
+    "ResourceValue": "Product reviews for"
+  },
+  {
+    "LanguageId": 11,
+    "ResourceName": "product reviews for",
+    "ResourceValue": "Product reviews for"
+  },
+  {
+    "LanguageId": 11,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ViewLargerReviewPhoto",
+    "ResourceValue": "View larger review photo"
+  },
+  {
+    "LanguageId": 11,
+    "ResourceName": "plugins.widgets.customproductreviews.viewlargerreviewphoto",
+    "ResourceValue": "View larger review photo"
+  },
+  {
+    "LanguageId": 11,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.HoverToZoom",
+    "ResourceValue": "Hover to zoom"
+  },
+  {
+    "LanguageId": 11,
+    "ResourceName": "plugins.widgets.customproductreviews.hovertozoom",
+    "ResourceValue": "Hover to zoom"
+  },
+  {
+    "LanguageId": 11,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.AttachFiles",
+    "ResourceValue": "Attach files"
+  },
+  {
+    "LanguageId": 11,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.MaxFilesInUpload",
+    "ResourceValue": "Max file in upload: {0}"
+  },
+  {
+    "LanguageId": 12,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ProductReviewsFor",
+    "ResourceValue": "Product reviews for"
+  },
+  {
+    "LanguageId": 12,
+    "ResourceName": "plugins.widgets.customproductreviews.productreviewsfor",
+    "ResourceValue": "Product reviews for"
+  },
+  {
+    "LanguageId": 12,
+    "ResourceName": "product reviews for",
+    "ResourceValue": "Product reviews for"
+  },
+  {
+    "LanguageId": 12,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ViewLargerReviewPhoto",
+    "ResourceValue": "View larger review photo"
+  },
+  {
+    "LanguageId": 12,
+    "ResourceName": "plugins.widgets.customproductreviews.viewlargerreviewphoto",
+    "ResourceValue": "View larger review photo"
+  },
+  {
+    "LanguageId": 12,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.HoverToZoom",
+    "ResourceValue": "Hover to zoom"
+  },
+  {
+    "LanguageId": 12,
+    "ResourceName": "plugins.widgets.customproductreviews.hovertozoom",
+    "ResourceValue": "Hover to zoom"
+  },
+  {
+    "LanguageId": 12,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.AttachFiles",
+    "ResourceValue": "Attach files"
+  },
+  {
+    "LanguageId": 12,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.MaxFilesInUpload",
+    "ResourceValue": "Max file in upload: {0}"
+  },
+  {
+    "LanguageId": 13,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ProductReviewsFor",
+    "ResourceValue": "Product reviews for"
+  },
+  {
+    "LanguageId": 13,
+    "ResourceName": "plugins.widgets.customproductreviews.productreviewsfor",
+    "ResourceValue": "Product reviews for"
+  },
+  {
+    "LanguageId": 13,
+    "ResourceName": "product reviews for",
+    "ResourceValue": "Product reviews for"
+  },
+  {
+    "LanguageId": 13,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ViewLargerReviewPhoto",
+    "ResourceValue": "View larger review photo"
+  },
+  {
+    "LanguageId": 13,
+    "ResourceName": "plugins.widgets.customproductreviews.viewlargerreviewphoto",
+    "ResourceValue": "View larger review photo"
+  },
+  {
+    "LanguageId": 13,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.HoverToZoom",
+    "ResourceValue": "Hover to zoom"
+  },
+  {
+    "LanguageId": 13,
+    "ResourceName": "plugins.widgets.customproductreviews.hovertozoom",
+    "ResourceValue": "Hover to zoom"
+  },
+  {
+    "LanguageId": 13,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.AttachFiles",
+    "ResourceValue": "Attach files"
+  },
+  {
+    "LanguageId": 13,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.MaxFilesInUpload",
+    "ResourceValue": "Max file in upload: {0}"
+  },
+  {
+    "LanguageId": 14,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ProductReviewsFor",
+    "ResourceValue": "Product reviews for"
+  },
+  {
+    "LanguageId": 14,
+    "ResourceName": "plugins.widgets.customproductreviews.productreviewsfor",
+    "ResourceValue": "Product reviews for"
+  },
+  {
+    "LanguageId": 14,
+    "ResourceName": "product reviews for",
+    "ResourceValue": "Product reviews for"
+  },
+  {
+    "LanguageId": 14,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ViewLargerReviewPhoto",
+    "ResourceValue": "View larger review photo"
+  },
+  {
+    "LanguageId": 14,
+    "ResourceName": "plugins.widgets.customproductreviews.viewlargerreviewphoto",
+    "ResourceValue": "View larger review photo"
+  },
+  {
+    "LanguageId": 14,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.HoverToZoom",
+    "ResourceValue": "Hover to zoom"
+  },
+  {
+    "LanguageId": 14,
+    "ResourceName": "plugins.widgets.customproductreviews.hovertozoom",
+    "ResourceValue": "Hover to zoom"
+  },
+  {
+    "LanguageId": 14,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.AttachFiles",
+    "ResourceValue": "Attach files"
+  },
+  {
+    "LanguageId": 14,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.MaxFilesInUpload",
+    "ResourceValue": "Max file in upload: {0}"
+  },
+  {
+    "LanguageId": 15,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ProductReviewsFor",
+    "ResourceValue": "Product reviews for"
+  },
+  {
+    "LanguageId": 15,
+    "ResourceName": "plugins.widgets.customproductreviews.productreviewsfor",
+    "ResourceValue": "Product reviews for"
+  },
+  {
+    "LanguageId": 15,
+    "ResourceName": "product reviews for",
+    "ResourceValue": "Product reviews for"
+  },
+  {
+    "LanguageId": 15,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ViewLargerReviewPhoto",
+    "ResourceValue": "View larger review photo"
+  },
+  {
+    "LanguageId": 15,
+    "ResourceName": "plugins.widgets.customproductreviews.viewlargerreviewphoto",
+    "ResourceValue": "View larger review photo"
+  },
+  {
+    "LanguageId": 15,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.HoverToZoom",
+    "ResourceValue": "Hover to zoom"
+  },
+  {
+    "LanguageId": 15,
+    "ResourceName": "plugins.widgets.customproductreviews.hovertozoom",
+    "ResourceValue": "Hover to zoom"
+  },
+  {
+    "LanguageId": 15,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.AttachFiles",
+    "ResourceValue": "Attach files"
+  },
+  {
+    "LanguageId": 15,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.MaxFilesInUpload",
+    "ResourceValue": "Max file in upload: {0}"
+  },
+  {
+    "LanguageId": 16,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ProductReviewsFor",
+    "ResourceValue": "Product reviews for"
+  },
+  {
+    "LanguageId": 16,
+    "ResourceName": "plugins.widgets.customproductreviews.productreviewsfor",
+    "ResourceValue": "Product reviews for"
+  },
+  {
+    "LanguageId": 16,
+    "ResourceName": "product reviews for",
+    "ResourceValue": "Product reviews for"
+  },
+  {
+    "LanguageId": 16,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ViewLargerReviewPhoto",
+    "ResourceValue": "View larger review photo"
+  },
+  {
+    "LanguageId": 16,
+    "ResourceName": "plugins.widgets.customproductreviews.viewlargerreviewphoto",
+    "ResourceValue": "View larger review photo"
+  },
+  {
+    "LanguageId": 16,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.HoverToZoom",
+    "ResourceValue": "Hover to zoom"
+  },
+  {
+    "LanguageId": 16,
+    "ResourceName": "plugins.widgets.customproductreviews.hovertozoom",
+    "ResourceValue": "Hover to zoom"
+  },
+  {
+    "LanguageId": 16,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.AttachFiles",
+    "ResourceValue": "Attach files"
+  },
+  {
+    "LanguageId": 16,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.MaxFilesInUpload",
+    "ResourceValue": "Max file in upload: {0}"
+  },
+  {
+    "LanguageId": 17,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ProductReviewsFor",
+    "ResourceValue": "Product reviews for"
+  },
+  {
+    "LanguageId": 17,
+    "ResourceName": "plugins.widgets.customproductreviews.productreviewsfor",
+    "ResourceValue": "Product reviews for"
+  },
+  {
+    "LanguageId": 17,
+    "ResourceName": "product reviews for",
+    "ResourceValue": "Product reviews for"
+  },
+  {
+    "LanguageId": 17,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ViewLargerReviewPhoto",
+    "ResourceValue": "View larger review photo"
+  },
+  {
+    "LanguageId": 17,
+    "ResourceName": "plugins.widgets.customproductreviews.viewlargerreviewphoto",
+    "ResourceValue": "View larger review photo"
+  },
+  {
+    "LanguageId": 17,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.HoverToZoom",
+    "ResourceValue": "Hover to zoom"
+  },
+  {
+    "LanguageId": 17,
+    "ResourceName": "plugins.widgets.customproductreviews.hovertozoom",
+    "ResourceValue": "Hover to zoom"
+  },
+  {
+    "LanguageId": 17,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.AttachFiles",
+    "ResourceValue": "Attach files"
+  },
+  {
+    "LanguageId": 17,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.MaxFilesInUpload",
+    "ResourceValue": "Max file in upload: {0}"
+  },
+  {
+    "LanguageId": 18,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ProductReviewsFor",
+    "ResourceValue": "Product reviews for"
+  },
+  {
+    "LanguageId": 18,
+    "ResourceName": "plugins.widgets.customproductreviews.productreviewsfor",
+    "ResourceValue": "Product reviews for"
+  },
+  {
+    "LanguageId": 18,
+    "ResourceName": "product reviews for",
+    "ResourceValue": "Product reviews for"
+  },
+  {
+    "LanguageId": 18,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ViewLargerReviewPhoto",
+    "ResourceValue": "View larger review photo"
+  },
+  {
+    "LanguageId": 18,
+    "ResourceName": "plugins.widgets.customproductreviews.viewlargerreviewphoto",
+    "ResourceValue": "View larger review photo"
+  },
+  {
+    "LanguageId": 18,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.HoverToZoom",
+    "ResourceValue": "Hover to zoom"
+  },
+  {
+    "LanguageId": 18,
+    "ResourceName": "plugins.widgets.customproductreviews.hovertozoom",
+    "ResourceValue": "Hover to zoom"
+  },
+  {
+    "LanguageId": 18,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.AttachFiles",
+    "ResourceValue": "Attach files"
+  },
+  {
+    "LanguageId": 18,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.MaxFilesInUpload",
+    "ResourceValue": "Max file in upload: {0}"
+  },
+  {
+    "LanguageId": 19,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ProductReviewsFor",
+    "ResourceValue": "Product reviews for"
+  },
+  {
+    "LanguageId": 19,
+    "ResourceName": "plugins.widgets.customproductreviews.productreviewsfor",
+    "ResourceValue": "Product reviews for"
+  },
+  {
+    "LanguageId": 19,
+    "ResourceName": "product reviews for",
+    "ResourceValue": "Product reviews for"
+  },
+  {
+    "LanguageId": 19,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ViewLargerReviewPhoto",
+    "ResourceValue": "View larger review photo"
+  },
+  {
+    "LanguageId": 19,
+    "ResourceName": "plugins.widgets.customproductreviews.viewlargerreviewphoto",
+    "ResourceValue": "View larger review photo"
+  },
+  {
+    "LanguageId": 19,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.HoverToZoom",
+    "ResourceValue": "Hover to zoom"
+  },
+  {
+    "LanguageId": 19,
+    "ResourceName": "plugins.widgets.customproductreviews.hovertozoom",
+    "ResourceValue": "Hover to zoom"
+  },
+  {
+    "LanguageId": 19,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.AttachFiles",
+    "ResourceValue": "Attach files"
+  },
+  {
+    "LanguageId": 19,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.MaxFilesInUpload",
+    "ResourceValue": "Max file in upload: {0}"
+  },
+  {
+    "LanguageId": 20,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ProductReviewsFor",
+    "ResourceValue": "Product reviews for"
+  },
+  {
+    "LanguageId": 20,
+    "ResourceName": "plugins.widgets.customproductreviews.productreviewsfor",
+    "ResourceValue": "Product reviews for"
+  },
+  {
+    "LanguageId": 20,
+    "ResourceName": "product reviews for",
+    "ResourceValue": "Product reviews for"
+  },
+  {
+    "LanguageId": 20,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ViewLargerReviewPhoto",
+    "ResourceValue": "View larger review photo"
+  },
+  {
+    "LanguageId": 20,
+    "ResourceName": "plugins.widgets.customproductreviews.viewlargerreviewphoto",
+    "ResourceValue": "View larger review photo"
+  },
+  {
+    "LanguageId": 20,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.HoverToZoom",
+    "ResourceValue": "Hover to zoom"
+  },
+  {
+    "LanguageId": 20,
+    "ResourceName": "plugins.widgets.customproductreviews.hovertozoom",
+    "ResourceValue": "Hover to zoom"
+  },
+  {
+    "LanguageId": 20,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.AttachFiles",
+    "ResourceValue": "Attach files"
+  },
+  {
+    "LanguageId": 20,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.MaxFilesInUpload",
+    "ResourceValue": "Max file in upload: {0}"
+  },
+  {
+    "LanguageId": 21,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ProductReviewsFor",
+    "ResourceValue": "Product reviews for"
+  },
+  {
+    "LanguageId": 21,
+    "ResourceName": "plugins.widgets.customproductreviews.productreviewsfor",
+    "ResourceValue": "Product reviews for"
+  },
+  {
+    "LanguageId": 21,
+    "ResourceName": "product reviews for",
+    "ResourceValue": "Product reviews for"
+  },
+  {
+    "LanguageId": 21,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ViewLargerReviewPhoto",
+    "ResourceValue": "View larger review photo"
+  },
+  {
+    "LanguageId": 21,
+    "ResourceName": "plugins.widgets.customproductreviews.viewlargerreviewphoto",
+    "ResourceValue": "View larger review photo"
+  },
+  {
+    "LanguageId": 21,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.HoverToZoom",
+    "ResourceValue": "Hover to zoom"
+  },
+  {
+    "LanguageId": 21,
+    "ResourceName": "plugins.widgets.customproductreviews.hovertozoom",
+    "ResourceValue": "Hover to zoom"
+  },
+  {
+    "LanguageId": 21,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.AttachFiles",
+    "ResourceValue": "Attach files"
+  },
+  {
+    "LanguageId": 21,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.MaxFilesInUpload",
+    "ResourceValue": "Max file in upload: {0}"
+  },
+  {
+    "LanguageId": 22,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ProductReviewsFor",
+    "ResourceValue": "Product reviews for"
+  },
+  {
+    "LanguageId": 22,
+    "ResourceName": "plugins.widgets.customproductreviews.productreviewsfor",
+    "ResourceValue": "Product reviews for"
+  },
+  {
+    "LanguageId": 22,
+    "ResourceName": "product reviews for",
+    "ResourceValue": "Product reviews for"
+  },
+  {
+    "LanguageId": 22,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ViewLargerReviewPhoto",
+    "ResourceValue": "View larger review photo"
+  },
+  {
+    "LanguageId": 22,
+    "ResourceName": "plugins.widgets.customproductreviews.viewlargerreviewphoto",
+    "ResourceValue": "View larger review photo"
+  },
+  {
+    "LanguageId": 22,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.HoverToZoom",
+    "ResourceValue": "Hover to zoom"
+  },
+  {
+    "LanguageId": 22,
+    "ResourceName": "plugins.widgets.customproductreviews.hovertozoom",
+    "ResourceValue": "Hover to zoom"
+  },
+  {
+    "LanguageId": 22,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.AttachFiles",
+    "ResourceValue": "Attach files"
+  },
+  {
+    "LanguageId": 22,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.MaxFilesInUpload",
+    "ResourceValue": "Max file in upload: {0}"
+  },
+  {
+    "LanguageId": 23,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ProductReviewsFor",
+    "ResourceValue": "Product reviews for"
+  },
+  {
+    "LanguageId": 23,
+    "ResourceName": "plugins.widgets.customproductreviews.productreviewsfor",
+    "ResourceValue": "Product reviews for"
+  },
+  {
+    "LanguageId": 23,
+    "ResourceName": "product reviews for",
+    "ResourceValue": "Product reviews for"
+  },
+  {
+    "LanguageId": 23,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ViewLargerReviewPhoto",
+    "ResourceValue": "View larger review photo"
+  },
+  {
+    "LanguageId": 23,
+    "ResourceName": "plugins.widgets.customproductreviews.viewlargerreviewphoto",
+    "ResourceValue": "View larger review photo"
+  },
+  {
+    "LanguageId": 23,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.HoverToZoom",
+    "ResourceValue": "Hover to zoom"
+  },
+  {
+    "LanguageId": 23,
+    "ResourceName": "plugins.widgets.customproductreviews.hovertozoom",
+    "ResourceValue": "Hover to zoom"
+  },
+  {
+    "LanguageId": 23,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.AttachFiles",
+    "ResourceValue": "Attach files"
+  },
+  {
+    "LanguageId": 23,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.MaxFilesInUpload",
+    "ResourceValue": "Max file in upload: {0}"
+  },
+  {
+    "LanguageId": 24,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ProductReviewsFor",
+    "ResourceValue": "Product reviews for"
+  },
+  {
+    "LanguageId": 24,
+    "ResourceName": "plugins.widgets.customproductreviews.productreviewsfor",
+    "ResourceValue": "Product reviews for"
+  },
+  {
+    "LanguageId": 24,
+    "ResourceName": "product reviews for",
+    "ResourceValue": "Product reviews for"
+  },
+  {
+    "LanguageId": 24,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ViewLargerReviewPhoto",
+    "ResourceValue": "View larger review photo"
+  },
+  {
+    "LanguageId": 24,
+    "ResourceName": "plugins.widgets.customproductreviews.viewlargerreviewphoto",
+    "ResourceValue": "View larger review photo"
+  },
+  {
+    "LanguageId": 24,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.HoverToZoom",
+    "ResourceValue": "Hover to zoom"
+  },
+  {
+    "LanguageId": 24,
+    "ResourceName": "plugins.widgets.customproductreviews.hovertozoom",
+    "ResourceValue": "Hover to zoom"
+  },
+  {
+    "LanguageId": 24,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.AttachFiles",
+    "ResourceValue": "Attach files"
+  },
+  {
+    "LanguageId": 24,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.MaxFilesInUpload",
+    "ResourceValue": "Max file in upload: {0}"
+  },
+  {
+    "LanguageId": 25,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ProductReviewsFor",
+    "ResourceValue": "Product reviews for"
+  },
+  {
+    "LanguageId": 25,
+    "ResourceName": "plugins.widgets.customproductreviews.productreviewsfor",
+    "ResourceValue": "Product reviews for"
+  },
+  {
+    "LanguageId": 25,
+    "ResourceName": "product reviews for",
+    "ResourceValue": "Product reviews for"
+  },
+  {
+    "LanguageId": 25,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.ViewLargerReviewPhoto",
+    "ResourceValue": "View larger review photo"
+  },
+  {
+    "LanguageId": 25,
+    "ResourceName": "plugins.widgets.customproductreviews.viewlargerreviewphoto",
+    "ResourceValue": "View larger review photo"
+  },
+  {
+    "LanguageId": 25,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.HoverToZoom",
+    "ResourceValue": "Hover to zoom"
+  },
+  {
+    "LanguageId": 25,
+    "ResourceName": "plugins.widgets.customproductreviews.hovertozoom",
+    "ResourceValue": "Hover to zoom"
+  },
+  {
+    "LanguageId": 25,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.AttachFiles",
+    "ResourceValue": "Attach files"
+  },
+  {
+    "LanguageId": 25,
+    "ResourceName": "Plugins.Widgets.CustomProductReviews.MaxFilesInUpload",
+    "ResourceValue": "Max file in upload: {0}"
+  }
+]

@@ -172,6 +172,21 @@ namespace Nop.Plugin.Widgets.CustomProductReviews
                         "Find your unique installation script on the Installation tab in your account and then copy it into this field.",
                     ["Plugins.Widgets.CustomProductReviews.Fields.Script.Required"] =
                         "Installation script is required",
+                    ["Plugins.Widgets.CustomProductReviews.ProductReviewsFor"] = "Product reviews for",
+                    ["Product Reviews For"] = "Product reviews for",
+                    ["Product Reviews For "] = "Product reviews for",
+                    ["product reviews for"] = "Product reviews for",
+                    ["Plugins.Widgets.CustomProductReviews.AttachFiles"] = "Attach files",
+                    ["Plugins.Widgets.CustomProductReviews.MaxFilesInUpload"] = "Maximum files in upload: {0}",
+                    ["Plugins.Widgets.CustomProductReviews.MediaProcessingStarted"] = "Your uploaded media (photo or video) will continue to be processed in the background.",
+                    ["Plugins.Widgets.CustomProductReviews.MediaProcessingCompletedAutomatically"] = "After processing, the media will be automatically added to your review.",
+                    ["Plugins.Widgets.CustomProductReviews.UnsupportedFileFormat"] = "File format is not supported for upload.",
+                    ["Plugins.Widgets.CustomProductReviews.UploadFileFormatError"] = "Upload file format error.",
+                    ["Plugins.Widgets.CustomProductReviews.GeneralError"] = "A general error occurred. Please try again.",
+                    ["Plugins.Widgets.CustomProductReviews.ViewLargerReviewPhoto"] = "View larger review photo",
+                    ["Plugins.Widgets.CustomProductReviews.HoverToZoom"] = "Hover to enlarge",
+                    ["Plugins.Widgets.CustomProductReviews.VideoNotSupported"] = "Your browser does not support the video tag.",
+                    ["Plugins.Widgets.CustomProductReviews.ReviewVideo"] = "Review video",
                 });
 
                 await base.InstallAsync();
