@@ -3,6 +3,10 @@ using Nop.Services.Catalog;
 using Microsoft.AspNetCore.Http;
 using System.Text.RegularExpressions;
 using System;
+using Nop.Plugin.Widgets.CustomProductReviews;
+using Nop.Services.Configuration;
+using System.Text;
+using System.IO;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.Razor;
@@ -37,6 +41,59 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Infrastructure
 
         public void Configure(IApplicationBuilder application)
         {
+            // HOOD 1.11: optionally inject review media thumbnails into the built-in admin ProductReview/List page
+            // without overriding nopCommerce admin views. Controlled from plugin Configure page.
+            application.Use(async (context, next) =>
+            {
+                var path = context.Request.Path.Value ?? string.Empty;
+                var isAdminReviewList = Regex.IsMatch(path, @"/Admin/ProductReview/List/?$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+                if (!isAdminReviewList || string.Equals(context.Request.Method, "POST", StringComparison.OrdinalIgnoreCase))
+                {
+                    await next();
+                    return;
+                }
+
+                var settingService = context.RequestServices.GetService<ISettingService>();
+                var settings = settingService == null ? null : await settingService.LoadSettingAsync<CustomProductReviewsSettings>();
+
+                if (settings == null || !settings.AdminShowMediaOnProductReviewList)
+                {
+                    await next();
+                    return;
+                }
+
+                var originalBody = context.Response.Body;
+                await using var buffer = new MemoryStream();
+                context.Response.Body = buffer;
+
+                await next();
+
+                buffer.Position = 0;
+                var contentType = context.Response.ContentType ?? string.Empty;
+
+                if (!contentType.Contains("text/html", StringComparison.OrdinalIgnoreCase))
+                {
+                    buffer.Position = 0;
+                    await buffer.CopyToAsync(originalBody);
+                    context.Response.Body = originalBody;
+                    return;
+                }
+
+                using var reader = new StreamReader(buffer, Encoding.UTF8);
+                var html = await reader.ReadToEndAsync();
+                var injection = BuildAdminReviewMediaInjection(settings);
+
+                if (html.Contains("</body>", StringComparison.OrdinalIgnoreCase))
+                    html = Regex.Replace(html, "</body>", injection + "</body>", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+                else
+                    html += injection;
+
+                var bytes = Encoding.UTF8.GetBytes(html);
+                context.Response.Body = originalBody;
+                context.Response.ContentLength = bytes.Length;
+                await context.Response.Body.WriteAsync(bytes, 0, bytes.Length);
+            });
             // HOOD 1.09: Handle old /{lang}/productreviews/{productId} URLs before nopCommerce logs them as 404.
             // Existing products are consolidated to the product page + #product-reviews.
             // Missing/deleted products return 410 Gone, which is cleaner for SEO than repeated 404 logs.
@@ -85,6 +142,18 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Infrastructure
                 context.Response.StatusCode = StatusCodes.Status301MovedPermanently;
                 context.Response.Headers["Location"] = targetUrl;
             });
+        }
+
+
+        private static string BuildAdminReviewMediaInjection(CustomProductReviewsSettings settings)
+        {
+            var thumbSize = settings.AdminMediaThumbSize <= 0 ? 72 : settings.AdminMediaThumbSize;
+            var maxItems = settings.AdminMediaMaxItemsPerReview <= 0 ? 6 : settings.AdminMediaMaxItemsPerReview;
+
+            return $@"
+<link rel=""stylesheet"" href=""/Plugins/Widgets.CustomProductReviews/Content/admin-review-media.css?v=111"" />
+<script>document.documentElement.style.setProperty('--hood-admin-review-thumb-size', '{thumbSize}px'); window.hoodCustomReviewMediaMaxItems = {maxItems};</script>
+<script src=""/Plugins/Widgets.CustomProductReviews/Content/js/admin-review-media.js?v=111""></script>";
         }
 
         public int Order => 700;

@@ -275,9 +275,12 @@
                             }
                         </div>
                         <div class="review-content">
-                            <div class="review-title">
-                                <strong>@hoodReviewTitle</strong>
-                            </div>
+                            @if (!string.IsNullOrWhiteSpace(hoodReviewTitle))
+                            {
+                                <div class="review-title">
+                                    <strong>@hoodReviewTitle</strong>
+                                </div>
+                            }
                             <div class="review-text">
                                 @Html.Raw(htmlFormatter.FormatText(hoodReviewText, false, true, false, false, false, false))
                             </div>

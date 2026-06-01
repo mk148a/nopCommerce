@@ -92,7 +92,7 @@ namespace Nop.Plugin.Widgets.CustomProductReviews
         public override string GetConfigurationPageUrl()
         {
             //return _urlHelperFactory.GetUrlHelper(_actionContextAccessor.ActionContext).RouteUrl(AccessiBeDefaults.ConfigurationRouteName);
-            return "";
+            return $"{_webHelper.GetStoreLocation()}Admin/CustomProductReviewsAdmin/Configure";
         }
 
         /// <summary>
@@ -157,37 +157,17 @@ namespace Nop.Plugin.Widgets.CustomProductReviews
                     WidgetZone = PublicWidgetZones.CustomerProductReviewsTop,
                     //data = "json",
                     MaximumFile = 5,
-                    MaximumSize = 1073741824
+                    MaximumSize = 1073741824,
+                    AdminShowMediaOnProductReviewList = true,
+                    AdminMediaThumbSize = 72,
+                    AdminMediaMaxItemsPerReview = 6,
+                    PublicCompactReviewLayout = true
                 });
 
 
 
 
-                await _localizationService.AddOrUpdateLocaleResourceAsync(new Dictionary<string, string>
-                {
-                    ["Plugins.Widgets.CustomProductReviews.Fields.Enabled"] = "Enable",
-                    ["Plugins.Widgets.CustomProductReviews.Fields.Enabled.Hint"] = "Check to activate this widget.",
-                    ["Plugins.Widgets.CustomProductReviews.Fields.Script"] = "Installation script",
-                    ["Plugins.Widgets.CustomProductReviews.Fields.Script.Hint"] =
-                        "Find your unique installation script on the Installation tab in your account and then copy it into this field.",
-                    ["Plugins.Widgets.CustomProductReviews.Fields.Script.Required"] =
-                        "Installation script is required",
-                    ["Plugins.Widgets.CustomProductReviews.ProductReviewsFor"] = "Product reviews for",
-                    ["Product Reviews For"] = "Product reviews for",
-                    ["Product Reviews For "] = "Product reviews for",
-                    ["product reviews for"] = "Product reviews for",
-                    ["Plugins.Widgets.CustomProductReviews.AttachFiles"] = "Attach files",
-                    ["Plugins.Widgets.CustomProductReviews.MaxFilesInUpload"] = "Maximum files in upload: {0}",
-                    ["Plugins.Widgets.CustomProductReviews.MediaProcessingStarted"] = "Your uploaded media (photo or video) will continue to be processed in the background.",
-                    ["Plugins.Widgets.CustomProductReviews.MediaProcessingCompletedAutomatically"] = "After processing, the media will be automatically added to your review.",
-                    ["Plugins.Widgets.CustomProductReviews.UnsupportedFileFormat"] = "File format is not supported for upload.",
-                    ["Plugins.Widgets.CustomProductReviews.UploadFileFormatError"] = "Upload file format error.",
-                    ["Plugins.Widgets.CustomProductReviews.GeneralError"] = "A general error occurred. Please try again.",
-                    ["Plugins.Widgets.CustomProductReviews.ViewLargerReviewPhoto"] = "View larger review photo",
-                    ["Plugins.Widgets.CustomProductReviews.HoverToZoom"] = "Hover to enlarge",
-                    ["Plugins.Widgets.CustomProductReviews.VideoNotSupported"] = "Your browser does not support the video tag.",
-                    ["Plugins.Widgets.CustomProductReviews.ReviewVideo"] = "Review video",
-                });
+                await _localizationService.AddOrUpdateLocaleResourceAsync(CustomProductReviewsLocaleResources.GetDefaultResources());
 
                 await base.InstallAsync();
             //    if (rool)

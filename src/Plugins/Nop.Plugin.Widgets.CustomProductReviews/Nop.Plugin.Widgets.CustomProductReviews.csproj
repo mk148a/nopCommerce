@@ -13,6 +13,9 @@
 
   <ItemGroup>
     <None Remove="Content\js\test.ts" />
+    <None Remove="Content\admin-review-media.css" />
+    <None Remove="Content\js\admin-review-media.js" />
+    <None Remove="Areas\Admin\Views\CustomProductReviewsAdmin\Configure.cshtml" />
     <None Remove="Content\review-media.css" />
     <None Remove="Content\js\review-media.js" />
     <None Remove="logo.jpg" />
@@ -27,6 +30,15 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="Content\admin-review-media.css">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\js\admin-review-media.js">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Areas\Admin\Views\CustomProductReviewsAdmin\Configure.cshtml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Content\js\test.ts">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
