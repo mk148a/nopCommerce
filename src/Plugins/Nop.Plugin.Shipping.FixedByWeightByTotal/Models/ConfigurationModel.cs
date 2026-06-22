@@ -15,6 +15,21 @@ public record ConfigurationModel : BaseSearchModel
     public decimal HoodNavlungoDimensionalWeightDivisor { get; set; }
     public decimal HoodNavlungoRateWeightMultiplier { get; set; }
 
+    public bool HoodPttPostServiceEnabled { get; set; }
+    public string HoodPttEligibleProductIdsCsv { get; set; }
+    public string HoodPttEligibleCategoryIdsCsv { get; set; }
+    public string HoodPttMethodName { get; set; }
+    public string HoodPttDeliveryKind { get; set; }
+    public string HoodPttDistributionType { get; set; }
+    public string HoodPttAdditionalService { get; set; }
+    public decimal HoodPttMaxSingleDimensionCm { get; set; }
+    public decimal HoodPttMaxGirthCm { get; set; }
+    public int HoodPttTransitMinDays { get; set; }
+    public int HoodPttTransitMaxDays { get; set; }
+    public decimal HoodPttLivePriceMultiplier { get; set; }
+    public decimal HoodPttAdditionalFixedMarkup { get; set; }
+    public int HoodPttRequestTimeoutSeconds { get; set; }
+
     public ConfigurationModel()
     {
         AvailableCountries = new List<SelectListItem>();

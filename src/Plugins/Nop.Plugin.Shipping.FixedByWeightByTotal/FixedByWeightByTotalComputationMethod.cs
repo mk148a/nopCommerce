@@ -1,14 +1,21 @@
+﻿using System.Collections.Concurrent;
 using System.Globalization;
+using System.Net.Http;
+using System.Text;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using Nop.Core;
+using Nop.Core.Domain.Catalog;
 using Nop.Core.Domain.Shipping;
 using Microsoft.AspNetCore.Mvc;
 using Nop.Plugin.Shipping.FixedByWeightByTotal.Components;
 using Nop.Plugin.Shipping.FixedByWeightByTotal.Domain;
 using Nop.Plugin.Shipping.FixedByWeightByTotal.Services;
 using Nop.Plugin.Shipping.FixedByWeightByTotal.Services.ShippingDimensions;
+using Nop.Data;
 using Nop.Plugin.Shipping.FixedByWeightByTotal.Services.ProductionTime;
 using Nop.Services.Cms;
+using Nop.Services.Directory;
 using Nop.Services.Configuration;
 using Nop.Services.Localization;
 using Nop.Services.Orders;
@@ -24,10 +31,15 @@ namespace Nop.Plugin.Shipping.FixedByWeightByTotal;
 /// </summary>
 public class FixedByWeightByTotalComputationMethod : BasePlugin, IShippingRateComputationMethod, IWidgetPlugin
 {
+    protected const string PttApiBaseUrl = "https://api.ptt.gov.tr/api/DeliveryFee";
+    protected static readonly HttpClient PttHttpClient = new HttpClient();
+    protected static readonly ConcurrentDictionary<string, (DateTime ExpiresUtc, decimal Amount)> PttRateCache = new();
     #region Fields
 
     protected readonly FixedByWeightByTotalSettings _fixedByWeightByTotalSettings;
     protected readonly ILocalizationService _localizationService;
+    protected readonly ICountryService _countryService;
+    protected readonly IRepository<ProductCategory> _productCategoryRepository;
     protected readonly IShoppingCartService _shoppingCartService;
     protected readonly ISettingService _settingService;
     protected readonly IShippingByWeightByTotalService _shippingByWeightByTotalService;
@@ -43,6 +55,8 @@ public class FixedByWeightByTotalComputationMethod : BasePlugin, IShippingRateCo
 
     public FixedByWeightByTotalComputationMethod(FixedByWeightByTotalSettings fixedByWeightByTotalSettings,
         ILocalizationService localizationService,
+        ICountryService countryService,
+        IRepository<ProductCategory> productCategoryRepository,
         IShoppingCartService shoppingCartService,
         ISettingService settingService,
         IShippingByWeightByTotalService shippingByWeightByTotalService,
@@ -54,6 +68,8 @@ public class FixedByWeightByTotalComputationMethod : BasePlugin, IShippingRateCo
     {
         _fixedByWeightByTotalSettings = fixedByWeightByTotalSettings;
         _localizationService = localizationService;
+        _countryService = countryService;
+        _productCategoryRepository = productCategoryRepository;
         _shoppingCartService = shoppingCartService;
         _settingService = settingService;
         _shippingByWeightByTotalService = shippingByWeightByTotalService;
@@ -193,6 +209,282 @@ public class FixedByWeightByTotalComputationMethod : BasePlugin, IShippingRateCo
         }
 
         return string.Join("<br />", parts);
+    }
+
+    protected static string BuildShippingOptionDescription(int transitMinDays, int transitMaxDays, (int MinDays, int MaxDays) productionRange, string extraLine = null)
+    {
+        transitMinDays = Math.Max(0, transitMinDays);
+        transitMaxDays = Math.Max(transitMinDays, transitMaxDays);
+
+        var parts = new List<string>();
+
+        if (transitMaxDays > 0)
+            parts.Add($"Transit time: {FormatDays(transitMinDays, transitMaxDays)}");
+
+        if (productionRange.MaxDays > 0)
+            parts.Add($"Production time: {FormatDays(productionRange.MinDays, productionRange.MaxDays)}");
+
+        if (transitMaxDays > 0)
+        {
+            var estimatedMin = Math.Max(0, productionRange.MinDays) + transitMinDays;
+            var estimatedMax = Math.Max(productionRange.MaxDays, productionRange.MinDays) + transitMaxDays;
+            parts.Add($"Estimated delivery date: {FormatEstimatedDeliveryDateRange(estimatedMin, estimatedMax)}");
+        }
+
+        if (!string.IsNullOrWhiteSpace(extraLine))
+            parts.Add(extraLine.Trim());
+
+        if (productionRange.MaxDays > 0)
+            parts.Add("Shipping starts after production.");
+
+        return string.Join("<br />", parts);
+    }
+
+    protected static ISet<int> ParseIdCsv(string csv)
+    {
+        var result = new HashSet<int>();
+        if (string.IsNullOrWhiteSpace(csv))
+            return result;
+
+        foreach (var token in csv.Split(new[] { ',', ';', ' ', '\r', '\n', '\t' }, StringSplitOptions.RemoveEmptyEntries))
+        {
+            if (int.TryParse(token.Trim(), out var id) && id > 0)
+                result.Add(id);
+        }
+
+        return result;
+    }
+
+    protected static decimal CalculatePttGirthCm(decimal lengthCm, decimal widthCm, decimal heightCm)
+    {
+        var dims = new[] { Math.Max(0, lengthCm), Math.Max(0, widthCm), Math.Max(0, heightCm) }
+            .OrderByDescending(x => x)
+            .ToArray();
+
+        return dims[0] + 2m * dims[1] + 2m * dims[2];
+    }
+
+    protected static bool IsPttDimensionAllowed(ChargeableShippingMeasure measure, decimal maxSingleDimensionCm, decimal maxGirthCm)
+    {
+        if (measure == null)
+            return false;
+
+        var maxDim = Math.Max(measure.LengthCm, Math.Max(measure.WidthCm, measure.HeightCm));
+        if (maxSingleDimensionCm > 0 && maxDim > maxSingleDimensionCm)
+            return false;
+
+        if (maxGirthCm > 0)
+        {
+            var girth = CalculatePttGirthCm(measure.LengthCm, measure.WidthCm, measure.HeightCm);
+            if (girth > maxGirthCm)
+                return false;
+        }
+
+        return true;
+    }
+
+    protected async Task<bool> IsProductEligibleForPttAsync(int productId, ISet<int> productIds, ISet<int> categoryIds)
+    {
+        if (productIds.Contains(productId))
+            return true;
+
+        if (categoryIds.Count == 0)
+            return false;
+
+        var mappedCategories = await _productCategoryRepository.GetAllAsync(query => query.Where(pc => pc.ProductId == productId));
+
+        return mappedCategories.Any(pc => categoryIds.Contains(pc.CategoryId));
+    }
+
+    protected async Task<(bool Available, decimal WeightGram, string BlockReason)> GetPttActualWeightAndAvailabilityAsync(GetShippingOptionRequest request)
+    {
+        if (!_fixedByWeightByTotalSettings.HoodPttPostServiceEnabled)
+            return (false, 0, "PTT Post service is disabled.");
+
+        var allowedProductIds = ParseIdCsv(_fixedByWeightByTotalSettings.HoodPttEligibleProductIdsCsv);
+        var allowedCategoryIds = ParseIdCsv(_fixedByWeightByTotalSettings.HoodPttEligibleCategoryIdsCsv);
+        if (allowedProductIds.Count == 0 && allowedCategoryIds.Count == 0)
+            return (false, 0, "No PTT eligible products/categories configured.");
+
+        var totalWeightGram = decimal.Zero;
+        var anyShippable = false;
+
+        foreach (var packageItem in request.Items)
+        {
+            if (await _shippingService.IsFreeShippingAsync(packageItem.ShoppingCartItem))
+                continue;
+
+            anyShippable = true;
+
+            var productId = packageItem.ShoppingCartItem.ProductId;
+            if (!await IsProductEligibleForPttAsync(productId, allowedProductIds, allowedCategoryIds))
+                return (false, 0, $"Product {productId} is not PTT eligible.");
+
+            var measure = await _productShippingDimensionService.GetCartItemMeasureAsync(packageItem.ShoppingCartItem);
+            if (!IsPttDimensionAllowed(measure,
+                    _fixedByWeightByTotalSettings.HoodPttMaxSingleDimensionCm,
+                    _fixedByWeightByTotalSettings.HoodPttMaxGirthCm))
+                return (false, 0, $"Product {productId} exceeds PTT parcel dimension limits.");
+
+            var itemWeightGram = Math.Max(0, measure.WeightGram) * Math.Max(1, measure.PackageCount) * packageItem.ShoppingCartItem.Quantity;
+            totalWeightGram += itemWeightGram;
+        }
+
+        if (!anyShippable || totalWeightGram <= 0)
+            return (false, 0, "No PTT billable weight.");
+
+        return (true, totalWeightGram, null);
+    }
+
+    protected async Task<string> GetPttCountryCodeAsync(int countryId)
+    {
+        if (countryId <= 0)
+            return null;
+
+        var country = await _countryService.GetCountryByIdAsync(countryId);
+        var code = country?.TwoLetterIsoCode;
+        return string.IsNullOrWhiteSpace(code) ? null : code.Trim().ToUpperInvariant();
+    }
+
+    protected static void CollectPttCandidateAmounts(JsonElement element, IList<decimal> namedAmounts, IList<decimal> fallbackAmounts, string propertyName = null)
+    {
+        switch (element.ValueKind)
+        {
+            case JsonValueKind.Object:
+                foreach (var prop in element.EnumerateObject())
+                    CollectPttCandidateAmounts(prop.Value, namedAmounts, fallbackAmounts, prop.Name);
+                break;
+            case JsonValueKind.Array:
+                foreach (var item in element.EnumerateArray())
+                    CollectPttCandidateAmounts(item, namedAmounts, fallbackAmounts, propertyName);
+                break;
+            case JsonValueKind.Number:
+                if (element.TryGetDecimal(out var numeric) && numeric > 0)
+                {
+                    if (IsLikelyPttAmountProperty(propertyName))
+                        namedAmounts.Add(numeric);
+                    else
+                        fallbackAmounts.Add(numeric);
+                }
+                break;
+            case JsonValueKind.String:
+                var text = element.GetString();
+                if (!string.IsNullOrWhiteSpace(text))
+                {
+                    text = text.Replace("TL", string.Empty, StringComparison.OrdinalIgnoreCase)
+                        .Replace("TRY", string.Empty, StringComparison.OrdinalIgnoreCase)
+                        .Replace("₺", string.Empty)
+                        .Trim();
+
+                    if (decimal.TryParse(text, NumberStyles.Any, CultureInfo.InvariantCulture, out var invariant) && invariant > 0)
+                    {
+                        if (IsLikelyPttAmountProperty(propertyName))
+                            namedAmounts.Add(invariant);
+                        else
+                            fallbackAmounts.Add(invariant);
+                    }
+                    else if (decimal.TryParse(text, NumberStyles.Any, CultureInfo.GetCultureInfo("tr-TR"), out var tr) && tr > 0)
+                    {
+                        if (IsLikelyPttAmountProperty(propertyName))
+                            namedAmounts.Add(tr);
+                        else
+                            fallbackAmounts.Add(tr);
+                    }
+                }
+                break;
+        }
+    }
+
+    protected static bool IsLikelyPttAmountProperty(string propertyName)
+    {
+        if (string.IsNullOrWhiteSpace(propertyName))
+            return false;
+
+        var p = propertyName.ToLowerInvariant();
+        return p.Contains("fee") || p.Contains("price") || p.Contains("amount") || p.Contains("total") ||
+               p.Contains("tutar") || p.Contains("ucret") || p.Contains("ücret") || p.Contains("bedel");
+    }
+
+    protected static decimal ExtractPttAmountFromJson(string json)
+    {
+        if (string.IsNullOrWhiteSpace(json))
+            return decimal.Zero;
+
+        using var doc = JsonDocument.Parse(json);
+        var named = new List<decimal>();
+        var fallback = new List<decimal>();
+        CollectPttCandidateAmounts(doc.RootElement, named, fallback);
+
+        if (named.Count > 0)
+            return named.Max();
+
+        if (fallback.Count == 1)
+            return fallback[0];
+
+        // If the API response shape changes but still returns a compact numeric result, prefer the largest positive number.
+        // This is intentionally conservative; the option is hidden if no usable amount is found.
+        return fallback.Count > 0 ? fallback.Max() : decimal.Zero;
+    }
+
+    protected async Task<decimal?> GetLivePttPostServiceRateAsync(string countryCode, decimal weightGram)
+    {
+        if (string.IsNullOrWhiteSpace(countryCode) || weightGram <= 0)
+            return null;
+
+        var deliveryKind = string.IsNullOrWhiteSpace(_fixedByWeightByTotalSettings.HoodPttDeliveryKind)
+            ? "YD KOLİ"
+            : _fixedByWeightByTotalSettings.HoodPttDeliveryKind.Trim();
+        var distributionType = string.IsNullOrWhiteSpace(_fixedByWeightByTotalSettings.HoodPttDistributionType)
+            ? "UC"
+            : _fixedByWeightByTotalSettings.HoodPttDistributionType.Trim();
+        var additionalService = _fixedByWeightByTotalSettings.HoodPttAdditionalService?.Trim() ?? string.Empty;
+        var roundedWeight = Math.Max(1, (int)Math.Ceiling(weightGram));
+        var cacheKey = string.Join("|", countryCode, deliveryKind, distributionType, additionalService, roundedWeight);
+
+        if (PttRateCache.TryGetValue(cacheKey, out var cached) && cached.ExpiresUtc > DateTime.UtcNow)
+            return cached.Amount;
+
+        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(Math.Max(2, _fixedByWeightByTotalSettings.HoodPttRequestTimeoutSeconds)));
+
+        var payload = new
+        {
+            DeliveryKind = deliveryKind,
+            DeliveryType = countryCode,
+            DistributionType = distributionType,
+            weight = roundedWeight,
+            desi = 0,
+            distance = 0,
+            valueFee = (decimal?)null,
+            fileType = "string",
+            additionalService,
+            paymentType = "string",
+            address = "string"
+        };
+
+        using var request = new HttpRequestMessage(HttpMethod.Post, $"{PttApiBaseUrl}/getAbroadDetailed");
+        request.Headers.TryAddWithoutValidation("Accept", "*/*");
+        request.Headers.TryAddWithoutValidation("Origin", "https://www.ptt.gov.tr");
+        request.Headers.TryAddWithoutValidation("Referer", "https://www.ptt.gov.tr/");
+        request.Headers.TryAddWithoutValidation("User-Agent", "Mozilla/5.0 HoodArcheryShop/1.0");
+        request.Content = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
+
+        using var response = await PttHttpClient.SendAsync(request, cts.Token);
+        if (!response.IsSuccessStatusCode)
+            return null;
+
+        var responseJson = await response.Content.ReadAsStringAsync(cts.Token);
+        var liveAmount = ExtractPttAmountFromJson(responseJson);
+        if (liveAmount <= 0)
+            return null;
+
+        var multiplier = _fixedByWeightByTotalSettings.HoodPttLivePriceMultiplier <= 0
+            ? 1m
+            : _fixedByWeightByTotalSettings.HoodPttLivePriceMultiplier;
+        var converted = liveAmount * multiplier + _fixedByWeightByTotalSettings.HoodPttAdditionalFixedMarkup;
+        var amount = Math.Round(Math.Max(0, converted), 2, MidpointRounding.AwayFromZero);
+        PttRateCache[cacheKey] = (DateTime.UtcNow.AddMinutes(15), amount);
+
+        return amount;
     }
 
     /// <summary>
@@ -346,6 +638,36 @@ public class FixedByWeightByTotalComputationMethod : BasePlugin, IShippingRateCo
                     Rate = rate,
                     TransitDays = transitDays
                 });
+            }
+
+
+            // Extra live PTT Post service option. It is intentionally added in addition to the normal
+            // UPS/FedEx/Navlungo rate-table options and only for explicitly enabled products/categories.
+            var pttAvailability = await GetPttActualWeightAndAvailabilityAsync(getShippingOptionRequest);
+            if (pttAvailability.Available)
+            {
+                var countryCode = await GetPttCountryCodeAsync(countryId);
+                var pttRate = await GetLivePttPostServiceRateAsync(countryCode, pttAvailability.WeightGram);
+                if (pttRate.HasValue)
+                {
+                    var pttTransitMin = Math.Max(0, _fixedByWeightByTotalSettings.HoodPttTransitMinDays);
+                    var pttTransitMax = Math.Max(pttTransitMin, _fixedByWeightByTotalSettings.HoodPttTransitMaxDays);
+                    var pttDescription = BuildShippingOptionDescription(
+                        pttTransitMin,
+                        pttTransitMax,
+                        productionRange,
+                        "PTT parcel price is calculated live by actual weight only; dimensional/desi pricing is not used for this option.");
+
+                    response.ShippingOptions.Add(new ShippingOption
+                    {
+                        Name = string.IsNullOrWhiteSpace(_fixedByWeightByTotalSettings.HoodPttMethodName)
+                            ? "Post service"
+                            : _fixedByWeightByTotalSettings.HoodPttMethodName.Trim(),
+                        Description = pttDescription,
+                        Rate = pttRate.Value,
+                        TransitDays = pttTransitMax + productionMaxDays
+                    });
+                }
             }
         }
         else

@@ -160,4 +160,11 @@
     </Content>
   </ItemGroup>
 
+
+
+  <ItemGroup>
+    <Content Include="HoodPttPostService.README.v24.md">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
 </Project>

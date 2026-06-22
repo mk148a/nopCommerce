@@ -105,7 +105,21 @@ public class FixedByWeightByTotalController : BasePluginController
             ShippingByWeightByTotalEnabled = _fixedByWeightByTotalSettings.ShippingByWeightByTotalEnabled,
             HoodNavlungoChargeableWeightEnabled = _fixedByWeightByTotalSettings.HoodNavlungoChargeableWeightEnabled,
             HoodNavlungoDimensionalWeightDivisor = _fixedByWeightByTotalSettings.HoodNavlungoDimensionalWeightDivisor <= 0 ? 5000m : _fixedByWeightByTotalSettings.HoodNavlungoDimensionalWeightDivisor,
-            HoodNavlungoRateWeightMultiplier = _fixedByWeightByTotalSettings.HoodNavlungoRateWeightMultiplier <= 0 ? 1000m : _fixedByWeightByTotalSettings.HoodNavlungoRateWeightMultiplier
+            HoodNavlungoRateWeightMultiplier = _fixedByWeightByTotalSettings.HoodNavlungoRateWeightMultiplier <= 0 ? 1000m : _fixedByWeightByTotalSettings.HoodNavlungoRateWeightMultiplier,
+            HoodPttPostServiceEnabled = _fixedByWeightByTotalSettings.HoodPttPostServiceEnabled,
+            HoodPttEligibleProductIdsCsv = _fixedByWeightByTotalSettings.HoodPttEligibleProductIdsCsv,
+            HoodPttEligibleCategoryIdsCsv = _fixedByWeightByTotalSettings.HoodPttEligibleCategoryIdsCsv,
+            HoodPttMethodName = string.IsNullOrWhiteSpace(_fixedByWeightByTotalSettings.HoodPttMethodName) ? "Post service" : _fixedByWeightByTotalSettings.HoodPttMethodName,
+            HoodPttDeliveryKind = string.IsNullOrWhiteSpace(_fixedByWeightByTotalSettings.HoodPttDeliveryKind) ? "YD KOLİ" : _fixedByWeightByTotalSettings.HoodPttDeliveryKind,
+            HoodPttDistributionType = string.IsNullOrWhiteSpace(_fixedByWeightByTotalSettings.HoodPttDistributionType) ? "UC" : _fixedByWeightByTotalSettings.HoodPttDistributionType,
+            HoodPttAdditionalService = _fixedByWeightByTotalSettings.HoodPttAdditionalService,
+            HoodPttMaxSingleDimensionCm = _fixedByWeightByTotalSettings.HoodPttMaxSingleDimensionCm <= 0 ? 150m : _fixedByWeightByTotalSettings.HoodPttMaxSingleDimensionCm,
+            HoodPttMaxGirthCm = _fixedByWeightByTotalSettings.HoodPttMaxGirthCm < 0 ? 0 : _fixedByWeightByTotalSettings.HoodPttMaxGirthCm,
+            HoodPttTransitMinDays = _fixedByWeightByTotalSettings.HoodPttTransitMinDays < 0 ? 0 : _fixedByWeightByTotalSettings.HoodPttTransitMinDays,
+            HoodPttTransitMaxDays = _fixedByWeightByTotalSettings.HoodPttTransitMaxDays <= 0 ? 20 : _fixedByWeightByTotalSettings.HoodPttTransitMaxDays,
+            HoodPttLivePriceMultiplier = _fixedByWeightByTotalSettings.HoodPttLivePriceMultiplier <= 0 ? 1m : _fixedByWeightByTotalSettings.HoodPttLivePriceMultiplier,
+            HoodPttAdditionalFixedMarkup = _fixedByWeightByTotalSettings.HoodPttAdditionalFixedMarkup,
+            HoodPttRequestTimeoutSeconds = _fixedByWeightByTotalSettings.HoodPttRequestTimeoutSeconds <= 0 ? 8 : _fixedByWeightByTotalSettings.HoodPttRequestTimeoutSeconds
         };
 
         //stores
@@ -153,6 +167,20 @@ public class FixedByWeightByTotalController : BasePluginController
         _fixedByWeightByTotalSettings.HoodNavlungoChargeableWeightEnabled = model.HoodNavlungoChargeableWeightEnabled;
         _fixedByWeightByTotalSettings.HoodNavlungoDimensionalWeightDivisor = model.HoodNavlungoDimensionalWeightDivisor <= 0 ? 5000m : model.HoodNavlungoDimensionalWeightDivisor;
         _fixedByWeightByTotalSettings.HoodNavlungoRateWeightMultiplier = model.HoodNavlungoRateWeightMultiplier <= 0 ? 1000m : model.HoodNavlungoRateWeightMultiplier;
+        _fixedByWeightByTotalSettings.HoodPttPostServiceEnabled = model.HoodPttPostServiceEnabled;
+        _fixedByWeightByTotalSettings.HoodPttEligibleProductIdsCsv = model.HoodPttEligibleProductIdsCsv;
+        _fixedByWeightByTotalSettings.HoodPttEligibleCategoryIdsCsv = model.HoodPttEligibleCategoryIdsCsv;
+        _fixedByWeightByTotalSettings.HoodPttMethodName = string.IsNullOrWhiteSpace(model.HoodPttMethodName) ? "Post service" : model.HoodPttMethodName.Trim();
+        _fixedByWeightByTotalSettings.HoodPttDeliveryKind = string.IsNullOrWhiteSpace(model.HoodPttDeliveryKind) ? "YD KOLİ" : model.HoodPttDeliveryKind.Trim();
+        _fixedByWeightByTotalSettings.HoodPttDistributionType = string.IsNullOrWhiteSpace(model.HoodPttDistributionType) ? "UC" : model.HoodPttDistributionType.Trim();
+        _fixedByWeightByTotalSettings.HoodPttAdditionalService = model.HoodPttAdditionalService?.Trim();
+        _fixedByWeightByTotalSettings.HoodPttMaxSingleDimensionCm = model.HoodPttMaxSingleDimensionCm <= 0 ? 150m : model.HoodPttMaxSingleDimensionCm;
+        _fixedByWeightByTotalSettings.HoodPttMaxGirthCm = model.HoodPttMaxGirthCm < 0 ? 0 : model.HoodPttMaxGirthCm;
+        _fixedByWeightByTotalSettings.HoodPttTransitMinDays = Math.Max(0, model.HoodPttTransitMinDays);
+        _fixedByWeightByTotalSettings.HoodPttTransitMaxDays = Math.Max(Math.Max(0, model.HoodPttTransitMinDays), model.HoodPttTransitMaxDays);
+        _fixedByWeightByTotalSettings.HoodPttLivePriceMultiplier = model.HoodPttLivePriceMultiplier <= 0 ? 1m : model.HoodPttLivePriceMultiplier;
+        _fixedByWeightByTotalSettings.HoodPttAdditionalFixedMarkup = model.HoodPttAdditionalFixedMarkup;
+        _fixedByWeightByTotalSettings.HoodPttRequestTimeoutSeconds = model.HoodPttRequestTimeoutSeconds <= 0 ? 8 : model.HoodPttRequestTimeoutSeconds;
         await _settingService.SaveSettingAsync(_fixedByWeightByTotalSettings);
 
         return Json(new { Result = true });

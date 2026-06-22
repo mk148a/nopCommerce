@@ -2,12 +2,12 @@
   "Group": "Shipping rate computation",
   "FriendlyName": "Manual (Fixed or By Weight and By Total)",
   "SystemName": "Shipping.FixedByWeightByTotal",
-  "Version": "4.80.5-hood-navlungo-chargeable-v23",
+  "Version": "4.80.5-hood-navlungo-chargeable-v24-ptt-live-post-service",
   "SupportedVersions": [
     "4.80"
   ],
   "Author": "nopCommerce team",
   "DisplayOrder": 1,
   "FileName": "Nop.Plugin.Shipping.FixedByWeightByTotal.dll",
-  "Description": "Manual rates with Hood chargeable-weight calculation, product attribute dimension rules, production-time delivery date estimates, and Navlungo Shipping Learning page."
+  "Description": "Manual rates with Hood chargeable-weight calculation, product attribute dimension rules, production-time delivery date estimates, Navlungo Shipping Learning, and optional live PTT Post service by eligible products/categories."
 }
