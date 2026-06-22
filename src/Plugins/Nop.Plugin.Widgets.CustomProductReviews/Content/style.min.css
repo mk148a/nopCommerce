@@ -342,3 +342,144 @@ clear: both;
   overflow: hidden !important;
   z-index: -1 !important;
 }
+
+
+/* HOOD 1.10: compact review source layout.
+   Keeps avatar/date/rating in a narrow left column and forces review text/media
+   to start at the top of the right column. This removes the large empty gaps
+   seen on imported Etsy/custom reviews. */
+@media (min-width: 769px) {
+  .product-reviews .product-review-list .product-review-item,
+  .product-reviews-page .product-review-list .product-review-item,
+  .custom-product-reviews-page .product-review-list .product-review-item {
+    display: grid !important;
+    grid-template-columns: 155px minmax(0, 1fr) !important;
+    column-gap: 22px !important;
+    row-gap: 0 !important;
+    align-items: start !important;
+    padding: 14px 0 16px !important;
+    margin: 0 !important;
+    border-bottom: 1px solid #eee !important;
+    width: 100% !important;
+    clear: both !important;
+  }
+
+  .product-reviews .product-review-list .product-review-item .review-item-head,
+  .product-reviews-page .product-review-list .product-review-item .review-item-head,
+  .custom-product-reviews-page .product-review-list .product-review-item .review-item-head {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+    align-self: start !important;
+    width: 155px !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    float: none !important;
+    clear: none !important;
+    text-align: left !important;
+    overflow: visible !important;
+  }
+
+  .product-reviews .product-review-list .product-review-item .review-content,
+  .product-reviews-page .product-review-list .product-review-item .review-content,
+  .custom-product-reviews-page .product-review-list .product-review-item .review-content {
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+    align-self: start !important;
+    display: block !important;
+    width: auto !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    float: none !important;
+    clear: none !important;
+    text-align: left !important;
+    overflow: visible !important;
+    transform: none !important;
+    top: auto !important;
+  }
+
+  .product-review-item .review-info,
+  .product-review-item .review-info .user,
+  .product-review-item .review-info .date {
+    display: block !important;
+    margin: 0 0 6px !important;
+    padding: 0 !important;
+    line-height: 1.35 !important;
+    text-align: left !important;
+  }
+
+  .product-review-item .review-info .avatar {
+    display: block !important;
+    width: 128px !important;
+    height: 128px !important;
+    max-width: 128px !important;
+    max-height: 128px !important;
+    margin: 8px 0 8px !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    float: none !important;
+  }
+
+  .product-review-item .review-info .avatar img,
+  .product-review-item .review-info img.avatar-img,
+  .product-review-item .avatar-img-link img.avatar-img {
+    display: block !important;
+    width: 128px !important;
+    height: 128px !important;
+    max-width: 128px !important;
+    max-height: 128px !important;
+    object-fit: cover !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .product-review-item .product-review-box,
+  .product-review-item .review-type-rating-ext {
+    display: block !important;
+    margin: 6px 0 0 !important;
+    padding: 0 !important;
+    float: none !important;
+    clear: both !important;
+    text-align: left !important;
+  }
+
+  .product-review-item .review-content .review-title,
+  .product-reviews-page .product-review-item .review-content .review-title,
+  .custom-product-reviews-page .product-review-item .review-content .review-title {
+    display: block !important;
+    margin: 0 0 6px !important;
+    padding: 0 !important;
+    line-height: 1.35 !important;
+    min-height: 0 !important;
+    text-align: left !important;
+  }
+
+  .product-review-item .review-content .review-text,
+  .product-reviews-page .product-review-item .review-content .review-text,
+  .custom-product-reviews-page .product-review-item .review-content .review-text {
+    display: block !important;
+    margin: 0 0 8px !important;
+    padding: 0 !important;
+    line-height: 1.45 !important;
+    min-height: 0 !important;
+    text-align: left !important;
+  }
+
+  .product-review-item .review-content .mediacontainer,
+  .product-reviews-page .product-review-item .review-content .mediacontainer,
+  .custom-product-reviews-page .product-review-item .review-content .mediacontainer {
+    margin: 8px 0 8px !important;
+    padding: 0 !important;
+  }
+
+  .product-review-item .product-review-helpfulness,
+  .product-reviews-page .product-review-item .product-review-helpfulness,
+  .custom-product-reviews-page .product-review-item .product-review-helpfulness {
+    margin: 6px 0 0 !important;
+    padding: 4px 0 0 !important;
+    line-height: 1.35 !important;
+  }
+}

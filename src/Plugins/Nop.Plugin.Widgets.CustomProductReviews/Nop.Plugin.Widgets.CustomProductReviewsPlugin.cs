@@ -92,7 +92,7 @@ namespace Nop.Plugin.Widgets.CustomProductReviews
         public override string GetConfigurationPageUrl()
         {
             //return _urlHelperFactory.GetUrlHelper(_actionContextAccessor.ActionContext).RouteUrl(AccessiBeDefaults.ConfigurationRouteName);
-            return "";
+            return $"{_webHelper.GetStoreLocation()}Admin/CustomProductReviewsAdmin/Configure";
         }
 
         /// <summary>
@@ -157,7 +157,11 @@ namespace Nop.Plugin.Widgets.CustomProductReviews
                     WidgetZone = PublicWidgetZones.CustomerProductReviewsTop,
                     //data = "json",
                     MaximumFile = 5,
-                    MaximumSize = 1073741824
+                    MaximumSize = 1073741824,
+                    AdminShowMediaOnProductReviewList = true,
+                    AdminMediaThumbSize = 72,
+                    AdminMediaMaxItemsPerReview = 6,
+                    PublicCompactReviewLayout = true
                 });
 
 
@@ -187,6 +191,17 @@ namespace Nop.Plugin.Widgets.CustomProductReviews
                     ["Plugins.Widgets.CustomProductReviews.HoverToZoom"] = "Hover to enlarge",
                     ["Plugins.Widgets.CustomProductReviews.VideoNotSupported"] = "Your browser does not support the video tag.",
                     ["Plugins.Widgets.CustomProductReviews.ReviewVideo"] = "Review video",
+
+                    ["Plugins.Widgets.CustomProductReviews.Configuration"] = "Custom product reviews settings",
+                    ["Plugins.Widgets.CustomProductReviews.Fields.WidgetZone"] = "Widget zone",
+                    ["Plugins.Widgets.CustomProductReviews.Fields.MaximumFile"] = "Maximum files per review",
+                    ["Plugins.Widgets.CustomProductReviews.Fields.MaximumSize"] = "Maximum upload size (bytes)",
+                    ["Plugins.Widgets.CustomProductReviews.Fields.AdminShowMediaOnProductReviewList"] = "Show media in admin product review list",
+                    ["Plugins.Widgets.CustomProductReviews.Fields.AdminMediaThumbSize"] = "Admin media thumbnail size (px)",
+                    ["Plugins.Widgets.CustomProductReviews.Fields.AdminMediaMaxItemsPerReview"] = "Max media items per review row",
+                    ["Plugins.Widgets.CustomProductReviews.Fields.PublicCompactReviewLayout"] = "Use compact public review layout",
+                    ["Plugins.Widgets.CustomProductReviews.AdminMedia"] = "Review media",
+                    ["Plugins.Widgets.CustomProductReviews.NoAdminMedia"] = "No media",
                 });
 
                 await base.InstallAsync();
