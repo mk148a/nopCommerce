@@ -168,11 +168,16 @@ namespace Nop.Plugin.Payments.StripeApplePay
 
             var paymentIntentOptions = new PaymentIntentCreateOptions
             {
-                Amount =(long)shoppingCartUnitPriceWithDiscount* 100, // Order total amount in cents
+                Amount = (long)Math.Round(shoppingCartUnitPriceWithDiscount * 100m, MidpointRounding.AwayFromZero), // Order total amount in cents
                 Currency = currency.CurrencyCode.ToLower(),
                 PaymentMethodTypes = new List<string> { "card" },
                 PaymentMethod = paymentMethodId,
-                Confirm = true
+                Confirm = true,
+                Metadata = new Dictionary<string, string>
+                {
+                    { "order_guid", processPaymentRequest.OrderGuid.ToString() },
+                    { "payment_plugin", "Payments.StripeApplePay" }
+                }
             };
 
 
@@ -256,7 +261,12 @@ namespace Nop.Plugin.Payments.StripeApplePay
             var updateOptions = new PaymentIntentUpdateOptions
             {
                 Description = "Order Number:" + orderId + Environment.NewLine + paymentIntent.Description,
-                Metadata = new Dictionary<string, string> { { "order_id", orderId.ToString() } }
+                Metadata = new Dictionary<string, string>
+                {
+                    { "order_id", orderId.ToString() },
+                    { "order_guid", postProcessPaymentRequest.Order.OrderGuid.ToString() },
+                    { "payment_plugin", "Payments.StripeApplePay" }
+                }
             };
             var updateResult = await paymentIntentService.UpdateAsync(postProcessPaymentRequest.Order.AuthorizationTransactionId, updateOptions, GetStripeApiRequestOptions());
 
