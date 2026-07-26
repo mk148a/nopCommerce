@@ -305,14 +305,15 @@ namespace Nop.Plugin.Payments.Stripe
                 var paymentIntentService = new PaymentIntentService();
                 var paymentIntentOptions = new PaymentIntentCreateOptions
                 {
-                    Amount = (long)(shoppingCartUnitPriceWithDiscount * 100),
+                    Amount = (long)Math.Round(shoppingCartUnitPriceWithDiscount * 100m, MidpointRounding.AwayFromZero),
                     Currency = currency.CurrencyCode.ToLower(),
                     PaymentMethod = paymentMethod.Id,
                     Customer = stripeCustomer.Id,
                     Confirm = true,
                     Metadata = new Dictionary<string, string>
             {
-                { "order_guid", processPaymentRequest.OrderGuid.ToString() }
+                { "order_guid", processPaymentRequest.OrderGuid.ToString() },
+                { "payment_plugin", "Payments.Stripe" }
             },
                    
                     ReturnUrl = $"{_webHelper.GetStoreLocation()}checkout/completed",
@@ -453,7 +454,12 @@ namespace Nop.Plugin.Payments.Stripe
                 var updateOptionsDescription = new PaymentIntentUpdateOptions
                 {
                     Description = "Order Number:" + orderId + Environment.NewLine + (paymentIntent?.Description ?? ""),
-                    Metadata = new Dictionary<string, string> { { "order_id", orderId.ToString() } }
+                    Metadata = new Dictionary<string, string>
+                    {
+                        { "order_id", orderId.ToString() },
+                        { "order_guid", postProcessPaymentRequest.Order.OrderGuid.ToString() },
+                        { "payment_plugin", "Payments.Stripe" }
+                    }
                 };
 
                 await service.UpdateAsync(paymentIntent.Id, updateOptionsDescription, GetStripeApiRequestOptions());
@@ -510,7 +516,7 @@ namespace Nop.Plugin.Payments.Stripe
 
                          _httpContextAccessor.HttpContext.Response.Redirect(threeDSecureUrl);
 
-                        var order = await _orderService.GetOrderByGuidAsync(Guid.Parse(paymentIntent.Metadata["order_guid"]));
+                        paymentIntent.Metadata.TryGetValue("order_guid", out var orderGuidText);
 
                         //while (order.OrderStatus == OrderStatus.Pending)
                         //{

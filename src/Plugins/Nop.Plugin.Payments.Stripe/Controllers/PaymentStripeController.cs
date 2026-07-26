@@ -215,7 +215,7 @@ namespace Nop.Plugin.Payments.Stripe.Controllers
                 
                 if (paymentIntent.Status == "succeeded")
                 {
-                    var order = await _orderService.GetOrderByGuidAsync(Guid.Parse(paymentIntent.Metadata["order_guid"]));
+                    var order = await ResolveOrderAsync(paymentIntent);
                     if (order != null)
                     {
                         order.PaymentStatus = PaymentStatus.Paid;
@@ -253,21 +253,21 @@ namespace Nop.Plugin.Payments.Stripe.Controllers
                 switch (stripeEvent.Type)
                 {
                     case "payment_intent.succeeded":
-                        var paymentIntent = stripeEvent.Data.Object as PaymentIntent;
-                        await HandleSuccessfulPayment(paymentIntent);
+                        if (stripeEvent.Data.Object is PaymentIntent paymentIntent)
+                            await HandleSuccessfulPayment(paymentIntent);
                         break;
                         
                     case "payment_intent.payment_failed":
-                        var failedPaymentIntent = stripeEvent.Data.Object as PaymentIntent;
-                        await HandleFailedPayment(failedPaymentIntent);
+                        if (stripeEvent.Data.Object is PaymentIntent failedPaymentIntent)
+                            await HandleFailedPayment(failedPaymentIntent);
                         break;
                     case "charge.succeeded":
-                        var charge = stripeEvent.Data.Object as Charge;
-                        await HandleSuccessfulPayment(charge);
+                        if (stripeEvent.Data.Object is Charge charge)
+                            await HandleSuccessfulPayment(charge);
                         break;
                     case "charge.failed":
-                        var chargefail = stripeEvent.Data.Object as Charge;
-                        await HandleFailedPayment(chargefail);
+                        if (stripeEvent.Data.Object is Charge chargefail)
+                            await HandleFailedPayment(chargefail);
                         break;
                 }
 
@@ -279,47 +279,117 @@ namespace Nop.Plugin.Payments.Stripe.Controllers
                 return BadRequest();
             }
         }
+        private async Task<Order> ResolveOrderAsync(IDictionary<string, string> metadata)
+        {
+            if (metadata == null)
+                return null;
+
+            if (metadata.TryGetValue("order_guid", out var orderGuidText) &&
+                Guid.TryParse(orderGuidText, out var orderGuid))
+            {
+                var orderByGuid = await _orderService.GetOrderByGuidAsync(orderGuid);
+                if (orderByGuid != null)
+                    return orderByGuid;
+            }
+
+            if (metadata.TryGetValue("order_id", out var orderIdText) &&
+                int.TryParse(orderIdText, out var orderId))
+            {
+                return await _orderService.GetOrderByIdAsync(orderId);
+            }
+
+            return null;
+        }
+
+        private Task<Order> ResolveOrderAsync(PaymentIntent paymentIntent)
+        {
+            return ResolveOrderAsync(paymentIntent?.Metadata);
+        }
+
+        private async Task<Order> ResolveOrderAsync(Charge charge)
+        {
+            var order = await ResolveOrderAsync(charge?.Metadata);
+            if (order != null || string.IsNullOrWhiteSpace(charge?.PaymentIntentId))
+                return order;
+
+            // Charge metadata may be absent or stale. The PaymentIntent is the
+            // authoritative object for this integration.
+            var paymentIntent = await new PaymentIntentService().GetAsync(
+                charge.PaymentIntentId,
+                null,
+                GetStripeApiRequestOptions());
+
+            return await ResolveOrderAsync(paymentIntent);
+        }
+
         private async Task HandleSuccessfulPayment(Charge charge)
         {
-            var order = await _orderService.GetOrderByGuidAsync(Guid.Parse(charge.Metadata["order_guid"]));
-            if (order != null)
+            var order = await ResolveOrderAsync(charge);
+            if (order == null)
             {
-                order.PaymentStatus = PaymentStatus.Paid;
-                order.OrderStatus = OrderStatus.Processing;
-                await _orderService.UpdateOrderAsync(order);
+                await _logger.InformationAsync($"Stripe charge event ignored because no nopCommerce order metadata was found. ChargeId={charge?.Id}, PaymentIntentId={charge?.PaymentIntentId}");
+                return;
             }
+
+            if (order.PaymentStatus == PaymentStatus.Paid)
+                return;
+
+            order.PaymentStatus = PaymentStatus.Paid;
+            order.OrderStatus = OrderStatus.Processing;
+            await _orderService.UpdateOrderAsync(order);
         }
+
         private async Task HandleSuccessfulPayment(PaymentIntent paymentIntent)
         {
-            var order = await _orderService.GetOrderByGuidAsync(Guid.Parse(paymentIntent.Metadata["order_guid"]));
-            if (order != null)
+            var order = await ResolveOrderAsync(paymentIntent);
+            if (order == null)
             {
-                order.PaymentStatus = PaymentStatus.Paid;
-                order.OrderStatus = OrderStatus.Processing;
-                await _orderService.UpdateOrderAsync(order);
+                await _logger.InformationAsync($"Stripe PaymentIntent event ignored because no nopCommerce order metadata was found. PaymentIntentId={paymentIntent?.Id}");
+                return;
             }
+
+            if (order.PaymentStatus == PaymentStatus.Paid)
+                return;
+
+            order.PaymentStatus = PaymentStatus.Paid;
+            order.OrderStatus = OrderStatus.Processing;
+            await _orderService.UpdateOrderAsync(order);
         }
 
         private async Task HandleFailedPayment(PaymentIntent paymentIntent)
         {
-            var order = await _orderService.GetOrderByGuidAsync(Guid.Parse(paymentIntent.Metadata["order_guid"]));
-            if (order != null)
+            var order = await ResolveOrderAsync(paymentIntent);
+            if (order == null)
             {
-                order.PaymentStatus = PaymentStatus.Voided;
-                order.OrderStatus = OrderStatus.Cancelled;
-                await _orderService.UpdateOrderAsync(order);
+                await _logger.InformationAsync($"Stripe failed PaymentIntent event ignored because no nopCommerce order metadata was found. PaymentIntentId={paymentIntent?.Id}");
+                return;
             }
+
+            // Never downgrade an order that has already been paid because Stripe
+            // can deliver webhook events more than once and not always in order.
+            if (order.PaymentStatus == PaymentStatus.Paid)
+                return;
+
+            order.PaymentStatus = PaymentStatus.Voided;
+            order.OrderStatus = OrderStatus.Cancelled;
+            await _orderService.UpdateOrderAsync(order);
         }
 
         private async Task HandleFailedPayment(Charge charge)
         {
-            var order = await _orderService.GetOrderByGuidAsync(Guid.Parse(charge.Metadata["order_guid"]));
-            if (order != null)
+            var order = await ResolveOrderAsync(charge);
+            if (order == null)
             {
-                order.PaymentStatus = PaymentStatus.Voided;
-                order.OrderStatus = OrderStatus.Cancelled;
-                await _orderService.UpdateOrderAsync(order);
+                await _logger.InformationAsync($"Stripe failed charge event ignored because no nopCommerce order metadata was found. ChargeId={charge?.Id}, PaymentIntentId={charge?.PaymentIntentId}");
+                return;
             }
+
+            if (order.PaymentStatus == PaymentStatus.Paid)
+                return;
+
+            order.PaymentStatus = PaymentStatus.Voided;
+            order.OrderStatus = OrderStatus.Cancelled;
+            await _orderService.UpdateOrderAsync(order);
         }
 
         [HttpPost]
@@ -333,7 +403,7 @@ namespace Nop.Plugin.Payments.Stripe.Controllers
 
                 if (paymentIntent.Status == "succeeded")
                 {
-                    var order = await _orderService.GetOrderByGuidAsync(Guid.Parse(paymentIntent.Metadata["order_guid"]));
+                    var order = await ResolveOrderAsync(paymentIntent);
                     if (order != null)
                     {
                         order.PaymentStatus = PaymentStatus.Paid;
