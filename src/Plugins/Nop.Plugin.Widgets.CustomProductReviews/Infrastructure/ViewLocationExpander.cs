@@ -10,13 +10,16 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Infrastructure
     {
         private const string THEME_KEY = "nop.themename";
        
-        public async void PopulateValues(ViewLocationExpanderContext context)
+        public void PopulateValues(ViewLocationExpanderContext context)
         {
             if (context.AreaName?.Equals(AreaNames.ADMIN) ?? false)
                 return;
 
-            var themeContext = (IThemeContext)context.ActionContext.HttpContext.RequestServices.GetService(typeof(IThemeContext));
-            context.Values[THEME_KEY] =await themeContext.GetWorkingThemeNameAsync();
+            var themeContext = context.ActionContext.HttpContext.RequestServices
+                .GetService(typeof(IThemeContext)) as IThemeContext;
+
+            if (themeContext != null)
+                context.Values[THEME_KEY] = themeContext.GetWorkingThemeNameAsync().GetAwaiter().GetResult();
         }
 
         public IEnumerable<string> ExpandViewLocations(ViewLocationExpanderContext context, IEnumerable<string> viewLocations)
@@ -36,11 +39,15 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Infrastructure
 
                 if (context.ViewName == "_ProductReviews")
                 {
-                    // Plugin view'larını temanın view'larından önce yükle
-                    viewLocations = new[] {
-                        $"~/Plugins/Widgets.CustomProductReviews/Views/{{{1}}}/{{{0}}}.cshtml", // Plugin view'ı
-                        $"~/Plugins/Widgets.CustomProductReviews/Themes/{theme}/Views/{{{1}}}/{{{0}}}.cshtml", // Tema özel view'ı
-                        $"~/Themes/{theme}/Views/{{{{1}}}}/{{{{0}}}}.cshtml" // Tema view'ı
+                    // The action belongs to CustomProductReviewsController, but the
+                    // partial is intentionally stored under Views/Product.
+                    viewLocations = new[]
+                    {
+                        $"~/Plugins/Widgets.CustomProductReviews/Themes/{theme}/Views/Product/{{0}}.cshtml",
+                        "~/Plugins/Widgets.CustomProductReviews/Views/Product/{0}.cshtml",
+                        $"~/Plugins/Widgets.CustomProductReviews/Themes/{theme}/Views/{{1}}/{{0}}.cshtml",
+                        "~/Plugins/Widgets.CustomProductReviews/Views/{1}/{0}.cshtml",
+                        $"~/Themes/{theme}/Views/{{1}}/{{0}}.cshtml"
                     }.Concat(viewLocations);
                 }
             }
