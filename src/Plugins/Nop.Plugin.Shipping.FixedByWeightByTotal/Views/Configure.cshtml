@@ -1,4 +1,4 @@
-﻿@model Nop.Plugin.Shipping.FixedByWeightByTotal.Models.ConfigurationModel
+@model Nop.Plugin.Shipping.FixedByWeightByTotal.Models.ConfigurationModel
 @using Nop.Web.Framework.Models.AdminAreaTour
 
 @{
@@ -6,6 +6,32 @@
 
     //tour step
     ViewBag.TourStep = TourStep.ShippingManual;
+}
+
+
+@functions {
+    private bool HoodHas(string propertyName)
+    {
+        return Model?.GetType().GetProperty(propertyName) != null;
+    }
+
+    private object HoodGet(string propertyName, object fallback = null)
+    {
+        var prop = Model?.GetType().GetProperty(propertyName);
+        return prop == null ? fallback : (prop.GetValue(Model) ?? fallback);
+    }
+
+    private string HoodString(string propertyName, string fallback = "")
+    {
+        return System.Convert.ToString(HoodGet(propertyName, fallback), System.Globalization.CultureInfo.InvariantCulture) ?? fallback;
+    }
+
+    private bool HoodBool(string propertyName, bool fallback = false)
+    {
+        var value = HoodGet(propertyName, fallback);
+        if (value is bool b) return b;
+        return bool.TryParse(System.Convert.ToString(value, System.Globalization.CultureInfo.InvariantCulture), out var parsed) ? parsed : fallback;
+    }
 }
 
 @await Html.PartialAsync("_AdminTour")
@@ -123,53 +149,59 @@
         <strong>PTT live Post service</strong>
     </div>
     <div class="card-body">
+        @if (!HoodHas("HoodPttPostServiceEnabled"))
+        {
+            <div class="alert alert-warning">
+                PTT fields are not available in the loaded plugin DLL. This page is protected from crashing, but Post service will work only after rebuilding/publishing the v25 DLL.
+            </div>
+        }
         <div class="alert alert-info">
             Adds an extra customer-facing <strong>Post service</strong> option only for explicitly allowed products/categories. Existing UPS/FedEx/THY rate-table options remain available.
             PTT is calculated live with <strong>actual weight only</strong>; dimensions are used only as a parcel eligibility guard.
         </div>
         <div class="form-group row">
             <div class="col-md-3">Enable PTT Post service</div>
-            <div class="col-md-9"><input type="checkbox" id="HoodPttPostServiceEnabled" @(Model.HoodPttPostServiceEnabled ? "checked" : "") /></div>
+            <div class="col-md-9"><input type="checkbox" id="HoodPttPostServiceEnabled" @(HoodBool("HoodPttPostServiceEnabled") ? "checked" : "") /></div>
         </div>
         <div class="form-group row">
             <div class="col-md-3">Eligible product IDs</div>
             <div class="col-md-9">
-                <input class="form-control" id="HoodPttEligibleProductIdsCsv" value="@Model.HoodPttEligibleProductIdsCsv" />
+                <input class="form-control" id="HoodPttEligibleProductIdsCsv" value="@(HoodString("HoodPttEligibleProductIdsCsv"))" />
                 <small>Comma separated ProductId list. If the cart contains a product outside this list/category list, Post service is hidden.</small>
             </div>
         </div>
         <div class="form-group row">
             <div class="col-md-3">Eligible category IDs</div>
             <div class="col-md-9">
-                <input class="form-control" id="HoodPttEligibleCategoryIdsCsv" value="@Model.HoodPttEligibleCategoryIdsCsv" />
+                <input class="form-control" id="HoodPttEligibleCategoryIdsCsv" value="@(HoodString("HoodPttEligibleCategoryIdsCsv"))" />
                 <small>Comma separated CategoryId list. Useful for enabling Post service for a whole product group.</small>
             </div>
         </div>
         <div class="form-group row">
             <div class="col-md-3">Public method name</div>
-            <div class="col-md-9"><input class="form-control" id="HoodPttMethodName" value="@Model.HoodPttMethodName" /></div>
+            <div class="col-md-9"><input class="form-control" id="HoodPttMethodName" value="@(HoodString("HoodPttMethodName", "Post service"))" /></div>
         </div>
         <div class="form-group row">
             <div class="col-md-3">PTT API parameters</div>
-            <div class="col-md-3"><input class="form-control" id="HoodPttDeliveryKind" value="@Model.HoodPttDeliveryKind" placeholder="YD KOLİ" /><small>DeliveryKind</small></div>
-            <div class="col-md-3"><input class="form-control" id="HoodPttDistributionType" value="@Model.HoodPttDistributionType" placeholder="UC" /><small>DistributionType</small></div>
-            <div class="col-md-3"><input class="form-control" id="HoodPttAdditionalService" value="@Model.HoodPttAdditionalService" placeholder="GM" /><small>additionalService</small></div>
+            <div class="col-md-3"><input class="form-control" id="HoodPttDeliveryKind" value="@(HoodString("HoodPttDeliveryKind", "YD KOLİ"))" placeholder="YD KOLİ" /><small>DeliveryKind</small></div>
+            <div class="col-md-3"><input class="form-control" id="HoodPttDistributionType" value="@(HoodString("HoodPttDistributionType", "UC"))" placeholder="UC" /><small>DistributionType</small></div>
+            <div class="col-md-3"><input class="form-control" id="HoodPttAdditionalService" value="@(HoodString("HoodPttAdditionalService", "GM"))" placeholder="GM" /><small>additionalService</small></div>
         </div>
         <div class="form-group row">
             <div class="col-md-3">Dimension guards</div>
-            <div class="col-md-3"><input class="form-control" id="HoodPttMaxSingleDimensionCm" value="@Model.HoodPttMaxSingleDimensionCm" /><small>Max single side cm</small></div>
-            <div class="col-md-3"><input class="form-control" id="HoodPttMaxGirthCm" value="@Model.HoodPttMaxGirthCm" /><small>Max L + 2W + 2H cm; use 0 to disable</small></div>
+            <div class="col-md-3"><input class="form-control" id="HoodPttMaxSingleDimensionCm" value="@(HoodString("HoodPttMaxSingleDimensionCm", "150"))" /><small>Max single side cm</small></div>
+            <div class="col-md-3"><input class="form-control" id="HoodPttMaxGirthCm" value="@(HoodString("HoodPttMaxGirthCm", "300"))" /><small>Max L + 2W + 2H cm; use 0 to disable</small></div>
         </div>
         <div class="form-group row">
             <div class="col-md-3">Transit estimate</div>
-            <div class="col-md-3"><input class="form-control" id="HoodPttTransitMinDays" value="@Model.HoodPttTransitMinDays" /><small>Min days</small></div>
-            <div class="col-md-3"><input class="form-control" id="HoodPttTransitMaxDays" value="@Model.HoodPttTransitMaxDays" /><small>Max days</small></div>
+            <div class="col-md-3"><input class="form-control" id="HoodPttTransitMinDays" value="@(HoodString("HoodPttTransitMinDays", "10"))" /><small>Min days</small></div>
+            <div class="col-md-3"><input class="form-control" id="HoodPttTransitMaxDays" value="@(HoodString("HoodPttTransitMaxDays", "20"))" /><small>Max days</small></div>
         </div>
         <div class="form-group row">
             <div class="col-md-3">Price conversion/markup</div>
-            <div class="col-md-3"><input class="form-control" id="HoodPttLivePriceMultiplier" value="@Model.HoodPttLivePriceMultiplier" /><small>Live PTT amount × multiplier = store currency</small></div>
-            <div class="col-md-3"><input class="form-control" id="HoodPttAdditionalFixedMarkup" value="@Model.HoodPttAdditionalFixedMarkup" /><small>Fixed markup in store currency</small></div>
-            <div class="col-md-3"><input class="form-control" id="HoodPttRequestTimeoutSeconds" value="@Model.HoodPttRequestTimeoutSeconds" /><small>Timeout seconds</small></div>
+            <div class="col-md-3"><input class="form-control" id="HoodPttLivePriceMultiplier" value="@(HoodString("HoodPttLivePriceMultiplier", "1"))" /><small>Live PTT amount × multiplier = store currency</small></div>
+            <div class="col-md-3"><input class="form-control" id="HoodPttAdditionalFixedMarkup" value="@(HoodString("HoodPttAdditionalFixedMarkup", "0"))" /><small>Fixed markup in store currency</small></div>
+            <div class="col-md-3"><input class="form-control" id="HoodPttRequestTimeoutSeconds" value="@(HoodString("HoodPttRequestTimeoutSeconds", "8"))" /><small>Timeout seconds</small></div>
         </div>
         <button type="button" id="save-hood-ptt-settings" class="btn btn-primary">Save PTT settings</button>
     </div>

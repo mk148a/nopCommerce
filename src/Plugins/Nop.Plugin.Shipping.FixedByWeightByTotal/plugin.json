@@ -2,7 +2,7 @@
   "Group": "Shipping rate computation",
   "FriendlyName": "Manual (Fixed or By Weight and By Total)",
   "SystemName": "Shipping.FixedByWeightByTotal",
-  "Version": "4.80.5-hood-navlungo-chargeable-v24-ptt-live-post-service",
+  "Version": "4.80.5-hood-navlungo-chargeable-v25-ptt-config-dll-sync-guard",
   "SupportedVersions": [
     "4.80"
   ],
