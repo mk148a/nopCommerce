@@ -516,8 +516,6 @@ namespace Nop.Plugin.Payments.Stripe
 
                          _httpContextAccessor.HttpContext.Response.Redirect(threeDSecureUrl);
 
-                        paymentIntent.Metadata.TryGetValue("order_guid", out var orderGuidText);
-
                         //while (order.OrderStatus == OrderStatus.Pending)
                         //{
                         //    order = await _orderService.GetOrderByGuidAsync(Guid.Parse(paymentIntent.Metadata["order_guid"]));
