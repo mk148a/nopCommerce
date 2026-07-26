@@ -420,6 +420,9 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Controllers
         public async Task<IActionResult> GetProductReviews(int productId)
         {
             var product = await _productService.GetProductByIdAsync(productId);
+            if (product == null || product.Deleted || !product.Published)
+                return NotFound();
+
             var model = await _productModelFactory.PrepareProductReviewsModelAsync(product);
             return PartialView("_ProductReviews", model);
         }
