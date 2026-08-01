@@ -1,0 +1,59 @@
+using FluentAssertions;
+using NUnit.Framework;
+
+namespace Nop.Tests.Nop.Web.Tests.Public.Themes;
+
+[TestFixture]
+public class ElementCatalogCardContractTests
+{
+    [Test]
+    public void ProductBox_reserves_square_media_and_uses_semantic_card_scope()
+    {
+        var productBox = ReadSource("src", "Presentation", "Nop.Web", "Themes", "Element", "Views", "Shared", "_ProductBox.cshtml");
+
+        productBox.Should().Contain("catalog-product-card");
+        productBox.Should().Contain("catalog-product-media");
+        productBox.Should().Contain("width=\"635\"");
+        productBox.Should().Contain("height=\"635\"");
+    }
+
+    [Test]
+    public void Catalog_styles_keep_media_square_without_cropping_and_align_card_content()
+    {
+        var styles = ReadSource("src", "Presentation", "Nop.Web", "Themes", "Element", "Content", "css", "styles.css");
+        var mobileStyles = ReadSource("src", "Presentation", "Nop.Web", "Themes", "Element", "Content", "css", "mobile.css");
+
+        styles.Should().Contain(".catalog-product-card .catalog-product-media");
+        styles.Should().Contain("aspect-ratio: 1 / 1");
+        styles.Should().Contain("object-fit: contain");
+        styles.Should().Contain("object-position: center");
+        styles.Should().Contain(".catalog-product-card .prices");
+        mobileStyles.Should().Contain(".catalog-product-card .product-title");
+        mobileStyles.Should().Contain(".catalog-product-card .prices");
+        mobileStyles.Should().Contain("white-space: nowrap");
+    }
+
+    [Test]
+    public void Root_head_removes_known_stale_hood_asset_tags_from_custom_html()
+    {
+        var elementRoot = ReadSource("src", "Presentation", "Nop.Web", "Themes", "Element", "Views", "Shared", "_Root.Head.cshtml");
+        var genericRoot = ReadSource("src", "Presentation", "Nop.Web", "Views", "Shared", "_Root.Head.cshtml");
+
+        elementRoot.Should().Contain("hood-(?:third-party-gate-v6|v9-report-fixes)");
+        genericRoot.Should().Contain("hood-(?:third-party-gate-v6|v9-report-fixes)");
+        elementRoot.Should().NotContain("<link rel=\"stylesheet\" href=\"/Themes/Element/Content/css/hood-third-party-gate-v6.css");
+        genericRoot.Should().NotContain("<script src=\"/Themes/Element/Content/scripts/hood-third-party-gate-v6.js");
+    }
+
+    private static string ReadSource(params string[] parts)
+    {
+        var directory = new DirectoryInfo(TestContext.CurrentContext.TestDirectory);
+        while (directory is not null && !Directory.Exists(Path.Combine(directory.FullName, "src", "Presentation", "Nop.Web")))
+            directory = directory.Parent;
+
+        directory.Should().NotBeNull("the source contract tests must run from a repository checkout");
+        var path = Path.Combine(new[] { directory!.FullName }.Concat(parts).ToArray());
+        File.Exists(path).Should().BeTrue("the expected source file should be present: {0}", path);
+        return File.ReadAllText(path);
+    }
+}
