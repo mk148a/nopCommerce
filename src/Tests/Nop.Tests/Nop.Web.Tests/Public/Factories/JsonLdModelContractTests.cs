@@ -160,6 +160,38 @@ public class JsonLdModelContractTests
     }
 
     [Test]
+    public void ProductPayloadUsesSystemTextJsonAndCanonicalOfferUrl()
+    {
+        var model = new JsonLdProductModel
+        {
+            Id = "https://hoodarcheryshop.com/en/product#product",
+            Url = "https://hoodarcheryshop.com/en/product",
+            Name = "Contract test product",
+            Offer = new JsonLdOfferModel
+            {
+                Id = "https://hoodarcheryshop.com/en/product#offer",
+                Url = "https://hoodarcheryshop.com/en/product",
+                Price = 12.50m,
+                PriceCurrency = "USD",
+                Availability = "https://schema.org/InStock"
+            }
+        };
+
+        var json = System.Text.Json.JsonSerializer.Serialize(JsonLdProductPayload.From(model), new System.Text.Json.JsonSerializerOptions
+        {
+            DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+        });
+        var parsed = System.Text.Json.JsonDocument.Parse(json).RootElement;
+
+        parsed.GetProperty("@context").GetString().Should().Be("https://schema.org");
+        parsed.GetProperty("@type").GetString().Should().Be("Product");
+        parsed.GetProperty("offers").GetProperty("url").GetString().Should().Be(model.Url);
+        parsed.GetProperty("offers").GetProperty("price").ValueKind.Should().Be(System.Text.Json.JsonValueKind.Number);
+        parsed.TryGetProperty("review", out _).Should().BeFalse();
+        parsed.TryGetProperty("hasVariant", out _).Should().BeFalse();
+    }
+
+    [Test]
     public void ProductJsonOmitsReviewFieldsWhenNativeReviewProvenanceIsUnavailable()
     {
         var model = new JsonLdProductModel { Name = "No-provenance review contract" };

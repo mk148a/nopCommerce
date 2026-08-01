@@ -31,6 +31,7 @@ using Nop.Services.Vendors;
 using Nop.Web.Infrastructure.Cache;
 using Nop.Web.Models.Catalog;
 using Nop.Web.Models.Common;
+using Nop.Web.Models.JsonLD;
 using Nop.Web.Models.Media;
 
 namespace Nop.Web.Factories;
@@ -1642,7 +1643,10 @@ public partial class ProductModelFactory : IProductModelFactory
             model.NoIndex = model.NoIndex || jsonLdModel.SuppressIndex;
             model.JsonLd = jsonLdModel.SuppressOutput
                 ? null
-                : JsonConvert.SerializeObject(jsonLdModel, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
+                : System.Text.Json.JsonSerializer.Serialize(JsonLdProductPayload.From(jsonLdModel), new System.Text.Json.JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                });
         }
 
         return model;
