@@ -1632,10 +1632,14 @@ public partial class ProductModelFactory : IProductModelFactory
             }
             model.InStock = model.AssociatedProducts.Any(associatedProduct => associatedProduct.InStock);
         }
+        // Keep configured system/payment products out of discovery even when
+        // Product microdata is disabled globally; the direct purchase route remains live.
+        model.NoIndex = (await GetSystemProductSkusAsync()).Contains(product.Sku);
+
         if (_seoSettings.MicrodataEnabled)
         {
             var jsonLdModel = await _jsonLdModelFactory.PrepareJsonLdProductAsync(model);
-            model.NoIndex = jsonLdModel.SuppressIndex;
+            model.NoIndex = model.NoIndex || jsonLdModel.SuppressIndex;
             model.JsonLd = jsonLdModel.SuppressOutput
                 ? null
                 : JsonConvert.SerializeObject(jsonLdModel, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
