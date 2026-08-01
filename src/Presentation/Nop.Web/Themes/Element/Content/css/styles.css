@@ -2406,6 +2406,12 @@ label+* {
     overflow-wrap: anywhere;
 }
 
+/* Product descriptions can contain fixed-width provider embeds. Keep those
+   embeds inside the responsive product column without changing desktop sizing. */
+.product-details-page .full-description iframe {
+    max-width: 100%;
+}
+
 .item-box .product-title {
     margin: 0 0 5px;
     overflow: hidden;
