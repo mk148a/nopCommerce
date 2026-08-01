@@ -42,8 +42,8 @@
     <None Remove="wwwroot\images\**" />
 
     <Content Include="Plugins\bin\placeholder.txt" CopyToPublishDirectory="PreserveNewest" />
-    <Content Include="wwwroot\images\placeholder.txt" CopyToPublishDirectory="PreserveNewest" />
-    <Content Include="wwwroot\uploaded\placeholder.txt" CopyToPublishDirectory="PreserveNewest" />
+    <Content Update="wwwroot\images\placeholder.txt" CopyToPublishDirectory="PreserveNewest" />
+    <Content Update="wwwroot\uploaded\placeholder.txt" CopyToPublishDirectory="PreserveNewest" />
     <None Include="Plugins\**" CopyToPublishDirectory="PreserveNewest" Exclude="Plugins\**\runtimes\**;Plugins\**\ref\**;Plugins\**\*.pdb" />
 
     <Content Include="Themes\**" CopyToPublishDirectory="PreserveNewest" CopyToOutputDirectory="Never" />
