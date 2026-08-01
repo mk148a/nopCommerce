@@ -19,11 +19,15 @@ using Nop.Plugin.Shipping.FixedByWeightByTotal.Models.ProductionTime;
 using Nop.Plugin.Shipping.FixedByWeightByTotal.Infrastructure.Seo;
 using Nop.Plugin.Shipping.FixedByWeightByTotal;
 using Nop.Plugin.Shipping.FixedByWeightByTotal.Components;
+using Nop.Plugin.Shipping.FixedByWeightByTotal.Infrastructure;
 using Nop.Services.Catalog;
 using Nop.Services.Html;
 using Nop.Services.Media;
 using Nop.Web.Factories;
+using Nop.Web.Framework.Events;
+using Nop.Web.Framework.Models;
 using Nop.Web.Framework.Mvc.Routing;
+using Nop.Web.Models.Catalog;
 using Nop.Web.Models.JsonLD;
 using NUnit.Framework;
 
@@ -85,6 +89,54 @@ public class JsonLdModelContractTests
 
         model.HideNumericStock.Should().BeTrue();
         model.AvailabilityText.Should().Be("Available to order — made to order");
+    }
+
+    [Test]
+    public async Task MadeToOrderPreparedProductModelOmitsNumericStockAndDeliveryDate()
+    {
+        var service = new Mock<IProductProductionTimeService>();
+        service.Setup(x => x.GetModelByProductIdAsync(123)).ReturnsAsync(new ProductProductionTimeModel
+        {
+            ProductId = 123,
+            IsHandmade = true,
+            IsOrderable = true
+        });
+        var consumer = new ProductDetailsModelEventConsumer(service.Object);
+        var model = new ProductDetailsModel
+        {
+            Id = 123,
+            StockAvailability = "93 in stock",
+            DeliveryDate = "3-5 days"
+        };
+
+        await consumer.HandleEventAsync(new ModelPreparedEvent<BaseNopModel>(model));
+
+        model.StockAvailability.Should().BeNull();
+        model.DeliveryDate.Should().BeNull();
+    }
+
+    [Test]
+    public async Task StockedPreparedProductModelKeepsAvailabilityAndDeliveryDate()
+    {
+        var service = new Mock<IProductProductionTimeService>();
+        service.Setup(x => x.GetModelByProductIdAsync(123)).ReturnsAsync(new ProductProductionTimeModel
+        {
+            ProductId = 123,
+            IsHandmade = false,
+            IsOrderable = true
+        });
+        var consumer = new ProductDetailsModelEventConsumer(service.Object);
+        var model = new ProductDetailsModel
+        {
+            Id = 123,
+            StockAvailability = "10 in stock",
+            DeliveryDate = "3-5 days"
+        };
+
+        await consumer.HandleEventAsync(new ModelPreparedEvent<BaseNopModel>(model));
+
+        model.StockAvailability.Should().Be("10 in stock");
+        model.DeliveryDate.Should().Be("3-5 days");
     }
 
     [Test]
