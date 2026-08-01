@@ -20,6 +20,7 @@ using Nop.Services.Customers;
 using Nop.Services.Localization;
 using Nop.Services.Orders;
 using Nop.Services.Plugins;
+using Nop.Services.Configuration;
 
 namespace Nop.Plugin.Widgets.CustomProductReviews.Components
 {
@@ -40,11 +41,12 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Components
         private readonly ICustomerService _customerService;
         private readonly CatalogSettings _catalogSettings;
         private readonly IPluginService _pluginService;
+        private readonly ISettingService _settingService;
         #endregion
 
         #region Ctor
 
-        public CustomProductReviewsViewComponent(CustomProductReviewsSettings customProductReviewsSettings,IProductService productService, IProductModelFactory productModelFactory,IWidgetModelFactory widgetModelFactory, IWorkContext workContext, IOrderService orderService, ICustomerService customerService, CatalogSettings catalogSettings,ILocalizationService localizationService,IPluginService pluginService)
+        public CustomProductReviewsViewComponent(CustomProductReviewsSettings customProductReviewsSettings,IProductService productService, IProductModelFactory productModelFactory,IWidgetModelFactory widgetModelFactory, IWorkContext workContext, IOrderService orderService, ICustomerService customerService, CatalogSettings catalogSettings,ILocalizationService localizationService,IPluginService pluginService, ISettingService settingService)
         {
         _customProductReviewsSettings = customProductReviewsSettings;                                                                                                                                                
             _productService = productService;                                                                                                                                                                             
@@ -56,6 +58,7 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Components
             _catalogSettings = catalogSettings;
             _localizationService = localizationService;
             _pluginService= pluginService;;
+            _settingService = settingService;
         }
 
         #endregion
@@ -102,6 +105,22 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Components
         }
         public async Task<IViewComponentResult> InvokeAsync(string widgetZone, object additionalData)
         {
+            var systemProductId = additionalData switch
+            {
+                ProductDetailsModel details => details.Id,
+                ProductReviewsModel reviews => reviews.ProductId,
+                _ => 0
+            };
+            if (systemProductId > 0)
+            {
+                var product = await _productService.GetProductByIdAsync(systemProductId);
+                var systemProductSkus = (await _settingService.GetSettingByKeyAsync<string>(
+                        "FixedByWeightByTotalSettings.SystemProductSkus", "expresshipping") ?? string.Empty)
+                    .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+                if (product != null && systemProductSkus.Any(sku => string.Equals(sku, product.Sku, StringComparison.OrdinalIgnoreCase)))
+                    return Content(string.Empty);
+            }
+
             if (string.IsNullOrEmpty(_customProductReviewsSettings.data))
             {
 
