@@ -155,8 +155,8 @@ public sealed class JsonLdAggregateRatingPayload
     [JsonPropertyName("ratingValue")]
     public decimal? RatingValue { get; init; }
 
-    [JsonPropertyName("reviewCount")]
-    public int ReviewCount { get; init; }
+    [JsonPropertyName("ratingCount")]
+    public int RatingCount { get; init; }
 
     [JsonPropertyName("bestRating")]
     public decimal? BestRating { get; init; }
@@ -164,10 +164,10 @@ public sealed class JsonLdAggregateRatingPayload
     [JsonPropertyName("worstRating")]
     public decimal? WorstRating { get; init; }
 
-    public static JsonLdAggregateRatingPayload From(JsonLdAggregateRatingModel model) => model == null || model.ReviewCount <= 0 || !model.RatingValue.HasValue ? null : new JsonLdAggregateRatingPayload
+    public static JsonLdAggregateRatingPayload From(JsonLdAggregateRatingModel model) => model == null || model.RatingCount <= 0 || !model.RatingValue.HasValue ? null : new JsonLdAggregateRatingPayload
     {
         RatingValue = model.RatingValue,
-        ReviewCount = model.ReviewCount,
+        RatingCount = model.RatingCount,
         BestRating = model.BestRating,
         WorstRating = model.WorstRating
     };

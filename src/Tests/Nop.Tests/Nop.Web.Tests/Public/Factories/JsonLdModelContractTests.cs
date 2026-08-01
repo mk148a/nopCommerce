@@ -262,6 +262,8 @@ public class JsonLdModelContractTests
         var parsed = JObject.Parse(json);
 
         parsed["aggregateRating"]?["ratingValue"]?.Type.Should().Be(JTokenType.Float);
+        parsed["aggregateRating"]?["ratingCount"]?.Type.Should().Be(JTokenType.Integer);
+        parsed["aggregateRating"]?["reviewCount"].Should().BeNull();
         parsed["aggregateRating"]?["bestRating"]?.Type.Should().BeOneOf(JTokenType.Integer, JTokenType.Float);
         parsed["aggregateRating"]?["worstRating"]?.Type.Should().BeOneOf(JTokenType.Integer, JTokenType.Float);
         parsed["review"]?[0]?["reviewRating"]?["bestRating"]?.Type.Should().BeOneOf(JTokenType.Integer, JTokenType.Float);

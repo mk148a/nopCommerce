@@ -13,6 +13,7 @@ using Nop.Core.Domain.Seo;
 using Nop.Core.Domain.Shipping;
 using Nop.Core.Domain.Stores;
 using Nop.Core.Domain.Vendors;
+using Nop.Data;
 using Nop.Services.Catalog;
 using Nop.Services.Common;
 using Nop.Services.Configuration;
@@ -63,6 +64,7 @@ public partial class ProductModelFactory : IProductModelFactory
     protected readonly IProductAttributeParser _productAttributeParser;
     protected readonly IProductAttributeService _productAttributeService;
     protected readonly IProductService _productService;
+    protected readonly IRepository<ProductReviewsTransactionsMapping> _productReviewMappingRepository;
     protected readonly IProductTagService _productTagService;
     protected readonly IProductTemplateService _productTemplateService;
     protected readonly IReviewTypeService _reviewTypeService;
@@ -130,7 +132,8 @@ public partial class ProductModelFactory : IProductModelFactory
         OrderSettings orderSettings,
         SeoSettings seoSettings,
         ShippingSettings shippingSettings,
-        VendorSettings vendorSettings)
+        VendorSettings vendorSettings,
+        IRepository<ProductReviewsTransactionsMapping> productReviewMappingRepository = null)
     {
         _captchaSettings = captchaSettings;
         _catalogSettings = catalogSettings;
@@ -152,6 +155,7 @@ public partial class ProductModelFactory : IProductModelFactory
         _productAttributeParser = productAttributeParser;
         _productAttributeService = productAttributeService;
         _productService = productService;
+        _productReviewMappingRepository = productReviewMappingRepository;
         _productTagService = productTagService;
         _productTemplateService = productTemplateService;
         _reviewTypeService = reviewTypeService;
@@ -592,6 +596,7 @@ public partial class ProductModelFactory : IProductModelFactory
             productReview = await _staticCacheManager.GetAsync(cacheKey, async () =>
             {
                 var productReviews = await _productService.GetAllProductReviewsAsync(productId: product.Id, approved: true, storeId: currentStore.Id);
+                var eligibleReviews = await FilterEligibleNativeReviewsAsync(productReviews);
 
                 return new ProductReviewOverviewModel
                 {
@@ -602,11 +607,15 @@ public partial class ProductModelFactory : IProductModelFactory
         }
         else
         {
-            productReview = new ProductReviewOverviewModel
-            {
-                RatingSum = product.ApprovedRatingSum,
-                TotalReviews = product.ApprovedTotalReviews
-            };
+            var productReviews = await _productService.GetAllProductReviewsAsync(productId: product.Id, approved: true, storeId: 0);
+            var eligibleReviews = await FilterEligibleNativeReviewsAsync(productReviews);
+            productReview = eligibleReviews.Count > 0
+                ? new ProductReviewOverviewModel
+                {
+                    RatingSum = eligibleReviews.Sum(pr => pr.Rating),
+                    TotalReviews = eligibleReviews.Count
+                }
+                : new ProductReviewOverviewModel();
         }
 
         if (productReview != null)
@@ -618,6 +627,32 @@ public partial class ProductModelFactory : IProductModelFactory
         }
 
         return productReview;
+    }
+
+    /// <summary>
+    /// Keeps the visible review summary aligned with Product JSON-LD by excluding
+    /// reviews explicitly marked as imported marketplace content. The review list
+    /// itself remains unchanged so customer-visible records are not removed.
+    /// </summary>
+    protected virtual async Task<IList<ProductReview>> FilterEligibleNativeReviewsAsync(IList<ProductReview> reviews)
+    {
+        if (reviews == null || reviews.Count == 0 || _productReviewMappingRepository == null)
+            return reviews ?? [];
+
+        try
+        {
+            var reviewIds = reviews.Select(review => review.Id).ToArray();
+            var mappings = await _productReviewMappingRepository.GetAllAsync(query => query
+                .Where(mapping => reviewIds.Contains(mapping.ProductReviewId)));
+            var externalIds = mappings.Select(mapping => mapping.ProductReviewId).ToHashSet();
+            return reviews.Where(review => !externalIds.Contains(review.Id)).ToList();
+        }
+        catch
+        {
+            // Unknown provenance must not change the existing customer-facing
+            // summary; JSON-LD independently fails closed in this state.
+            return reviews;
+        }
     }
 
     /// <summary>

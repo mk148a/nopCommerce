@@ -24,6 +24,8 @@ public partial class JsonLdModelFactory : IJsonLdModelFactory
     protected readonly INopUrlHelper _nopUrlHelper;
     protected readonly IProductService _productService;
     protected readonly IRepository<Product> _productRepository;
+    protected readonly IRepository<ProductReview> _productReviewRepository;
+    protected readonly IRepository<ProductReviewsTransactionsMapping> _productReviewMappingRepository;
     protected readonly IWebHelper _webHelper;
 
     #endregion
@@ -36,12 +38,26 @@ public partial class JsonLdModelFactory : IJsonLdModelFactory
         IProductService productService,
         IRepository<Product> productRepository,
         IWebHelper webHelper)
+        : this(eventPublisher, htmlFormatter, nopUrlHelper, productService, productRepository, webHelper, null, null)
+    {
+    }
+
+    public JsonLdModelFactory(IEventPublisher eventPublisher,
+        IHtmlFormatter htmlFormatter,
+        INopUrlHelper nopUrlHelper,
+        IProductService productService,
+        IRepository<Product> productRepository,
+        IWebHelper webHelper,
+        IRepository<ProductReview> productReviewRepository,
+        IRepository<ProductReviewsTransactionsMapping> productReviewMappingRepository)
     {
         _eventPublisher = eventPublisher;
         _htmlFormatter = htmlFormatter;
         _nopUrlHelper = nopUrlHelper;
         _productService = productService;
         _productRepository = productRepository;
+        _productReviewRepository = productReviewRepository;
+        _productReviewMappingRepository = productReviewMappingRepository;
         _webHelper = webHelper;
     }
 
@@ -174,11 +190,108 @@ public partial class JsonLdModelFactory : IJsonLdModelFactory
             Brand = new JsonLdBrandModel { Name = "Hood Archery Shop" }
         };
 
-        // ProductReview has no provenance field, so review schema is deliberately omitted.
+        var reviewSchema = await PrepareReviewSchemaAsync(model);
+        product.AggregateRating = reviewSchema.AggregateRating;
+        product.Review = reviewSchema.Reviews;
 
         await _eventPublisher.PublishAsync(new JsonLdCreatedEvent<JsonLdProductModel>(product));
 
         return product;
+    }
+
+    /// <summary>
+    /// Builds review schema from the same approved ProductReview rows that are
+    /// rendered on the product page, while excluding rows explicitly linked to
+    /// the legacy Etsy import table.  The mapping table is optional on older
+    /// installations; if it cannot be read, schema is omitted rather than
+    /// treating unknown provenance as first-party.
+    /// </summary>
+    protected virtual async Task<(JsonLdAggregateRatingModel AggregateRating, IList<JsonLdReviewModel> Reviews)> PrepareReviewSchemaAsync(ProductDetailsModel model)
+    {
+        if (_productReviewRepository == null || _productReviewMappingRepository == null)
+            return (null, null);
+
+        var visibleItems = model.ProductReviews?.Items ?? [];
+        var reviewIds = visibleItems.Select(review => review.Id).Where(id => id > 0).Distinct().ToArray();
+        if (reviewIds.Length == 0)
+            return (null, null);
+
+        IList<ProductReview> storedReviews;
+        IList<ProductReviewsTransactionsMapping> marketplaceMappings;
+        try
+        {
+            storedReviews = await _productReviewRepository.GetAllAsync(query => query
+                .Where(review => reviewIds.Contains(review.Id) && review.IsApproved && review.Rating >= 1 && review.Rating <= 5));
+            marketplaceMappings = await _productReviewMappingRepository.GetAllAsync(query => query
+                .Where(mapping => reviewIds.Contains(mapping.ProductReviewId)));
+        }
+        catch
+        {
+            // A missing legacy provenance table is an unknown-provenance state.
+            // Do not emit review or aggregateRating markup in that case.
+            return (null, null);
+        }
+
+        var externalReviewIds = marketplaceMappings
+            .Select(mapping => mapping.ProductReviewId)
+            .ToHashSet();
+        var visibleById = visibleItems.ToDictionary(review => review.Id);
+        var seenReviews = new HashSet<string>(StringComparer.Ordinal);
+        var eligibleReviews = new List<(ProductReview Stored, ProductReviewModel Visible, string Key)>();
+
+        foreach (var storedReview in storedReviews.OrderByDescending(review => review.CreatedOnUtc).ThenByDescending(review => review.Id))
+        {
+            if (externalReviewIds.Contains(storedReview.Id) || !visibleById.TryGetValue(storedReview.Id, out var visibleReview))
+                continue;
+
+            var key = BuildReviewIdentityKey(storedReview);
+            if (!seenReviews.Add(key))
+                continue;
+
+            eligibleReviews.Add((storedReview, visibleReview, key));
+        }
+
+        if (eligibleReviews.Count == 0)
+            return (null, null);
+
+        var ratingSum = eligibleReviews.Sum(review => review.Stored.Rating);
+        var aggregateRating = new JsonLdAggregateRatingModel
+        {
+            RatingValue = Math.Round((decimal)ratingSum / eligibleReviews.Count, 2, MidpointRounding.AwayFromZero),
+            RatingCount = eligibleReviews.Count,
+            BestRating = 5m,
+            WorstRating = 1m
+        };
+
+        var individualReviews = eligibleReviews
+            .Where(review => !string.IsNullOrWhiteSpace(review.Visible.CustomerName)
+                && review.Visible.CustomerName.Trim().Length <= 100
+                && !string.IsNullOrWhiteSpace(review.Stored.ReviewText))
+            .Take(5)
+            .Select(review => new JsonLdReviewModel
+            {
+                Author = new JsonLdPersonModel { Name = review.Visible.CustomerName.Trim() },
+                DatePublished = DateTime.SpecifyKind(review.Stored.CreatedOnUtc, DateTimeKind.Utc).ToString("O", CultureInfo.InvariantCulture),
+                Name = NormalizePlainText(review.Stored.Title),
+                ReviewBody = NormalizePlainText(review.Stored.ReviewText),
+                ReviewRating = new JsonLdRatingModel
+                {
+                    RatingValue = review.Stored.Rating,
+                    BestRating = 5m,
+                    WorstRating = 1m
+                }
+            })
+            .Where(review => !string.IsNullOrWhiteSpace(review.ReviewBody))
+            .ToList();
+
+        return (aggregateRating, individualReviews.Count > 0 ? individualReviews : null);
+    }
+
+    protected virtual string BuildReviewIdentityKey(ProductReview review)
+    {
+        var title = NormalizePlainText(review.Title) ?? string.Empty;
+        var body = NormalizePlainText(review.ReviewText) ?? string.Empty;
+        return string.Join("|", review.ProductId, review.CustomerId, review.Rating, title, body);
     }
 
     protected virtual string NormalizePlainText(string html)

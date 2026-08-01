@@ -12,8 +12,19 @@ public record JsonLdAggregateRatingModel : JsonLdModel
     [JsonProperty("ratingValue")]
     public decimal? RatingValue { get; set; }
 
-    [JsonProperty("reviewCount")]
-    public int ReviewCount { get; set; }
+    [JsonProperty("ratingCount")]
+    public int RatingCount { get; set; }
+
+    /// <summary>
+    /// Backward-compatible source alias used by existing callers.  The public
+    /// JSON-LD contract emits schema.org's ratingCount property.
+    /// </summary>
+    [JsonIgnore]
+    public int ReviewCount
+    {
+        get => RatingCount;
+        set => RatingCount = value;
+    }
 
     [JsonProperty("bestRating")]
     public decimal? BestRating { get; set; }
