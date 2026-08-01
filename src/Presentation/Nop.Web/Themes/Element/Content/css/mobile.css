@@ -17,7 +17,10 @@
 
 .catalog-product-card .prices .old-price,
 .catalog-product-card .prices .actual-price {
-    white-space: nowrap;
+    min-width: 0;
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
 }
 
 /* GLOBAL STYLES */

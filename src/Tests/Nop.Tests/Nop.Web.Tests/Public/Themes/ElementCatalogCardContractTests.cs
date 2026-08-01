@@ -13,8 +13,8 @@ public class ElementCatalogCardContractTests
 
         productBox.Should().Contain("catalog-product-card");
         productBox.Should().Contain("catalog-product-media");
-        productBox.Should().Contain("width=\"635\"");
-        productBox.Should().Contain("height=\"635\"");
+        productBox.Should().NotContain("width=\"635\"");
+        productBox.Should().NotContain("height=\"635\"");
     }
 
     [Test]
@@ -34,7 +34,7 @@ public class ElementCatalogCardContractTests
         mobileStyles.Should().Contain(".catalog-product-card .product-title");
         mobileStyles.Should().Contain("height: 65px");
         mobileStyles.Should().Contain(".catalog-product-card .prices");
-        mobileStyles.Should().Contain("white-space: nowrap");
+        mobileStyles.Should().Contain("overflow-wrap: anywhere");
         head.Should().Contain("Content/css/styles.css");
         head.Should().NotContain("Content/css/styles.css?v=");
     }
