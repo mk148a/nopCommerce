@@ -10,10 +10,16 @@ public record JsonLdAggregateRatingModel : JsonLdModel
     public static string Type => "AggregateRating";
 
     [JsonProperty("ratingValue")]
-    public string RatingValue { get; set; }
+    public decimal? RatingValue { get; set; }
 
     [JsonProperty("reviewCount")]
     public int ReviewCount { get; set; }
+
+    [JsonProperty("bestRating")]
+    public decimal? BestRating { get; set; }
+
+    [JsonProperty("worstRating")]
+    public decimal? WorstRating { get; set; }
 
     #endregion
 }

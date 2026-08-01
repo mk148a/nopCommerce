@@ -174,6 +174,38 @@ public class JsonLdModelContractTests
     }
 
     [Test]
+    public void StructuredRatingFieldsSerializeAsNumbers()
+    {
+        var model = new JsonLdProductModel
+        {
+            AggregateRating = new JsonLdAggregateRatingModel
+            {
+                RatingValue = 4.8955m,
+                ReviewCount = 67,
+                BestRating = 5m,
+                WorstRating = 1m
+            },
+            Review =
+            [
+                new JsonLdReviewModel
+                {
+                    Author = new JsonLdPersonModel { Name = "Real reviewer" },
+                    ReviewRating = new JsonLdRatingModel { RatingValue = 5, BestRating = 5m, WorstRating = 1m }
+                }
+            ]
+        };
+
+        var json = JsonConvert.SerializeObject(model, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
+        var parsed = JObject.Parse(json);
+
+        parsed["aggregateRating"]?["ratingValue"]?.Type.Should().Be(JTokenType.Float);
+        parsed["aggregateRating"]?["bestRating"]?.Type.Should().BeOneOf(JTokenType.Integer, JTokenType.Float);
+        parsed["aggregateRating"]?["worstRating"]?.Type.Should().BeOneOf(JTokenType.Integer, JTokenType.Float);
+        parsed["review"]?[0]?["reviewRating"]?["bestRating"]?.Type.Should().BeOneOf(JTokenType.Integer, JTokenType.Float);
+        parsed["review"]?[0]?["reviewRating"]?["worstRating"]?.Type.Should().BeOneOf(JTokenType.Integer, JTokenType.Float);
+    }
+
+    [Test]
     public void VisibleReviewSummaryUsesTheApprovedReviewTotals()
     {
         var overview = new ProductReviewOverviewModel { RatingSum = 328, TotalReviews = 67 };
