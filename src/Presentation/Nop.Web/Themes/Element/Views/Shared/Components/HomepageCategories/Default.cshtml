@@ -17,8 +17,11 @@
         <div class="item-grid owl-carousel owl-theme">        
             @foreach (var item in Model)
             {
+                var categoryCssClass = item.SeName?.StartsWith("archery", StringComparison.OrdinalIgnoreCase) == true
+                    ? "archery-category-item"
+                    : string.Empty;
                 <div class="item-box">
-                    <div class="category-item @(item.SeName == "archery" ? "archery-category-item" : "")">
+                    <div class="category-item @categoryCssClass">
                         <h2 class="title">
                             <a href="@(Url.RouteUrl<Category>(new { SeName = item.SeName }))" title="@item.PictureModel.Title">
                                 @item.Name
