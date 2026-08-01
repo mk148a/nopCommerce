@@ -2,6 +2,7 @@
 @using Nop.Core.Domain.Common
 @using Nop.Core.Domain.Seo
 @using Nop.Services.Security
+@using System.Text.RegularExpressions
 @using Nop.Core.Events
 
 @inject CatalogSettings catalogSettings
@@ -44,6 +45,10 @@
     var title = await NopHtml.GenerateTitleAsync();
     var description = await @NopHtml.GenerateMetaDescriptionAsync();
     var keywords = await NopHtml.GenerateMetaKeywordsAsync();
+    var headerCustomHtml = Regex.Replace(commonSettings.HeaderCustomHtml ?? string.Empty,
+        @"<link\b[^>]*\bhood-(?:third-party-gate-v6|v9-report-fixes)\.css[^>]*>\s*", string.Empty, RegexOptions.IgnoreCase);
+    var footerCustomHtml = Regex.Replace(commonSettings.FooterCustomHtml ?? string.Empty,
+        @"<script\b[^>]*\bhood-(?:third-party-gate-v6|v9-report-fixes)\.js[^>]*>\s*</script>\s*", string.Empty, RegexOptions.IgnoreCase);
 }
 <!DOCTYPE html>
 <html lang="@CultureInfo.CurrentUICulture.TwoLetterISOLanguageName" dir="@Html.GetUIDirection(!await Html.ShouldUseRtlThemeAsync())" class="@NopHtml.GeneratePageCssClasses()">
@@ -71,7 +76,7 @@
     @NopHtml.GenerateInlineScripts(ResourceLocation.Head)
     <!--Powered by nopCommerce - https://www.nopCommerce.com-->
     
-    @Html.Raw(commonSettings.HeaderCustomHtml)
+    @Html.Raw(headerCustomHtml)
 </head>
 <body>
     <nop-antiforgery-token />
@@ -80,6 +85,6 @@
     @NopHtml.GenerateScripts(ResourceLocation.Footer)
     @NopHtml.GenerateInlineScripts(ResourceLocation.Footer)
     
-    @Html.Raw(commonSettings.FooterCustomHtml)
+    @Html.Raw(footerCustomHtml)
 </body>
 </html>

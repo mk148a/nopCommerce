@@ -6,6 +6,7 @@
 @using Nop.Core.Events
 @using Nop.Services.Configuration
 @using Nop.Services.Security
+@using System.Text.RegularExpressions
 
 @inject AppSettings appSettings
 @inject CatalogSettings catalogSettings
@@ -58,6 +59,10 @@
     var themeLayout = await settingService.GetSettingByKeyAsync("elementthemesettings.layout", "earth-theme", storeId, true);
     var themeVariant = await settingService.GetSettingByKeyAsync("elementthemesettings.variant", "variant-1", storeId, true);
     var currentPageClass = (await (await Html.PartialAsync("_CurrentPageClass")).RenderHtmlContentAsync()).Trim();
+    var headerCustomHtml = Regex.Replace(commonSettings.HeaderCustomHtml ?? string.Empty,
+        @"<link\b[^>]*\bhood-(?:third-party-gate-v6|v9-report-fixes)\.css[^>]*>\s*", string.Empty, RegexOptions.IgnoreCase);
+    var footerCustomHtml = Regex.Replace(commonSettings.FooterCustomHtml ?? string.Empty,
+        @"<script\b[^>]*\bhood-(?:third-party-gate-v6|v9-report-fixes)\.js[^>]*>\s*</script>\s*", string.Empty, RegexOptions.IgnoreCase);
 }
 
 <!DOCTYPE html>
@@ -86,7 +91,7 @@
     @NopHtml.GenerateScripts(ResourceLocation.Head)
     @NopHtml.GenerateInlineScripts(ResourceLocation.Head)
     <!--Powered by nopCommerce - https://www.nopCommerce.com-->
-    @Html.Raw(commonSettings.HeaderCustomHtml)
+    @Html.Raw(headerCustomHtml)
 </head>
 <body class="@currentPageClass @themeLayout @themeVariant">
     <nop-antiforgery-token />
@@ -95,6 +100,6 @@
     <div class="scroll-back-button" id="goToTop"></div>
     @NopHtml.GenerateScripts(ResourceLocation.Footer)
     @NopHtml.GenerateInlineScripts(ResourceLocation.Footer)
-    @Html.Raw(commonSettings.FooterCustomHtml)
+    @Html.Raw(footerCustomHtml)
 </body>
 </html>
