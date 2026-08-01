@@ -2499,10 +2499,29 @@ label+* {
 }
 
 /* Keep homepage category cards uniform even when their source images have different dimensions. */
-.home-page-category-grid .item-box .picture img {
+.home-page-category-grid .category-item {
+    position: relative;
+}
+
+.home-page-category-grid .category-item .picture {
+    position: relative;
+    overflow: hidden;
+}
+
+.home-page-category-grid .category-item .picture a {
+    display: block;
+    position: relative;
+    overflow: hidden;
+    padding-top: 65%;
+}
+
+.home-page-category-grid .category-item .picture img {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
     max-width: none;
+    margin: 0;
     object-fit: cover;
 }
 
