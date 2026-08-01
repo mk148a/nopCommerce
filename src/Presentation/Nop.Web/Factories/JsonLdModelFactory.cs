@@ -26,6 +26,7 @@ public partial class JsonLdModelFactory : IJsonLdModelFactory
     protected readonly IRepository<Product> _productRepository;
     protected readonly IRepository<ProductReview> _productReviewRepository;
     protected readonly IRepository<ProductReviewsTransactionsMapping> _productReviewMappingRepository;
+    protected readonly IRepository<EtsyReview> _etsyReviewRepository;
     protected readonly IWebHelper _webHelper;
 
     #endregion
@@ -38,7 +39,7 @@ public partial class JsonLdModelFactory : IJsonLdModelFactory
         IProductService productService,
         IRepository<Product> productRepository,
         IWebHelper webHelper)
-        : this(eventPublisher, htmlFormatter, nopUrlHelper, productService, productRepository, webHelper, null, null)
+        : this(eventPublisher, htmlFormatter, nopUrlHelper, productService, productRepository, webHelper, null, null, null)
     {
     }
 
@@ -49,7 +50,8 @@ public partial class JsonLdModelFactory : IJsonLdModelFactory
         IRepository<Product> productRepository,
         IWebHelper webHelper,
         IRepository<ProductReview> productReviewRepository,
-        IRepository<ProductReviewsTransactionsMapping> productReviewMappingRepository)
+        IRepository<ProductReviewsTransactionsMapping> productReviewMappingRepository,
+        IRepository<EtsyReview> etsyReviewRepository = null)
     {
         _eventPublisher = eventPublisher;
         _htmlFormatter = htmlFormatter;
@@ -58,6 +60,7 @@ public partial class JsonLdModelFactory : IJsonLdModelFactory
         _productRepository = productRepository;
         _productReviewRepository = productReviewRepository;
         _productReviewMappingRepository = productReviewMappingRepository;
+        _etsyReviewRepository = etsyReviewRepository;
         _webHelper = webHelper;
     }
 
@@ -235,13 +238,36 @@ public partial class JsonLdModelFactory : IJsonLdModelFactory
         var externalReviewIds = marketplaceMappings
             .Select(mapping => mapping.ProductReviewId)
             .ToHashSet();
+        var importedReviewKeys = new HashSet<string>(StringComparer.Ordinal);
+        if (_etsyReviewRepository != null && !string.IsNullOrWhiteSpace(model.Sku))
+        {
+            try
+            {
+                var importedReviews = await _etsyReviewRepository.GetAllAsync(query => query
+                    .Where(review => review.Sku == model.Sku && review.Rating >= 1 && review.Rating <= 5));
+                foreach (var importedReview in importedReviews)
+                {
+                    var normalizedText = NormalizePlainText(importedReview.Review);
+                    if (!string.IsNullOrWhiteSpace(normalizedText))
+                        importedReviewKeys.Add(BuildExternalReviewKey(importedReview.Rating, normalizedText));
+                }
+            }
+            catch
+            {
+                // If the legacy table is unavailable, explicit mappings remain
+                // authoritative and unknown provenance is not guessed.
+            }
+        }
         var visibleById = visibleItems.ToDictionary(review => review.Id);
         var seenReviews = new HashSet<string>(StringComparer.Ordinal);
         var eligibleReviews = new List<(ProductReview Stored, ProductReviewModel Visible, string Key)>();
 
         foreach (var storedReview in storedReviews.OrderByDescending(review => review.CreatedOnUtc).ThenByDescending(review => review.Id))
         {
-            if (externalReviewIds.Contains(storedReview.Id) || !visibleById.TryGetValue(storedReview.Id, out var visibleReview))
+            var normalizedReviewText = NormalizePlainText(storedReview.ReviewText);
+            if (externalReviewIds.Contains(storedReview.Id)
+                || importedReviewKeys.Contains(BuildExternalReviewKey(storedReview.Rating, normalizedReviewText))
+                || !visibleById.TryGetValue(storedReview.Id, out var visibleReview))
                 continue;
 
             var key = BuildReviewIdentityKey(storedReview);
@@ -292,6 +318,11 @@ public partial class JsonLdModelFactory : IJsonLdModelFactory
         var title = NormalizePlainText(review.Title) ?? string.Empty;
         var body = NormalizePlainText(review.ReviewText) ?? string.Empty;
         return string.Join("|", review.ProductId, review.CustomerId, review.Rating, title, body);
+    }
+
+    protected virtual string BuildExternalReviewKey(int rating, string reviewText)
+    {
+        return $"{rating}|{reviewText ?? string.Empty}";
     }
 
     protected virtual string NormalizePlainText(string html)

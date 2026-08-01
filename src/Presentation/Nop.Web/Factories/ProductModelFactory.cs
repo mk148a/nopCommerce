@@ -64,6 +64,7 @@ public partial class ProductModelFactory : IProductModelFactory
     protected readonly IProductAttributeParser _productAttributeParser;
     protected readonly IProductAttributeService _productAttributeService;
     protected readonly IProductService _productService;
+    protected readonly IRepository<EtsyReview> _etsyReviewRepository;
     protected readonly IRepository<ProductReviewsTransactionsMapping> _productReviewMappingRepository;
     protected readonly IProductTagService _productTagService;
     protected readonly IProductTemplateService _productTemplateService;
@@ -133,7 +134,8 @@ public partial class ProductModelFactory : IProductModelFactory
         SeoSettings seoSettings,
         ShippingSettings shippingSettings,
         VendorSettings vendorSettings,
-        IRepository<ProductReviewsTransactionsMapping> productReviewMappingRepository = null)
+        IRepository<ProductReviewsTransactionsMapping> productReviewMappingRepository = null,
+        IRepository<EtsyReview> etsyReviewRepository = null)
     {
         _captchaSettings = captchaSettings;
         _catalogSettings = catalogSettings;
@@ -155,6 +157,7 @@ public partial class ProductModelFactory : IProductModelFactory
         _productAttributeParser = productAttributeParser;
         _productAttributeService = productAttributeService;
         _productService = productService;
+        _etsyReviewRepository = etsyReviewRepository;
         _productReviewMappingRepository = productReviewMappingRepository;
         _productTagService = productTagService;
         _productTemplateService = productTemplateService;
@@ -645,7 +648,25 @@ public partial class ProductModelFactory : IProductModelFactory
             var mappings = await _productReviewMappingRepository.GetAllAsync(query => query
                 .Where(mapping => reviewIds.Contains(mapping.ProductReviewId)));
             var externalIds = mappings.Select(mapping => mapping.ProductReviewId).ToHashSet();
-            return reviews.Where(review => !externalIds.Contains(review.Id)).ToList();
+            var importedReviewKeys = new HashSet<string>(StringComparer.Ordinal);
+            if (_etsyReviewRepository != null)
+            {
+                var product = await _productService.GetProductByIdAsync(reviews[0].ProductId);
+                if (!string.IsNullOrWhiteSpace(product?.Sku))
+                {
+                    var importedReviews = await _etsyReviewRepository.GetAllAsync(query => query
+                        .Where(review => review.Sku == product.Sku && review.Rating >= 1 && review.Rating <= 5));
+                    foreach (var importedReview in importedReviews)
+                    {
+                        var normalizedText = NormalizeReviewText(importedReview.Review);
+                        if (!string.IsNullOrWhiteSpace(normalizedText))
+                            importedReviewKeys.Add(BuildExternalReviewKey(importedReview.Rating, normalizedText));
+                    }
+                }
+            }
+
+            return reviews.Where(review => !externalIds.Contains(review.Id)
+                && !importedReviewKeys.Contains(BuildExternalReviewKey(review.Rating, NormalizeReviewText(review.ReviewText)))).ToList();
         }
         catch
         {
@@ -653,6 +674,20 @@ public partial class ProductModelFactory : IProductModelFactory
             // summary; JSON-LD independently fails closed in this state.
             return reviews;
         }
+    }
+
+    protected virtual string NormalizeReviewText(string text)
+    {
+        if (string.IsNullOrWhiteSpace(text))
+            return null;
+
+        return string.Join(' ', System.Net.WebUtility.HtmlDecode(text)
+            .Split((char[])null, StringSplitOptions.RemoveEmptyEntries));
+    }
+
+    protected virtual string BuildExternalReviewKey(int rating, string reviewText)
+    {
+        return $"{rating}|{reviewText ?? string.Empty}";
     }
 
     /// <summary>
