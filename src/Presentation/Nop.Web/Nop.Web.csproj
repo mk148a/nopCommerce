@@ -43,6 +43,7 @@
 
     <Content Include="Plugins\bin\placeholder.txt" CopyToPublishDirectory="PreserveNewest" />
     <Content Include="wwwroot\images\placeholder.txt" CopyToPublishDirectory="PreserveNewest" />
+    <Content Include="wwwroot\images\uploaded\placeholder.txt" CopyToPublishDirectory="PreserveNewest" />
     <Content Update="wwwroot\uploaded\placeholder.txt" CopyToPublishDirectory="PreserveNewest" />
     <None Include="Plugins\**" CopyToPublishDirectory="PreserveNewest" Exclude="Plugins\**\runtimes\**;Plugins\**\ref\**;Plugins\**\*.pdb" />
 
