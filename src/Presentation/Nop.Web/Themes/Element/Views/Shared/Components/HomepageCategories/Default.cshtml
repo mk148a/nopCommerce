@@ -14,7 +14,7 @@
     NopHtml.AppendScriptParts(ResourceLocation.Footer, $"~/Themes/{themeName}/Content/scripts/owl.carousel.js");
 
    <div class="category-grid home-page-category-grid">
-        <div class="item-grid owl-carousel owl-theme">        
+        <div class="item-grid owl-carousel owl-theme category-carousel-pending">
             @foreach (var item in Model)
             {
                 var categoryCssClass = item.SeName?.StartsWith("archery", StringComparison.OrdinalIgnoreCase) == true
@@ -54,7 +54,7 @@
 	 <script asp-location="Footer">
 
 
-                var owl = $('.owl-carousel');
+                var owl = $('.home-page-category-grid .owl-carousel');
         owl.owlCarousel({
             items:3,
             loop:true,
@@ -75,6 +75,7 @@
                             }
                         }
         });
+        owl.removeClass('category-carousel-pending');
 
     </script>
 }

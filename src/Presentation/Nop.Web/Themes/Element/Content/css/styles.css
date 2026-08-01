@@ -1094,6 +1094,19 @@ label+* {
     max-width: 100%;
 }
 
+/* The active store logo is supplied by a widget, so reserve its known square slot before it loads. */
+.earth-theme.variant-1 .header-logo a.logo {
+    width: 150px;
+    height: 150px;
+}
+
+.earth-theme.variant-1 .header-logo a.logo img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
 .air-theme .header-logo img {
     background-color: #eda187;
 }
@@ -2523,6 +2536,32 @@ label+* {
     max-width: none;
     margin: 0;
     object-fit: cover;
+}
+
+/* Keep the footer-initialized carousel from introducing a new block after first paint. */
+.home-page-category-grid .owl-carousel.category-carousel-pending {
+    display: flex;
+    gap: 10px;
+    overflow: hidden;
+    visibility: hidden;
+}
+
+.home-page-category-grid .owl-carousel.category-carousel-pending > .item-box {
+    flex: 0 0 calc((100% - 20px) / 3);
+    min-width: 0;
+    margin: 0;
+}
+
+@media (max-width: 768px) {
+    .home-page-category-grid .owl-carousel.category-carousel-pending > .item-box {
+        flex-basis: calc((100% - 10px) / 2);
+    }
+}
+
+@media (max-width: 480px) {
+    .home-page-category-grid .owl-carousel.category-carousel-pending > .item-box {
+        flex-basis: 100%;
+    }
 }
 
 /* The Archery artwork is deliberately panoramic; keep the bow centered instead of cropping it. */
