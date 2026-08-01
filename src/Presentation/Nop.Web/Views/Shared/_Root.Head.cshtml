@@ -47,6 +47,8 @@
     var keywords = await NopHtml.GenerateMetaKeywordsAsync();
     var headerCustomHtml = Regex.Replace(commonSettings.HeaderCustomHtml ?? string.Empty,
         @"<link\b[^>]*\bhood-(?:third-party-gate-v6|v9-report-fixes)\.css[^>]*>\s*", string.Empty, RegexOptions.IgnoreCase);
+    headerCustomHtml = Regex.Replace(headerCustomHtml,
+        @"(<script\b[^>]*>.*?)(<noscript\b[^>]*>.*?</noscript>)(.*?</script>)", "$1$3$2", RegexOptions.IgnoreCase | RegexOptions.Singleline);
     var footerCustomHtml = Regex.Replace(commonSettings.FooterCustomHtml ?? string.Empty,
         @"<script\b[^>]*\bhood-(?:third-party-gate-v6|v9-report-fixes)\.js[^>]*>\s*</script>\s*", string.Empty, RegexOptions.IgnoreCase);
 }

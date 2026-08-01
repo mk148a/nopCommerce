@@ -46,6 +46,8 @@ public class ElementCatalogCardContractTests
 
         elementRoot.Should().Contain("hood-(?:third-party-gate-v6|v9-report-fixes)");
         genericRoot.Should().Contain("hood-(?:third-party-gate-v6|v9-report-fixes)");
+        elementRoot.Should().Contain("<noscript\\b[^>]*>.*?</noscript>");
+        genericRoot.Should().Contain("<noscript\\b[^>]*>.*?</noscript>");
         elementRoot.Should().NotContain("<link rel=\"stylesheet\" href=\"/Themes/Element/Content/css/hood-third-party-gate-v6.css");
         genericRoot.Should().NotContain("<script src=\"/Themes/Element/Content/scripts/hood-third-party-gate-v6.js");
     }
