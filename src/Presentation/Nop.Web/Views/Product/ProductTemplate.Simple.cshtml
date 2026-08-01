@@ -20,6 +20,12 @@
     //page class
     NopHtml.AppendPageCssClassParts("html-product-details-page");
 
+    //Configured system/payment products remain directly purchasable, but must not be indexed.
+    if (Model.NoIndex)
+    {
+        NopHtml.AddHeadCustomParts("<meta name=\"robots\" content=\"noindex,follow\" />");
+    }
+
     //canonical URL
     if (seoSettings.CanonicalUrlsEnabled)
     {
