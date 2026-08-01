@@ -142,6 +142,9 @@ public partial class JsonLdModelFactory : IJsonLdModelFactory
         var matchingGtins = string.IsNullOrWhiteSpace(model.Gtin)
             ? []
             : await _productRepository.GetAllAsync(query => query.Where(product => product.Gtin == model.Gtin && product.Published && !product.Deleted));
+        var matchingMpns = string.IsNullOrWhiteSpace(model.ManufacturerPartNumber)
+            ? []
+            : await _productRepository.GetAllAsync(query => query.Where(product => product.ManufacturerPartNumber == model.ManufacturerPartNumber && product.Published && !product.Deleted));
         var imageUrls = model.PictureModels.Select(x => x.FullSizeImageUrl ?? x.ImageUrl)
             .Where(x => !string.IsNullOrWhiteSpace(x)).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
         var description = NormalizePlainText(model.FullDescription) ?? NormalizePlainText(model.ShortDescription);
@@ -153,7 +156,7 @@ public partial class JsonLdModelFactory : IJsonLdModelFactory
             Name = model.Name,
             Sku = model.Sku,
             Gtin = ShouldIncludeGtin(model.Gtin, matchingGtins.Count) ? model.Gtin : null,
-            Mpn = model.ManufacturerPartNumber,
+            Mpn = ShouldIncludeMpn(model.ManufacturerPartNumber, matchingMpns.Count) ? model.ManufacturerPartNumber : null,
             Description = description,
             Image = imageUrls.Any() ? imageUrls : null,
             Category = model.Breadcrumb?.CategoryBreadcrumb?.LastOrDefault()?.Name,
@@ -219,6 +222,11 @@ public partial class JsonLdModelFactory : IJsonLdModelFactory
     protected virtual bool ShouldIncludeGtin(string gtin, int matchingProductCount)
     {
         return matchingProductCount == 1 && IsValidGtin(gtin);
+    }
+
+    protected virtual bool ShouldIncludeMpn(string mpn, int matchingProductCount)
+    {
+        return !string.IsNullOrWhiteSpace(mpn) && matchingProductCount == 1;
     }
 
     #endregion

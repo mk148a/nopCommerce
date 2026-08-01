@@ -388,6 +388,10 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry
                 .Where(product => !string.IsNullOrWhiteSpace(product.Gtin))
                 .GroupBy(product => product.Gtin, StringComparer.Ordinal)
                 .ToDictionary(group => group.Key, group => group.Count(), StringComparer.Ordinal);
+            var mpnCounts = productsForIdentifiers
+                .Where(product => !string.IsNullOrWhiteSpace(product.ManufacturerPartNumber))
+                .GroupBy(product => product.ManufacturerPartNumber, StringComparer.Ordinal)
+                .ToDictionary(group => group.Key, group => group.Count(), StringComparer.Ordinal);
             foreach (var product in products)
             {
                 var productsToProcess = new List<Product>();
@@ -614,7 +618,7 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry
 
                     //mpn [mpn] - Manufacturer Part Number (MPN) of the item
                     var mpn = productToProcess.ManufacturerPartNumber;
-                    if (!string.IsNullOrEmpty(mpn))
+                    if (!string.IsNullOrWhiteSpace(mpn) && mpnCounts.TryGetValue(mpn, out var mpnCount) && mpnCount == 1)
                     {
                       await  writer.WriteStartElementAsync("g", "mpn", googleBaseNamespace);
                       await  writer.WriteCDataAsync(mpn);

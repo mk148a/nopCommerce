@@ -15,6 +15,7 @@ using Nop.Core.Domain.Stores;
 using Nop.Core.Events;
 using Nop.Data;
 using Nop.Plugin.Shipping.FixedByWeightByTotal.Services.ProductionTime;
+using Nop.Plugin.Shipping.FixedByWeightByTotal.Models.ProductionTime;
 using Nop.Plugin.Shipping.FixedByWeightByTotal.Infrastructure.Seo;
 using Nop.Plugin.Shipping.FixedByWeightByTotal;
 using Nop.Plugin.Shipping.FixedByWeightByTotal.Components;
@@ -67,6 +68,23 @@ public class JsonLdModelContractTests
     public void ValidUniqueGtinIsIncluded()
     {
         _factory.IncludeGtin("4006381333931", 1).Should().BeTrue();
+    }
+
+    [Test]
+    public void MpnIsIncludedOnlyWhenNonBlankAndUnique()
+    {
+        _factory.IncludeMpn("hood-mpn-001", 1).Should().BeTrue();
+        _factory.IncludeMpn("hood-mpn-001", 2).Should().BeFalse();
+        _factory.IncludeMpn(" ", 1).Should().BeFalse();
+    }
+
+    [Test]
+    public void MadeToOrderOrderableProductHidesNumericStockAndUsesPublicAvailabilityText()
+    {
+        var model = new ProductProductionTimeModel { IsHandmade = true, IsOrderable = true };
+
+        model.HideNumericStock.Should().BeTrue();
+        model.AvailabilityText.Should().Be("Available to order — made to order");
     }
 
     [Test]
@@ -184,5 +202,7 @@ public class JsonLdModelContractTests
         public string Availability(Product product, bool inStock) => GetAvailability(product, inStock);
 
         public bool IncludeGtin(string gtin, int matchingProductCount) => ShouldIncludeGtin(gtin, matchingProductCount);
+
+        public bool IncludeMpn(string mpn, int matchingProductCount) => ShouldIncludeMpn(mpn, matchingProductCount);
     }
 }

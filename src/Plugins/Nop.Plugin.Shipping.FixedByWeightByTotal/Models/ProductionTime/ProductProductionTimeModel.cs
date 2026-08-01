@@ -18,6 +18,10 @@ public class ProductProductionTimeModel
     public bool HasRecord { get; set; }
     public bool IsOrderable { get; set; }
 
+    public bool HideNumericStock => IsHandmade && IsOrderable;
+
+    public string AvailabilityText => HideNumericStock ? "Available to order — made to order" : null;
+
     public string EffectiveProductionText
     {
         get

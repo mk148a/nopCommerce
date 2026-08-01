@@ -3,7 +3,7 @@
     var min = Math.Max(0, Model.ProductionMinDays);
     var max = Math.Max(min, Model.ProductionMaxDays);
     var id = $"hood-production-time-{Model.ProductId}";
-    var showMadeToOrderAvailability = Model.IsHandmade && Model.IsOrderable;
+    var showMadeToOrderAvailability = Model.HideNumericStock;
 }
 @if (Model.Enabled && Model.DisplayOnProductPage && max > 0)
 {
@@ -170,7 +170,7 @@
         </div>
         @if (showMadeToOrderAvailability)
         {
-            <div class="hood-order-availability">Available to order — made to order</div>
+            <div class="hood-order-availability">@Model.AvailabilityText</div>
         }
         <div class="hood-production-time-note">
             <strong>Express shipping starts after production.</strong> The estimated arrival range includes both production and shipping transit.
