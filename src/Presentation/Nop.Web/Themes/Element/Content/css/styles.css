@@ -2606,6 +2606,32 @@ label+* {
     margin: 0;
 }
 
+/* Reserve the category-page carousel footprint before OwlCarousel rewrites its markup. */
+.sub-category-grid .owl-carousel.category-carousel-pending {
+    display: flex;
+    gap: 1px;
+    overflow: hidden;
+    visibility: hidden;
+}
+
+.sub-category-grid .owl-carousel.category-carousel-pending > .item-box {
+    flex: 0 0 calc((100% - 2px) / 3);
+    min-width: 0;
+    margin: 0;
+}
+
+@media (max-width: 768px) {
+    .sub-category-grid .owl-carousel.category-carousel-pending > .item-box {
+        flex-basis: calc((100% - 1px) / 2);
+    }
+}
+
+@media (max-width: 480px) {
+    .sub-category-grid .owl-carousel.category-carousel-pending > .item-box {
+        flex-basis: 100%;
+    }
+}
+
 @media (max-width: 768px) {
     .home-page-category-grid .owl-carousel.category-carousel-pending > .item-box {
         flex-basis: calc((100% - 10px) / 2);

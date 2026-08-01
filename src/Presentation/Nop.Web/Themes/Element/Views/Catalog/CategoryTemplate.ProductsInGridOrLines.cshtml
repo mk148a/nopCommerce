@@ -122,7 +122,7 @@
             @if (Model.SubCategories.Count > 0)
             {
                 <div class="category-grid sub-category-grid @subCategoriesPerRowClassName">
-                    <div class="item-grid owl-carousel">
+                    <div class="item-grid owl-carousel owl-theme category-carousel-pending">
                         @foreach (var item in Model.SubCategories)
                         {
                             <div class="item-box">
@@ -194,7 +194,7 @@
     </div>
 </div>
 <script asp-location="Footer">
-                var owl = $('.owl-carousel');
+                var owl = $('.sub-category-grid .owl-carousel');
         owl.owlCarousel({
             items:3,
             loop:true,
@@ -215,5 +215,6 @@
                             }
                         }
         });
+        owl.removeClass('category-carousel-pending');
     </script>
 }

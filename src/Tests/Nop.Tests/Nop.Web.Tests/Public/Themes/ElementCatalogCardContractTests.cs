@@ -76,6 +76,19 @@ public class ElementCatalogCardContractTests
         overview.Should().NotContain("TotalReviews = productReviews.Count");
     }
 
+    [Test]
+    public void Category_template_reserves_carousel_footprint_before_initialization()
+    {
+        var category = ReadSource("src", "Presentation", "Nop.Web", "Themes", "Element", "Views", "Catalog", "CategoryTemplate.ProductsInGridOrLines.cshtml");
+        var styles = ReadSource("src", "Presentation", "Nop.Web", "Themes", "Element", "Content", "css", "styles.css");
+
+        category.Should().Contain("owl-carousel owl-theme category-carousel-pending");
+        category.Should().Contain("$('.sub-category-grid .owl-carousel')");
+        category.Should().Contain("owl.removeClass('category-carousel-pending')");
+        styles.Should().Contain(".sub-category-grid .owl-carousel.category-carousel-pending");
+        styles.Should().Contain("flex-basis: 100%");
+    }
+
     private static string ReadSource(params string[] parts)
     {
         var directory = new DirectoryInfo(TestContext.CurrentContext.TestDirectory);
