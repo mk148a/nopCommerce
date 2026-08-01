@@ -50,6 +50,8 @@ public class ElementCatalogCardContractTests
         genericRoot.Should().Contain("<noscript\\b[^>]*>.*?</noscript>");
         elementRoot.Should().Contain("headerCustomHtml = Regex.Replace(headerCustomHtml");
         elementRoot.Should().Contain("customHeadTags = Regex.Replace(seoSettings.CustomHeadTags");
+        elementRoot.Should().Contain("display=optional");
+        elementRoot.Should().NotContain("display=swap");
         elementRoot.Should().NotContain("<link rel=\"stylesheet\" href=\"/Themes/Element/Content/css/hood-third-party-gate-v6.css");
         genericRoot.Should().NotContain("<script src=\"/Themes/Element/Content/scripts/hood-third-party-gate-v6.js");
     }
