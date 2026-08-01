@@ -24,6 +24,8 @@ using Nop.Core.Infrastructure;
 using Nop.Data;
 using Nop.Plugin.Widgets.CustomProductReviews.Domains;
 using Nop.Plugin.Widgets.CustomProductReviews.Services;
+using CustomVideoService = Nop.Plugin.Widgets.CustomProductReviews.Services.IVideoService;
+using Video = Nop.Plugin.Widgets.CustomProductReviews.Domains.Video;
 using Nop.Services.Catalog;
 using Nop.Services.Common;
 using Nop.Services.Customers;
@@ -83,7 +85,7 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Controllers
         private readonly ShoppingCartSettings _shoppingCartSettings;
         private readonly ShippingSettings _shippingSettings;
         private readonly IPictureService _pictureService;
-        private readonly IVideoService _videoService;
+        private readonly CustomVideoService _videoService;
         private readonly ICustomProductReviewMappingService _customProductReviewMappingService;
         private readonly INopFileProvider _fileProvider;
         private readonly IBackgroundQueue _queue;
@@ -119,7 +121,7 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Controllers
             LocalizationSettings localizationSettings,
             ShoppingCartSettings shoppingCartSettings,
             IPictureService pictureService,
-            IVideoService videoService,
+            CustomVideoService videoService,
             INopFileProvider fileProvider,
             ShippingSettings shippingSettings,
             ICustomProductReviewMappingService customProductReviewMappingService,
@@ -244,7 +246,7 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Controllers
 
                 //notify store owner
                 if (_catalogSettings.NotifyStoreOwnerAboutNewProductReviews)
-                    await _workflowMessageService.SendProductReviewNotificationMessageAsync(productReview,
+                    await _workflowMessageService.SendProductReviewStoreOwnerNotificationMessageAsync(productReview,
                         _localizationSettings.DefaultAdminLanguageId);
 
                 //activity log
@@ -257,11 +259,9 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Controllers
                 if (productReview.IsApproved)
                     await _eventPublisher.PublishAsync(new ProductReviewApprovedEvent(productReview));
 
-                model = await _productModelFactory.PrepareProductReviewsModelAsync(model, product);
+                model = await _productModelFactory.PrepareProductReviewsModelAsync(product);
                 model.AddProductReview.Title = null;
                 model.AddProductReview.ReviewText = null;
-
-                model.AddProductReview.SuccessfullyAdded = true;
 
                 #region Product Review Media Upload Section
 
@@ -309,31 +309,26 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Controllers
                     
                 }
                 #endregion
-                if (!isApproved)
-                    model.AddProductReview.Result =
-                        await _localizationService.GetResourceAsync("Reviews.SeeAfterApproving") + Environment.NewLine +
-                        " Your uploaded media(photo or video ) will continue to be processed in the background." + Environment.NewLine +
-                        " After processing, the media will be automatically added to your review.";
-
-                else
-                    model.AddProductReview.Result =
-                        await _localizationService.GetResourceAsync("Reviews.SuccessfullyAdded") + Environment.NewLine +
-                        " Your uploaded media(photo or video ) will continue to be processed in the background." + Environment.NewLine +
-                        " After processing, the media will be automatically added to your review.";
-
-                return Json(model);
+                var result = !isApproved
+                    ? await _localizationService.GetResourceAsync("Reviews.SeeAfterApproving")
+                    : await _localizationService.GetResourceAsync("Reviews.SuccessfullyAdded");
+                result += Environment.NewLine + " Your uploaded media(photo or video ) will continue to be processed in the background." + Environment.NewLine +
+                    " After processing, the media will be automatically added to your review.";
+                return Json(new { Model = model, Success = true, Result = result });
 
             }
             //if we got this far, something failed, redisplay form
-            model = await _productModelFactory.PrepareProductReviewsModelAsync(model, product);
-            return Json(model);
+            model = await _productModelFactory.PrepareProductReviewsModelAsync(product);
+            return Json(new { Model = model, Success = false, Result = string.Empty });
         }
     
 
     public async Task<string> InsertReviewMedia(ProductReviewsModel model, UploadDataBinary data, int reviewId)
         {
 
-            string name = model.ProductSeName + "-" + DateTime.UtcNow.ToFileTime();
+            var reviewProduct = await _productService.GetProductByIdAsync(model.ProductId);
+            var productSeName = reviewProduct == null ? model.ProductId.ToString() : await _urlRecordService.GetSeNameAsync(reviewProduct);
+            string name = productSeName + "-" + DateTime.UtcNow.ToFileTime();
             Stopwatch sw = new Stopwatch();
 
             var pic = new Picture();

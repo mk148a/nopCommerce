@@ -5,6 +5,7 @@ using Nop.Core.Domain.Media;
 using Nop.Data.Extensions;
 using Nop.Data.Mapping.Builders;
 using Nop.Plugin.Widgets.CustomProductReviews.Domains;
+using Video = Nop.Plugin.Widgets.CustomProductReviews.Domains.Video;
 using Nop.Web.Models.Catalog;
 
 namespace Nop.Plugin.Widgets.CustomProductReviews.Mapping.Builders

@@ -6,6 +6,7 @@ using Nop.Core;
 using Nop.Core.Domain.Catalog;
 using Nop.Core.Domain.Media;
 using Nop.Plugin.Widgets.CustomProductReviews.Domains;
+using Video = Nop.Plugin.Widgets.CustomProductReviews.Domains.Video;
 
 namespace Nop.Plugin.Widgets.CustomProductReviews.Services
 {

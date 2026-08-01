@@ -1,5 +1,7 @@
 ﻿@using Microsoft.AspNetCore.Mvc
 @using Nop.Core.Infrastructure
+@using Nop.Services.Catalog
+@using Nop.Services.Seo
 @model Nop.Web.Models.Catalog.ProductReviewsModel
 
 
@@ -22,20 +24,20 @@
     {
         setting = await _settingService.LoadSettingAsync<Nop.Plugin.Widgets.CustomProductReviews.CustomProductReviewsSettings>();
     }
+
+    var productService = EngineContext.Current.Resolve<IProductService>();
+    var urlRecordService = EngineContext.Current.Resolve<IUrlRecordService>();
+    var product = await productService.GetProductByIdAsync(Model.ProductId);
+    var productName = product?.Name ?? string.Empty;
+    var productSeName = product == null ? string.Empty : await urlRecordService.GetSeNameAsync(product);
 }
 <div class="page product-reviews-page">
 <div >
-        <h2 style="text-align: center;">@T("Reviews.ProductReviewsFor") <a href="@Url.RouteUrl("Product", new { SeName = Model.ProductSeName })">@Model.ProductName</a></h2>
+        <h2 style="text-align: center;">@T("Reviews.ProductReviewsFor") <a href="@Url.RouteUrl("Product", new { SeName = productSeName })">@productName</a></h2>
 
     </div>
     <div class="page-body">
-        @if (Model.AddProductReview.SuccessfullyAdded)
-        {
-            <div class="submitReviewResult result">
-                @Model.AddProductReview.Result
-            </div>
-        }
-        else if (!Model.AddProductReview.CanAddNewReview)
+        @if (!Model.AddProductReview.CanAddNewReview)
         {
             <div class="result review-already-added">
                 @T("Reviews.AlreadyAddedProductReviews")
@@ -277,11 +279,11 @@
                
                 var strmsg = "";
                 uploadButton.value = "@T("Reviews.SubmitButton")";
-                if (data.AddProductReview.Result.length > 0) {
+                if (data.Result && data.Result.length > 0) {
                     strmsg += "<ul>";
-                    strmsg += "<li>" + data.AddProductReview.Result + "</li>";
+                    strmsg += "<li>" + data.Result + "</li>";
                     strmsg += "</ul>";
-                    if (!data.AddProductReview.SuccessfullyAdded) {
+                    if (!data.Success) {
                         $("#message-error-review-form").html(strmsg);
                     }
                     else {

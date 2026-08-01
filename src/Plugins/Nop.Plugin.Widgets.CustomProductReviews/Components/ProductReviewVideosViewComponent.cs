@@ -7,6 +7,8 @@ using DocumentFormat.OpenXml.Drawing;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewComponents;
 using Nop.Plugin.Widgets.CustomProductReviews.Services;
+using CustomVideoService = Nop.Plugin.Widgets.CustomProductReviews.Services.IVideoService;
+using Video = Nop.Plugin.Widgets.CustomProductReviews.Domains.Video;
 using Nop.Web.Framework.Components;
 using Nop.Web.Models.Catalog;
 using Nop.Services.Catalog;
@@ -31,7 +33,7 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Components
         private readonly CustomProductReviewsSettings _customProductReviewsSettings;
         private readonly IProductService _productService;
         private readonly IProductModelFactory _productModelFactory;
-        private readonly IVideoService _videoService;
+        private readonly CustomVideoService _videoService;
         private readonly ICustomProductReviewMappingService _customProductReviewMappingService;
         private readonly ILocalizationService _localizationService;
         private readonly MediaSettings _mediaSettings;
@@ -42,7 +44,7 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Components
 
         #region Ctor
 
-        public ProductReviewVideos(CustomProductReviewsSettings customProductReviewsSettings, IProductService productService, IProductModelFactory productModelFactory,IVideoService videoService, ICustomProductReviewMappingService customProductReviewMappingService, ILocalizationService localizationService, MediaSettings mediaSettings)
+        public ProductReviewVideos(CustomProductReviewsSettings customProductReviewsSettings, IProductService productService, IProductModelFactory productModelFactory,CustomVideoService videoService, ICustomProductReviewMappingService customProductReviewMappingService, ILocalizationService localizationService, MediaSettings mediaSettings)
         {
             //_accessiBeService = accessiBeService;
             _customProductReviewsSettings = customProductReviewsSettings;

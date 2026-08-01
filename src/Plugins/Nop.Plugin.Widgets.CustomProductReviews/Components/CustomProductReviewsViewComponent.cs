@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewComponents;
 using Nop.Plugin.Widgets.CustomCustomProductReviews.Models;
 using Nop.Web.Framework.Components;
+using Nop.Web.Framework.Factories;
 using Nop.Web.Models.Catalog;
 using Nop.Services.Catalog;
 using Nop.Web.Factories;
@@ -101,7 +102,7 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Components
         }
         public async Task<IViewComponentResult> InvokeAsync(string widgetZone, object additionalData)
         {
-            if (_customProductReviewsSettings.data.IsNullOrEmpty())
+            if (string.IsNullOrEmpty(_customProductReviewsSettings.data))
             {
 
 
@@ -131,7 +132,7 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Components
                     var product = await _productService.GetProductByIdAsync(productId);
 
 
-                    model = await _productModelFactory.PrepareProductReviewsModelAsync(model, product);
+                    model = await _productModelFactory.PrepareProductReviewsModelAsync(product);
 
                     await ValidateProductReviewAvailabilityAsync(product);
 

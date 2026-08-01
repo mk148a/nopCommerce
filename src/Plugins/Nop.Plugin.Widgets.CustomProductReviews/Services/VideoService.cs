@@ -15,6 +15,7 @@ using Nop.Core.Infrastructure;
 using Nop.Data;
 using Nop.Plugin.Widgets.CustomCustomProductReviews;
 using Nop.Plugin.Widgets.CustomProductReviews.Domains;
+using Video = Nop.Plugin.Widgets.CustomProductReviews.Domains.Video;
 using Nop.Services.Catalog;
 using Nop.Services.Configuration;
 using Nop.Services.Media;

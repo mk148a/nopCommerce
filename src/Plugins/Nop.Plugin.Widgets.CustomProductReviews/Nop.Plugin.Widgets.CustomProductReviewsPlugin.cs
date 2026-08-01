@@ -22,6 +22,7 @@ using Nop.Core;
 using Nop.Core.Domain.Cms;
 using Nop.Core.Infrastructure;
 using Nop.Plugin.Widgets.CustomCustomProductReviews.Services;
+using Nop.Plugin.Widgets.CustomProductReviews.Components;
 using Nop.Services.Cms;
 using Nop.Services.Configuration;
 using Nop.Services.Localization;
@@ -113,12 +114,12 @@ namespace Nop.Plugin.Widgets.CustomProductReviews
         /// </summary>
         /// <param name="widgetZone">Name of the widget zone</param>
         /// <returns>View component name</returns>
-        public string GetWidgetViewComponentName(string widgetZone)
+        public Type GetWidgetViewComponent(string widgetZone)
         {
             if (widgetZone == null)
                 throw new ArgumentNullException(nameof(widgetZone));
 
-            return "CustomProductReviews";
+            return typeof(CustomProductReviewsViewComponent);
         }
 
 
