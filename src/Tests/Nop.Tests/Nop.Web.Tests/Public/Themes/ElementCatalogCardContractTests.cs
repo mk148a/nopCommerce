@@ -57,6 +57,19 @@ public class ElementCatalogCardContractTests
         category.Should().NotContain("<script type=\"application/ld+json\">");
     }
 
+    [Test]
+    public void Product_review_overview_uses_provenance_filtered_rows()
+    {
+        var factory = ReadSource("src", "Presentation", "Nop.Web", "Factories", "ProductModelFactory.cs");
+        var overview = factory.Substring(factory.IndexOf("PrepareProductReviewOverviewModelAsync", StringComparison.Ordinal));
+
+        overview.Should().Contain("var eligibleReviews = await FilterEligibleNativeReviewsAsync(productReviews);");
+        overview.Should().Contain("RatingSum = eligibleReviews.Sum(pr => pr.Rating)");
+        overview.Should().Contain("TotalReviews = eligibleReviews.Count");
+        overview.Should().NotContain("RatingSum = productReviews.Sum(pr => pr.Rating)");
+        overview.Should().NotContain("TotalReviews = productReviews.Count");
+    }
+
     private static string ReadSource(params string[] parts)
     {
         var directory = new DirectoryInfo(TestContext.CurrentContext.TestDirectory);

@@ -600,8 +600,8 @@ public partial class ProductModelFactory : IProductModelFactory
 
                 return new ProductReviewOverviewModel
                 {
-                    RatingSum = productReviews.Sum(pr => pr.Rating),
-                    TotalReviews = productReviews.Count
+                    RatingSum = eligibleReviews.Sum(pr => pr.Rating),
+                    TotalReviews = eligibleReviews.Count
                 };
             });
         }
