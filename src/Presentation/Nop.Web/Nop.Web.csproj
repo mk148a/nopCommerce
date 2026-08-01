@@ -70,7 +70,7 @@
 
   <!-- This target execute after "Build" target.
     We use it to clean up folder with plugins from unnecessary and obsolete libraries. -->
-  <Target Name="NopTarget" AfterTargets="Build">
+  <Target Name="NopTarget" AfterTargets="Build" Condition="'$(SkipPluginCleanup)' != 'true'">
     <ItemGroup>
       <!-- Get plugin description files to get plugin paths -->
       <PluginsDescription Include="$(MSBuildProjectDirectory)\Plugins\**\plugin.json;" />
