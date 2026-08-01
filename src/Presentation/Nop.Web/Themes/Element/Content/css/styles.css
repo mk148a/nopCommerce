@@ -2530,7 +2530,8 @@ label+* {
     background-color: #fff;
 }
 
-.home-page-category-grid .archery-category-item .picture img {
+.home-page-category-grid .archery-category-item .picture img,
+.home-page-category-grid .category-item .picture img[src*="0003186_archery_630"] {
     object-fit: contain;
     object-position: center;
 }
