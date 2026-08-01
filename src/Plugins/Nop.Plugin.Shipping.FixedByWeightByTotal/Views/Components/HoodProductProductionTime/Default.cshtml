@@ -139,8 +139,8 @@
     {
         <style>
             /* Applies before the component script runs, while remaining scoped to this product page. */
-            body:has(#@id.is-made-to-order) .product-details-page .overview .availability .stock,
-            body:has(#@id.is-made-to-order) .product-details-page .overview .delivery .delivery-date {
+            body:has(#@(id).is-made-to-order) .product-details-page .overview .availability .stock,
+            body:has(#@(id).is-made-to-order) .product-details-page .overview .delivery .delivery-date {
                 display: none;
             }
         </style>
