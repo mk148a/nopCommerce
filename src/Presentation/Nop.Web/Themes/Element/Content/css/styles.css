@@ -2498,6 +2498,14 @@ label+* {
     padding-top: 65%;
 }
 
+/* Keep homepage category cards uniform even when their source images have different dimensions. */
+.home-page-category-grid .item-box .picture img {
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    object-fit: cover;
+}
+
 .home-page-category-grid .title,
 .sub-category-grid .title {
     position: absolute;
