@@ -336,7 +336,7 @@ public class FixedByWeightByTotalComputationMethod : BasePlugin, IShippingRateCo
         return (true, totalWeightGram, null);
     }
 
-    protected async Task<string> GetPttCountryCodeAsync(int countryId)
+    protected async Task<string> GetDestinationCountryCodeAsync(int countryId)
     {
         if (countryId <= 0)
             return null;
@@ -601,6 +601,7 @@ public class FixedByWeightByTotalComputationMethod : BasePlugin, IShippingRateCo
             var productionRange = await _productProductionTimeService.GetProductionDayRangeForCartItemsAsync(
                 getShippingOptionRequest.Items.Select(i => i.ShoppingCartItem));
             var productionMaxDays = productionRange.MaxDays;
+            var destinationCountryCode = await GetDestinationCountryCodeAsync(countryId);
 
             foreach (var shippingMethod in await _shippingService.GetAllShippingMethodsAsync(countryId))
             {
@@ -636,7 +637,12 @@ public class FixedByWeightByTotalComputationMethod : BasePlugin, IShippingRateCo
                     Name = publicMethodName,
                     Description = methodDescription,
                     Rate = rate,
-                    TransitDays = transitDays
+                    TransitDays = transitDays,
+                    TransitMinDays = shippingByWeightByTotalRecord.TransitDays,
+                    TransitMaxDays = shippingByWeightByTotalRecord.TransitDays,
+                    HandlingMinDays = productionRange.MinDays > 0 ? productionRange.MinDays : null,
+                    HandlingMaxDays = productionRange.MaxDays > 0 ? productionRange.MaxDays : null,
+                    DestinationCountryCode = destinationCountryCode
                 });
             }
 
@@ -646,7 +652,7 @@ public class FixedByWeightByTotalComputationMethod : BasePlugin, IShippingRateCo
             var pttAvailability = await GetPttActualWeightAndAvailabilityAsync(getShippingOptionRequest);
             if (pttAvailability.Available)
             {
-                var countryCode = await GetPttCountryCodeAsync(countryId);
+                var countryCode = destinationCountryCode;
                 var pttRate = await GetLivePttPostServiceRateAsync(countryCode, pttAvailability.WeightGram);
                 if (pttRate.HasValue)
                 {
@@ -665,7 +671,12 @@ public class FixedByWeightByTotalComputationMethod : BasePlugin, IShippingRateCo
                             : _fixedByWeightByTotalSettings.HoodPttMethodName.Trim(),
                         Description = pttDescription,
                         Rate = pttRate.Value,
-                        TransitDays = pttTransitMax + productionMaxDays
+                        TransitDays = pttTransitMax + productionMaxDays,
+                        TransitMinDays = pttTransitMin,
+                        TransitMaxDays = pttTransitMax,
+                        HandlingMinDays = productionRange.MinDays > 0 ? productionRange.MinDays : null,
+                        HandlingMaxDays = productionRange.MaxDays > 0 ? productionRange.MaxDays : null,
+                        DestinationCountryCode = destinationCountryCode
                     });
                 }
             }
@@ -676,6 +687,7 @@ public class FixedByWeightByTotalComputationMethod : BasePlugin, IShippingRateCo
             var restrictByCountryId = getShippingOptionRequest.ShippingAddress?.CountryId;
             var productionRange = await _productProductionTimeService.GetProductionDayRangeForCartItemsAsync(
                 getShippingOptionRequest.Items.Select(i => i.ShoppingCartItem));
+            var destinationCountryCode = await GetDestinationCountryCodeAsync(restrictByCountryId ?? 0);
 
             response.ShippingOptions = await (await _shippingService.GetAllShippingMethodsAsync(restrictByCountryId)).SelectAwait(async shippingMethod =>
             {
@@ -694,7 +706,12 @@ public class FixedByWeightByTotalComputationMethod : BasePlugin, IShippingRateCo
                     Name = NormalizePublicShippingMethodName(await _localizationService.GetLocalizedAsync(shippingMethod, x => x.Name)),
                     Description = methodDescription,
                     Rate = await GetRateAsync(shippingMethod.Id),
-                    TransitDays = transitDays
+                    TransitDays = transitDays,
+                    TransitMinDays = carrierTransitDays,
+                    TransitMaxDays = carrierTransitDays,
+                    HandlingMinDays = productionRange.MinDays > 0 ? productionRange.MinDays : null,
+                    HandlingMaxDays = productionRange.MaxDays > 0 ? productionRange.MaxDays : null,
+                    DestinationCountryCode = destinationCountryCode
                 };
             }).ToListAsync();
         }

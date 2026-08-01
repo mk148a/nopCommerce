@@ -11,6 +11,7 @@ using Nop.Core;
 using Nop.Core.Domain;
 using Nop.Core.Domain.Catalog;
 using Nop.Core.Domain.Media;
+using Nop.Core.Domain.Shipping;
 using Nop.Core.Domain.Stores;
 using Nop.Core.Events;
 using Nop.Data;
@@ -195,6 +196,42 @@ public class JsonLdModelContractTests
 
         deliveryRange.MinDays.Should().Be(23);
         deliveryRange.MaxDays.Should().Be(33);
+    }
+
+    [Test]
+    public void DestinationSpecificShippingQuoteKeepsHandlingAndTransitRangesSeparate()
+    {
+        var option = new ShippingOption
+        {
+            TransitDays = 39,
+            TransitMinDays = 3,
+            TransitMaxDays = 11,
+            HandlingMinDays = 21,
+            HandlingMaxDays = 28,
+            DestinationCountryCode = "GB"
+        };
+
+        option.TransitDays.Should().Be(39);
+        option.TransitMinDays.Should().Be(3);
+        option.TransitMaxDays.Should().Be(11);
+        option.HandlingMinDays.Should().Be(21);
+        option.HandlingMaxDays.Should().Be(28);
+        option.DestinationCountryCode.Should().Be("GB");
+
+        DeliveryEstimateRange.Combine(option.HandlingMinDays.Value, option.HandlingMaxDays.Value,
+            option.TransitMinDays.Value, option.TransitMaxDays.Value).Should().Be((24, 39));
+    }
+
+    [Test]
+    public void ShippingQuoteWithoutDestinationEstimateDoesNotInventRange()
+    {
+        var option = new ShippingOption { TransitDays = null };
+
+        option.TransitMinDays.Should().BeNull();
+        option.TransitMaxDays.Should().BeNull();
+        option.HandlingMinDays.Should().BeNull();
+        option.HandlingMaxDays.Should().BeNull();
+        option.DestinationCountryCode.Should().BeNull();
     }
 
     [Test]

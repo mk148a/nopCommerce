@@ -94,6 +94,19 @@ public partial class ShoppingCartModelFactory : IShoppingCartModelFactory
     protected readonly VendorSettings _vendorSettings;
     private static readonly char[] _separator = [','];
 
+    protected static string FormatShippingDeliveryDateRange(DateTime startDate, int minDays, int maxDays, CultureInfo culture)
+    {
+        minDays = Math.Max(0, minDays);
+        maxDays = Math.Max(minDays, maxDays);
+
+        var start = startDate.AddDays(minDays).Date;
+        var end = startDate.AddDays(maxDays).Date;
+        if (start == end)
+            return start.ToString("d", culture);
+
+        return $"{start.ToString("d", culture)} - {end.ToString("d", culture)}";
+    }
+
     #endregion
 
     #region Ctor
@@ -1338,6 +1351,11 @@ public partial class ShoppingCartModelFactory : IShoppingCartModelFactory
                             Description = shippingOption.Description,
                             Rate = shippingOption.Rate,
                             TransitDays = shippingOption.TransitDays,
+                            TransitMinDays = shippingOption.TransitMinDays,
+                            TransitMaxDays = shippingOption.TransitMaxDays,
+                            HandlingMinDays = shippingOption.HandlingMinDays,
+                            HandlingMaxDays = shippingOption.HandlingMaxDays,
+                            DestinationCountryCode = shippingOption.DestinationCountryCode,
                             ShippingRateComputationMethodSystemName = shippingOption.ShippingRateComputationMethodSystemName
                         });
                     }
@@ -1407,7 +1425,17 @@ public partial class ShoppingCartModelFactory : IShoppingCartModelFactory
                         shippingRateString = string.Format(await _localizationService.GetResourceAsync("Shipping.EstimateShippingPopUp.Pickup.PriceFrom"), shippingRateString);
 
                     string deliveryDateFormat = null;
-                    if (option.TransitDays.HasValue)
+                    if (option.TransitMinDays.HasValue && option.TransitMaxDays.HasValue)
+                    {
+                        var currentCulture = CultureInfo.GetCultureInfo((await _workContext.GetWorkingLanguageAsync()).LanguageCulture);
+                        var customerDateTime = await _dateTimeHelper.ConvertToUserTimeAsync(DateTime.Now);
+                        var handlingMin = option.HandlingMinDays.GetValueOrDefault();
+                        var handlingMax = option.HandlingMaxDays.GetValueOrDefault();
+                        var totalMin = handlingMin + option.TransitMinDays.Value;
+                        var totalMax = handlingMax + option.TransitMaxDays.Value;
+                        deliveryDateFormat = FormatShippingDeliveryDateRange(customerDateTime, totalMin, totalMax, currentCulture);
+                    }
+                    else if (option.TransitDays.HasValue)
                     {
                         var currentCulture = CultureInfo.GetCultureInfo((await _workContext.GetWorkingLanguageAsync()).LanguageCulture);
                         var customerDateTime = await _dateTimeHelper.ConvertToUserTimeAsync(DateTime.Now);
@@ -1430,6 +1458,11 @@ public partial class ShoppingCartModelFactory : IShoppingCartModelFactory
                         Price = shippingRateString,
                         Rate = shippingRate,
                         DeliveryDateFormat = deliveryDateFormat,
+                        TransitMinDays = option.TransitMinDays,
+                        TransitMaxDays = option.TransitMaxDays,
+                        HandlingMinDays = option.HandlingMinDays,
+                        HandlingMaxDays = option.HandlingMaxDays,
+                        DestinationCountryCode = option.DestinationCountryCode,
                         Selected = selected
                     });
                 }

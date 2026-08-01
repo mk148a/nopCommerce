@@ -58,6 +58,16 @@ public partial record EstimateShippingResultModel : BaseNopModel
         public int DisplayOrder { get; set; }
 
         public bool Selected { get; set; }
+
+        public int? TransitMinDays { get; set; }
+
+        public int? TransitMaxDays { get; set; }
+
+        public int? HandlingMinDays { get; set; }
+
+        public int? HandlingMaxDays { get; set; }
+
+        public string DestinationCountryCode { get; set; }
     }
 
     #endregion
