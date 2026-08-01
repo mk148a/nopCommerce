@@ -18,6 +18,7 @@ using Nop.Core.Events;
 using Nop.Core.Infrastructure;
 using Nop.Services.Blogs;
 using Nop.Services.Catalog;
+using Nop.Services.Configuration;
 using Nop.Services.Customers;
 using Nop.Services.Localization;
 using Nop.Services.News;
@@ -52,6 +53,7 @@ public partial class SitemapModelFactory : ISitemapModelFactory
     protected readonly INopUrlHelper _nopUrlHelper;
     protected readonly IProductService _productService;
     protected readonly IProductTagService _productTagService;
+    protected readonly ISettingService _settingService;
     protected readonly IStaticCacheManager _staticCacheManager;
     protected readonly IStoreContext _storeContext;
     protected readonly ITopicService _topicService;
@@ -84,6 +86,7 @@ public partial class SitemapModelFactory : ISitemapModelFactory
         INopUrlHelper nopUrlHelper,
         IProductService productService,
         IProductTagService productTagService,
+        ISettingService settingService,
         IStaticCacheManager staticCacheManager,
         IStoreContext storeContext,
         ITopicService topicService,
@@ -112,6 +115,7 @@ public partial class SitemapModelFactory : ISitemapModelFactory
         _nopUrlHelper = nopUrlHelper;
         _productService = productService;
         _productTagService = productTagService;
+        _settingService = settingService;
         _staticCacheManager = staticCacheManager;
         _storeContext = storeContext;
         _topicService = topicService;
@@ -136,6 +140,14 @@ public partial class SitemapModelFactory : ISitemapModelFactory
     protected virtual IUrlHelper GetUrlHelper()
     {
         return _urlHelperFactory.GetUrlHelper(_actionContextAccessor.ActionContext);
+    }
+
+    protected virtual async Task<HashSet<string>> GetSystemProductSkusAsync()
+    {
+        var csv = await _settingService.GetSettingByKeyAsync<string>(
+            "FixedByWeightByTotalSettings.SystemProductSkus", "expresshipping");
+        return csv.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
     }
 
     /// <summary>
@@ -280,9 +292,11 @@ public partial class SitemapModelFactory : ISitemapModelFactory
     protected virtual async Task<IEnumerable<SitemapUrlModel>> GetProductUrlsAsync()
     {
         var store = await _storeContext.GetCurrentStoreAsync();
+        var systemProductSkus = await GetSystemProductSkusAsync();
 
         return await (await _productService.SearchProductsAsync(0, storeId: store.Id,
                 visibleIndividuallyOnly: true, orderBy: ProductSortingEnum.CreatedOn))
+            .Where(product => !systemProductSkus.Contains(product.Sku))
             .SelectAwait(async product => await PrepareLocalizedSitemapUrlAsync("Product", GetSeoRouteParamsAwait(product), product.UpdatedOnUtc)).ToListAsync();
     }
 
@@ -776,7 +790,8 @@ public partial class SitemapModelFactory : ISitemapModelFactory
             {
                 var productsGroupTitle = await _localizationService.GetResourceAsync("Sitemap.Products");
                 var products = await _productService.SearchProductsAsync(0, storeId: store.Id, visibleIndividuallyOnly: true);
-                model.Items.AddRange(await products.SelectAwait(async product => new SitemapModel.SitemapItemModel
+                var systemProductSkus = await GetSystemProductSkusAsync();
+                model.Items.AddRange(await products.Where(product => !systemProductSkus.Contains(product.Sku)).SelectAwait(async product => new SitemapModel.SitemapItemModel
                 {
                     GroupTitle = productsGroupTitle,
                     Name = await _localizationService.GetLocalizedAsync(product, x => x.Name),
