@@ -192,6 +192,37 @@ public class JsonLdModelContractTests
     }
 
     [Test]
+    public void ProductPayloadDropsReviewsWithoutProvenanceSafeFields()
+    {
+        var model = new JsonLdProductModel
+        {
+            Review =
+            [
+                new JsonLdReviewModel
+                {
+                    Author = new JsonLdPersonModel { Name = "" },
+                    DatePublished = "2026-01-01T00:00:00Z",
+                    ReviewBody = "Should not be emitted",
+                    ReviewRating = new JsonLdRatingModel { RatingValue = 5 }
+                },
+                new JsonLdReviewModel
+                {
+                    Author = new JsonLdPersonModel { Name = "Real reviewer" },
+                    DatePublished = "2026-01-01T00:00:00Z",
+                    ReviewBody = "Valid review",
+                    ReviewRating = new JsonLdRatingModel { RatingValue = 5 }
+                }
+            ]
+        };
+
+        var payload = JsonLdProductPayload.From(model);
+
+        payload.Review.Should().ContainSingle();
+        payload.Review[0].Author.Name.Should().Be("Real reviewer");
+        payload.Review[0].DatePublished.Should().Be("2026-01-01T00:00:00.0000000+00:00");
+    }
+
+    [Test]
     public void ProductJsonOmitsReviewFieldsWhenNativeReviewProvenanceIsUnavailable()
     {
         var model = new JsonLdProductModel { Name = "No-provenance review contract" };

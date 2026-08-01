@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using System.Globalization;
 
 namespace Nop.Web.Models.JsonLD;
 
@@ -163,7 +164,7 @@ public sealed class JsonLdAggregateRatingPayload
     [JsonPropertyName("worstRating")]
     public decimal? WorstRating { get; init; }
 
-    public static JsonLdAggregateRatingPayload From(JsonLdAggregateRatingModel model) => model == null ? null : new JsonLdAggregateRatingPayload
+    public static JsonLdAggregateRatingPayload From(JsonLdAggregateRatingModel model) => model == null || model.ReviewCount <= 0 || !model.RatingValue.HasValue ? null : new JsonLdAggregateRatingPayload
     {
         RatingValue = model.RatingValue,
         ReviewCount = model.ReviewCount,
@@ -192,14 +193,23 @@ public sealed class JsonLdReviewPayload
     [JsonPropertyName("reviewRating")]
     public JsonLdRatingPayload ReviewRating { get; init; }
 
-    public static JsonLdReviewPayload From(JsonLdReviewModel model) => model == null ? null : new JsonLdReviewPayload
+    public static JsonLdReviewPayload From(JsonLdReviewModel model)
     {
-        Author = JsonLdPersonPayload.From(model.Author),
-        DatePublished = model.DatePublished,
-        Name = model.Name,
-        ReviewBody = model.ReviewBody,
-        ReviewRating = JsonLdRatingPayload.From(model.ReviewRating)
-    };
+        if (model?.Author == null || string.IsNullOrWhiteSpace(model.Author.Name)
+            || string.IsNullOrWhiteSpace(model.ReviewBody)
+            || model.ReviewRating == null
+            || !DateTimeOffset.TryParse(model.DatePublished, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out var published))
+            return null;
+
+        return new JsonLdReviewPayload
+        {
+            Author = JsonLdPersonPayload.From(model.Author),
+            DatePublished = published.ToUniversalTime().ToString("O", CultureInfo.InvariantCulture),
+            Name = model.Name,
+            ReviewBody = model.ReviewBody,
+            ReviewRating = JsonLdRatingPayload.From(model.ReviewRating)
+        };
+    }
 }
 
 public sealed class JsonLdPersonPayload
