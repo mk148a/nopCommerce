@@ -18,6 +18,10 @@
     //meta
     NopHtml.AddMetaDescriptionParts(Model.MetaDescription);
     NopHtml.AddMetaKeywordParts(Model.MetaKeywords);
+    if (Model.NoIndex)
+    {
+        NopHtml.AddHeadCustomParts("<meta name=\"robots\" content=\"noindex,follow\" />");
+    }
     //page class
     NopHtml.AppendPageCssClassParts("html-product-details-page");
 

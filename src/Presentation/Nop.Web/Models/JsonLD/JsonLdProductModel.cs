@@ -4,17 +4,6 @@ namespace Nop.Web.Models.JsonLD;
 
 public record JsonLdProductModel : JsonLdModel
 {
-    #region Ctor
-
-    public JsonLdProductModel()
-    {
-        Brand = new List<JsonLdBrandModel>();
-        Review = new List<JsonLdReviewModel>();
-        HasVariant = new List<JsonLdProductModel>();
-    }
-
-    #endregion
-
     #region Properties
 
     [JsonProperty("@context")]
@@ -22,6 +11,12 @@ public record JsonLdProductModel : JsonLdModel
 
     [JsonProperty("@type")]
     public static string Type => "Product";
+
+    [JsonProperty("@id")]
+    public string Id { get; set; }
+
+    [JsonProperty("url")]
+    public string Url { get; set; }
 
     [JsonProperty("name")]
     public string Name { get; set; }
@@ -39,10 +34,13 @@ public record JsonLdProductModel : JsonLdModel
     public string Description { get; set; }
 
     [JsonProperty("image")]
-    public string Image { get; set; }
+    public IList<string> Image { get; set; }
 
     [JsonProperty("brand")]
-    public IList<JsonLdBrandModel> Brand { get; set; }
+    public JsonLdBrandModel Brand { get; set; }
+
+    [JsonProperty("category")]
+    public string Category { get; set; }
 
     [JsonProperty("offers")]
     public JsonLdOfferModel Offer { get; set; }
@@ -55,6 +53,12 @@ public record JsonLdProductModel : JsonLdModel
 
     [JsonProperty("hasVariant")]
     public IList<JsonLdProductModel> HasVariant { get; set; }
+
+    [JsonIgnore]
+    public bool SuppressOutput { get; set; }
+
+    [JsonIgnore]
+    public bool SuppressIndex { get; set; }
 
     #endregion
 }
