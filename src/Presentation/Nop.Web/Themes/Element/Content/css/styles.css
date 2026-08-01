@@ -2358,6 +2358,54 @@ label+* {
     margin: auto;
 }
 
+/* Product-card media keeps the CLS reservation square without stretching
+   portrait or landscape source images. This is intentionally scoped to the
+   shared catalog card partial; product detail galleries are unaffected. */
+.catalog-product-card .catalog-product-media,
+.catalog-product-card .catalog-product-media > a,
+.catalog-product-card .catalog-product-media .swiper,
+.catalog-product-card .catalog-product-media .swiper-wrapper,
+.catalog-product-card .catalog-product-media .swiper-slide {
+    aspect-ratio: 1 / 1;
+}
+
+.catalog-product-card .catalog-product-media > a,
+.catalog-product-card .catalog-product-media .swiper-slide {
+    display: block;
+    position: relative;
+    overflow: hidden;
+    padding-top: 0;
+}
+
+.catalog-product-card .catalog-product-media img {
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    object-fit: contain;
+    object-position: center;
+}
+
+.catalog-product-card .product-title a {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    overflow: hidden;
+    line-height: 1.35;
+}
+
+.catalog-product-card .prices {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0 0.45rem;
+    min-width: 0;
+}
+
+.catalog-product-card .prices .price {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
 .item-box .product-title {
     margin: 0 0 5px;
     overflow: hidden;
