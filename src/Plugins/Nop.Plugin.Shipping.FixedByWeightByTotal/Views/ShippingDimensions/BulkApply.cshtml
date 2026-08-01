@@ -1,0 +1,49 @@
+@{
+    Layout = "_ConfigurePlugin";
+    var categoryId = (int)(ViewBag.CategoryId ?? 0);
+    var sourceProductId = (int)(ViewBag.SourceProductId ?? 0);
+}
+
+<div class="content-header clearfix">
+    <h1 class="float-left">Category bulk apply shipping dimensions</h1>
+    <div class="float-right">
+        <a href="@Url.Action("Configure", "FixedByWeightByTotal")" class="btn btn-secondary">Back to rates</a>
+        <a href="@Url.Action("ShippingDimensionExclusions", "FixedByWeightByTotal")" class="btn btn-danger">Exclusions</a>
+    </div>
+</div>
+
+<div class="card card-default">
+    <div class="card-body">
+        <p>
+            Copies active dimension rules from one source product to all products in a category.
+            Attribute-value rules are matched by attribute name and value name, so Pcs=6/12/24 can be copied to other arrow products even when ProductAttributeValueId values differ.
+            Attribute-combination hashes are not copied because their selected value ids are product-specific.
+        </p>
+        <div class="row">
+            <div class="col-md-2"><label>CategoryId</label><input id="categoryId" class="form-control" value="@categoryId" /></div>
+            <div class="col-md-2"><label>Source productId</label><input id="sourceProductId" class="form-control" value="@sourceProductId" /></div>
+            <div class="col-md-3 mt-4"><label><input type="checkbox" id="includeSubcategories" checked /> include subcategories</label></div>
+            <div class="col-md-3 mt-4"><label><input type="checkbox" id="overwriteExisting" /> overwrite existing rules</label></div>
+            <div class="col-md-2 mt-4"><button type="button" id="apply" class="btn btn-warning">Apply to category</button></div>
+        </div>
+        <pre id="result" class="mt-3" style="white-space: pre-wrap;"></pre>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('#apply').on('click', function () {
+            if (!confirm('Apply source product dimension rules to this category?')) return;
+            var postData = {
+                categoryId: $('#categoryId').val(),
+                sourceProductId: $('#sourceProductId').val(),
+                includeSubcategories: $('#includeSubcategories').is(':checked'),
+                overwriteExisting: $('#overwriteExisting').is(':checked')
+            };
+            addAntiForgeryToken(postData);
+            $.post('@Url.Action("CategoryBulkApplyDimensionsPost", "FixedByWeightByTotal")', postData, function (r) {
+                $('#result').text(JSON.stringify(r, null, 2));
+            });
+        });
+    });
+</script>

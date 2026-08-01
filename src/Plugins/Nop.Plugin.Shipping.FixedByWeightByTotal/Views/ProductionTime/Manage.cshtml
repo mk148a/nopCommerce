@@ -1,0 +1,73 @@
+@model IList<Nop.Plugin.Shipping.FixedByWeightByTotal.Models.ProductionTime.ProductProductionTimeModel>
+@{
+    Layout = "_ConfigurePlugin";
+    var productId = (int)(ViewBag.ProductId ?? 0);
+    var onlyEnabled = (bool)(ViewBag.OnlyEnabled ?? false);
+}
+
+<div class="content-header clearfix">
+    <h1 class="float-left">Hood production time manager</h1>
+    <div class="float-right">
+        <a href="@Url.Action("Configure", "FixedByWeightByTotal")" class="btn btn-secondary">Back to rates</a>
+    </div>
+</div>
+
+<div class="card card-default">
+    <div class="card-header"><strong>Search</strong></div>
+    <div class="card-body">
+        <form method="get" action="@Url.Action("ProductProductionTimes", "FixedByWeightByTotal")">
+            <div class="row">
+                <div class="col-md-3"><input class="form-control" name="productId" value="@productId" placeholder="ProductId" title="Filter by one product id." /></div>
+                <div class="col-md-3">
+                    <label title="Show only products that already have an enabled production time record.">
+                        @if (onlyEnabled)
+                        {
+                            <input type="checkbox" name="onlyEnabled" value="true" checked="checked" />
+                        }
+                        else
+                        {
+                            <input type="checkbox" name="onlyEnabled" value="true" />
+                        }
+                        only enabled
+                    </label>
+                </div>
+                <div class="col-md-3"><button class="btn btn-primary" type="submit" title="Reload the list using the selected filters.">Search</button></div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card card-default mt-3">
+    <div class="card-header"><strong>Records</strong></div>
+    <div class="card-body">
+        <table class="table table-bordered table-hover">
+            <thead>
+            <tr>
+                <th>Product</th>
+                <th>Enabled</th>
+                <th>Production</th>
+                <th>Show</th>
+                <th>Add to estimate</th>
+                <th>Source</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td><strong>@item.ProductId</strong><br />@item.ProductName</td>
+                    <td>@item.Enabled</td>
+                    <td>@item.EffectiveProductionText<br /><small>@item.ProductionMinDays-@item.ProductionMaxDays days</small></td>
+                    <td>@item.DisplayOnProductPage</td>
+                    <td>@item.IncludeInShippingEstimate</td>
+                    <td>@item.Source</td>
+                    <td>
+                        <a class="btn btn-sm btn-primary" href="@Url.Action("Edit", "Product", new { id = item.ProductId })" target="_blank" title="Open the nopCommerce product edit page.">Product</a>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>

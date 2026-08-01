@@ -7,6 +7,9 @@ using Nop.Core.Domain.Directory;
 using Nop.Plugin.Shipping.FixedByWeightByTotal.Domain;
 using Nop.Plugin.Shipping.FixedByWeightByTotal.Models;
 using Nop.Plugin.Shipping.FixedByWeightByTotal.Services;
+using Nop.Plugin.Shipping.FixedByWeightByTotal.Services.ShippingDimensions;
+using Nop.Plugin.Shipping.FixedByWeightByTotal.Services.ProductionTime;
+using Nop.Plugin.Shipping.FixedByWeightByTotal.Models.ProductionTime;
 using Nop.Services.Common;
 using Nop.Services.Configuration;
 using Nop.Services.Directory;
@@ -38,6 +41,8 @@ public class FixedByWeightByTotalController : BasePluginController
     protected readonly IPermissionService _permissionService;
     protected readonly ISettingService _settingService;
     protected readonly IShippingByWeightByTotalService _shippingByWeightService;
+    protected readonly IProductShippingDimensionService _productShippingDimensionService;
+    protected readonly IProductProductionTimeService _productProductionTimeService;
     protected readonly IShippingService _shippingService;
     protected readonly IStateProvinceService _stateProvinceService;
     protected readonly IStoreService _storeService;
@@ -58,6 +63,8 @@ public class FixedByWeightByTotalController : BasePluginController
         IPermissionService permissionService,
         ISettingService settingService,
         IShippingByWeightByTotalService shippingByWeightService,
+        IProductShippingDimensionService productShippingDimensionService,
+        IProductProductionTimeService productProductionTimeService,
         IShippingService shippingService,
         IStateProvinceService stateProvinceService,
         IStoreService storeService,
@@ -74,6 +81,8 @@ public class FixedByWeightByTotalController : BasePluginController
         _permissionService = permissionService;
         _settingService = settingService;
         _shippingByWeightService = shippingByWeightService;
+        _productShippingDimensionService = productShippingDimensionService;
+        _productProductionTimeService = productProductionTimeService;
         _stateProvinceService = stateProvinceService;
         _shippingService = shippingService;
         _storeService = storeService;
@@ -92,7 +101,25 @@ public class FixedByWeightByTotalController : BasePluginController
         var model = new ConfigurationModel
         {
             LimitMethodsToCreated = _fixedByWeightByTotalSettings.LimitMethodsToCreated,
-            ShippingByWeightByTotalEnabled = _fixedByWeightByTotalSettings.ShippingByWeightByTotalEnabled
+            ShippingByWeightByTotalEnabled = _fixedByWeightByTotalSettings.ShippingByWeightByTotalEnabled,
+            SystemProductSkus = _fixedByWeightByTotalSettings.SystemProductSkus,
+            HoodNavlungoChargeableWeightEnabled = _fixedByWeightByTotalSettings.HoodNavlungoChargeableWeightEnabled,
+            HoodNavlungoDimensionalWeightDivisor = _fixedByWeightByTotalSettings.HoodNavlungoDimensionalWeightDivisor <= 0 ? 5000m : _fixedByWeightByTotalSettings.HoodNavlungoDimensionalWeightDivisor,
+            HoodNavlungoRateWeightMultiplier = _fixedByWeightByTotalSettings.HoodNavlungoRateWeightMultiplier <= 0 ? 1000m : _fixedByWeightByTotalSettings.HoodNavlungoRateWeightMultiplier,
+            HoodPttPostServiceEnabled = _fixedByWeightByTotalSettings.HoodPttPostServiceEnabled,
+            HoodPttEligibleProductIdsCsv = _fixedByWeightByTotalSettings.HoodPttEligibleProductIdsCsv,
+            HoodPttEligibleCategoryIdsCsv = _fixedByWeightByTotalSettings.HoodPttEligibleCategoryIdsCsv,
+            HoodPttMethodName = string.IsNullOrWhiteSpace(_fixedByWeightByTotalSettings.HoodPttMethodName) ? "Post service" : _fixedByWeightByTotalSettings.HoodPttMethodName,
+            HoodPttDeliveryKind = string.IsNullOrWhiteSpace(_fixedByWeightByTotalSettings.HoodPttDeliveryKind) ? "YD KOLİ" : _fixedByWeightByTotalSettings.HoodPttDeliveryKind,
+            HoodPttDistributionType = string.IsNullOrWhiteSpace(_fixedByWeightByTotalSettings.HoodPttDistributionType) ? "UC" : _fixedByWeightByTotalSettings.HoodPttDistributionType,
+            HoodPttAdditionalService = _fixedByWeightByTotalSettings.HoodPttAdditionalService,
+            HoodPttMaxSingleDimensionCm = _fixedByWeightByTotalSettings.HoodPttMaxSingleDimensionCm <= 0 ? 150m : _fixedByWeightByTotalSettings.HoodPttMaxSingleDimensionCm,
+            HoodPttMaxGirthCm = _fixedByWeightByTotalSettings.HoodPttMaxGirthCm < 0 ? 0 : _fixedByWeightByTotalSettings.HoodPttMaxGirthCm,
+            HoodPttTransitMinDays = _fixedByWeightByTotalSettings.HoodPttTransitMinDays < 0 ? 0 : _fixedByWeightByTotalSettings.HoodPttTransitMinDays,
+            HoodPttTransitMaxDays = _fixedByWeightByTotalSettings.HoodPttTransitMaxDays <= 0 ? 20 : _fixedByWeightByTotalSettings.HoodPttTransitMaxDays,
+            HoodPttLivePriceMultiplier = _fixedByWeightByTotalSettings.HoodPttLivePriceMultiplier <= 0 ? 1m : _fixedByWeightByTotalSettings.HoodPttLivePriceMultiplier,
+            HoodPttAdditionalFixedMarkup = _fixedByWeightByTotalSettings.HoodPttAdditionalFixedMarkup,
+            HoodPttRequestTimeoutSeconds = _fixedByWeightByTotalSettings.HoodPttRequestTimeoutSeconds <= 0 ? 8 : _fixedByWeightByTotalSettings.HoodPttRequestTimeoutSeconds
         };
 
         //stores
@@ -137,6 +164,24 @@ public class FixedByWeightByTotalController : BasePluginController
     {
         //save settings
         _fixedByWeightByTotalSettings.LimitMethodsToCreated = model.LimitMethodsToCreated;
+        _fixedByWeightByTotalSettings.SystemProductSkus = model.SystemProductSkus?.Trim() ?? string.Empty;
+        _fixedByWeightByTotalSettings.HoodNavlungoChargeableWeightEnabled = model.HoodNavlungoChargeableWeightEnabled;
+        _fixedByWeightByTotalSettings.HoodNavlungoDimensionalWeightDivisor = model.HoodNavlungoDimensionalWeightDivisor <= 0 ? 5000m : model.HoodNavlungoDimensionalWeightDivisor;
+        _fixedByWeightByTotalSettings.HoodNavlungoRateWeightMultiplier = model.HoodNavlungoRateWeightMultiplier <= 0 ? 1000m : model.HoodNavlungoRateWeightMultiplier;
+        _fixedByWeightByTotalSettings.HoodPttPostServiceEnabled = model.HoodPttPostServiceEnabled;
+        _fixedByWeightByTotalSettings.HoodPttEligibleProductIdsCsv = model.HoodPttEligibleProductIdsCsv;
+        _fixedByWeightByTotalSettings.HoodPttEligibleCategoryIdsCsv = model.HoodPttEligibleCategoryIdsCsv;
+        _fixedByWeightByTotalSettings.HoodPttMethodName = string.IsNullOrWhiteSpace(model.HoodPttMethodName) ? "Post service" : model.HoodPttMethodName.Trim();
+        _fixedByWeightByTotalSettings.HoodPttDeliveryKind = string.IsNullOrWhiteSpace(model.HoodPttDeliveryKind) ? "YD KOLİ" : model.HoodPttDeliveryKind.Trim();
+        _fixedByWeightByTotalSettings.HoodPttDistributionType = string.IsNullOrWhiteSpace(model.HoodPttDistributionType) ? "UC" : model.HoodPttDistributionType.Trim();
+        _fixedByWeightByTotalSettings.HoodPttAdditionalService = model.HoodPttAdditionalService?.Trim();
+        _fixedByWeightByTotalSettings.HoodPttMaxSingleDimensionCm = model.HoodPttMaxSingleDimensionCm <= 0 ? 150m : model.HoodPttMaxSingleDimensionCm;
+        _fixedByWeightByTotalSettings.HoodPttMaxGirthCm = model.HoodPttMaxGirthCm < 0 ? 0 : model.HoodPttMaxGirthCm;
+        _fixedByWeightByTotalSettings.HoodPttTransitMinDays = Math.Max(0, model.HoodPttTransitMinDays);
+        _fixedByWeightByTotalSettings.HoodPttTransitMaxDays = Math.Max(Math.Max(0, model.HoodPttTransitMinDays), model.HoodPttTransitMaxDays);
+        _fixedByWeightByTotalSettings.HoodPttLivePriceMultiplier = model.HoodPttLivePriceMultiplier <= 0 ? 1m : model.HoodPttLivePriceMultiplier;
+        _fixedByWeightByTotalSettings.HoodPttAdditionalFixedMarkup = model.HoodPttAdditionalFixedMarkup;
+        _fixedByWeightByTotalSettings.HoodPttRequestTimeoutSeconds = model.HoodPttRequestTimeoutSeconds <= 0 ? 8 : model.HoodPttRequestTimeoutSeconds;
         await _settingService.SaveSettingAsync(_fixedByWeightByTotalSettings);
 
         return Json(new { Result = true });
@@ -454,6 +499,211 @@ public class FixedByWeightByTotalController : BasePluginController
 
         return new NullJsonResult();
     }
+
+    #endregion
+
+
+
+    #region Hood/Navlungo dimension rules and learning
+
+    [CheckPermission(StandardPermission.Configuration.MANAGE_SHIPPING_SETTINGS)]
+    public async Task<IActionResult> ShippingDimensionRules(int productId = 0)
+    {
+        var rules = productId > 0
+            ? await _productShippingDimensionService.GetRulesByProductIdAsync(productId, activeOnly: false)
+            : new List<HoodProductShippingDimensionRule>();
+
+        ViewBag.ProductId = productId;
+        ViewBag.DriverAttributeOptions = productId > 0
+            ? await _productShippingDimensionService.GetProductAttributeDriverOptionsAsync(productId)
+            : new List<Nop.Plugin.Shipping.FixedByWeightByTotal.Models.ShippingDimensions.ShippingDriverAttributeModel>();
+        return View("~/Plugins/Shipping.FixedByWeightByTotal/Views/ShippingDimensions/Rules.cshtml", rules);
+    }
+
+
+    [HttpPost]
+    [CheckPermission(StandardPermission.Configuration.MANAGE_SHIPPING_SETTINGS)]
+    public async Task<IActionResult> SaveShippingDriverAttribute(int productId, int productAttributeMappingId, string ruleType = "ATTRIBUTE_VALUE", bool isActive = true)
+    {
+        await _productShippingDimensionService.SaveShippingDriverAttributeAsync(productId, productAttributeMappingId, ruleType, isActive);
+        return Json(new { Result = true });
+    }
+
+    [HttpPost]
+    [CheckPermission(StandardPermission.Configuration.MANAGE_SHIPPING_SETTINGS)]
+    public async Task<IActionResult> DeleteShippingDriverAttribute(int id)
+    {
+        await _productShippingDimensionService.DeleteShippingDriverAttributeAsync(id);
+        return Json(new { Result = true });
+    }
+
+    [HttpPost]
+    [CheckPermission(StandardPermission.Configuration.MANAGE_SHIPPING_SETTINGS)]
+    public async Task<IActionResult> SaveShippingDimensionRule(int id, int productId, int? productAttributeValueId,
+        string attributeValueIdsCsv, string ruleType, decimal lengthCm, decimal widthCm, decimal heightCm,
+        decimal? weightGram, decimal divisor, int packageCount, bool isShipSeparately, bool isActive)
+    {
+        var rule = id > 0 ? await _productShippingDimensionService.GetRuleByIdAsync(id) : null;
+        rule ??= new HoodProductShippingDimensionRule { CreatedOnUtc = DateTime.UtcNow };
+
+        rule.ProductId = productId;
+        rule.ProductAttributeValueId = productAttributeValueId;
+        rule.AttributeValueIdsCsv = attributeValueIdsCsv;
+        rule.RuleType = string.IsNullOrWhiteSpace(ruleType) ? "PRODUCT_DEFAULT" : ruleType;
+        rule.LengthCm = lengthCm;
+        rule.WidthCm = widthCm;
+        rule.HeightCm = heightCm;
+        rule.WeightGram = weightGram;
+        rule.Divisor = divisor <= 0 ? 5000m : divisor;
+        rule.PackageCount = packageCount <= 0 ? 1 : packageCount;
+        rule.IsShipSeparately = isShipSeparately;
+        rule.IsActive = isActive;
+        rule.Source = "Admin manual";
+
+        if (rule.Id > 0)
+            await _productShippingDimensionService.UpdateRuleAsync(rule);
+        else
+            await _productShippingDimensionService.InsertRuleAsync(rule);
+
+        return Json(new { Result = true, rule.Id });
+    }
+
+    [HttpPost]
+    [CheckPermission(StandardPermission.Configuration.MANAGE_SHIPPING_SETTINGS)]
+    public async Task<IActionResult> DeleteShippingDimensionRule(int id)
+    {
+        var rule = await _productShippingDimensionService.GetRuleByIdAsync(id);
+        if (rule != null)
+            await _productShippingDimensionService.DeleteRuleAsync(rule);
+
+        return Json(new { Result = true });
+    }
+
+    [HttpPost]
+    [CheckPermission(StandardPermission.Configuration.MANAGE_SHIPPING_SETTINGS)]
+    public async Task<IActionResult> SaveAttributeValueShippingDimension(int productId, int productAttributeValueId, bool enabled, string ruleType,
+        decimal? lengthCm, decimal? widthCm, decimal? heightCm, decimal? weightGram, decimal divisor = 5000, int packageCount = 1, bool isShipSeparately = false)
+    {
+        await _productShippingDimensionService.SaveAttributeValueDimensionAsync(productId, productAttributeValueId, enabled, ruleType,
+            lengthCm, widthCm, heightCm, weightGram, divisor, packageCount, isShipSeparately);
+
+        return Json(new { Result = true });
+    }
+
+
+
+    [CheckPermission(StandardPermission.Configuration.MANAGE_SHIPPING_SETTINGS)]
+    public async Task<IActionResult> ShippingDimensionExclusions()
+    {
+        var exclusions = await _productShippingDimensionService.GetExclusionsAsync(activeOnly: false);
+        return View("~/Plugins/Shipping.FixedByWeightByTotal/Views/ShippingDimensions/Exclusions.cshtml", exclusions);
+    }
+
+    [HttpPost]
+    [CheckPermission(StandardPermission.Configuration.MANAGE_SHIPPING_SETTINGS)]
+    public async Task<IActionResult> SaveShippingDimensionExclusion(int productId, string reason, bool isActive = true)
+    {
+        await _productShippingDimensionService.SaveExclusionAsync(productId, reason, isActive);
+        return Json(new { Result = true });
+    }
+
+    [HttpPost]
+    [CheckPermission(StandardPermission.Configuration.MANAGE_SHIPPING_SETTINGS)]
+    public async Task<IActionResult> DeleteShippingDimensionExclusion(int id)
+    {
+        await _productShippingDimensionService.DeleteExclusionAsync(id);
+        return Json(new { Result = true });
+    }
+
+    [CheckPermission(StandardPermission.Configuration.MANAGE_SHIPPING_SETTINGS)]
+    public IActionResult CategoryBulkApplyDimensions(int categoryId = 0, int sourceProductId = 0)
+    {
+        ViewBag.CategoryId = categoryId;
+        ViewBag.SourceProductId = sourceProductId;
+        return View("~/Plugins/Shipping.FixedByWeightByTotal/Views/ShippingDimensions/BulkApply.cshtml");
+    }
+
+    [HttpPost]
+    [CheckPermission(StandardPermission.Configuration.MANAGE_SHIPPING_SETTINGS)]
+    public async Task<IActionResult> CategoryBulkApplyDimensionsPost(int categoryId, int sourceProductId, bool includeSubcategories = true, bool overwriteExisting = false)
+    {
+        var result = await _productShippingDimensionService.BulkApplyRulesToCategoryAsync(categoryId, sourceProductId, includeSubcategories, overwriteExisting);
+        return Json(result);
+    }
+
+    [CheckPermission(StandardPermission.Configuration.MANAGE_SHIPPING_SETTINGS)]
+    public async Task<IActionResult> NavlungoShipmentLinks(int? shipmentId = null, int? orderId = null, string trackingNumber = null)
+    {
+        var links = await _productShippingDimensionService.GetShipmentLinksAsync(shipmentId, orderId, trackingNumber);
+        ViewBag.ShipmentId = shipmentId;
+        ViewBag.OrderId = orderId;
+        ViewBag.TrackingNumber = trackingNumber;
+        return View("~/Plugins/Shipping.FixedByWeightByTotal/Views/ShippingDimensions/ShipmentLinks.cshtml", links);
+    }
+
+    [CheckPermission(StandardPermission.Configuration.MANAGE_SHIPPING_SETTINGS)]
+    public async Task<IActionResult> NavlungoLearning(int minimumSampleCount = 1, bool groupByProduct = false)
+    {
+        var suggestions = await _productShippingDimensionService.GetLearningSuggestionsAsync(minimumSampleCount);
+        ViewBag.MinimumSampleCount = minimumSampleCount;
+        ViewBag.GroupByProduct = groupByProduct;
+        return View("~/Plugins/Shipping.FixedByWeightByTotal/Views/ShippingDimensions/Learning.cshtml", suggestions);
+    }
+
+    [CheckPermission(StandardPermission.Configuration.MANAGE_SHIPPING_SETTINGS)]
+    public async Task<IActionResult> NavlungoLearningDetails(int productId, string attributeHash = null, int? productAttributeValueId = null, string ruleType = null)
+    {
+        var details = await _productShippingDimensionService.GetLearningSuggestionDetailsAsync(productId, attributeHash, productAttributeValueId, ruleType);
+
+        ViewBag.ProductId = productId;
+        ViewBag.AttributeHash = attributeHash;
+        ViewBag.ProductAttributeValueId = productAttributeValueId;
+        ViewBag.RuleType = ruleType;
+
+        return View("~/Plugins/Shipping.FixedByWeightByTotal/Views/ShippingDimensions/LearningDetails.cshtml", details);
+    }
+
+    [HttpPost]
+    [CheckPermission(StandardPermission.Configuration.MANAGE_SHIPPING_SETTINGS)]
+    public async Task<IActionResult> ApplyNavlungoLearning(int minimumSampleCount = 2, bool overwriteExisting = false, string ruleTypeFilter = null)
+    {
+        var applied = await _productShippingDimensionService.ApplyLearningSuggestionsAsync(minimumSampleCount, overwriteExisting, ruleTypeFilter);
+        return Json(new { Result = true, Applied = applied, RuleTypeFilter = ruleTypeFilter });
+    }
+
+    [HttpPost]
+    [CheckPermission(StandardPermission.Configuration.MANAGE_SHIPPING_SETTINGS)]
+    public async Task<IActionResult> ApplyNavlungoProductProfile(int productId, int minimumSampleCount = 1, bool overwriteExisting = false, string profileType = null)
+    {
+        var applied = await _productShippingDimensionService.ApplyLearningProductProfileAsync(productId, minimumSampleCount, overwriteExisting, profileType);
+        return Json(new { Result = true, Applied = applied, ProductId = productId, ProfileType = profileType });
+    }
+
+
+
+    #region Hood production time
+
+    [CheckPermission(StandardPermission.Configuration.MANAGE_SHIPPING_SETTINGS)]
+    public async Task<IActionResult> ProductProductionTimes(int productId = 0, bool onlyEnabled = false)
+    {
+        var model = await _productProductionTimeService.SearchAsync(productId, onlyEnabled, 300);
+        ViewBag.ProductId = productId;
+        ViewBag.OnlyEnabled = onlyEnabled;
+        return View("~/Plugins/Shipping.FixedByWeightByTotal/Views/ProductionTime/Manage.cshtml", model);
+    }
+
+    [HttpPost]
+    [CheckPermission(StandardPermission.Configuration.MANAGE_SHIPPING_SETTINGS)]
+    public async Task<IActionResult> SaveProductProductionTime(ProductProductionTimeModel model)
+    {
+        if (model == null || model.ProductId <= 0)
+            return Json(new { Result = false, Error = "ProductId is required" });
+
+        await _productProductionTimeService.SaveAsync(model, "Admin manual");
+        return Json(new { Result = true, ProductId = model.ProductId });
+    }
+
+    #endregion
 
     #endregion
 

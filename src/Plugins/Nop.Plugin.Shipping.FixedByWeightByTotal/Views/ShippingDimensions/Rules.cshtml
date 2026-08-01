@@ -1,0 +1,192 @@
+﻿@model IList<Nop.Plugin.Shipping.FixedByWeightByTotal.Domain.HoodProductShippingDimensionRule>
+@{
+    Layout = "_ConfigurePlugin";
+    var productId = (int)(ViewBag.ProductId ?? 0);
+    var driverAttributes = ViewBag.DriverAttributeOptions as IList<Nop.Plugin.Shipping.FixedByWeightByTotal.Models.ShippingDimensions.ShippingDriverAttributeModel>
+        ?? new List<Nop.Plugin.Shipping.FixedByWeightByTotal.Models.ShippingDimensions.ShippingDriverAttributeModel>();
+}
+
+<div class="content-header clearfix">
+    <h1 class="float-left">Hood/Navlungo Shipping Dimension Rules</h1>
+    <div class="float-right">
+        <a href="@Url.Action("Configure", "FixedByWeightByTotal")" class="btn btn-secondary">Back to rates</a>
+        <a href="@Url.Action("NavlungoLearning", "FixedByWeightByTotal")" class="btn btn-info">Learning</a>
+    </div>
+</div>
+
+<div class="card card-default">
+    <div class="card-body">
+        <form method="get" action="@Url.Action("ShippingDimensionRules", "FixedByWeightByTotal")" class="form-inline mb-3">
+            <label class="mr-2">ProductId</label>
+            <input type="number" name="productId" value="@productId" min="0" class="form-control mr-2" />
+            <button type="submit" class="btn btn-primary">Load</button>
+        </form>
+
+        </div>
+</div>
+
+
+@if (productId > 0)
+{
+    <div class="card card-default">
+        <div class="card-header">
+            <h3 class="card-title">Shipping driver attributes</h3>
+        </div>
+        <div class="card-body">
+            <p class="text-muted mb-2">
+                Select which product attribute controls shipping package size/weight. Example: arrows = <strong>Pcs</strong>, armor = <strong>Armor Sets</strong>.
+                Navlungo Learning will create one rule per selected attribute value instead of only full combination rules.
+            </p>
+            @if (!driverAttributes.Any())
+            {
+                <div class="alert alert-warning">No product attributes found for this product.</div>
+            }
+            else
+            {
+                <table class="table table-bordered table-sm">
+                    <thead>
+                        <tr>
+                            <th>MappingId</th>
+                            <th>Attribute</th>
+                            <th>Rule type</th>
+                            <th>Active</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var a in driverAttributes)
+                    {
+                        <tr>
+                            <td>@a.ProductAttributeMappingId</td>
+                            <td>@a.ProductAttributeName</td>
+                            <td>
+                                <select class="form-control driver-rule-type" data-mapping-id="@a.ProductAttributeMappingId">
+                                    @if (string.Equals(a.RuleType, "ATTRIBUTE_VALUE", StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        <option value="ATTRIBUTE_VALUE" selected="selected">ATTRIBUTE_VALUE</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="ATTRIBUTE_VALUE">ATTRIBUTE_VALUE</option>
+                                    }
+                                    @if (string.Equals(a.RuleType, "ARROW_PCS", StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        <option value="ARROW_PCS" selected="selected">ARROW_PCS</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="ARROW_PCS">ARROW_PCS</option>
+                                    }
+                                </select>
+                            </td>
+                            <td>@a.IsActive</td>
+                            <td>
+                                <button type="button" class="btn btn-sm btn-primary save-driver" data-id="@a.Id" data-mapping-id="@a.ProductAttributeMappingId">Use for shipping</button>
+                                @if (a.Id > 0)
+                                {
+                                    <button type="button" class="btn btn-sm btn-danger delete-driver" data-id="@a.Id">Remove</button>
+                                }
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </div>
+}
+<div class="card card-default">
+    <div class="card-body">
+        <h4>Add / update rule</h4>
+        <div class="row">
+            <input type="hidden" id="rule-id" value="0" />
+            <div class="col-md-2"><label>ProductId</label><input id="productId" class="form-control" value="@productId" /></div>
+            <div class="col-md-2"><label>Attribute value id</label><input id="productAttributeValueId" class="form-control" /></div>
+            <div class="col-md-2"><label>Rule type</label><select id="ruleType" class="form-control"><option>PRODUCT_DEFAULT</option><option>ATTRIBUTE_VALUE</option><option>ATTRIBUTE_COMBINATION</option><option>ARROW_PCS</option></select></div>
+            <div class="col-md-3"><label>Attribute IDs CSV</label><input id="attributeValueIdsCsv" class="form-control" placeholder="423,430,440" /></div>
+            <div class="col-md-1"><label>L</label><input id="lengthCm" class="form-control" /></div>
+            <div class="col-md-1"><label>W</label><input id="widthCm" class="form-control" /></div>
+            <div class="col-md-1"><label>H</label><input id="heightCm" class="form-control" /></div>
+            <div class="col-md-2 mt-2"><label>Weight g</label><input id="weightGram" class="form-control" /></div>
+            <div class="col-md-2 mt-2"><label>Divisor</label><input id="divisor" class="form-control" value="5000" /></div>
+            <div class="col-md-2 mt-2"><label>Package count</label><input id="packageCount" class="form-control" value="1" /></div>
+            <div class="col-md-2 mt-4"><label><input type="checkbox" id="isShipSeparately" /> ship separately</label></div>
+            <div class="col-md-2 mt-4"><label><input type="checkbox" id="isActive" checked /> active</label></div>
+            <div class="col-md-2 mt-4"><button type="button" id="save-rule" class="btn btn-success">Save</button></div>
+        </div>
+    </div>
+</div>
+
+<div class="card card-default">
+    <div class="card-body table-responsive">
+        <table class="table table-bordered table-hover table-sm">
+            <thead><tr><th>Id</th><th>Product</th><th>Value</th><th>Hash</th><th>Type</th><th>L/W/H</th><th>Weight g</th><th>Divisor</th><th>Active</th><th>Source</th><th></th></tr></thead>
+            <tbody>
+            @foreach (var r in Model)
+            {
+                <tr>
+                    <td>@r.Id</td>
+                    <td>@r.ProductId</td>
+                    <td>@r.ProductAttributeValueId<br />@r.AttributeValueIdsCsv</td>
+                    <td><small>@r.AttributeHash</small></td>
+                    <td>@r.RuleType</td>
+                    <td>@r.LengthCm / @r.WidthCm / @r.HeightCm</td>
+                    <td>@r.WeightGram</td>
+                    <td>@r.Divisor</td>
+                    <td>@r.IsActive</td>
+                    <td>@r.Source<br />@r.ExampleShipmentNo / @r.ExampleOrderId</td>
+                    <td><button type="button" class="btn btn-sm btn-danger delete-rule" data-id="@r.Id">Delete</button></td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('.save-driver').on('click', function () {
+            var mappingId = $(this).data('mapping-id');
+            var postData = {
+                productId: @productId,
+                productAttributeMappingId: mappingId,
+                ruleType: $('.driver-rule-type[data-mapping-id="' + mappingId + '"]').val(),
+                isActive: true
+            };
+            addAntiForgeryToken(postData);
+            $.post('@Url.Action("SaveShippingDriverAttribute", "FixedByWeightByTotal")', postData, function () { location.reload(); });
+        });
+        $('.delete-driver').on('click', function () {
+            if (!confirm('Remove shipping driver attribute?')) return;
+            var postData = { id: $(this).data('id') };
+            addAntiForgeryToken(postData);
+            $.post('@Url.Action("DeleteShippingDriverAttribute", "FixedByWeightByTotal")', postData, function () { location.reload(); });
+        });
+
+        $('#save-rule').on('click', function () {
+            var postData = {
+                id: $('#rule-id').val(),
+                productId: $('#productId').val(),
+                productAttributeValueId: $('#productAttributeValueId').val() || null,
+                attributeValueIdsCsv: $('#attributeValueIdsCsv').val(),
+                ruleType: $('#ruleType').val(),
+                lengthCm: $('#lengthCm').val(),
+                widthCm: $('#widthCm').val(),
+                heightCm: $('#heightCm').val(),
+                weightGram: $('#weightGram').val() || null,
+                divisor: $('#divisor').val(),
+                packageCount: $('#packageCount').val(),
+                isShipSeparately: $('#isShipSeparately').is(':checked'),
+                isActive: $('#isActive').is(':checked')
+            };
+            addAntiForgeryToken(postData);
+            $.post('@Url.Action("SaveShippingDimensionRule", "FixedByWeightByTotal")', postData, function () { location.reload(); });
+        });
+        $('.delete-rule').on('click', function () {
+            if (!confirm('Delete rule?')) return;
+            var postData = { id: $(this).data('id') };
+            addAntiForgeryToken(postData);
+            $.post('@Url.Action("DeleteShippingDimensionRule", "FixedByWeightByTotal")', postData, function () { location.reload(); });
+        });
+    });
+</script>
