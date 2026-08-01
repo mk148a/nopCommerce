@@ -62,12 +62,14 @@
                                 {
                                     ("src", picture.ImageUrl),
                                     ("alt", picture.AlternateText),
-                                    ("title", picture.Title)
+                                    ("title", picture.Title),
+                                    ("width", "635"),
+                                    ("height", "635")
                                 })
                             }
                             else
                             {
-                                <img class="picture-img" alt="@picture.AlternateText" src="@picture.ImageUrl" title="@picture.Title" />
+                                <img class="picture-img" alt="@picture.AlternateText" src="@picture.ImageUrl" title="@picture.Title" width="635" height="635" />
                             }
                         </a>
                     }
@@ -93,12 +95,14 @@
                     {
                         ("src", picture.ImageUrl),
                         ("alt", picture.AlternateText),
-                        ("title", picture.Title)
+                        ("title", picture.Title),
+                        ("width", "635"),
+                        ("height", "635")
                     })
                 }
                 else
                 {
-                    <img class="picture-img" alt="@picture?.AlternateText" src="@picture?.ImageUrl" title="@picture?.Title" />
+                    <img class="picture-img" alt="@picture?.AlternateText" src="@picture?.ImageUrl" title="@picture?.Title" width="635" height="635" />
                 }
             </a>
         }
