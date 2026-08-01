@@ -20,6 +20,7 @@ using Nop.Services.Localization;
 using Nop.Core.Domain.Media;
 using DocumentFormat.OpenXml.Bibliography;
 using Nop.Plugin.Widgets.CustomProductReviews.Domains;
+using ReviewVideoModel = Nop.Plugin.Widgets.CustomProductReviews.Models.VideoModel;
 
 namespace Nop.Plugin.Widgets.CustomProductReviews.Components
 {
@@ -96,7 +97,7 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Components
                 model = (ProductReviewModel)additionalData;
             }
             List<Video> reviewVidList = new List<Video>();
-            List<VideoModel> videoModelList = new List<VideoModel>();
+            List<ReviewVideoModel> videoModelList = new List<ReviewVideoModel>();
             var reviewMappings= await _customProductReviewMappingService.GetCustomProductReviewMappingByProductReviewIdAsync(model.Id);
            if (reviewMappings == null)
            {
@@ -129,7 +130,7 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Components
                     (imageUrl, video) = await _videoService.GetVideoUrlAsync(video, defaultPictureSize, false);
                     (fullSizeImageUrl, video) = await _videoService.GetVideoUrlAsync(video, defaultPictureSize, false);
 
-                    var videoModel = new VideoModel()
+                var videoModel = new ReviewVideoModel()
                     {
                         ImageUrl = imageUrl,
                         FullSizeImageUrl = fullSizeImageUrl,
