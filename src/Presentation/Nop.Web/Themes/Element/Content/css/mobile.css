@@ -1,6 +1,23 @@
 
 @media all and (max-width: 1024px) {
 
+/* Keep two-column catalog cards readable on narrow phones after Ajax redraws. */
+.catalog-product-card .product-title {
+    min-height: 50px;
+    height: 50px;
+    margin-bottom: 8px;
+}
+
+.catalog-product-card .prices {
+    min-height: 26px;
+    row-gap: 2px;
+}
+
+.catalog-product-card .prices .old-price,
+.catalog-product-card .prices .actual-price {
+    white-space: nowrap;
+}
+
 /* GLOBAL STYLES */
 
 .admin-header-links {
