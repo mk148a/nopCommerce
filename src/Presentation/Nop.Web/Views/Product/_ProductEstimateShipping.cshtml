@@ -95,6 +95,14 @@
                             if (option.deliveryDate && option.deliveryDate !== '-')
                                 estimatedDelivery.append($('<div/>').addClass('shipping-date').text('@JavaScriptEncoder.Default.Encode(T("Products.EstimateShipping.EstimatedDeliveryPrefix").Text) ' + option.deliveryDate));
 
+                            if (Number.isFinite(option.transitMinDays) && Number.isFinite(option.transitMaxDays)) {
+                                var transitText = option.transitMinDays === option.transitMaxDays
+                                    ? String(option.transitMinDays)
+                                    : option.transitMinDays + '–' + option.transitMaxDays;
+                                estimatedDelivery.append($('<div/>').addClass('shipping-transit')
+                                    .text('Shipping transit: ' + transitText + ' days'));
+                            }
+
                             shippingContent.append(estimatedDelivery);
                         } else {
                             $('#open-estimate-shipping-popup-@Model.ProductId')
