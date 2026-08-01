@@ -23,8 +23,8 @@
         NopHtml.AppendCssFileParts("~/Themes/Element/Content/css/720.css");
         NopHtml.AppendCssFileParts("~/Themes/Element/Content/css/480.css");
         NopHtml.AppendCssFileParts("~/Themes/Element/Content/css/mobile.css");
-        // Version this long-lived stylesheet so layout corrections reach visitors immediately.
-        NopHtml.AppendCssFileParts("~/Themes/Element/Content/css/styles.css?v=homepage-media-cls-20260801");
+        // WebOptimizer fingerprints this source in the generated bundle; keep the source path query-free.
+        NopHtml.AppendCssFileParts("~/Themes/Element/Content/css/styles.css");
     }
 
     if (catalogSettings.DisplayAllPicturesOnCatalogPages)

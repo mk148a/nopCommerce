@@ -22,6 +22,7 @@ public class ElementCatalogCardContractTests
     {
         var styles = ReadSource("src", "Presentation", "Nop.Web", "Themes", "Element", "Content", "css", "styles.css");
         var mobileStyles = ReadSource("src", "Presentation", "Nop.Web", "Themes", "Element", "Content", "css", "mobile.css");
+        var head = ReadSource("src", "Presentation", "Nop.Web", "Themes", "Element", "Views", "Shared", "Head.cshtml");
 
         styles.Should().Contain(".catalog-product-card .catalog-product-media");
         styles.Should().Contain("aspect-ratio: 1 / 1");
@@ -31,6 +32,8 @@ public class ElementCatalogCardContractTests
         mobileStyles.Should().Contain(".catalog-product-card .product-title");
         mobileStyles.Should().Contain(".catalog-product-card .prices");
         mobileStyles.Should().Contain("white-space: nowrap");
+        head.Should().Contain("Content/css/styles.css");
+        head.Should().NotContain("Content/css/styles.css?v=");
     }
 
     [Test]
