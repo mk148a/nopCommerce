@@ -32,6 +32,7 @@ public class ElementCatalogCardContractTests
         styles.Should().Contain(".product-details-page .full-description iframe");
         styles.Should().Contain("max-width: 100%");
         mobileStyles.Should().Contain(".catalog-product-card .product-title");
+        mobileStyles.Should().Contain("height: 65px");
         mobileStyles.Should().Contain(".catalog-product-card .prices");
         mobileStyles.Should().Contain("white-space: nowrap");
         head.Should().Contain("Content/css/styles.css");
