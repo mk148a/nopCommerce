@@ -469,7 +469,7 @@ public partial class ProductModelFactory : IProductModelFactory
 
         var strikeThroughPrice = decimal.Zero;
 
-        if (finalPriceWithoutDiscountBase != oldPriceBase && oldPriceBase > decimal.Zero)
+        if (oldPriceBase > finalPriceWithoutDiscountBase && oldPriceBase > decimal.Zero)
             strikeThroughPrice = oldPrice;
 
         if (finalPriceWithoutDiscountBase != finalPriceWithDiscountBase)
