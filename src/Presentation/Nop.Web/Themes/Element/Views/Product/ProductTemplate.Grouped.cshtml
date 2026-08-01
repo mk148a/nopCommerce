@@ -58,7 +58,10 @@
         NopHtml.AddHeadCustomParts("<meta property=\"twitter:url\" content=\"" + webHelper.GetThisPageUrl(false) + "\" />");
     }
     
-    NopHtml.AddJsonLdParts(Model.JsonLd);
+    if (!string.IsNullOrWhiteSpace(Model.JsonLd))
+    {
+        NopHtml.AddJsonLdParts(Model.JsonLd);
+    }
 }
 <!--product breadcrumb-->
 @section Breadcrumb
