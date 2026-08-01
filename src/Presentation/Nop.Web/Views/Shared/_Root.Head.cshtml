@@ -36,7 +36,9 @@
     //custom tag(s);
     if (!string.IsNullOrEmpty(seoSettings.CustomHeadTags))
     {
-        NopHtml.AppendHeadCustomParts(seoSettings.CustomHeadTags);
+        var customHeadTags = Regex.Replace(seoSettings.CustomHeadTags,
+            @"<noscript\b[^>]*>.*?</noscript>\s*", string.Empty, RegexOptions.IgnoreCase | RegexOptions.Singleline);
+        NopHtml.AppendHeadCustomParts(customHeadTags);
     }
     
     //event
