@@ -89,6 +89,20 @@ public class JsonLdModelContractTests
     }
 
     [Test]
+    public void ProductJsonOmitsReviewFieldsWhenNativeReviewProvenanceIsUnavailable()
+    {
+        var model = new JsonLdProductModel { Name = "No-provenance review contract" };
+
+        var json = JsonConvert.SerializeObject(model, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
+        var parsed = JObject.Parse(json);
+
+        // The current data model cannot prove which reviews are native to this store.
+        // Omitting review schema therefore also excludes blank authors and non-ISO dates.
+        parsed.Property("review").Should().BeNull();
+        parsed.Property("aggregateRating").Should().BeNull();
+    }
+
+    [Test]
     public void ProductionAndTransitRangesAreCombinedFromTypedValues()
     {
         var deliveryRange = DeliveryEstimateRange.Combine(21, 28, 2, 5);

@@ -82,14 +82,9 @@
             <div class="col-md-3">Source</div>
             <div class="col-md-9">
                 <span class="text-muted">@Model.Source</span>
-                @if (Model.ParsedFromDescription)
-                {
-                    <span class="badge badge-info ml-2">parsed from description</span>
-                }
             </div>
         </div>
         <button type="button" class="btn btn-primary" id="HoodProductionSaveBtn">Save production time</button>
-        <button type="button" class="btn btn-secondary" id="HoodProductionExtractBtn">Extract from description</button>
         <a class="btn btn-info" href="@Url.Action("ProductProductionTimes", "FixedByWeightByTotal", new { productId = Model.ProductId })" target="_blank">Open production time manager</a>
         <span id="HoodProductionStatus" class="ml-2"></span>
     </div>
@@ -97,7 +92,7 @@
 
 <script>
     $(function () {
-        function collectHoodProductionData(saveFromDescription) {
+        function collectHoodProductionData() {
             var postData = {
                 ProductId: $('#HoodProductionProductId').val(),
                 Enabled: $('#HoodProductionEnabled').is(':checked'),
@@ -108,7 +103,7 @@
                 Message: $('#HoodProductionMessage').val(),
                 DisplayOnProductPage: $('#HoodProductionDisplayOnProductPage').is(':checked'),
                 IncludeInShippingEstimate: $('#HoodProductionIncludeInShippingEstimate').is(':checked'),
-                ParsedFromDescription: saveFromDescription === true
+                ParsedFromDescription: false
             };
             addAntiForgeryToken(postData);
             return postData;
@@ -116,26 +111,8 @@
 
         $('#HoodProductionSaveBtn').on('click', function () {
             $('#HoodProductionStatus').text('Saving...');
-            $.post('@Url.Action("SaveProductProductionTime", "FixedByWeightByTotal")', collectHoodProductionData(false), function (r) {
+            $.post('@Url.Action("SaveProductProductionTime", "FixedByWeightByTotal")', collectHoodProductionData(), function (r) {
                 $('#HoodProductionStatus').text(r && r.Result ? 'Saved' : 'Save failed');
-            });
-        });
-
-        $('#HoodProductionExtractBtn').on('click', function () {
-            $('#HoodProductionStatus').text('Extracting...');
-            var postData = { productId: $('#HoodProductionProductId').val(), save: true };
-            addAntiForgeryToken(postData);
-            $.post('@Url.Action("ExtractProductProductionTime", "FixedByWeightByTotal")', postData, function (r) {
-                if (!r || !r.Result) { $('#HoodProductionStatus').text('Extract failed'); return; }
-                $('#HoodProductionEnabled').prop('checked', r.Model.Enabled);
-                $('#HoodProductionIsHandmade').prop('checked', r.Model.IsHandmade);
-                $('#HoodProductionMinDays').val(r.Model.ProductionMinDays);
-                $('#HoodProductionMaxDays').val(r.Model.ProductionMaxDays);
-                $('#HoodProductionTimeText').val(r.Model.ProductionTimeText);
-                $('#HoodProductionMessage').val(r.Model.Message);
-                $('#HoodProductionDisplayOnProductPage').prop('checked', r.Model.DisplayOnProductPage);
-                $('#HoodProductionIncludeInShippingEstimate').prop('checked', r.Model.IncludeInShippingEstimate);
-                $('#HoodProductionStatus').text('Extracted and saved');
             });
         });
     });
