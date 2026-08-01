@@ -287,6 +287,153 @@ public class JsonLdModelContractTests
     }
 
     [Test]
+    public async Task ApprovedSameStoreAndMigratedRatingsAreIncludedButMappedMarketplaceRatingIsExcluded()
+    {
+        var stored = new List<ProductReview>
+        {
+            new() { Id = 1, ProductId = 85, CustomerId = 10, IsApproved = true, Rating = 5, ReviewText = "Great", CreatedOnUtc = DateTime.UtcNow },
+            new() { Id = 2, ProductId = 85, CustomerId = 11, IsApproved = true, Rating = 4, ReviewText = "Migrated", CreatedOnUtc = DateTime.UtcNow.AddMinutes(-1) },
+            new() { Id = 3, ProductId = 85, CustomerId = 12, IsApproved = true, Rating = 1, ReviewText = "Marketplace", CreatedOnUtc = DateTime.UtcNow.AddMinutes(-2) }
+        };
+        var visible = stored.Select(review => new ProductReviewModel
+        {
+            Id = review.Id,
+            CustomerId = review.CustomerId,
+            CustomerName = $"Customer {review.CustomerId}",
+            ReviewText = review.ReviewText,
+            Rating = review.Rating
+        }).ToList();
+        var mappingRepository = CreateRepository<ProductReviewsTransactionsMapping>([
+            new() { ProductReviewId = 3, EtsyReviewId = 300 }
+        ]);
+        var factory = CreateReviewFactory(stored, mappingRepository, []);
+
+        var result = await factory.ReviewSchema(CreateReviewProductModel("arrow2", visible));
+
+        result.AggregateRating.RatingCount.Should().Be(2);
+        result.AggregateRating.RatingValue.Should().Be(4.5m);
+        result.Reviews.Should().HaveCount(2);
+        result.Reviews.Should().NotContain(review => review.ReviewBody == "Marketplace");
+    }
+
+    [Test]
+    public async Task EtsyTextMatchExcludesUnmappedMarketplaceReview()
+    {
+        var stored = new List<ProductReview>
+        {
+            new() { Id = 1, ProductId = 85, CustomerId = 10, IsApproved = true, Rating = 5, ReviewText = "Native review", CreatedOnUtc = DateTime.UtcNow },
+            new() { Id = 2, ProductId = 85, CustomerId = 11, IsApproved = true, Rating = 5, ReviewText = "Beautyful in form and flight! As always, excellent arrows!", CreatedOnUtc = DateTime.UtcNow.AddMinutes(-1) }
+        };
+        var visible = stored.Select(review => new ProductReviewModel
+        {
+            Id = review.Id,
+            CustomerId = review.CustomerId,
+            CustomerName = "Real customer",
+            ReviewText = review.ReviewText,
+            Rating = review.Rating
+        }).ToList();
+        var factory = CreateReviewFactory(stored, CreateRepository<ProductReviewsTransactionsMapping>([]), [
+            new() { Id = 35, Sku = "arrow2", Rating = 5, Review = "Beautyful in form and flight! As always, excellent arrows!" }
+        ]);
+
+        var result = await factory.ReviewSchema(CreateReviewProductModel("arrow2", visible));
+
+        result.AggregateRating.RatingCount.Should().Be(1);
+        result.Reviews.Should().ContainSingle();
+        result.Reviews[0].ReviewBody.Should().Be("Native review");
+    }
+
+    [Test]
+    public async Task UnapprovedAndOutOfRangeRatingsAreExcluded()
+    {
+        var stored = new List<ProductReview>
+        {
+            new() { Id = 1, ProductId = 85, CustomerId = 10, IsApproved = true, Rating = 5, ReviewText = "Valid", CreatedOnUtc = DateTime.UtcNow },
+            new() { Id = 2, ProductId = 85, CustomerId = 11, IsApproved = false, Rating = 5, ReviewText = "Pending", CreatedOnUtc = DateTime.UtcNow },
+            new() { Id = 3, ProductId = 85, CustomerId = 12, IsApproved = true, Rating = 0, ReviewText = "Invalid", CreatedOnUtc = DateTime.UtcNow },
+            new() { Id = 4, ProductId = 85, CustomerId = 13, IsApproved = true, Rating = 6, ReviewText = "Invalid", CreatedOnUtc = DateTime.UtcNow }
+        };
+        var visible = stored.Select(review => new ProductReviewModel
+        {
+            Id = review.Id,
+            CustomerId = review.CustomerId,
+            CustomerName = "Customer",
+            ReviewText = review.ReviewText,
+            Rating = review.Rating
+        }).ToList();
+        var factory = CreateReviewFactory(stored, CreateRepository<ProductReviewsTransactionsMapping>([]), []);
+
+        var result = await factory.ReviewSchema(CreateReviewProductModel("arrow2", visible));
+
+        result.AggregateRating.RatingCount.Should().Be(1);
+        result.Reviews.Should().ContainSingle();
+    }
+
+    [Test]
+    public async Task BlankAuthorCountsTowardAggregateButNotIndividualReview()
+    {
+        var stored = new List<ProductReview>
+        {
+            new() { Id = 1, ProductId = 85, CustomerId = 10, IsApproved = true, Rating = 4, ReviewText = "No author", CreatedOnUtc = DateTime.UtcNow },
+            new() { Id = 2, ProductId = 85, CustomerId = 11, IsApproved = true, Rating = 5, ReviewText = "Named", CreatedOnUtc = DateTime.UtcNow.AddMinutes(-1) }
+        };
+        var visible = new List<ProductReviewModel>
+        {
+            new() { Id = 1, CustomerId = 10, CustomerName = "", ReviewText = "No author", Rating = 4 },
+            new() { Id = 2, CustomerId = 11, CustomerName = "Named customer", ReviewText = "Named", Rating = 5 }
+        };
+        var factory = CreateReviewFactory(stored, CreateRepository<ProductReviewsTransactionsMapping>([]), []);
+
+        var result = await factory.ReviewSchema(CreateReviewProductModel("arrow2", visible));
+
+        result.AggregateRating.RatingCount.Should().Be(2);
+        result.Reviews.Should().ContainSingle();
+        result.Reviews[0].Author.Name.Should().Be("Named customer");
+    }
+
+    [Test]
+    public async Task DuplicateReviewsAreDeduplicatedAndIndividualReviewsAreLimitedToFive()
+    {
+        var stored = Enumerable.Range(1, 7).Select(index => new ProductReview
+        {
+            Id = index,
+            ProductId = 85,
+            CustomerId = index == 2 ? 1 : index,
+            IsApproved = true,
+            Rating = 5,
+            Title = index is 1 or 2 ? "Same" : $"Title {index}",
+            ReviewText = index is 1 or 2 ? "Same body" : $"Body {index}",
+            CreatedOnUtc = DateTime.UtcNow.AddMinutes(-index)
+        }).ToList();
+        var visible = stored.Select(review => new ProductReviewModel
+        {
+            Id = review.Id,
+            CustomerId = review.CustomerId,
+            CustomerName = $"Customer {review.Id}",
+            ReviewText = review.ReviewText,
+            Rating = review.Rating
+        }).ToList();
+        var factory = CreateReviewFactory(stored, CreateRepository<ProductReviewsTransactionsMapping>([]), []);
+
+        var result = await factory.ReviewSchema(CreateReviewProductModel("arrow2", visible));
+
+        result.AggregateRating.RatingCount.Should().Be(6);
+        result.Reviews.Should().HaveCount(5);
+        result.Reviews.Select(review => review.ReviewBody).Should().OnlyHaveUniqueItems();
+    }
+
+    [Test]
+    public async Task ProductWithoutEligibleReviewsOmitsReviewSchema()
+    {
+        var factory = CreateReviewFactory([], CreateRepository<ProductReviewsTransactionsMapping>([]), []);
+
+        var result = await factory.ReviewSchema(CreateReviewProductModel("arrow2", []));
+
+        result.AggregateRating.Should().BeNull();
+        result.Reviews.Should().BeNull();
+    }
+
+    [Test]
     public void ProductionAndTransitRangesAreCombinedFromTypedValues()
     {
         var deliveryRange = DeliveryEstimateRange.Combine(21, 28, 2, 5);
@@ -401,10 +548,50 @@ public class JsonLdModelContractTests
         {
         }
 
+        public TestableJsonLdModelFactory(IRepository<ProductReview> reviewRepository,
+            IRepository<ProductReviewsTransactionsMapping> mappingRepository,
+            IRepository<EtsyReview> etsyReviewRepository)
+            : base(Mock.Of<IEventPublisher>(), Mock.Of<IHtmlFormatter>(), Mock.Of<INopUrlHelper>(),
+                Mock.Of<IProductService>(), Mock.Of<IRepository<Product>>(), Mock.Of<IWebHelper>(),
+                reviewRepository, mappingRepository, etsyReviewRepository)
+        {
+        }
+
         public string Availability(Product product, bool inStock) => GetAvailability(product, inStock);
 
         public bool IncludeGtin(string gtin, int matchingProductCount) => ShouldIncludeGtin(gtin, matchingProductCount);
 
         public bool IncludeMpn(string mpn, int matchingProductCount) => ShouldIncludeMpn(mpn, matchingProductCount);
+
+        public Task<(JsonLdAggregateRatingModel AggregateRating, IList<JsonLdReviewModel> Reviews)> ReviewSchema(ProductDetailsModel model) =>
+            PrepareReviewSchemaAsync(model);
+    }
+
+    private static ProductDetailsModel CreateReviewProductModel(string sku, IList<ProductReviewModel> reviews)
+    {
+        return new ProductDetailsModel
+        {
+            Sku = sku,
+            ProductReviews = new ProductReviewsModel { Items = reviews }
+        };
+    }
+
+    private static TestableJsonLdModelFactory CreateReviewFactory(IList<ProductReview> reviews,
+        IRepository<ProductReviewsTransactionsMapping> mappingRepository,
+        IList<EtsyReview> etsyReviews)
+    {
+        var reviewRepository = CreateRepository(reviews);
+        var etsyRepository = CreateRepository(etsyReviews);
+        return new TestableJsonLdModelFactory(reviewRepository, mappingRepository, etsyRepository);
+    }
+
+    private static IRepository<TEntity> CreateRepository<TEntity>(IList<TEntity> entities)
+        where TEntity : BaseEntity
+    {
+        var repository = new Mock<IRepository<TEntity>>();
+        repository.Setup(item => item.GetAllAsync(It.IsAny<Func<IQueryable<TEntity>, IQueryable<TEntity>>>(),
+                null, true))
+            .ReturnsAsync(entities);
+        return repository.Object;
     }
 }

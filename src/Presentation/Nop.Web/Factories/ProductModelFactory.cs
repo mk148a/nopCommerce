@@ -651,17 +651,25 @@ public partial class ProductModelFactory : IProductModelFactory
             var importedReviewKeys = new HashSet<string>(StringComparer.Ordinal);
             if (_etsyReviewRepository != null)
             {
-                var product = await _productService.GetProductByIdAsync(reviews[0].ProductId);
-                if (!string.IsNullOrWhiteSpace(product?.Sku))
+                try
                 {
-                    var importedReviews = await _etsyReviewRepository.GetAllAsync(query => query
-                        .Where(review => review.Sku == product.Sku && review.Rating >= 1 && review.Rating <= 5));
-                    foreach (var importedReview in importedReviews)
+                    var product = await _productService.GetProductByIdAsync(reviews[0].ProductId);
+                    if (!string.IsNullOrWhiteSpace(product?.Sku))
                     {
-                        var normalizedText = NormalizeReviewText(importedReview.Review);
-                        if (!string.IsNullOrWhiteSpace(normalizedText))
-                            importedReviewKeys.Add(BuildExternalReviewKey(importedReview.Rating, normalizedText));
+                        var importedReviews = await _etsyReviewRepository.GetAllAsync(query => query
+                            .Where(review => review.Sku == product.Sku && review.Rating >= 1 && review.Rating <= 5));
+                        foreach (var importedReview in importedReviews)
+                        {
+                            var normalizedText = NormalizeReviewText(importedReview.Review);
+                            if (!string.IsNullOrWhiteSpace(normalizedText))
+                                importedReviewKeys.Add(BuildExternalReviewKey(importedReview.Rating, normalizedText));
+                        }
                     }
+                }
+                catch
+                {
+                    // Keep explicit mapping exclusions even when the legacy
+                    // Etsy table is unavailable on an older installation.
                 }
             }
 

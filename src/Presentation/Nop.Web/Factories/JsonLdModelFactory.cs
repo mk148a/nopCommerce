@@ -264,6 +264,9 @@ public partial class JsonLdModelFactory : IJsonLdModelFactory
 
         foreach (var storedReview in storedReviews.OrderByDescending(review => review.CreatedOnUtc).ThenByDescending(review => review.Id))
         {
+            if (!storedReview.IsApproved || storedReview.Rating is < 1 or > 5)
+                continue;
+
             var normalizedReviewText = NormalizePlainText(storedReview.ReviewText);
             if (externalReviewIds.Contains(storedReview.Id)
                 || importedReviewKeys.Contains(BuildExternalReviewKey(storedReview.Rating, normalizedReviewText))
@@ -330,7 +333,7 @@ public partial class JsonLdModelFactory : IJsonLdModelFactory
         if (string.IsNullOrWhiteSpace(html))
             return null;
 
-        return string.Join(' ', WebUtility.HtmlDecode(_htmlFormatter.StripTags(html))
+        return string.Join(' ', WebUtility.HtmlDecode(_htmlFormatter.StripTags(html) ?? html)
             .Split((char[])null, StringSplitOptions.RemoveEmptyEntries));
     }
 
