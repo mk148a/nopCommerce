@@ -92,9 +92,9 @@
             </ul>
             @if (seoSettings.MicrodataEnabled)
             {
-                <script type="application/ld+json">
-                    @Html.Raw(Model.JsonLd)
-                </script>
+                @* Register JSON-LD through the shared head pipeline so HTML minification
+                   preserves the application/ld+json script type. *@
+                NopHtml.AddJsonLdParts(Model.JsonLd);
             }
         </div>
         @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.CategoryDetailsAfterBreadcrumb, additionalData = Model })

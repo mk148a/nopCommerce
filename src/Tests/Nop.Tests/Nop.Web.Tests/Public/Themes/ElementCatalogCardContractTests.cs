@@ -48,6 +48,15 @@ public class ElementCatalogCardContractTests
         genericRoot.Should().NotContain("<script src=\"/Themes/Element/Content/scripts/hood-third-party-gate-v6.js");
     }
 
+    [Test]
+    public void Category_template_registers_json_ld_through_shared_head_pipeline()
+    {
+        var category = ReadSource("src", "Presentation", "Nop.Web", "Themes", "Element", "Views", "Catalog", "CategoryTemplate.ProductsInGridOrLines.cshtml");
+
+        category.Should().Contain("NopHtml.AddJsonLdParts(Model.JsonLd)");
+        category.Should().NotContain("<script type=\"application/ld+json\">");
+    }
+
     private static string ReadSource(params string[] parts)
     {
         var directory = new DirectoryInfo(TestContext.CurrentContext.TestDirectory);
