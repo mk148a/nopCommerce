@@ -80,6 +80,15 @@ public class ElementCatalogCardContractTests
     }
 
     [Test]
+    public void Catalog_old_price_requires_effective_old_price_above_current_minimum()
+    {
+        var factory = ReadSource("src", "Presentation", "Nop.Web", "Factories", "ProductModelFactory.cs");
+
+        factory.Should().Contain("if (oldPriceBase > finalPriceWithoutDiscountBase && oldPriceBase > decimal.Zero)");
+        factory.Should().NotContain("if (finalPriceWithoutDiscountBase != oldPriceBase && oldPriceBase > decimal.Zero)");
+    }
+
+    [Test]
     public void Category_template_reserves_carousel_footprint_before_initialization()
     {
         var category = ReadSource("src", "Presentation", "Nop.Web", "Themes", "Element", "Views", "Catalog", "CategoryTemplate.ProductsInGridOrLines.cshtml");
