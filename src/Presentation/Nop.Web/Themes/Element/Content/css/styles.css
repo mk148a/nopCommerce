@@ -2536,6 +2536,24 @@ label+* {
     object-position: center;
 }
 
+/* Reserve identical, non-cropping media boxes for the Featured Products grid. */
+.home-page-product-grid .product-item .picture,
+.home-page-product-grid .product-item .picture > a {
+    aspect-ratio: 1 / 1;
+}
+
+.home-page-product-grid .product-item .picture > a {
+    padding-top: 100%;
+}
+
+.home-page-product-grid .product-item .picture img {
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    object-fit: contain;
+    object-position: center;
+}
+
 .home-page-category-grid .title,
 .sub-category-grid .title {
     position: absolute;
