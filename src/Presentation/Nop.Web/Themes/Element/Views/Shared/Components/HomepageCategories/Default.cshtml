@@ -18,7 +18,7 @@
             @foreach (var item in Model)
             {
                 <div class="item-box">
-                    <div class="category-item">
+                    <div class="category-item @(item.SeName == "archery" ? "archery-category-item" : "")">
                         <h2 class="title">
                             <a href="@(Url.RouteUrl<Category>(new { SeName = item.SeName }))" title="@item.PictureModel.Title">
                                 @item.Name

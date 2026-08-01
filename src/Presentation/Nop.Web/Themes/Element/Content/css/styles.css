@@ -2525,6 +2525,16 @@ label+* {
     object-fit: cover;
 }
 
+/* The Archery artwork is deliberately panoramic; keep the bow centered instead of cropping it. */
+.home-page-category-grid .archery-category-item .picture {
+    background-color: #fff;
+}
+
+.home-page-category-grid .archery-category-item .picture img {
+    object-fit: contain;
+    object-position: center;
+}
+
 .home-page-category-grid .title,
 .sub-category-grid .title {
     position: absolute;
