@@ -183,14 +183,20 @@
         </form>
         <div class="product-collateral">
             @await Html.PartialAsync("_ProductSpecifications", Model.ProductSpecificationModel)
-            @await Html.PartialAsync("_ProductTags", Model.ProductTags)
-            @if (Model.ProductReviewOverview.AllowCustomerReviews)
+            @if (!Model.NoIndex)
+            {
+                @await Html.PartialAsync("_ProductTags", Model.ProductTags)
+            }
+            @if (!Model.NoIndex && Model.ProductReviewOverview.AllowCustomerReviews)
             {
                 @await Html.PartialAsync("_ProductReviews", Model.ProductReviews)
             }
         </div>
-        @await Component.InvokeAsync(typeof(ProductsAlsoPurchasedViewComponent), new { productId = Model.Id })
-        @await Component.InvokeAsync(typeof(RelatedProductsViewComponent), new { productId = Model.Id })
+        @if (!Model.NoIndex)
+        {
+            @await Component.InvokeAsync(typeof(ProductsAlsoPurchasedViewComponent), new { productId = Model.Id })
+            @await Component.InvokeAsync(typeof(RelatedProductsViewComponent), new { productId = Model.Id })
+        }
         @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.ProductDetailsBottom, additionalData = Model })
     </div>
 </div>
