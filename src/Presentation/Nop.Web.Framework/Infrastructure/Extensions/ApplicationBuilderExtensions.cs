@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.IO;
 using System.Net;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
@@ -252,6 +253,52 @@ public static class ApplicationBuilderExtensions
     /// Configure static file serving
     /// </summary>
     /// <param name="application">Builder for configuring an application's request pipeline</param>
+    private static void NormalizeImageContentType(StaticFileResponseContext context)
+    {
+        var file = context.File;
+        if (file is null || !file.Exists || string.IsNullOrEmpty(file.PhysicalPath))
+            return;
+
+        var extension = Path.GetExtension(file.Name);
+        if (!extension.Equals(".jpg", StringComparison.OrdinalIgnoreCase) &&
+            !extension.Equals(".jpeg", StringComparison.OrdinalIgnoreCase) &&
+            !extension.Equals(".png", StringComparison.OrdinalIgnoreCase) &&
+            !extension.Equals(".gif", StringComparison.OrdinalIgnoreCase))
+            return;
+
+        try
+        {
+            Span<byte> signature = stackalloc byte[12];
+            using var stream = File.OpenRead(file.PhysicalPath);
+            var read = stream.Read(signature);
+            if (read >= 12 &&
+                signature[0] == (byte)'R' && signature[1] == (byte)'I' &&
+                signature[2] == (byte)'F' && signature[3] == (byte)'F' &&
+                signature[8] == (byte)'W' && signature[9] == (byte)'E' &&
+                signature[10] == (byte)'B' && signature[11] == (byte)'P')
+            {
+                context.Context.Response.ContentType = "image/webp";
+            }
+            else if (read >= 3 && signature[0] == 0xFF && signature[1] == 0xD8 && signature[2] == 0xFF)
+            {
+                context.Context.Response.ContentType = "image/jpeg";
+            }
+            else if (read >= 8 && signature[0] == 0x89 && signature[1] == 0x50 && signature[2] == 0x4E && signature[3] == 0x47)
+            {
+                context.Context.Response.ContentType = "image/png";
+            }
+            else if (read >= 4 && signature[0] == (byte)'G' && signature[1] == (byte)'I' && signature[2] == (byte)'F' && signature[3] == (byte)'8')
+            {
+                context.Context.Response.ContentType = "image/gif";
+            }
+        }
+        catch (IOException)
+        {
+            // Retain the extension-derived type if a concurrent media replacement
+            // prevents reading the signature.
+        }
+    }
+
     public static void UseNopStaticFiles(this IApplicationBuilder application)
     {
         var fileProvider = EngineContext.Current.Resolve<INopFileProvider>();
@@ -261,6 +308,11 @@ public static class ApplicationBuilderExtensions
         {
             if (!string.IsNullOrEmpty(appSettings.Get<CommonConfig>().StaticFilesCacheControl))
                 context.Context.Response.Headers.Append(HeaderNames.CacheControl, appSettings.Get<CommonConfig>().StaticFilesCacheControl);
+
+            // Legacy thumbnails can have a .jpeg suffix while their bytes are WebP.
+            // Correct only the response MIME from the file signature; keep URLs and
+            // source media unchanged.
+            NormalizeImageContentType(context);
         }
 
         //add handling if sitemaps 
