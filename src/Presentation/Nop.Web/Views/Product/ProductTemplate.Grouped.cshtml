@@ -196,15 +196,21 @@
                         }
                     </div>
                     @await Html.PartialAsync("_ProductSpecifications", Model.ProductSpecificationModel)
-                    @await Html.PartialAsync("_ProductTags", Model.ProductTags)
+                    @if (!Model.NoIndex)
+                    {
+                        @await Html.PartialAsync("_ProductTags", Model.ProductTags)
+                    }
                 </div>
                 @*we do not display "also purchased" for grouped products
                     @await Component.InvokeAsync(typeof(ProductsAlsoPurchasedViewComponent), new { productId = Model.Id })*@
-                @await Component.InvokeAsync(typeof(RelatedProductsViewComponent), new { productId = Model.Id })
+                @if (!Model.NoIndex)
+                {
+                    @await Component.InvokeAsync(typeof(RelatedProductsViewComponent), new { productId = Model.Id })
+                }
             </div>
         </form>
         <!--product reviews-->
-        @if (Model.ProductReviewOverview.AllowCustomerReviews)
+        @if (!Model.NoIndex && Model.ProductReviewOverview.AllowCustomerReviews)
         {
             @await Html.PartialAsync("_ProductReviews", Model.ProductReviews)
         }

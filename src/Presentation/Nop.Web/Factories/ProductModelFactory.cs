@@ -15,6 +15,7 @@ using Nop.Core.Domain.Stores;
 using Nop.Core.Domain.Vendors;
 using Nop.Services.Catalog;
 using Nop.Services.Common;
+using Nop.Services.Configuration;
 using Nop.Services.Customers;
 using Nop.Services.Directory;
 using Nop.Services.Helpers;
@@ -70,6 +71,7 @@ public partial class ProductModelFactory : IProductModelFactory
     protected readonly IStoreContext _storeContext;
     protected readonly IStoreService _storeService;
     protected readonly IShoppingCartModelFactory _shoppingCartModelFactory;
+    protected readonly ISettingService _settingService;
     protected readonly ITaxService _taxService;
     protected readonly IUrlRecordService _urlRecordService;
     protected readonly IVendorService _vendorService;
@@ -116,6 +118,7 @@ public partial class ProductModelFactory : IProductModelFactory
         IStoreContext storeContext,
         IStoreService storeService,
         IShoppingCartModelFactory shoppingCartModelFactory,
+        ISettingService settingService,
         ITaxService taxService,
         IUrlRecordService urlRecordService,
         IVendorService vendorService,
@@ -157,6 +160,7 @@ public partial class ProductModelFactory : IProductModelFactory
         _storeContext = storeContext;
         _storeService = storeService;
         _shoppingCartModelFactory = shoppingCartModelFactory;
+        _settingService = settingService;
         _taxService = taxService;
         _urlRecordService = urlRecordService;
         _vendorService = vendorService;
@@ -1268,8 +1272,14 @@ public partial class ProductModelFactory : IProductModelFactory
         ArgumentNullException.ThrowIfNull(products);
 
         var models = new List<ProductOverviewModel>();
+        var systemProductSkus = await GetSystemProductSkusAsync();
         foreach (var product in products)
         {
+            // Payment/adjustment products remain directly purchasable, but are not
+            // allowed into public catalogue, search, autocomplete, or recommendation lists.
+            if (systemProductSkus.Contains(product.Sku))
+                continue;
+
             var model = new ProductOverviewModel
             {
                 Id = product.Id,
@@ -1309,6 +1319,16 @@ public partial class ProductModelFactory : IProductModelFactory
         }
 
         return models;
+    }
+
+    protected virtual async Task<HashSet<string>> GetSystemProductSkusAsync()
+    {
+        var csv = await _settingService.GetSettingByKeyAsync<string>(
+            "FixedByWeightByTotalSettings.SystemProductSkus", "expresshipping");
+
+        return (csv ?? string.Empty)
+            .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
     }
 
     /// <summary>
