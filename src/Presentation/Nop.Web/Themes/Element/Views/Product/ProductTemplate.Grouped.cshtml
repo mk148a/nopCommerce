@@ -99,7 +99,10 @@
                         @await Html.PartialAsync("_Discontinued", Model)
                         @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.ProductDetailsOverviewTop, additionalData = Model })
                         <!--product reviews-->
-                        @await Html.PartialAsync("_ProductReviewOverview", Model.ProductReviewOverview)
+                        @if (!Model.NoIndex)
+                        {
+                            @await Html.PartialAsync("_ProductReviewOverview", Model.ProductReviewOverview)
+                        }
                         @if (!string.IsNullOrEmpty(Model.ShortDescription))
                         {
                             <div class="short-description">

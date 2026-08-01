@@ -86,7 +86,10 @@
                         }
                         @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.ProductDetailsOverviewTop, additionalData = Model })
                         <!--product reviews-->
-                        @await Html.PartialAsync("_ProductReviewOverview", Model.ProductReviewOverview)
+                        @if (!Model.NoIndex)
+                        {
+                            @await Html.PartialAsync("_ProductReviewOverview", Model.ProductReviewOverview)
+                        }
                         <!--product manufacturers-->
                         @await Html.PartialAsync("_ProductManufacturers", Model.ProductManufacturers)
                         <!--compare, email a friend-->
