@@ -173,6 +173,22 @@ public class JsonLdModelContractTests
     }
 
     [Test]
+    public void VisibleReviewSummaryUsesTheApprovedReviewTotals()
+    {
+        var overview = new ProductReviewOverviewModel { RatingSum = 328, TotalReviews = 67 };
+
+        overview.AverageRating.Should().Be(4.90m);
+    }
+
+    [Test]
+    public void EmptyVisibleReviewSummaryHasNoAverage()
+    {
+        var overview = new ProductReviewOverviewModel();
+
+        overview.AverageRating.Should().Be(0m);
+    }
+
+    [Test]
     public void ProductionAndTransitRangesAreCombinedFromTypedValues()
     {
         var deliveryRange = DeliveryEstimateRange.Combine(21, 28, 2, 5);

@@ -11,6 +11,13 @@ public partial record ProductReviewOverviewModel : BaseNopModel
 
     public int TotalReviews { get; set; }
 
+    /// <summary>
+    /// Average of the same approved review set used for the visible review count.
+    /// </summary>
+    public decimal AverageRating => TotalReviews > 0
+        ? Math.Round((decimal)RatingSum / TotalReviews, 2, MidpointRounding.AwayFromZero)
+        : 0m;
+
     public bool AllowCustomerReviews { get; set; }
 
     public bool CanAddNewReview { get; set; }

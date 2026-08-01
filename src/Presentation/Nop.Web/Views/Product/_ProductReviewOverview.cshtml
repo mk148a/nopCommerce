@@ -20,6 +20,9 @@
         @if (Model.TotalReviews > 0)
         {
             <div class="product-review-links">
+                <span class="product-review-average" aria-label="Average rating">
+                    @Model.AverageRating.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)/5
+                </span>
                 <a href="#productreviews">@Model.TotalReviews
                     @T("Reviews.Overview.Reviews")</a>
             </div>
