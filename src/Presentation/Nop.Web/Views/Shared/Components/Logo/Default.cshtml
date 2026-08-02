@@ -1,4 +1,18 @@
-﻿@model LogoModel
+@using Nop.Web.Framework.Themes
+
+@model LogoModel
+
+@inject IThemeContext themeContext
+
+@{
+    // Keep the database-backed logo as the primary source, but always have a
+    // theme asset fallback when the media endpoint is unavailable or empty.
+    var themeLogoPath = $"~/Themes/{await themeContext.GetWorkingThemeNameAsync()}/Content/img/logo.png";
+    var fallbackLogoPath = Url.Content(themeLogoPath);
+}
+
 <a href="@Url.RouteUrl("Homepage")">
-    <img title="" alt="@Model.StoreName" src="@Model.LogoPath">
+    <img title="" alt="@Model.StoreName"
+         src="@(String.IsNullOrWhiteSpace(Model.LogoPath) ? fallbackLogoPath : Model.LogoPath)"
+         onerror="this.onerror=null;this.src='@fallbackLogoPath';">
 </a>
