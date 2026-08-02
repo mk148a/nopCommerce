@@ -164,9 +164,20 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Services
             if (productReviewId == 0)
                 return new  List<CustomProductReviewMapping>();
 
+            // Production installations may predate the optional video mapping column.
+            // Read the review picture mapping through an explicit legacy-safe projection;
+            // the video widget treats the missing value as null and the review page stays
+            // renderable until the optional schema migration is applied.
             var query = from p in _customProductReviewMappingRepository.Table
                 where p.ProductReviewId == productReviewId
-                select p;
+                select new CustomProductReviewMapping
+                {
+                    Id = p.Id,
+                    DisplayOrder = p.DisplayOrder,
+                    ProductReviewId = p.ProductReviewId,
+                    PictureId = p.PictureId,
+                    VideoId = null
+                };
 
             var mappings = await query.ToListAsync();
 
