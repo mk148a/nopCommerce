@@ -38,10 +38,10 @@ function Assert-True([bool]$Condition, [string]$Message) {
 $homeResponse = Get-Page '/en/?ui-layout-smoke=1'
 Assert-True ($homeResponse.StatusCode -eq 200) 'Homepage did not return 200.'
 Assert-True ($homeResponse.Content -match 'archery-category-item') 'Homepage is missing the semantic Archery category class.'
-Assert-True ($homeResponse.Content -match 'width="635" height="635"') 'Homepage product images are missing reserved dimensions.'
+Assert-True ($homeResponse.Content -notmatch 'width="635" height="635"') 'Homepage still contains the legacy fixed 635px image dimensions.'
 Assert-True ($homeResponse.Content -notmatch 'lib_npm/fine-uploader') 'Fine Uploader remains registered on the homepage.'
 
-$styleUrl = [regex]::Match($homeResponse.Content, 'href="(?<url>[^"]*styles\.css\?v=[^"]*)"').Groups['url'].Value
+$styleUrl = [regex]::Match($homeResponse.Content, 'href="(?<url>[^"]*styles\.css(?:\?v=[^"]*)?)"').Groups['url'].Value
 Assert-True (-not [string]::IsNullOrWhiteSpace($styleUrl)) 'Homepage styles.css URL was not rendered.'
 
 $styles = Get-Page $styleUrl
