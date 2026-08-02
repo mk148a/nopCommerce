@@ -13,6 +13,8 @@
 
 <a href="@Url.RouteUrl("Homepage")">
     <img title="" alt="@Model.StoreName"
+         width="150" height="150"
+         loading="eager" decoding="async"
          src="@(String.IsNullOrWhiteSpace(Model.LogoPath) ? fallbackLogoPath : Model.LogoPath)"
          onerror="this.onerror=null;this.src='@fallbackLogoPath';">
 </a>

@@ -22,6 +22,10 @@
     else
     {
         string storeName = await localizationService.GetLocalizedAsync(await storeContext.GetCurrentStoreAsync(), x => x.Name);
-        <img title="" alt="@storeName" src="@(String.IsNullOrWhiteSpace(Model.LogoPath) ? fallbackLogoPath : Model.LogoPath)" onerror="this.onerror=null;this.src='@fallbackLogoPath';">
+        <img title="" alt="@storeName"
+             width="150" height="150"
+             loading="eager" decoding="async"
+             src="@(String.IsNullOrWhiteSpace(Model.LogoPath) ? fallbackLogoPath : Model.LogoPath)"
+             onerror="this.onerror=null;this.src='@fallbackLogoPath';">
     }
 </a>
