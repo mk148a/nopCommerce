@@ -11,21 +11,13 @@
 @{
     var themeLogoPath = $"~/Themes/{await themeContext.GetWorkingThemeNameAsync()}/Content/img/logo.png";
     var fallbackLogoPath = Url.Content(themeLogoPath);
-    var themeLogo = await Component.InvokeAsync("Widget", new { widgetZone = "element_theme_logo" });
+    var storeName = await localizationService.GetLocalizedAsync(await storeContext.GetCurrentStoreAsync(), x => x.Name);
 }
 
 <a href="@Url.RouteUrl("Homepage")" class="logo">
-    @if (!String.IsNullOrEmpty(await themeLogo.RenderHtmlContentAsync()))
-    {
-        @themeLogo
-    }
-    else
-    {
-        string storeName = await localizationService.GetLocalizedAsync(await storeContext.GetCurrentStoreAsync(), x => x.Name);
-        <img title="" alt="@storeName"
-             width="150" height="150"
-             loading="eager" decoding="async"
-             src="@(String.IsNullOrWhiteSpace(Model.LogoPath) ? fallbackLogoPath : Model.LogoPath)"
-             onerror="this.onerror=null;this.src='@fallbackLogoPath';">
-    }
+    <img title="" alt="@storeName"
+         width="150" height="150"
+         loading="eager" decoding="async"
+         src="@(String.IsNullOrWhiteSpace(Model.LogoPath) ? fallbackLogoPath : Model.LogoPath)"
+         onerror="this.onerror=null;this.src='@fallbackLogoPath';">
 </a>
