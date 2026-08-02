@@ -276,6 +276,9 @@ public partial class JsonLdModelFactory : IJsonLdModelFactory
             if (!storedReview.IsApproved || storedReview.Rating is < 1 or > 5)
                 continue;
 
+            if (await IsExternalMarketplaceReviewAsync(storedReview))
+                continue;
+
             var normalizedReviewText = NormalizePlainText(storedReview.ReviewText);
             if (externalReviewIds.Contains(storedReview.Id)
                 || importedReviewKeys.Contains(BuildExternalReviewKey(storedReview.Rating, normalizedReviewText))
@@ -337,6 +340,36 @@ public partial class JsonLdModelFactory : IJsonLdModelFactory
         }
 
         return (aggregateRating, individualReviews.Count > 0 ? individualReviews : null);
+    }
+
+    /// <summary>
+    /// Legacy review imports created synthetic customers whose identity is
+    /// explicitly marked with the Etsy import prefix.  Treat that durable
+    /// migration marker as marketplace provenance even when an old database
+    /// row has no ProductReviewsTransactionsMapping entry.
+    /// </summary>
+    protected virtual async Task<bool> IsExternalMarketplaceReviewAsync(ProductReview review)
+    {
+        if (_customerService == null || review == null || review.CustomerId <= 0)
+            return false;
+
+        try
+        {
+            var customer = await _customerService.GetCustomerByIdAsync(review.CustomerId);
+            var username = customer?.Username?.Trim();
+            var email = customer?.Email?.Trim();
+
+            return (!string.IsNullOrWhiteSpace(username)
+                    && username.StartsWith("etsy_review_", StringComparison.OrdinalIgnoreCase))
+                || (!string.IsNullOrWhiteSpace(email)
+                    && email.EndsWith("@hoodarcheryshop.invalid", StringComparison.OrdinalIgnoreCase));
+        }
+        catch
+        {
+            // An unavailable customer service is unknown provenance; explicit
+            // mapping/text evidence is still applied by the caller.
+            return false;
+        }
     }
 
     protected virtual string BuildReviewIdentityKey(ProductReview review)

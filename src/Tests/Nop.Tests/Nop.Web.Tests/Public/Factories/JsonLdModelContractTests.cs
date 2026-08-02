@@ -10,6 +10,7 @@ using Newtonsoft.Json.Linq;
 using Nop.Core;
 using Nop.Core.Domain;
 using Nop.Core.Domain.Catalog;
+using Nop.Core.Domain.Customers;
 using Nop.Core.Domain.Media;
 using Nop.Core.Domain.Shipping;
 using Nop.Core.Domain.Stores;
@@ -22,6 +23,7 @@ using Nop.Plugin.Shipping.FixedByWeightByTotal;
 using Nop.Plugin.Shipping.FixedByWeightByTotal.Components;
 using Nop.Plugin.Shipping.FixedByWeightByTotal.Infrastructure;
 using Nop.Services.Catalog;
+using Nop.Services.Customers;
 using Nop.Services.Html;
 using Nop.Services.Media;
 using Nop.Web.Factories;
@@ -344,6 +346,37 @@ public class JsonLdModelContractTests
     }
 
     [Test]
+    public async Task SyntheticEtsyCustomerMarkerExcludesUnmappedMarketplaceReview()
+    {
+        var stored = new List<ProductReview>
+        {
+            new() { Id = 1, ProductId = 85, CustomerId = 901, IsApproved = true, Rating = 5, ReviewText = "Imported marketplace", CreatedOnUtc = DateTime.UtcNow },
+            new() { Id = 2, ProductId = 85, CustomerId = 902, IsApproved = true, Rating = 4, ReviewText = "Native review", CreatedOnUtc = DateTime.UtcNow.AddMinutes(-1) }
+        };
+        var visible = stored.Select(review => new ProductReviewModel
+        {
+            Id = review.Id,
+            CustomerId = review.CustomerId,
+            CustomerName = $"Customer {review.CustomerId}",
+            ReviewText = review.ReviewText,
+            Rating = review.Rating
+        }).ToList();
+        var customerService = new Mock<ICustomerService>();
+        customerService.Setup(service => service.GetCustomerByIdAsync(901))
+            .ReturnsAsync(new Customer { Id = 901, Username = "etsy_review_901", Email = "etsy-review-901@hoodarcheryshop.invalid" });
+        customerService.Setup(service => service.GetCustomerByIdAsync(902))
+            .ReturnsAsync(new Customer { Id = 902, Username = "native-customer", Email = "native@example.test" });
+        var factory = CreateReviewFactory(stored, CreateRepository<ProductReviewsTransactionsMapping>([]), [], customerService.Object);
+
+        var result = await factory.ReviewSchema(CreateReviewProductModel("arrow2", visible));
+
+        result.AggregateRating.RatingCount.Should().Be(1);
+        result.AggregateRating.RatingValue.Should().Be(4m);
+        result.Reviews.Should().ContainSingle();
+        result.Reviews[0].ReviewBody.Should().Be("Native review");
+    }
+
+    [Test]
     public async Task UnapprovedAndOutOfRangeRatingsAreExcluded()
     {
         var stored = new List<ProductReview>
@@ -582,10 +615,11 @@ public class JsonLdModelContractTests
 
         public TestableJsonLdModelFactory(IRepository<ProductReview> reviewRepository,
             IRepository<ProductReviewsTransactionsMapping> mappingRepository,
-            IRepository<EtsyReview> etsyReviewRepository)
+            IRepository<EtsyReview> etsyReviewRepository,
+            ICustomerService customerService = null)
             : base(Mock.Of<IEventPublisher>(), Mock.Of<IHtmlFormatter>(), Mock.Of<INopUrlHelper>(),
                 Mock.Of<IProductService>(), Mock.Of<IRepository<Product>>(), Mock.Of<IWebHelper>(),
-                reviewRepository, mappingRepository, etsyReviewRepository)
+                reviewRepository, mappingRepository, etsyReviewRepository, customerService)
         {
         }
 
@@ -610,11 +644,12 @@ public class JsonLdModelContractTests
 
     private static TestableJsonLdModelFactory CreateReviewFactory(IList<ProductReview> reviews,
         IRepository<ProductReviewsTransactionsMapping> mappingRepository,
-        IList<EtsyReview> etsyReviews)
+        IList<EtsyReview> etsyReviews,
+        ICustomerService customerService = null)
     {
         var reviewRepository = CreateRepository(reviews);
         var etsyRepository = CreateRepository(etsyReviews);
-        return new TestableJsonLdModelFactory(reviewRepository, mappingRepository, etsyRepository);
+        return new TestableJsonLdModelFactory(reviewRepository, mappingRepository, etsyRepository, customerService);
     }
 
     private static IRepository<TEntity> CreateRepository<TEntity>(IList<TEntity> entities)

@@ -673,8 +673,20 @@ public partial class ProductModelFactory : IProductModelFactory
                 }
             }
 
-            return reviews.Where(review => !externalIds.Contains(review.Id)
-                && !importedReviewKeys.Contains(BuildExternalReviewKey(review.Rating, NormalizeReviewText(review.ReviewText)))).ToList();
+            var eligibleReviews = new List<ProductReview>();
+            foreach (var review in reviews)
+            {
+                if (externalIds.Contains(review.Id)
+                    || importedReviewKeys.Contains(BuildExternalReviewKey(review.Rating, NormalizeReviewText(review.ReviewText)))
+                    || await IsExternalMarketplaceReviewAsync(review))
+                {
+                    continue;
+                }
+
+                eligibleReviews.Add(review);
+            }
+
+            return eligibleReviews;
         }
         catch
         {
@@ -696,6 +708,33 @@ public partial class ProductModelFactory : IProductModelFactory
     protected virtual string BuildExternalReviewKey(int rating, string reviewText)
     {
         return $"{rating}|{reviewText ?? string.Empty}";
+    }
+
+    /// <summary>
+    /// Legacy marketplace imports used a durable synthetic customer marker.
+    /// Exclude those rows from the visible rating summary so it stays aligned
+    /// with Product JSON-LD, even when the older mapping row is absent.
+    /// </summary>
+    protected virtual async Task<bool> IsExternalMarketplaceReviewAsync(ProductReview review)
+    {
+        if (_customerService == null || review == null || review.CustomerId <= 0)
+            return false;
+
+        try
+        {
+            var customer = await _customerService.GetCustomerByIdAsync(review.CustomerId);
+            var username = customer?.Username?.Trim();
+            var email = customer?.Email?.Trim();
+
+            return (!string.IsNullOrWhiteSpace(username)
+                    && username.StartsWith("etsy_review_", StringComparison.OrdinalIgnoreCase))
+                || (!string.IsNullOrWhiteSpace(email)
+                    && email.EndsWith("@hoodarcheryshop.invalid", StringComparison.OrdinalIgnoreCase));
+        }
+        catch
+        {
+            return false;
+        }
     }
 
     /// <summary>
