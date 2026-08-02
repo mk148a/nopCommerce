@@ -11,14 +11,20 @@
     <RepositoryType>Git</RepositoryType>
 
     <OutputPath>$(MSBuildProjectDirectory)\..\Presentation\Nop.Web\bin\$(Configuration)</OutputPath>
+    <ClearPluginAssembliesProject>$(MSBuildThisFileDirectory)src\ClearPluginAssemblies\ClearPluginAssemblies.csproj</ClearPluginAssembliesProject>
+    <ClearPluginAssembliesDll>$(MSBuildThisFileDirectory)src\ClearPluginAssemblies\bin\$(Configuration)\net9.0\ClearPluginAssemblies.dll</ClearPluginAssembliesDll>
   </PropertyGroup> 
 
-  <Target Name="NopClear">
+  <Target Name="BuildClearPluginAssemblies">
+    <MSBuild Projects="$(ClearPluginAssembliesProject)" Properties="Configuration=$(Configuration)" Targets="Build" />
+  </Target>
+
+  <Target Name="NopClear" DependsOnTargets="BuildClearPluginAssemblies">
     
     <!-- When .NET Core builds a project, it copies all referenced libraries to the output folder.
     For plugins it creates too many unnecessary files that just take up space.
     At the moment you can't disable this behavior. That's why we have to manually delete all unnecessary libraries from plugin output directories. -->  
-    <Exec Command='dotnet "ClearPluginAssemblies.dll" "OutputPath=$(OutputPath)|PluginPath=$(PluginPath)|SaveLocalesFolders=$(SaveLocalesFolders)"' />
+    <Exec Command='dotnet "$(ClearPluginAssembliesDll)" "OutputPath=$(OutputPath)|PluginPath=$(PluginPath)|SaveLocalesFolders=$(SaveLocalesFolders)"' />
   </Target> 
       
 </Project>
