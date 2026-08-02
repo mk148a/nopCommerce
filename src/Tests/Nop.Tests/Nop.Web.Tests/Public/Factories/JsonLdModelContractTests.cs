@@ -423,6 +423,38 @@ public class JsonLdModelContractTests
     }
 
     [Test]
+    public async Task ProductReviewSchemaUsesAllProductRowsInsteadOfCurrentReviewPage()
+    {
+        var stored = Enumerable.Range(1, 6).Select(index => new ProductReview
+        {
+            Id = index,
+            ProductId = 85,
+            CustomerId = index,
+            IsApproved = true,
+            Rating = index == 1 ? 4 : 5,
+            ReviewText = $"Review {index}",
+            CreatedOnUtc = DateTime.UtcNow.AddMinutes(-index)
+        }).ToList();
+        var firstPageOnly = new ProductReviewModel
+        {
+            Id = stored[0].Id,
+            CustomerId = stored[0].CustomerId,
+            CustomerName = "First customer",
+            ReviewText = stored[0].ReviewText,
+            Rating = stored[0].Rating
+        };
+        var factory = CreateReviewFactory(stored, CreateRepository<ProductReviewsTransactionsMapping>([]), []);
+        var model = CreateReviewProductModel("arrow2", [firstPageOnly]);
+        model.Id = 85;
+
+        var result = await factory.ReviewSchema(model);
+
+        result.AggregateRating.RatingCount.Should().Be(6);
+        result.AggregateRating.RatingValue.Should().Be(4.83m);
+        result.Reviews.Should().HaveCount(1);
+    }
+
+    [Test]
     public async Task ProductWithoutEligibleReviewsOmitsReviewSchema()
     {
         var factory = CreateReviewFactory([], CreateRepository<ProductReviewsTransactionsMapping>([]), []);

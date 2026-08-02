@@ -5,6 +5,7 @@ using Nop.Core.Domain.Catalog;
 using Nop.Core.Events;
 using Nop.Data;
 using Nop.Services.Catalog;
+using Nop.Services.Customers;
 using Nop.Services.Html;
 using Nop.Web.Framework.Mvc.Routing;
 using Nop.Web.Models.Catalog;
@@ -27,6 +28,7 @@ public partial class JsonLdModelFactory : IJsonLdModelFactory
     protected readonly IRepository<ProductReview> _productReviewRepository;
     protected readonly IRepository<ProductReviewsTransactionsMapping> _productReviewMappingRepository;
     protected readonly IRepository<EtsyReview> _etsyReviewRepository;
+    protected readonly ICustomerService _customerService;
     protected readonly IWebHelper _webHelper;
 
     #endregion
@@ -51,7 +53,8 @@ public partial class JsonLdModelFactory : IJsonLdModelFactory
         IWebHelper webHelper,
         IRepository<ProductReview> productReviewRepository,
         IRepository<ProductReviewsTransactionsMapping> productReviewMappingRepository,
-        IRepository<EtsyReview> etsyReviewRepository = null)
+        IRepository<EtsyReview> etsyReviewRepository = null,
+        ICustomerService customerService = null)
     {
         _eventPublisher = eventPublisher;
         _htmlFormatter = htmlFormatter;
@@ -61,6 +64,7 @@ public partial class JsonLdModelFactory : IJsonLdModelFactory
         _productReviewRepository = productReviewRepository;
         _productReviewMappingRepository = productReviewMappingRepository;
         _etsyReviewRepository = etsyReviewRepository;
+        _customerService = customerService;
         _webHelper = webHelper;
     }
 
@@ -215,8 +219,12 @@ public partial class JsonLdModelFactory : IJsonLdModelFactory
             return (null, null);
 
         var visibleItems = model.ProductReviews?.Items ?? [];
-        var reviewIds = visibleItems.Select(review => review.Id).Where(id => id > 0).Distinct().ToArray();
-        if (reviewIds.Length == 0)
+        var visibleById = visibleItems
+            .Where(review => review.Id > 0)
+            .GroupBy(review => review.Id)
+            .ToDictionary(group => group.Key, group => group.First());
+        var visibleReviewIds = visibleById.Keys.ToArray();
+        if (model.Id <= 0 && visibleReviewIds.Length == 0)
             return (null, null);
 
         IList<ProductReview> storedReviews;
@@ -224,9 +232,11 @@ public partial class JsonLdModelFactory : IJsonLdModelFactory
         try
         {
             storedReviews = await _productReviewRepository.GetAllAsync(query => query
-                .Where(review => reviewIds.Contains(review.Id) && review.IsApproved && review.Rating >= 1 && review.Rating <= 5));
+                .Where(review => (model.Id > 0 ? review.ProductId == model.Id : visibleReviewIds.Contains(review.Id))
+                    && review.IsApproved && review.Rating >= 1 && review.Rating <= 5));
+            var storedReviewIds = storedReviews.Select(review => review.Id).Distinct().ToArray();
             marketplaceMappings = await _productReviewMappingRepository.GetAllAsync(query => query
-                .Where(mapping => reviewIds.Contains(mapping.ProductReviewId)));
+                .Where(mapping => storedReviewIds.Contains(mapping.ProductReviewId)));
         }
         catch
         {
@@ -258,7 +268,6 @@ public partial class JsonLdModelFactory : IJsonLdModelFactory
                 // authoritative and unknown provenance is not guessed.
             }
         }
-        var visibleById = visibleItems.ToDictionary(review => review.Id);
         var seenReviews = new HashSet<string>(StringComparer.Ordinal);
         var eligibleReviews = new List<(ProductReview Stored, ProductReviewModel Visible, string Key)>();
 
@@ -270,8 +279,10 @@ public partial class JsonLdModelFactory : IJsonLdModelFactory
             var normalizedReviewText = NormalizePlainText(storedReview.ReviewText);
             if (externalReviewIds.Contains(storedReview.Id)
                 || importedReviewKeys.Contains(BuildExternalReviewKey(storedReview.Rating, normalizedReviewText))
-                || !visibleById.TryGetValue(storedReview.Id, out var visibleReview))
+                )
                 continue;
+
+            visibleById.TryGetValue(storedReview.Id, out var visibleReview);
 
             var key = BuildReviewIdentityKey(storedReview);
             if (!seenReviews.Add(key))
@@ -292,26 +303,38 @@ public partial class JsonLdModelFactory : IJsonLdModelFactory
             WorstRating = 1m
         };
 
-        var individualReviews = eligibleReviews
-            .Where(review => !string.IsNullOrWhiteSpace(review.Visible.CustomerName)
-                && review.Visible.CustomerName.Trim().Length <= 100
-                && !string.IsNullOrWhiteSpace(review.Stored.ReviewText))
-            .Take(5)
-            .Select(review => new JsonLdReviewModel
+        var individualReviews = new List<JsonLdReviewModel>();
+        foreach (var eligibleReview in eligibleReviews.Take(5))
+        {
+            var authorName = eligibleReview.Visible?.CustomerName?.Trim();
+            if (string.IsNullOrWhiteSpace(authorName) && _customerService != null)
             {
-                Author = new JsonLdPersonModel { Name = review.Visible.CustomerName.Trim() },
-                DatePublished = DateTime.SpecifyKind(review.Stored.CreatedOnUtc, DateTimeKind.Utc).ToString("O", CultureInfo.InvariantCulture),
-                Name = NormalizePlainText(review.Stored.Title),
-                ReviewBody = NormalizePlainText(review.Stored.ReviewText),
+                var customer = await _customerService.GetCustomerByIdAsync(eligibleReview.Stored.CustomerId);
+                if (customer != null)
+                    authorName = (await _customerService.FormatUsernameAsync(customer))?.Trim();
+            }
+
+            if (string.IsNullOrWhiteSpace(authorName) || authorName.Length > 100)
+                continue;
+
+            var reviewBody = NormalizePlainText(eligibleReview.Stored.ReviewText);
+            if (string.IsNullOrWhiteSpace(reviewBody))
+                continue;
+
+            individualReviews.Add(new JsonLdReviewModel
+            {
+                Author = new JsonLdPersonModel { Name = authorName },
+                DatePublished = DateTime.SpecifyKind(eligibleReview.Stored.CreatedOnUtc, DateTimeKind.Utc).ToString("O", CultureInfo.InvariantCulture),
+                Name = NormalizePlainText(eligibleReview.Stored.Title),
+                ReviewBody = reviewBody,
                 ReviewRating = new JsonLdRatingModel
                 {
-                    RatingValue = review.Stored.Rating,
+                    RatingValue = eligibleReview.Stored.Rating,
                     BestRating = 5m,
                     WorstRating = 1m
                 }
-            })
-            .Where(review => !string.IsNullOrWhiteSpace(review.ReviewBody))
-            .ToList();
+            });
+        }
 
         return (aggregateRating, individualReviews.Count > 0 ? individualReviews : null);
     }
