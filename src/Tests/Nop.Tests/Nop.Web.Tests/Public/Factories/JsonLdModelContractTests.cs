@@ -456,7 +456,7 @@ public class JsonLdModelContractTests
     }
 
     [Test]
-    public async Task ProductReviewSchemaUsesAllProductRowsInsteadOfCurrentReviewPage()
+    public async Task ProductReviewSchemaUsesTheVisibleReviewSet()
     {
         var stored = Enumerable.Range(1, 6).Select(index => new ProductReview
         {
@@ -482,8 +482,8 @@ public class JsonLdModelContractTests
 
         var result = await factory.ReviewSchema(model);
 
-        result.AggregateRating.RatingCount.Should().Be(6);
-        result.AggregateRating.RatingValue.Should().Be(4.83m);
+        result.AggregateRating.RatingCount.Should().Be(1);
+        result.AggregateRating.RatingValue.Should().Be(4m);
         result.Reviews.Should().HaveCount(1);
     }
 

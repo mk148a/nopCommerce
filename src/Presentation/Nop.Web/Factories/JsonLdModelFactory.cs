@@ -224,16 +224,22 @@ public partial class JsonLdModelFactory : IJsonLdModelFactory
             .GroupBy(review => review.Id)
             .ToDictionary(group => group.Key, group => group.First());
         var visibleReviewIds = visibleById.Keys.ToArray();
-        if (model.Id <= 0 && visibleReviewIds.Length == 0)
+        // The review list is the canonical approved set rendered to the
+        // customer.  Structured data must use those same rows; querying every
+        // product review here would reintroduce a count/rating mismatch when
+        // the visible list is filtered or paged.
+        if (visibleReviewIds.Length == 0)
             return (null, null);
 
         IList<ProductReview> storedReviews;
         IList<ProductReviewsTransactionsMapping> marketplaceMappings;
         try
         {
-            storedReviews = await _productReviewRepository.GetAllAsync(query => query
-                .Where(review => (model.Id > 0 ? review.ProductId == model.Id : visibleReviewIds.Contains(review.Id))
-                    && review.IsApproved && review.Rating >= 1 && review.Rating <= 5));
+            storedReviews = (await _productReviewRepository.GetAllAsync(query => query
+                .Where(review => visibleReviewIds.Contains(review.Id)
+                    && review.IsApproved && review.Rating >= 1 && review.Rating <= 5)))
+                .Where(review => visibleReviewIds.Contains(review.Id))
+                .ToList();
             var storedReviewIds = storedReviews.Select(review => review.Id).Distinct().ToArray();
             marketplaceMappings = await _productReviewMappingRepository.GetAllAsync(query => query
                 .Where(mapping => storedReviewIds.Contains(mapping.ProductReviewId)));
