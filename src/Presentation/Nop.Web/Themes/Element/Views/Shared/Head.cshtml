@@ -27,6 +27,10 @@
         NopHtml.AppendCssFileParts("~/Themes/Element/Content/css/styles.css");
     }
 
+    // Isolate the pointer-interception fix in a versioned source asset so browsers
+    // with a cached theme stylesheet receive the correction immediately.
+    NopHtml.AppendCssFileParts("~/Themes/Element/Content/css/review-pointer-fix.css", excludeFromBundle: true);
+
     if (catalogSettings.DisplayAllPicturesOnCatalogPages)
     {
         NopHtml.AppendCssFileParts("~/lib_npm/swiper/swiper-bundle.min.css");
