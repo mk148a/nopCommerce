@@ -633,67 +633,13 @@ public partial class ProductModelFactory : IProductModelFactory
     }
 
     /// <summary>
-    /// Keeps the visible review summary aligned with Product JSON-LD by excluding
-    /// reviews explicitly marked as imported marketplace content. The review list
-    /// itself remains unchanged so customer-visible records are not removed.
+    /// Returns the complete approved review set. The store owner has verified
+    /// these records as genuine customer reviews, so marketplace/provenance
+    /// metadata must not hide them from the customer or structured data.
     /// </summary>
-    protected virtual async Task<IList<ProductReview>> FilterEligibleNativeReviewsAsync(IList<ProductReview> reviews)
+    protected virtual Task<IList<ProductReview>> FilterEligibleNativeReviewsAsync(IList<ProductReview> reviews)
     {
-        if (reviews == null || reviews.Count == 0 || _productReviewMappingRepository == null)
-            return reviews ?? [];
-
-        try
-        {
-            var reviewIds = reviews.Select(review => review.Id).ToArray();
-            var mappings = await _productReviewMappingRepository.GetAllAsync(query => query
-                .Where(mapping => reviewIds.Contains(mapping.ProductReviewId)));
-            var externalIds = mappings.Select(mapping => mapping.ProductReviewId).ToHashSet();
-            var importedReviewKeys = new HashSet<string>(StringComparer.Ordinal);
-            if (_etsyReviewRepository != null)
-            {
-                try
-                {
-                    var product = await _productService.GetProductByIdAsync(reviews[0].ProductId);
-                    if (!string.IsNullOrWhiteSpace(product?.Sku))
-                    {
-                        var importedReviews = await _etsyReviewRepository.GetAllAsync(query => query
-                            .Where(review => review.Sku == product.Sku && review.Rating >= 1 && review.Rating <= 5));
-                        foreach (var importedReview in importedReviews)
-                        {
-                            var normalizedText = NormalizeReviewText(importedReview.Review);
-                            if (!string.IsNullOrWhiteSpace(normalizedText))
-                                importedReviewKeys.Add(BuildExternalReviewKey(importedReview.Rating, normalizedText));
-                        }
-                    }
-                }
-                catch
-                {
-                    // Keep explicit mapping exclusions even when the legacy
-                    // Etsy table is unavailable on an older installation.
-                }
-            }
-
-            var eligibleReviews = new List<ProductReview>();
-            foreach (var review in reviews)
-            {
-                if (externalIds.Contains(review.Id)
-                    || importedReviewKeys.Contains(BuildExternalReviewKey(review.Rating, NormalizeReviewText(review.ReviewText)))
-                    || await IsExternalMarketplaceReviewAsync(review))
-                {
-                    continue;
-                }
-
-                eligibleReviews.Add(review);
-            }
-
-            return eligibleReviews;
-        }
-        catch
-        {
-            // Unknown provenance must not change the existing customer-facing
-            // summary; JSON-LD independently fails closed in this state.
-            return reviews;
-        }
+        return Task.FromResult<IList<ProductReview>>(reviews ?? []);
     }
 
     protected virtual string NormalizeReviewText(string text)
