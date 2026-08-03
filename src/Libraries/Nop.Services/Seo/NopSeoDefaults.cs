@@ -65,9 +65,14 @@ public static partial class NopSeoDefaults
     public static string SitemapDateFormat => @"yyyy-MM-dd";
 
     /// <summary>
-    /// Gets a max number of URLs in the sitemap file. At now each provided sitemap file must have no more than 50000 URLs
+    /// Gets a conservative max number of URLs in each sitemap file.
+    ///
+    /// The XML sitemap protocol also limits each uncompressed sitemap to 50 MB.
+    /// Localized alternate links make URL entries substantially larger than the
+    /// protocol minimum, so the URL count is kept below the protocol's 50,000
+    /// URL ceiling to keep generated files below the byte-size limit as well.
     /// </summary>
-    public static int SitemapMaxUrlNumber => 50000;
+    public static int SitemapMaxUrlNumber => 10000;
 
     /// <summary>
     /// Gets the name of the sitemap directory
