@@ -247,6 +247,13 @@ label+* {
     margin-top: 0;
 }
 
+/* Keep the also-purchased heading from stretching over the page and
+   intercepting pointer events intended for review media below it. */
+.also-purchased-products-grid > .title {
+    display: table;
+    width: 100%;
+}
+
 .page-title h1,
 .home-page .title strong,
 .product-grid .title strong,

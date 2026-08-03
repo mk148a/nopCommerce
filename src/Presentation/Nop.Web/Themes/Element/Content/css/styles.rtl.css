@@ -203,6 +203,10 @@ label, label + * {
 .product-grid + .product-grid .title {
 	margin-top: 0;
 }
+.also-purchased-products-grid > .title {
+	display: table;
+	width: 100%;
+}
 .page-title h1,
 .home-page .title strong,
 .product-grid .title strong,
