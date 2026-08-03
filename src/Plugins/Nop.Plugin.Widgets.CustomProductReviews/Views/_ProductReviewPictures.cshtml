@@ -7,11 +7,10 @@
     <div class="picture-thumbs" id="main-review-img">
             @foreach (var picture in Model)
             {
-            <div class="thumb-item" >
-                <img src="@picture.ImageUrl" alt="@picture.AlternateText" title="@picture.Title" data-defaultsize="@picture.ImageUrl" data-fullsize="@picture.FullSizeImageUrl"/>
-                    <div class="thumb-item-content">
-                        <img src="@picture.FullSizeImageUrl" />
-                    </div>
+            <div class="thumb-item">
+                <a class="review-photo-link" href="@picture.FullSizeImageUrl" target="_blank" rel="noopener">
+                    <img class="review-photo-thumb" src="@picture.ImageUrl" alt="@picture.AlternateText" title="@picture.Title" width="150" height="150" loading="lazy" decoding="async" />
+                </a>
             </div>
             }
     </div>

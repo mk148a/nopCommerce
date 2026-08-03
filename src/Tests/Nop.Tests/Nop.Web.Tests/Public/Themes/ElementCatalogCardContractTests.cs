@@ -80,6 +80,42 @@ public class ElementCatalogCardContractTests
     }
 
     [Test]
+    public void Product_review_list_uses_the_same_filtered_rows_as_the_overview()
+    {
+        var factory = ReadSource("src", "Presentation", "Nop.Web", "Factories", "ProductModelFactory.cs");
+        var reviews = factory.Substring(factory.IndexOf("PrepareProductReviewsModelAsync", StringComparison.Ordinal));
+
+        reviews.Should().Contain("productReviews = await FilterEligibleNativeReviewsAsync(productReviews);");
+        reviews.Should().Contain("GetCustomersByIdsAsync(customerIds)");
+    }
+
+    [Test]
+    public void Review_picture_markup_defers_full_size_images_and_reserves_thumbnail_space()
+    {
+        var view = ReadSource("src", "Plugins", "Nop.Plugin.Widgets.CustomProductReviews", "Views", "_ProductReviewPictures.cshtml");
+        var styles = ReadSource("src", "Plugins", "Nop.Plugin.Widgets.CustomProductReviews", "Content", "style.css");
+
+        view.Should().Contain("class=\"review-photo-thumb\"");
+        view.Should().Contain("width=\"150\" height=\"150\"");
+        view.Should().Contain("loading=\"lazy\"");
+        view.Should().NotContain("src=\"@picture.FullSizeImageUrl\"");
+        styles.Should().Contain(".product-review-item .review-photo-thumb");
+        styles.Should().Contain("object-fit: contain");
+        styles.Should().Contain("object-position: center");
+    }
+
+    [Test]
+    public void Review_picture_component_uses_request_cache_and_skips_missing_media()
+    {
+        var component = ReadSource("src", "Plugins", "Nop.Plugin.Widgets.CustomProductReviews", "Components", "ProductReviewPicturesViewComponent.cs");
+
+        component.Should().Contain("IShortTermCacheManager");
+        component.Should().Contain("_shortTermCacheManager.GetAsync");
+        component.Should().Contain("if (picture == null)");
+        component.Should().Contain("if (mapping.PictureId is not > 0)");
+    }
+
+    [Test]
     public void Catalog_old_price_requires_effective_old_price_above_current_minimum()
     {
         var factory = ReadSource("src", "Presentation", "Nop.Web", "Factories", "ProductModelFactory.cs");

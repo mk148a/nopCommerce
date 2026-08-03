@@ -1788,10 +1788,15 @@ public partial class ProductModelFactory : IProductModelFactory
 
         var currentStore = await _storeContext.GetCurrentStoreAsync();
 
-        var productReviews = await _productService.GetAllProductReviewsAsync(
+        IList<ProductReview> productReviews = await _productService.GetAllProductReviewsAsync(
             approved: true,
             productId: product.Id,
             storeId: _catalogSettings.ShowProductReviewsPerStore ? currentStore.Id : 0);
+
+        // Keep the product review list aligned with the same approved,
+        // first-party set used by the overview and Product JSON-LD.
+        // Underlying review rows remain unchanged.
+        productReviews = await FilterEligibleNativeReviewsAsync(productReviews);
 
         //get all review types
         foreach (var reviewType in await _reviewTypeService.GetAllReviewTypesAsync())
@@ -1809,10 +1814,18 @@ public partial class ProductModelFactory : IProductModelFactory
 
         var currentCustomer = await _workContext.GetCurrentCustomerAsync();
 
+        var customerIds = productReviews
+            .Select(review => review.CustomerId)
+            .Where(customerId => customerId > 0)
+            .Distinct()
+            .ToArray();
+        var customersById = (await _customerService.GetCustomersByIdsAsync(customerIds))
+            .ToDictionary(customer => customer.Id);
+
         //filling data from db
         foreach (var pr in productReviews)
         {
-            var customer = await _customerService.GetCustomerByIdAsync(pr.CustomerId);
+            customersById.TryGetValue(pr.CustomerId, out var customer);
 
             var productReviewModel = new ProductReviewModel
             {

@@ -215,21 +215,32 @@ clear: both;
   top: 50%;
   left: 50%;*/
 }
-.product-review-item .thumb-item {
-  object-fit: cover;
-  position: relative;
-  display: inline-block;
-  max-width: 150px;
-  max-height: 150px;
-  padding: 10px;
+.product-review-item .picture-thumbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  width: 100%;
 }
 
-.product-review-item .thumb-item .img {
-  max-width: 150px;
-  max-height: 150px;
-  width: auto;
-  height: auto;
-  padding: 10px;
+.product-review-item .thumb-item {
+  display: block;
+  width: 150px;
+  height: 150px;
+  padding: 0;
+  overflow: hidden;
+}
+
+.product-review-item .review-photo-link,
+.product-review-item .review-photo-thumb {
+  display: block;
+  width: 150px;
+  height: 150px;
+}
+
+.product-review-item .review-photo-thumb {
+  object-fit: contain;
+  object-position: center;
+  background: #f7f7f7;
 }
 
 .product-review-item .mediacontainer {
@@ -240,22 +251,6 @@ clear: both;
 
 
 
-.product-review-item .thumb-item-content {
-  display: none;
-  position: relative;
-  background-color: #f9f9f9;
-  min-width: 150px;
-  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-  z-index: 1;
-}
-  .product-review-item .thumb-item-content img {
-    min-width:600px;
-    min-height: auto;
-  }
-
-.product-review-item .thumb-item:hover .thumb-item-content {
-  display: block;
-}
 .progressa {
   border-radius: 50px !important;
   height: 35px;

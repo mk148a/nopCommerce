@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using DocumentFormat.OpenXml.Drawing;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewComponents;
+using Nop.Core.Caching;
 using Nop.Plugin.Widgets.CustomProductReviews.Services;
 using Nop.Web.Framework.Components;
 using Nop.Web.Models.Catalog;
@@ -34,6 +35,10 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Components
         private readonly ICustomProductReviewMappingService _customProductReviewMappingService;
         private readonly ILocalizationService _localizationService;
         private readonly MediaSettings _mediaSettings;
+        private readonly IShortTermCacheManager _shortTermCacheManager;
+
+        private static readonly CacheKey ReviewPictureModelsCacheKey =
+            new("Nop.Plugin.Widgets.CustomProductReviews.ReviewPictureModels.{0}");
 
 
 
@@ -41,7 +46,7 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Components
 
         #region Ctor
 
-        public ProductReviewPictures(CustomProductReviewsSettings customProductReviewsSettings, IProductService productService, IProductModelFactory productModelFactory,IPictureService pictureService, ICustomProductReviewMappingService customProductReviewMappingService, ILocalizationService localizationService, MediaSettings mediaSettings)
+        public ProductReviewPictures(CustomProductReviewsSettings customProductReviewsSettings, IProductService productService, IProductModelFactory productModelFactory,IPictureService pictureService, ICustomProductReviewMappingService customProductReviewMappingService, ILocalizationService localizationService, MediaSettings mediaSettings, IShortTermCacheManager shortTermCacheManager)
         {
             //_accessiBeService = accessiBeService;
             _customProductReviewsSettings = customProductReviewsSettings;
@@ -51,6 +56,7 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Components
             _customProductReviewMappingService = customProductReviewMappingService;
             _localizationService=localizationService;
             _mediaSettings = mediaSettings;
+            _shortTermCacheManager = shortTermCacheManager;
         }
 
     
@@ -86,75 +92,61 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Components
 
             //return View("~/Plugins/Widgets.CustomProductReviews/Views/ProductReviewComponent.cshtml", model);
 
-            //Todo:photo view sorunu çöz
             var model = new ProductReviewModel();
             if (additionalData.GetType() == model.GetType())
             {
                 model = (ProductReviewModel)additionalData;
             }
-            List<Picture> reviewPicList = new List<Picture>();
-            List<PictureModel> pictureModelList = new List<PictureModel>();
-            var reviewMappings= await _customProductReviewMappingService.GetCustomProductReviewMappingByProductReviewIdAsync(model.Id);
-           if (reviewMappings == null)
-           {
-               return View("~/Plugins/Widgets.CustomProductReviews/Views/_ProductReviewPictures.cshtml", pictureModelList);
+            if (model.Id <= 0)
+                return View("~/Plugins/Widgets.CustomProductReviews/Views/_ProductReviewPictures.cshtml", new List<PictureModel>());
 
-           }
-           else
-           {
-               //default picture size
-               var defaultPictureSize = _mediaSettings.ProductDetailsPictureSize;
-                foreach (var mapping in reviewMappings)
-               {
-                   var picId = mapping.PictureId;
-                   if (picId != null)
-                   {
-                       var pic = await _pictureService.GetPictureByIdAsync(picId.Value);
-                       reviewPicList.Add(pic);
-                       
+            var pictureModelList = await _shortTermCacheManager.GetAsync(
+                async () => await PreparePictureModelsAsync(model),
+                ReviewPictureModelsCacheKey,
+                model.Id);
 
+            return View("~/Plugins/Widgets.CustomProductReviews/Views/_ProductReviewPictures.cshtml", pictureModelList ?? new List<PictureModel>());
 
-                  
-                      
-                   }
-                }
+        }
 
-                string fullSizeImageUrl, imageUrl;
+        private async Task<List<PictureModel>> PreparePictureModelsAsync(ProductReviewModel model)
+        {
+            var reviewMappings = await _customProductReviewMappingService
+                .GetCustomProductReviewMappingByProductReviewIdAsync(model.Id);
+            if (reviewMappings == null || reviewMappings.Count == 0)
+                return new List<PictureModel>();
 
-                for (var i = 0; i < reviewPicList.Count; i++)
+            const int thumbnailSize = 150;
+            var defaultTitle = string.Format(
+                await _localizationService.GetResourceAsync("Media.Product.ImageLinkTitleFormat.Details"), model.Title);
+            var defaultAlt = string.Format(
+                await _localizationService.GetResourceAsync("Media.Product.ImageAlternateTextFormat.Details"), model.Title);
+            var pictureModels = new List<PictureModel>();
+
+            foreach (var mapping in reviewMappings.OrderBy(mapping => mapping.DisplayOrder).ThenBy(mapping => mapping.Id))
+            {
+                if (mapping.PictureId is not > 0)
+                    continue;
+
+                var picture = await _pictureService.GetPictureByIdAsync(mapping.PictureId.Value);
+                if (picture == null)
+                    continue;
+
+                var (imageUrl, pictureWithUrl) = await _pictureService.GetPictureUrlAsync(picture, thumbnailSize, true);
+                var (fullSizeImageUrl, _) = await _pictureService.GetPictureUrlAsync(pictureWithUrl);
+                if (string.IsNullOrWhiteSpace(imageUrl) || string.IsNullOrWhiteSpace(fullSizeImageUrl))
+                    continue;
+
+                pictureModels.Add(new PictureModel
                 {
-                    var picture = reviewPicList[i];
-
-                    (imageUrl, picture) = await _pictureService.GetPictureUrlAsync(picture, defaultPictureSize, true);
-                    (fullSizeImageUrl, picture) = await _pictureService.GetPictureUrlAsync(picture);
-
-                    var pictureModel = new PictureModel
-                    {
-                        ImageUrl = imageUrl,
-                        FullSizeImageUrl = fullSizeImageUrl,
-                        Title = string.Format(await _localizationService.GetResourceAsync("Media.Product.ImageLinkTitleFormat.Details"), model.Title),
-                        AlternateText = string.Format(await _localizationService.GetResourceAsync("Media.Product.ImageAlternateTextFormat.Details"), model.Title),
-                    };
-                    //"title" attribute
-                    pictureModel.Title = !string.IsNullOrEmpty(picture.TitleAttribute) ?
-                    picture.TitleAttribute :
-                        string.Format(await _localizationService.GetResourceAsync("Media.Product.ImageLinkTitleFormat.Details"), model.Title);
-                    //"alt" attribute
-                    pictureModel.AlternateText = !string.IsNullOrEmpty(picture.AltAttribute) ?
-                    picture.AltAttribute :
-                        string.Format(await _localizationService.GetResourceAsync("Media.Product.ImageAlternateTextFormat.Details"), model.Title);
-
-                    pictureModelList.Add(pictureModel);
-                }
+                    ImageUrl = imageUrl,
+                    FullSizeImageUrl = fullSizeImageUrl,
+                    Title = string.IsNullOrWhiteSpace(picture.TitleAttribute) ? defaultTitle : picture.TitleAttribute,
+                    AlternateText = string.IsNullOrWhiteSpace(picture.AltAttribute) ? defaultAlt : picture.AltAttribute
+                });
             }
-            
-            
-            
-           
 
-
-            return View("~/Plugins/Widgets.CustomProductReviews/Views/_ProductReviewPictures.cshtml", pictureModelList);
-
+            return pictureModels;
         }
 
         #endregion
