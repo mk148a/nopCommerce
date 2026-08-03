@@ -4,6 +4,12 @@
 @using Nop.Services.Seo
 @model Nop.Web.Models.Catalog.ProductReviewsModel
 
+@{
+    // Let the Element theme know this widget supplied the review list so its
+    // standard partial does not render the same records a second time.
+    Context.Items["Hood.CustomProductReviews.Rendered"] = true;
+}
+
 
 
 
