@@ -171,6 +171,10 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Components
                 }
 
 
+                // The Element theme also invokes the standard review partial
+                // after ProductReviewsPageTop. Mark this request so the theme
+                // can avoid rendering the same review list a second time.
+                HttpContext.Items["Hood.CustomProductReviews.Rendered"] = true;
                 return View("~/Plugins/Widgets.CustomProductReviews/Views/ProductReviewComponent.cshtml", model);
             }
         }

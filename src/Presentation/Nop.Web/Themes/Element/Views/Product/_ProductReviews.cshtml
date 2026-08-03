@@ -4,6 +4,8 @@
 
 <div class="product-reviews">
     @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.ProductReviewsPageTop, additionalData = Model })
+    @if (!Context.Items.ContainsKey("Hood.CustomProductReviews.Rendered"))
+    {
     <div class="title">
         <strong>@T("Admin.Catalog.ProductReviews")</strong>
     </div>
@@ -202,6 +204,7 @@
                 </div>
             </form>
         </div>
+    }
     }
     @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.ProductReviewsPageBottom, additionalData = Model })
 </div>
