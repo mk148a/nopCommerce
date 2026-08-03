@@ -104,7 +104,11 @@ namespace Nop.Plugin.Widgets.CustomProductReviews
         /// </returns>
         public async Task<IList<string>> GetWidgetZonesAsync()
         {
-            return await Task.FromResult<IList<string>>(new List<string> { _customProdutReviewSettings.WidgetZone, PublicWidgetZones.ProductDetailsBottom });
+            // Render the custom list only before the core review partial. The
+            // previous second zone rendered every review a second time and
+            // made visible counts diverge from the summary/schema.
+            return await Task.FromResult<IList<string>>(
+                new List<string> { PublicWidgetZones.ProductReviewsPageTop });
            
            
         }
