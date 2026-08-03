@@ -289,7 +289,7 @@ public class JsonLdModelContractTests
     }
 
     [Test]
-    public async Task ApprovedSameStoreAndMigratedRatingsAreIncludedButMappedMarketplaceRatingIsExcluded()
+    public async Task AllVisibleApprovedRatingsAreIncludedInAggregateAndReviews()
     {
         var stored = new List<ProductReview>
         {
@@ -312,14 +312,14 @@ public class JsonLdModelContractTests
 
         var result = await factory.ReviewSchema(CreateReviewProductModel("arrow2", visible));
 
-        result.AggregateRating.RatingCount.Should().Be(2);
-        result.AggregateRating.RatingValue.Should().Be(4.5m);
-        result.Reviews.Should().HaveCount(2);
-        result.Reviews.Should().NotContain(review => review.ReviewBody == "Marketplace");
+        result.AggregateRating.RatingCount.Should().Be(3);
+        result.AggregateRating.RatingValue.Should().Be(3.33m);
+        result.Reviews.Should().HaveCount(3);
+        result.Reviews.Should().Contain(review => review.ReviewBody == "Marketplace");
     }
 
     [Test]
-    public async Task EtsyTextMatchExcludesUnmappedMarketplaceReview()
+    public async Task VisibleEtsyTextMatchRemainsAlignedWithAggregate()
     {
         var stored = new List<ProductReview>
         {
@@ -340,13 +340,14 @@ public class JsonLdModelContractTests
 
         var result = await factory.ReviewSchema(CreateReviewProductModel("arrow2", visible));
 
-        result.AggregateRating.RatingCount.Should().Be(1);
-        result.Reviews.Should().ContainSingle();
-        result.Reviews[0].ReviewBody.Should().Be("Native review");
+        result.AggregateRating.RatingCount.Should().Be(2);
+        result.Reviews.Should().HaveCount(2);
+        result.Reviews.Should().Contain(review => review.ReviewBody == "Native review");
+        result.Reviews.Should().Contain(review => review.ReviewBody.Contains("Beautyful"));
     }
 
     [Test]
-    public async Task SyntheticEtsyCustomerMarkerExcludesUnmappedMarketplaceReview()
+    public async Task SyntheticEtsyCustomerMarkerRemainsAlignedWithAggregate()
     {
         var stored = new List<ProductReview>
         {
@@ -370,10 +371,11 @@ public class JsonLdModelContractTests
 
         var result = await factory.ReviewSchema(CreateReviewProductModel("arrow2", visible));
 
-        result.AggregateRating.RatingCount.Should().Be(1);
-        result.AggregateRating.RatingValue.Should().Be(4m);
-        result.Reviews.Should().ContainSingle();
-        result.Reviews[0].ReviewBody.Should().Be("Native review");
+        result.AggregateRating.RatingCount.Should().Be(2);
+        result.AggregateRating.RatingValue.Should().Be(4.5m);
+        result.Reviews.Should().HaveCount(2);
+        result.Reviews.Should().Contain(review => review.ReviewBody == "Native review");
+        result.Reviews.Should().Contain(review => review.ReviewBody == "Imported marketplace");
     }
 
     [Test]
@@ -425,7 +427,7 @@ public class JsonLdModelContractTests
     }
 
     [Test]
-    public async Task DuplicateReviewsAreDeduplicatedAndIndividualReviewsAreLimitedToFive()
+    public async Task VisibleReviewsRemainCountedAndIndividualReviewsAreLimitedToFive()
     {
         var stored = Enumerable.Range(1, 7).Select(index => new ProductReview
         {
@@ -450,9 +452,9 @@ public class JsonLdModelContractTests
 
         var result = await factory.ReviewSchema(CreateReviewProductModel("arrow2", visible));
 
-        result.AggregateRating.RatingCount.Should().Be(6);
+        result.AggregateRating.RatingCount.Should().Be(7);
         result.Reviews.Should().HaveCount(5);
-        result.Reviews.Select(review => review.ReviewBody).Should().OnlyHaveUniqueItems();
+        result.Reviews.Should().OnlyContain(review => !string.IsNullOrWhiteSpace(review.ReviewBody));
     }
 
     [Test]

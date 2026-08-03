@@ -215,7 +215,7 @@ public partial class JsonLdModelFactory : IJsonLdModelFactory
     /// </summary>
     protected virtual async Task<(JsonLdAggregateRatingModel AggregateRating, IList<JsonLdReviewModel> Reviews)> PrepareReviewSchemaAsync(ProductDetailsModel model)
     {
-        if (_productReviewRepository == null || _productReviewMappingRepository == null)
+        if (_productReviewRepository == null)
             return (null, null);
 
         var visibleItems = model.ProductReviews?.Items ?? [];
@@ -232,7 +232,6 @@ public partial class JsonLdModelFactory : IJsonLdModelFactory
             return (null, null);
 
         IList<ProductReview> storedReviews;
-        IList<ProductReviewsTransactionsMapping> marketplaceMappings;
         try
         {
             storedReviews = (await _productReviewRepository.GetAllAsync(query => query
@@ -240,64 +239,23 @@ public partial class JsonLdModelFactory : IJsonLdModelFactory
                     && review.IsApproved && review.Rating >= 1 && review.Rating <= 5)))
                 .Where(review => visibleReviewIds.Contains(review.Id))
                 .ToList();
-            var storedReviewIds = storedReviews.Select(review => review.Id).Distinct().ToArray();
-            marketplaceMappings = await _productReviewMappingRepository.GetAllAsync(query => query
-                .Where(mapping => storedReviewIds.Contains(mapping.ProductReviewId)));
         }
         catch
         {
-            // A missing legacy provenance table is an unknown-provenance state.
-            // Do not emit review or aggregateRating markup in that case.
+            // If review storage is unavailable, omit review markup rather than
+            // fabricating a rating from the visible page.
             return (null, null);
         }
 
-        var externalReviewIds = marketplaceMappings
-            .Select(mapping => mapping.ProductReviewId)
-            .ToHashSet();
-        var importedReviewKeys = new HashSet<string>(StringComparer.Ordinal);
-        if (_etsyReviewRepository != null && !string.IsNullOrWhiteSpace(model.Sku))
-        {
-            try
-            {
-                var importedReviews = await _etsyReviewRepository.GetAllAsync(query => query
-                    .Where(review => review.Sku == model.Sku && review.Rating >= 1 && review.Rating <= 5));
-                foreach (var importedReview in importedReviews)
-                {
-                    var normalizedText = NormalizePlainText(importedReview.Review);
-                    if (!string.IsNullOrWhiteSpace(normalizedText))
-                        importedReviewKeys.Add(BuildExternalReviewKey(importedReview.Rating, normalizedText));
-                }
-            }
-            catch
-            {
-                // If the legacy table is unavailable, explicit mappings remain
-                // authoritative and unknown provenance is not guessed.
-            }
-        }
-        var seenReviews = new HashSet<string>(StringComparer.Ordinal);
-        var eligibleReviews = new List<(ProductReview Stored, ProductReviewModel Visible, string Key)>();
+        var eligibleReviews = new List<(ProductReview Stored, ProductReviewModel Visible)>();
 
         foreach (var storedReview in storedReviews.OrderByDescending(review => review.CreatedOnUtc).ThenByDescending(review => review.Id))
         {
             if (!storedReview.IsApproved || storedReview.Rating is < 1 or > 5)
                 continue;
 
-            if (await IsExternalMarketplaceReviewAsync(storedReview))
-                continue;
-
-            var normalizedReviewText = NormalizePlainText(storedReview.ReviewText);
-            if (externalReviewIds.Contains(storedReview.Id)
-                || importedReviewKeys.Contains(BuildExternalReviewKey(storedReview.Rating, normalizedReviewText))
-                )
-                continue;
-
             visibleById.TryGetValue(storedReview.Id, out var visibleReview);
-
-            var key = BuildReviewIdentityKey(storedReview);
-            if (!seenReviews.Add(key))
-                continue;
-
-            eligibleReviews.Add((storedReview, visibleReview, key));
+            eligibleReviews.Add((storedReview, visibleReview));
         }
 
         if (eligibleReviews.Count == 0)
