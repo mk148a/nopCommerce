@@ -8,7 +8,7 @@
             @foreach (var picture in Model)
             {
             <div class="thumb-item">
-                <a class="review-photo-link" href="@picture.FullSizeImageUrl" target="_blank" rel="noopener">
+                <a class="review-photo-link" href="@picture.FullSizeImageUrl" aria-label="@picture.AlternateText">
                     <img class="review-photo-thumb" src="@picture.ImageUrl" alt="@picture.AlternateText" title="@picture.Title" width="150" height="150" loading="lazy" decoding="async" />
                 </a>
             </div>

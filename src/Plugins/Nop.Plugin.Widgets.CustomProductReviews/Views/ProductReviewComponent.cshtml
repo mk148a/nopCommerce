@@ -16,6 +16,8 @@
 @{
     NopHtml.AppendPageCssClassParts("html-product-reviews-page");
     NopHtml.AddCssFileParts("~/Plugins/Widgets.CustomProductReviews/Content/style.css");
+    NopHtml.AddCssFileParts("~/lib_npm/magnific-popup/magnific-popup.css");
+    NopHtml.AddScriptParts(ResourceLocation.Footer, "~/lib_npm/magnific-popup/jquery.magnific-popup.min.js", excludeFromBundle: true);
     //Layout = "_ColumnsOne";
 }
 <link href="~/Plugins/Widgets.CustomProductReviews/Content/style.css" rel="stylesheet" />
@@ -37,12 +39,12 @@
     var productName = product?.Name ?? string.Empty;
     var productSeName = product == null ? string.Empty : await urlRecordService.GetSeNameAsync(product);
 }
-<div class="page product-reviews-page">
+<div class="page product-reviews-page custom-product-reviews-page">
 <div >
         <h2 style="text-align: center;">@T("Reviews.ProductReviewsFor") <a href="@Url.RouteUrl("Product", new { SeName = productSeName })">@productName</a></h2>
 
     </div>
-    <div class="page-body">
+    <div class="page-body formProductReviews-body">
         @if (!Model.AddProductReview.CanAddNewReview)
         {
             <div class="result review-already-added">
@@ -76,7 +78,7 @@
                             </div>
                             <div class="inputs">
                                 <label>Attach files</label>
-                                <input type="file" id="photos" name="photos" multiple="multiple" onchange="readURLFileUpload()"/>
+                                <input type="file" id="photos" name="photos" multiple="multiple" accept="image/jpeg,image/png,image/webp,video/mp4,video/quicktime,video/webm" onchange="readURLFileUpload()"/>
                                 Max file in upload: 5
                             </div>
                             <div class="review-rating">
@@ -255,14 +257,23 @@
 <script asp-location="Footer">
     var uploadButton = document.getElementById('add-review');
 
-    $('#review-form').submit(function (e) {
+    function resetReviewUploadProgress() {
+        var progress = document.getElementsByClassName('progressab')[0];
+        if (progress) {
+            progress.style.width = '0%';
+            progress.textContent = '';
+            progress.style.backgroundColor = 'rgb(178, 222, 75)';
+        }
+    }
+
+    $('#review-form').on('submit', function (e) {
         var form = $(this);
         e.preventDefault();
-        uploadButton.value = 'Submitting...';
         e.stopImmediatePropagation();
-        //if (!form.valid()) return false;
-        if (!readURLFileUpload()) return false;
-        var formData = new FormData(form[0]);
+        if (!uploadButton || !readURLFileUpload()) return false;
+        uploadButton.disabled = true;
+        uploadButton.value = 'Submitting...';
+        var formData = new FormData(this);
         formData.append("productId", @Model.ProductId);
         var t = $("input[name='__RequestVerificationToken']").val();
         $(".form-message").html("");
@@ -295,7 +306,7 @@
                     else {
                       
                         $("#message-success-review-form").html(strmsg);
-                        $("#review-form .review-form-body").css("display", "none");
+                        $("#review-form .form-fields").css("display", "none");
                         document.getElementById("review-form").reset();
                     }
                     if (typeof grecaptcha != "undefined") {
@@ -309,11 +320,13 @@
                
             },
             error: function (xhr, resp, text) {
-                console.log(xhr, resp, text);
+                $("#message-error-review-form").text("An error occurred while submitting the review. Please try again.");
             },
             complete: function () {
                 document.getElementById("ajax-loader").style.display = "none";
+                uploadButton.disabled = false;
                 uploadButton.value = "@T("Reviews.SubmitButton")";
+                resetReviewUploadProgress();
 
             },
             xhr:function()
@@ -326,9 +339,9 @@
                         {                           
                             var progressval = parseInt(((e.loaded)/(e.total))*100);
                             var elm = document.getElementsByClassName('progressab')[0];
+                            if (!elm) return;
                             elm.style.width = progressval+"%";
-                            
-                            elm.innerText =+progressval;
+                            elm.innerText = progressval + "%";
                             if(progressval>90 && progressval<=100 )
                             {  
                                 elm.style.backgroundColor = 'blue';                            
@@ -361,23 +374,27 @@
     });
 
     function readURLFileUpload() {
-        var fileSelect = document.getElementById('photos'),
-            supportedFileFormat = '.jpg,.jpeg,.png,.mp4,.mov,.webp,.webm',
-            files = fileSelect.files;if (files.length > @setting.MaximumFile) {
-                alert('File upload exceeds the allowed size Your file sizes:' + myfile.size+'bytes / Maximum file size:'+@setting.MaximumSize+'bytes' );
-            //alert('@T("Nop.Plugin.Widgets.CustomProductReviews.MaximumUploadedFile")');
+        var fileSelect = document.getElementById('photos');
+        if (!fileSelect || !fileSelect.files) return true;
+
+        var files = fileSelect.files;
+        var allowedMimeTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'video/mp4', 'video/quicktime', 'video/webm'];
+        var allowedExtensions = ['jpg', 'jpeg', 'png', 'webp', 'mp4', 'mov', 'webm'];
+
+        if (files.length > @setting.MaximumFile) {
+            alert('You can upload up to @setting.MaximumFile files.');
             $("#photos").val("");
             return false;
         }
 
         for (var i = 0; i < files.length; i++) {
-            var myfile = files[i],
-                value = myfile.type.toLocaleLowerCase(),
-                type = value.substr(value.lastIndexOf(".")).toString();
+            var myfile = files[i];
+            var mimeType = (myfile.type || '').toLowerCase();
+            var fileName = (myfile.name || '').toLowerCase();
+            var extension = fileName.indexOf('.') >= 0 ? fileName.split('.').pop() : '';
 
-            if (supportedFileFormat.indexOf(type) == -1) {
-                //alert('@T("Nop.Plugin.Widgets.CustomProductReviews.AllowedExtension")');
-                alert('File is not properly formatted');
+            if (allowedMimeTypes.indexOf(mimeType) === -1 && allowedExtensions.indexOf(extension) === -1) {
+                alert('File type is not allowed. Supported formats: JPG, PNG, WEBP, MP4, MOV and WEBM.');
 
                 $("#photos").val("");
                 return false;
@@ -392,6 +409,15 @@
         }
         return true;
     }
+
+    $(function () {
+        $('.review-photo-link').magnificPopup({
+            type: 'image',
+            gallery: { enabled: true, navigateByImgClick: true },
+            removalDelay: 300,
+            mainClass: 'mfp-fade'
+        });
+    });
 </script>
 
 
