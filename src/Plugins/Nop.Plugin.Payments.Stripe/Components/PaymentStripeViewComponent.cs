@@ -31,6 +31,7 @@ namespace Nop.Plugin.Payments.Stripe.Components
         {
             var model = new PaymentInfoModel()
             {
+                StripePublishableKey = _settings.PublishableKey,
                 CreditCardTypes = new List<SelectListItem>
                 {
                     new SelectListItem { Text = "Visa", Value = "visa" },

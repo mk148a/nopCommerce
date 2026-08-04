@@ -71,6 +71,110 @@ else
 
     
 }
+
+<style>
+    #opc-confirm_order .stripe-inline-payment-error {
+        margin: 12px 0;
+        padding: 12px 16px;
+        border: 1px solid #d9534f;
+        background: #fff5f5;
+        color: #a94442;
+    }
+</style>
+
+<script>
+(function ($) {
+    'use strict';
+
+    var publishableKey = '@Model.StripePublishableKey';
+    var threeDsPrefix = '__STRIPE_3DS__:';
+
+    function textMessage(value) {
+        if ($.isArray(value))
+            return value.join(' ');
+        if (value && typeof value === 'object')
+            return value.message || value.error || 'Payment could not be completed.';
+        return String(value || 'Payment could not be completed.');
+    }
+
+    function showError(message) {
+        var $host = $('#opc-confirm_order');
+        if (!$host.length)
+            $host = $('#checkout-step-confirm-order');
+        if (!$host.length)
+            return;
+
+        $host.find('.stripe-inline-payment-error').remove();
+        $('<div/>', {
+            'class': 'stripe-inline-payment-error',
+            'role': 'alert',
+            'text': message
+        }).prependTo($host);
+
+        if (window.Checkout && typeof window.Checkout.gotoSection === 'function')
+            window.Checkout.gotoSection('confirm_order');
+    }
+
+    function loadStripe(callback) {
+        if (typeof window.Stripe === 'function') {
+            callback();
+            return;
+        }
+        $.getScript('https://js.stripe.com/v3/').done(callback).fail(function () {
+            showError('Additional card verification could not be loaded. Please try another card.');
+        });
+    }
+
+    function handleThreeDs(payload) {
+        var separator = payload.indexOf('|');
+        var clientSecret = separator < 0 ? payload.substring(threeDsPrefix.length) : payload.substring(threeDsPrefix.length, separator);
+        if (!clientSecret) {
+            showError('Your bank requires additional verification. Please try again.');
+            return;
+        }
+
+        showError('Your bank requires additional verification. Complete it here to finish your order.');
+        loadStripe(function () {
+            var stripe = window.Stripe(publishableKey);
+            stripe.handleCardAction(clientSecret).then(function (result) {
+                if (result && result.error) {
+                    showError(result.error.message || 'The verification was not completed. Please try again.');
+                    return;
+                }
+                showError('Verification completed. Confirming your order...');
+                if (window.ConfirmOrder && typeof window.ConfirmOrder.save === 'function')
+                    window.ConfirmOrder.save();
+            });
+        });
+    }
+
+    function installInlineCheckoutHandler() {
+        if (window.__hoodStripeInlineCheckoutInstalled)
+            return;
+        if (!window.ConfirmOrder || typeof window.ConfirmOrder.nextStep !== 'function') {
+            window.setTimeout(installInlineCheckoutHandler, 50);
+            return;
+        }
+
+        var originalNextStep = window.ConfirmOrder.nextStep;
+        window.ConfirmOrder.nextStep = function (response) {
+            if (response && response.error) {
+                var message = textMessage(response.message || response.error);
+                if (message.indexOf(threeDsPrefix) === 0) {
+                    handleThreeDs(message);
+                } else {
+                    showError(message.replace(/^Payment error:\s*/i, ''));
+                }
+                return false;
+            }
+            return originalNextStep.apply(this, arguments);
+        };
+        window.__hoodStripeInlineCheckoutInstalled = true;
+    }
+
+    $(installInlineCheckoutHandler);
+})(jQuery);
+</script>
 @* 
 <script type="text/javascript">
 

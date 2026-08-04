@@ -37,6 +37,12 @@ namespace Nop.Plugin.Payments.Stripe.Models
 
         public string StripeToken { get; set; }
 
+        /// <summary>
+        /// Public key used by the plugin's inline 3DS confirmation handler.
+        /// It is safe to render; the secret key never leaves the server.
+        /// </summary>
+        public string StripePublishableKey { get; set; }
+
     public string Html { get; set; }
         public bool PaymentResult = true;
 

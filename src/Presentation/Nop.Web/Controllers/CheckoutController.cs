@@ -2135,21 +2135,10 @@ public partial class CheckoutController : BasePublicController
             if (await _customerService.IsGuestAsync(customer) && !_orderSettings.AnonymousCheckoutAllowed)
                 return Challenge();
 
-            //get the order. Stripe appends the PaymentIntent id when returning from
-            //a hosted 3DS challenge; prefer that exact order over the customer's
-            //most recent order so a second checkout cannot be completed by mistake.
+            //get the order
             var store = await _storeContext.GetCurrentStoreAsync();
-            var paymentIntentId = Request.Query["payment_intent"].ToString();
-            var recentOrders = await _orderService.SearchOrdersAsync(storeId: store.Id,
-                customerId: customer.Id,
-                paymentMethodSystemName: "Payments.Stripe",
-                createdFromUtc: DateTime.UtcNow.AddMinutes(-15),
-                pageSize: 20);
-            var order = recentOrders.FirstOrDefault(item =>
-                !string.IsNullOrWhiteSpace(paymentIntentId) &&
-                (string.Equals(item.AuthorizationTransactionId, paymentIntentId, StringComparison.OrdinalIgnoreCase) ||
-                 item.AuthorizationTransactionResult?.Contains(paymentIntentId, StringComparison.OrdinalIgnoreCase) == true))
-                ?? recentOrders.FirstOrDefault();
+            var order = (await _orderService.SearchOrdersAsync(storeId: store.Id,
+                customerId: customer.Id, pageSize: 1)).FirstOrDefault();
             if (order == null)
                 return RedirectToRoute("Homepage");
 
@@ -2161,7 +2150,7 @@ public partial class CheckoutController : BasePublicController
                 return RedirectToRoute("Homepage");
 
             //ensure that order has been just placed
-            if ((DateTime.UtcNow - order.CreatedOnUtc).TotalMinutes > 15)
+            if ((DateTime.UtcNow - order.CreatedOnUtc).TotalMinutes > 3)
                 return RedirectToRoute("Homepage");
 
             //Redirection will not work on one page checkout page because it's AJAX request.
@@ -2186,14 +2175,7 @@ public partial class CheckoutController : BasePublicController
         catch (Exception exc)
         {
             await _logger.WarningAsync(exc.Message, exc, await _workContext.GetCurrentCustomerAsync());
-            var warning = exc is NopException
-                ? exc.Message
-                : "We couldn't complete the card payment. Please try again or use another payment method.";
-
-            return View("~/Views/Checkout/PaymentError.cshtml", new CheckoutPaymentErrorModel
-            {
-                Warnings = new List<string> { warning }
-            });
+            return Content(exc.Message);
         }
     }
 
