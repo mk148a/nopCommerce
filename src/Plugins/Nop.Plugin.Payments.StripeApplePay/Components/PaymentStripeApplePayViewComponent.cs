@@ -4,6 +4,7 @@ using Nop.Services.Configuration;
 using Nop.Services.Orders;
 using Nop.Services.Catalog;
 using Nop.Web.Framework.Components;
+using System;
 using System.Threading.Tasks;
 using Nop.Core.Domain.Orders;
 using Nop.Plugin.Payments.StripeApplePay.Models;
@@ -49,7 +50,10 @@ namespace Nop.Plugin.Payments.StripeApplePay.Components
             var currency = await _workContext.GetWorkingCurrencyAsync();
             var cart = await _shoppingCartService.GetShoppingCartAsync(currentCustomer, ShoppingCartType.ShoppingCart);
             var shoppingCartTotal = await _orderTotalCalculationService.GetShoppingCartTotalAsync(cart, true);
-            var shoppingCartUnitPriceWithDiscount = await _currencyService.ConvertFromPrimaryStoreCurrencyAsync(shoppingCartTotal.shoppingCartTotal.Value, currency);
+            var shoppingCartTotalInCurrency = await _currencyService.ConvertFromPrimaryStoreCurrencyAsync(
+                shoppingCartTotal.shoppingCartTotal.GetValueOrDefault(), currency);
+            var orderTotalMinor = checked((long)Math.Round(
+                shoppingCartTotalInCurrency * 100m, MidpointRounding.AwayFromZero));
             var storeScope = await _storeContext.GetActiveStoreScopeConfigurationAsync();
             var stripePaymentSettings = await _settingService.LoadSettingAsync<StripeApplePayPaymentSettings>(storeScope);
 
@@ -67,11 +71,14 @@ namespace Nop.Plugin.Payments.StripeApplePay.Components
             var billingAddressCountry = await _countryService.GetCountryByIdAsync(billingAddress.CountryId ?? 0);
             
           
-                var model = new PaymentInfoModel
+            var model = new PaymentInfoModel
             {
-                OrderTotal =shoppingCartUnitPriceWithDiscount*100,
-                Currency = currency.CurrencyCode.ToLower(),
-                Country = billingAddressCountry.TwoLetterIsoCode.ToUpper(),
+                // Keep the legacy field in minor units for existing consumers,
+                // while exposing an explicit integer field to the wallet view.
+                OrderTotal = orderTotalMinor,
+                OrderTotalMinor = orderTotalMinor,
+                Currency = currency.CurrencyCode.ToLowerInvariant(),
+                Country = billingAddressCountry.TwoLetterIsoCode.ToUpperInvariant(),
                 StripePublishableKey = stripePaymentSettings.PublishableKey
             };
 

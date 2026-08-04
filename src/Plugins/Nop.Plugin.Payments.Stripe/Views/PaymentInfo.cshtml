@@ -1,4 +1,5 @@
 ﻿@using Nop.Services.Directory
+@using System.Text.Json
 @using Nop.Web.Framework.TagHelpers.Shared
 @using Nop.Core
 @using Microsoft.AspNetCore.Mvc.TagHelpers
@@ -82,11 +83,11 @@ else
     }
 </style>
 
-<script>
+<script asp-location="Footer">
 (function ($) {
     'use strict';
 
-    var publishableKey = '@Model.StripePublishableKey';
+    var publishableKey = @Html.Raw(JsonSerializer.Serialize(Model.StripePublishableKey ?? string.Empty));
     var threeDsPrefix = '__STRIPE_3DS__:';
 
     function textMessage(value) {

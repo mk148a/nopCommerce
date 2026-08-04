@@ -69,6 +69,9 @@ namespace Nop.Plugin.Payments.StripeApplePay
             "Nop.Plugin.Payments.StripeApplePay.PendingPayment.{0}.{1}",
             "Nop.Plugin.Payments.StripeApplePay.PendingPayment") { CacheTime = 15 };
 
+        private static string GetConfigurationInstructions() =>
+            "\t<p>For plugin configuration follow these steps:<br /> <br /> 1. If you haven't already, create an account on Stripe.com and sign in.<br /> 2. In the Developers menu, choose API keys. You will see a Publishable key and a Secret key; both are required. (Restricted keys are also supported.) <em>Stripe supports separate test and production key pairs. Use whichever pair is appropriate; there is no separate sandbox switch.</em><br /> 3. Paste the keys into this plug-in's configuration page. <br /> <em>Production keys require HTTPS. Test keys can be used on HTTP sites. For test mode, use Stripe's documented test card numbers at <a href='https://stripe.com/docs/testing'>stripe.com/docs/testing</a>.</em><br /> </p>";
+
         public StripeApplePayPlugin(
             IHttpContextAccessor httpContextAccessor,
             IWebHelper webHelper,
@@ -569,7 +572,7 @@ namespace Nop.Plugin.Payments.StripeApplePay
             {
                 await _localizationService.AddOrUpdateLocaleResourceAsync(new Dictionary<string, string>
                 {
-                    ["Plugins.Payments.StripeApplePay.Instructions"] = "\t<p> For plugin configuration follow these steps:<br /> <br /> 1. If you haven't already, create an account on Stripe.com and sign in<br /> 2. In the Developers menu (left), choose the API Keys option. 3. You will see two keys listed, a Publishable key and a Secret key. You will need both. (If you'd like, you can create and use a set of restricted keys. That topic isn't covered here.) <em>Stripe supports test keys and production keys. Use whichever pair is appropraite. There's no switch between test/sandbox and proudction other than using the appropriate keys.</em> 4. Paste these keys into the configuration page of this plug-in. (Both keys are required.) <br /> <em>Note: If using production keys, the payment form will only work on sites hosted with HTTPS. (Test keys can be used on http sites.) If using test keys, use these <a href='https://stripe.com/docs/testing'>test card numbers from Stripe</a>.</em><br /> </p>",
+                    ["Plugins.Payments.StripeApplePay.Instructions"] = GetConfigurationInstructions(),
                     ["Plugins.Payments.StripeApplePay.PaymentMethodDescription"] = "Payment by Credit/Debit card",
                     ["Plugins.Payments.StripeApplePay.AccountInfo"] = "Define Your Stripe Api Information",
                     ["Plugins.Payments.StripeApplePay.Fields.PublishableKey"] = "PublishableKey Api Key",
@@ -598,7 +601,7 @@ namespace Nop.Plugin.Payments.StripeApplePay
                 //Default Fields
                 await _localizationService.AddOrUpdateLocaleResourceAsync(new Dictionary<string, string>
                 {
-                    ["Plugins.Payments.StripeApplePay.Instructions"] = "\t<p> For plugin configuration follow these steps:<br /> <br /> 1. If you haven't already, create an account on Stripe.com and sign in<br /> 2. In the Developers menu (left), choose the API Keys option. 3. You will see two keys listed, a Publishable key and a Secret key. You will need both. (If you'd like, you can create and use a set of restricted keys. That topic isn't covered here.) <em>Stripe supports test keys and production keys. Use whichever pair is appropraite. There's no switch between test/sandbox and proudction other than using the appropriate keys.</em> 4. Paste these keys into the configuration page of this plug-in. (Both keys are required.) <br /> <em>Note: If using production keys, the payment form will only work on sites hosted with HTTPS. (Test keys can be used on http sites.) If using test keys, use these <a href='https://stripe.com/docs/testing'>test card numbers from Stripe</a>.</em><br /> </p>",
+                    ["Plugins.Payments.StripeApplePay.Instructions"] = GetConfigurationInstructions(),
                     ["Plugins.Payments.StripeApplePay.PaymentMethodDescription"] = "Payment by Credit/Debit card",
                     ["Plugins.Payments.StripeApplePay.AccountInfo"] = "Define Your Stripe Api Information",
                     ["Plugins.Payments.StripeApplePay.Fields.PublishableKey"] = "PublishableKey Api Key",
@@ -619,6 +622,18 @@ namespace Nop.Plugin.Payments.StripeApplePay
                 });
             }
             await base.InstallAsync();
+        }
+
+        public override async Task UpdateAsync(string currentVersion, string targetVersion)
+        {
+            var language = (await _languageService.GetAllLanguagesAsync())
+                .FirstOrDefault(item => string.Equals(item.UniqueSeoCode, "en", StringComparison.OrdinalIgnoreCase));
+            await _localizationService.AddOrUpdateLocaleResourceAsync(new Dictionary<string, string>
+            {
+                ["Plugins.Payments.StripeApplePay.Instructions"] = GetConfigurationInstructions()
+            }, language?.Id);
+
+            await base.UpdateAsync(currentVersion, targetVersion);
         }
 
         public override async Task UninstallAsync()

@@ -1,48 +1,5 @@
-﻿@model Nop.Plugin.Payments.StripeApplePay.Models.PaymentInfoModel
-
-<script>
-    $(document).ready(function () {
-        $.getScript('https://js.stripe.com/v3/', function () {
-            var stripe = Stripe('@Model.StripePublishableKey');
-            var elements = stripe.elements();
-
-            var paymentRequest = stripe.paymentRequest({
-                country: '@Model.Country',
-                currency: '@Model.Currency',
-                total: {
-                    label: 'Total',
-                    amount: Math.round(@Model.OrderTotal) // Total amount in cents
-                },
-                requestPayerName: true,
-                requestPayerEmail: true,
-            });
-
-            var prButton = elements.create('paymentRequestButton', {
-                paymentRequest: paymentRequest
-            });
-
-            paymentRequest.canMakePayment().then(function (result) {
-                if (result) {
-                    prButton.mount('#payment-request-button');
-                } else {
-                    $('#payment-request-button').hide();
-                    $('#message').text('Apple Pay or Google Pay is currently unavailable. Please use Safari for Apple Pay or Chrome for Google Pay. Or add a payment method to your browser. For example, you can save a card in Chrome, add a card to your Google Pay account, or add a card to your Wallet for Safari.');
-                }
-            });
-
-            paymentRequest.on('cancel', function () {
-                // handle cancel event
-            });
-
-            paymentRequest.on('paymentmethod', function (ev) {
-                $('#PaymentMethodId').val(ev.paymentMethod.id);
-                ev.complete('success');
-                $('#payment-request-button').hide();
-                $('#message').text('Your payment method has been successfully selected. Please proceed to complete your order to finalize the payment.');
-            });
-        });
-    });
-</script>
+@using System.Text.Json
+@model Nop.Plugin.Payments.StripeApplePay.Models.PaymentInfoModel
 
 <input type="hidden" id="PaymentMethodId" asp-for="PaymentMethodId" name="PaymentMethodId" />
 
@@ -61,11 +18,16 @@
     }
 </style>
 
-<script>
+<script asp-location="Footer">
 (function ($) {
     'use strict';
 
-    var publishableKey = '@Model.StripePublishableKey';
+    // These values are rendered as JSON literals, not locale-formatted Razor
+    // strings. Stripe always receives an integer amount in minor units.
+    var publishableKey = @Html.Raw(JsonSerializer.Serialize(Model.StripePublishableKey ?? string.Empty));
+    var walletCurrency = @Html.Raw(JsonSerializer.Serialize((Model.Currency ?? string.Empty).ToLowerInvariant()));
+    var walletCountry = @Html.Raw(JsonSerializer.Serialize((Model.Country ?? string.Empty).ToUpperInvariant()));
+    var walletAmount = @Model.OrderTotalMinor;
     var threeDsPrefix = '__STRIPE_3DS__:';
 
     function showError(message) {
@@ -86,7 +48,54 @@
             return;
         }
         $.getScript('https://js.stripe.com/v3/').done(callback).fail(function () {
-            showError('Additional card verification could not be loaded. Please try another payment method.');
+            showError('Stripe could not be loaded. Please try another payment method.');
+        });
+    }
+
+    function initializeWallet() {
+        if (!publishableKey || !walletCurrency || !walletCountry || walletAmount <= 0) {
+            $('#payment-request-button').hide();
+            $('#message').text('Wallet payment is unavailable until the checkout total is calculated.');
+            return;
+        }
+
+        var stripe = window.Stripe(publishableKey);
+        var elements = stripe.elements();
+        var paymentRequest = stripe.paymentRequest({
+            country: walletCountry,
+            currency: walletCurrency,
+            total: {
+                label: 'Total',
+                amount: walletAmount
+            },
+            requestPayerName: true,
+            requestPayerEmail: true
+        });
+        var prButton = elements.create('paymentRequestButton', {
+            paymentRequest: paymentRequest
+        });
+
+        paymentRequest.canMakePayment().then(function (result) {
+            if (result) {
+                prButton.mount('#payment-request-button');
+                return;
+            }
+            $('#payment-request-button').hide();
+            $('#message').text('Apple Pay or Google Pay is currently unavailable. Use a supported browser and a wallet with an active payment method.');
+        });
+
+        paymentRequest.on('cancel', function () {
+            $('#PaymentMethodId').val('');
+            $('#message').text('Wallet payment was cancelled.');
+        });
+
+        paymentRequest.on('paymentmethod', function (event) {
+            $('#PaymentMethodId').val(event.paymentMethod.id);
+            // Tokenization succeeded. The server confirms the PaymentIntent
+            // only when the customer submits the nopCommerce confirmation step.
+            event.complete('success');
+            $('#payment-request-button').hide();
+            $('#message').text('Payment method selected. Confirm the order to complete payment.');
         });
     }
 
@@ -133,6 +142,11 @@
         window.__hoodStripeInlineCheckoutInstalled = true;
     }
 
-    $(installInlineCheckoutHandler);
+    // The tag helper queues this block in the footer, after nopCommerce's
+    // jQuery and checkout scripts have been emitted.
+    $(function () {
+        installInlineCheckoutHandler();
+        loadStripe(initializeWallet);
+    });
 })(jQuery);
 </script>

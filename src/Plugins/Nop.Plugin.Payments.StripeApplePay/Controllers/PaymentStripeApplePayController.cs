@@ -22,7 +22,6 @@ using Nop.Core.Domain.Payments;
 using Nop.Core.Http.Extensions;
 using Nop.Services.Directory;
 using Nop.Services.Payments;
-using Nop.Services.Common;
 
 namespace Nop.Plugin.Payments.StripeApplePay.Controllers
 {
@@ -39,7 +38,6 @@ namespace Nop.Plugin.Payments.StripeApplePay.Controllers
         private readonly IWorkContext _workContext;
         private readonly ICurrencyService _currencyService;
         private readonly IOrderService _orderService;
-        private readonly IGenericAttributeService _genericAttributeService;
 
         public PaymentStripeApplePayController(
             StripeApplePayPaymentSettings stripePaymentSettings,
@@ -50,7 +48,7 @@ namespace Nop.Plugin.Payments.StripeApplePay.Controllers
             ILocalizationService localizationService,
             IShoppingCartService shoppingCartService,
             IOrderTotalCalculationService orderTotalCalculationService,
-            IWorkContext workContext, ICurrencyService currencyService, IOrderService orderService, IGenericAttributeService genericAttributeService)
+            IWorkContext workContext, ICurrencyService currencyService, IOrderService orderService)
         {
             _stripePaymentSettings = stripePaymentSettings;
             _settingService = settingService;
@@ -63,7 +61,6 @@ namespace Nop.Plugin.Payments.StripeApplePay.Controllers
             _workContext = workContext;
             _currencyService = currencyService;
             _orderService = orderService;
-            _genericAttributeService= genericAttributeService;
         }
 
         [AuthorizeAdmin]
@@ -132,6 +129,23 @@ namespace Nop.Plugin.Payments.StripeApplePay.Controllers
                 return BadRequest("Invalid request payload");
             }
 
+            // Never trust a browser-supplied total. Older wallet clients sent
+            // a major-unit decimal (or zero) here, which could display/charge
+            // the wrong amount. Recalculate the current checkout total using
+            // nopCommerce's server-side cart and currency services.
+            var customer = await _workContext.GetCurrentCustomerAsync();
+            var cart = await _shoppingCartService.GetShoppingCartAsync(customer, ShoppingCartType.ShoppingCart);
+            if (!cart.Any())
+                return BadRequest("No product was found in your cart.");
+
+            var currency = await _workContext.GetWorkingCurrencyAsync();
+            var shoppingCartTotal = await _orderTotalCalculationService.GetShoppingCartTotalAsync(cart, true);
+            var total = await _currencyService.ConvertFromPrimaryStoreCurrencyAsync(
+                shoppingCartTotal.shoppingCartTotal.GetValueOrDefault(), currency);
+            var amountMinor = checked((long)Math.Round(total * 100m, MidpointRounding.AwayFromZero));
+            if (amountMinor <= 0)
+                return BadRequest("The checkout total must be greater than zero.");
+
             var storeScope = await _storeContext.GetActiveStoreScopeConfigurationAsync();
             var stripePaymentSettings = await _settingService.LoadSettingAsync<StripeApplePayPaymentSettings>(storeScope);
 
@@ -141,8 +155,8 @@ namespace Nop.Plugin.Payments.StripeApplePay.Controllers
 
             var paymentIntentOptions = new PaymentIntentCreateOptions
             {
-                Amount = (long)(request.OrderTotal ), // Order total amount in cents
-                Currency = request.Currency,
+                Amount = amountMinor,
+                Currency = currency.CurrencyCode.ToLowerInvariant(),
                 PaymentMethodTypes = new List<string> { "card" },
             };
 
@@ -184,32 +198,16 @@ namespace Nop.Plugin.Payments.StripeApplePay.Controllers
 
         //this method allows pass the paymentIntentId and PaymentMetodId to my website processpayment method
         [HttpPost]
-        public async Task<IActionResult> ConfirmPayment([FromBody] ConfirmPaymentRequest request)
+        public IActionResult ConfirmPayment([FromBody] ConfirmPaymentRequest request)
         {
-            try
-            {
+            if (request == null || string.IsNullOrWhiteSpace(request.PaymentMethodId))
+                return BadRequest("Payment method is required.");
 
-          
-            var paymentIntentId = request.PaymentIntentId;
-            var paymentMethodId = request.PaymentMethodId;
-
-
-            await _genericAttributeService.SaveAttributeAsync<string>(await _workContext.GetCurrentCustomerAsync(),
-                "PaymentIntentId", paymentIntentId);
-
-            await _genericAttributeService.SaveAttributeAsync<string>(await _workContext.GetCurrentCustomerAsync(),
-                "PaymentMethodId", paymentMethodId);
-
-          
-
-
-                return Json(new { success = true });
-            }
-            catch (Exception e)
-            {
-                return Json(new { success = false,message=e.Message });
-            }
-           
+            // Kept as a backwards-compatible endpoint for older clients. Do
+            // not persist raw Stripe identifiers into customer attributes;
+            // the checkout payment processor receives the hidden field only
+            // for the current order attempt.
+            return Json(new { success = true });
         }
   
         private RequestOptions GetStripeApiRequestOptions()

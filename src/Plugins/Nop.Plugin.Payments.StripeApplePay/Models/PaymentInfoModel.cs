@@ -20,6 +20,13 @@ namespace Nop.Plugin.Payments.StripeApplePay.Models
 
         public decimal OrderTotal { get; set; }
 
+        /// <summary>
+        /// The current checkout total in Stripe's smallest currency unit.
+        /// Keeping this as an integer prevents locale formatting and rounding
+        /// from turning a wallet total into zero or the wrong amount.
+        /// </summary>
+        public long OrderTotalMinor { get; set; }
+
         public string StripePublishableKey { get; set; }
         public string Currency { get; set; }
         public string Country { get; set; }
