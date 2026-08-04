@@ -48,6 +48,9 @@ public class ElementCatalogCardContractTests
 
         productBox.Should().Contain("rating-summary");
         productBox.Should().Contain("AverageRating.ToString");
+        productBox.Should().Contain("catalogTitleMaxLength = 90");
+        productBox.Should().Contain("+ \"…\"");
+        productBox.Should().Contain("aria-label=\"@Model.Name\"");
         cardStyles.Should().Contain("line-clamp: 3");
         cardStyles.Should().Contain("text-overflow: ellipsis");
         cardStyles.Should().Contain(".catalog-product-card .product-rating-box .rating-summary");

@@ -45,6 +45,13 @@
     {
         secondImageUrlForRollover = Model.CustomProperties["SecondImageUrlForRollover"].ToString();
     }
+
+    // Keep catalog cards compact while preserving the complete product name in
+    // the link metadata for accessibility and hover text.
+    var catalogTitle = Model.Name ?? string.Empty;
+    const int catalogTitleMaxLength = 90;
+    if (catalogTitle.Length > catalogTitleMaxLength)
+        catalogTitle = catalogTitle[..(catalogTitleMaxLength - 1)].TrimEnd() + "…";
 }
 
 <div class="product-item catalog-product-card" data-productid="@Model.Id">
@@ -128,7 +135,7 @@
     </div>
     <div class="details">
         <h2 class="product-title @productTitleReservedHeightClassName">
-            <a href="@(Url.RouteUrl<Product>(new {SeName = Model.SeName }))">@Model.Name</a>
+            <a href="@(Url.RouteUrl<Product>(new {SeName = Model.SeName }))" title="@Model.Name" aria-label="@Model.Name">@catalogTitle</a>
         </h2>
         @if (catalogSettings.ShowSkuOnCatalogPages && !string.IsNullOrEmpty(Model.Sku))
         {
