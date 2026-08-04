@@ -7,12 +7,10 @@
 }
 
 .catalog-product-card .product-title a {
-    display: -webkit-box;
-    display: box;
-    -webkit-box-orient: vertical;
-    box-orient: vertical;
-    -webkit-line-clamp: 3;
-    line-clamp: 3;
+    display: -webkit-box !important;
+    -webkit-box-orient: vertical !important;
+    -webkit-line-clamp: 3 !important;
+    line-clamp: 3 !important;
     max-height: 4.05em;
     overflow: hidden;
     text-overflow: ellipsis;
