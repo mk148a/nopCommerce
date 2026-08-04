@@ -34,7 +34,7 @@
     // Keep catalog-card metadata rules outside the long-lived theme bundle so
     // title truncation and visible review counts are picked up without a stale
     // cached styles.css file.
-    NopHtml.AppendCssFileParts("~/Themes/Element/Content/css/catalog-card-meta.css", excludeFromBundle: true);
+    NopHtml.AppendCssFileParts("~/Themes/Element/Content/css/catalog-card-meta.css?v=140b5e665c", excludeFromBundle: true);
 
     if (catalogSettings.DisplayAllPicturesOnCatalogPages)
     {
