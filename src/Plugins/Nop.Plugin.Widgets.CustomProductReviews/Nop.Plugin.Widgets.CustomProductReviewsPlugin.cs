@@ -44,6 +44,7 @@ namespace Nop.Plugin.Widgets.CustomProductReviews
         private readonly CustomProductReviewsSettings _customProdutReviewSettings;
         private readonly IActionContextAccessor _actionContextAccessor;
         private readonly ILocalizationService _localizationService;
+        private readonly ILanguageService _languageService;
         private readonly ISettingService _settingService;
         private readonly IStoreService _storeService;
         private readonly IStoreContext _storeContext;
@@ -62,6 +63,7 @@ namespace Nop.Plugin.Widgets.CustomProductReviews
         public CustomProductReviewsPlugin(CustomProductReviewsSettings customProdutReviewSettings,
             IActionContextAccessor actionContextAccessor,
             ILocalizationService localizationService,
+            ILanguageService languageService,
             ISettingService settingService,
             IStoreService storeService,
             IUrlHelperFactory urlHelperFactory, IStoreContext storeContext, IWebHelper webHelper,IPluginService pluginService,IHttpContextAccessor httpContextAccessor)
@@ -69,6 +71,7 @@ namespace Nop.Plugin.Widgets.CustomProductReviews
             _customProdutReviewSettings = customProdutReviewSettings;
             _actionContextAccessor = actionContextAccessor;
             _localizationService = localizationService;
+            _languageService = languageService;
             _settingService = settingService;
             _storeService = storeService;
             _urlHelperFactory = urlHelperFactory;
@@ -85,6 +88,54 @@ namespace Nop.Plugin.Widgets.CustomProductReviews
         #endregion
 
         #region Methods
+
+        private static readonly IReadOnlyDictionary<string, string> ProductReviewsForTranslations =
+            new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["en"] = "Product reviews for",
+                ["tr"] = "Ürün yorumları:",
+                ["de"] = "Produktbewertungen für",
+                ["fr"] = "Avis clients pour",
+                ["es"] = "Opiniones de productos para",
+                ["it"] = "Recensioni del prodotto per",
+                ["pt"] = "Avaliações do produto para",
+                ["nl"] = "Productbeoordelingen voor",
+                ["da"] = "Produktanmeldelser for",
+                ["hu"] = "Termékértékelések ehhez:",
+                ["no"] = "Produktanmeldelser for",
+                ["nn"] = "Produktanmeldingar for",
+                ["pl"] = "Opinie o produkcie:",
+                ["ro"] = "Recenzii pentru produsul",
+                ["sv"] = "Produktrecensioner för",
+                ["el"] = "Κριτικές προϊόντος για",
+                ["ms"] = "Ulasan produk untuk",
+                ["ru"] = "Отзывы о товаре:",
+                ["uk"] = "Відгуки про товар:",
+                ["ar"] = "مراجعات المنتج لـ",
+                ["ur"] = "مصنوعات کے جائزے برائے",
+                ["ja"] = "商品のレビュー：",
+                ["zh"] = "产品评论：",
+                ["ko"] = "제품 리뷰:"
+            };
+
+        private async Task EnsureProductReviewsForResourcesAsync()
+        {
+            var languages = await _languageService.GetAllLanguagesAsync(true);
+            foreach (var language in languages)
+            {
+                var languageCode = language.LanguageCulture?.Split('-', StringSplitOptions.RemoveEmptyEntries)
+                    .FirstOrDefault();
+                if (string.IsNullOrWhiteSpace(languageCode))
+                    languageCode = "en";
+
+                var value = ProductReviewsForTranslations.TryGetValue(languageCode, out var translation)
+                    ? translation
+                    : ProductReviewsForTranslations["en"];
+
+                await _localizationService.AddOrUpdateLocaleResourceAsync(
+                    new Dictionary<string, string> { ["Reviews.ProductReviewsFor"] = value }, language.Id);
+            }
+        }
 
         /// <summary>
         /// Gets a configuration page URL
@@ -170,6 +221,8 @@ namespace Nop.Plugin.Widgets.CustomProductReviews
                     MaximumSize = 1073741824
                 });
 
+                await EnsureProductReviewsForResourcesAsync();
+
 
 
 
@@ -240,6 +293,12 @@ namespace Nop.Plugin.Widgets.CustomProductReviews
                 Console.WriteLine(e);
                
             }
+        }
+
+        public override async Task UpdateAsync(string currentVersion, string targetVersion)
+        {
+            await EnsureProductReviewsForResourcesAsync();
+            await base.UpdateAsync(currentVersion, targetVersion);
         }
 
         /// <summary>

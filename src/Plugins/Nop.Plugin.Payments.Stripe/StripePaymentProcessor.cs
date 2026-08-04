@@ -1276,7 +1276,13 @@ namespace Nop.Plugin.Payments.Stripe
             var body = _tokenizer.Replace(bodyTemplate, defaultTokens, true);
 
             // E-posta kuyruğuna ekle
-            var emailAccount = await _emailAccountService.GetEmailAccountByIdAsync(_emailAccountSettings.DefaultEmailAccountId);
+            var emailAccount = await _emailAccountService.GetEmailAccountByIdAsync(_emailAccountSettings.DefaultEmailAccountId)
+                ?? (await _emailAccountService.GetAllEmailAccountsAsync()).FirstOrDefault();
+            if (emailAccount == null)
+            {
+                await _logger.WarningAsync($"Stripe email notification skipped for order {order.CustomOrderNumber}: no email account is configured.");
+                return;
+            }
             var email = new QueuedEmail
             {
                 Priority = QueuedEmailPriority.High,
@@ -1343,7 +1349,13 @@ namespace Nop.Plugin.Payments.Stripe
         private async Task SendAdminNotification(string subject, string message)
         {
             var store = await _storeContext.GetCurrentStoreAsync();
-            var emailAccount = await _emailAccountService.GetEmailAccountByIdAsync(_emailAccountSettings.DefaultEmailAccountId);
+            var emailAccount = await _emailAccountService.GetEmailAccountByIdAsync(_emailAccountSettings.DefaultEmailAccountId)
+                ?? (await _emailAccountService.GetAllEmailAccountsAsync()).FirstOrDefault();
+            if (emailAccount == null)
+            {
+                await _logger.WarningAsync("Stripe admin payment notification skipped: no email account is configured.");
+                return;
+            }
 
             await _queuedEmailService.InsertQueuedEmailAsync(new QueuedEmail
             {
@@ -1352,7 +1364,8 @@ namespace Nop.Plugin.Payments.Stripe
                 To = emailAccount.Email,
                 Subject = subject,
                 Body = message,
-                CreatedOnUtc = DateTime.UtcNow
+                CreatedOnUtc = DateTime.UtcNow,
+                EmailAccountId = emailAccount.Id
             });
         }
 

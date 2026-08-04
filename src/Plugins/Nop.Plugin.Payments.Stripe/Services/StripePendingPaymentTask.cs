@@ -161,7 +161,13 @@ public class StripePendingPaymentTask : IScheduleTask
         var body = _tokenizer.Replace(bodyTemplate, defaultTokens, true);
 
         // E-posta kuyruğuna ekle
-        var emailAccount = await _emailAccountService.GetEmailAccountByIdAsync(_emailAccountSettings.DefaultEmailAccountId);
+        var emailAccount = await _emailAccountService.GetEmailAccountByIdAsync(_emailAccountSettings.DefaultEmailAccountId)
+            ?? (await _emailAccountService.GetAllEmailAccountsAsync()).FirstOrDefault();
+        if (emailAccount == null)
+        {
+            await _logger.WarningAsync($"Stripe pending-payment email skipped for order {order.CustomOrderNumber}: no email account is configured.");
+            return;
+        }
         var email = new QueuedEmail
         {
             Priority = QueuedEmailPriority.High,
