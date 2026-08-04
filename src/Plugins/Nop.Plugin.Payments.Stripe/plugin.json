@@ -1,0 +1,11 @@
+{
+  "Group": "Payment methods",
+  "FriendlyName": "Credit Card",
+  "SystemName": "Payments.Stripe",
+  "Version": "1.23",
+  "SupportedVersions": [ "4.80" ],
+  "Author": "Genius Software",
+  "DisplayOrder": 1,
+  "FileName": "Nop.Plugin.Payments.Stripe.dll",
+  "Description": "Stripe payment processor"
+}

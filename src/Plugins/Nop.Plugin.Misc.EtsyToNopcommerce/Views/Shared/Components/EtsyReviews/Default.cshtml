@@ -1,0 +1,165 @@
+﻿@using Nop.Plugin.Misc.EtsyToNopcommerce.Domains;
+@model IList<EtsyReview>
+@using Nop.Plugin.Misc.EtsyToNopcommerce.Models;
+@using Nop.Web.Framework.TagHelpers.Shared
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using LinqToDB.Common
+@using Nop.Plugin.Misc.EtsyToNopcommerce.Services
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using Nop.Services.Catalog
+@using Nop.Services.Seo
+@using Nop.Web.Framework.TagHelpers.Shared
+@inject IProductReviewsTransactionsMappingService ProductReviewsTransactionsMappingService;
+@inject IProductService ProductService;
+@inject IUrlRecordService UrlRecordService;
+
+<form method="post" id="insertEtsyReviewsForm" asp-area="Admin" asp-controller="EtsyReviews" asp-action="InsertEtsyReviewsToNopcommerce">
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-centered datatable dt-responsive nowrap " style="border-collapse: collapse; border-spacing: 0; width: 100%;">
+                    <thead class="thead-light">
+                    <tr>
+                        <th style="width: 20px;">
+                            Seç
+                        </th>
+                        <th>İlgili Ürün</th>
+                        <th>Transaction Id</th>
+                        <th>Yıldız</th>
+                        <th>Yorum</th>
+                        <th>Fotoğraf</th>
+                        <th>Tarih>
+                        <th>Durum</th>
+                    </tr>
+                    </thead>
+                    <tbody id="tablolist">
+                    @for (int i = 0; i < Model.Count; i++)
+                    {
+                        string still = "";
+                    
+                        string result = "";
+                        
+
+                        var resultList = await ProductReviewsTransactionsMappingService.GetProductReviewsTransactionsMappingByTransactionIdAsync(Model.ToList()[i].TransactionId.Value);
+                        if (resultList.Count > 0)
+                        {
+                            result = "Daha Önce Eklenmiş";
+                            still = "background-color:#00FF00;";
+                        }
+                        else
+                        {
+                            result = "Daha Önce Eklenmemiş";
+                        }
+                            <tr style="@still">
+                            
+                            <td>
+                                @Html.CheckBoxFor(m => m[i].IsChecked, new { id = "item_IsChecked" })
+                                @*        <input asp-for="@Model[i].IsChecked" class="form-check-input"/>*@
+                            </td>
+                            <td>
+                                @{
+                                    
+
+                                    var url = "";
+                                    try
+                                    {
+
+                                        var ilgiliNopcommerceUrun = await ProductService.GetProductBySkuAsync(Model.ToList()[i].Sku);
+
+                                      
+                                        if (ilgiliNopcommerceUrun!=null)
+                                        {
+                                            var seName = await UrlRecordService.GetSeNameAsync(ilgiliNopcommerceUrun);
+                                            if (seName!=null)
+                                            {
+                                                url = Url.RouteUrl("Product", new { SeName = seName });
+                                            }
+                                          
+                                        }
+
+                                    }
+                                    catch (Exception e)
+                                    {
+                                        Console.WriteLine(e);
+                                    }
+                        
+                                }
+                                <a href="@url">@Model.ToList()[i].Sku </a>
+                            </td>
+                            <td>
+                                @Model.ToList()[i].TransactionId
+                                @Html.HiddenFor(modelItem => modelItem[i].TransactionId, new { id = "item_TransactionId" })
+                                @Html.HiddenFor(modelItem => modelItem[i].Id, new { id = "item_Id" })
+
+                            </td>
+                            <td>
+                                @Html.TextBoxFor(modelItem => modelItem[i].Rating, new { id = "item_Rating" })
+
+                            </td>
+                            <td>
+                                @Html.TextBoxFor(modelItem => modelItem[i].Review, new { id = "item_Review" })
+
+                            </td>
+                            <td>
+                                @if (!@Model.ToList()[i].ImageUrlFullxfull.IsNullOrEmpty())
+                                {
+                                    <img src="@Model.ToList()[i].ImageUrlFullxfull" height="100" width="100"/>
+
+
+                                }
+                                @Html.HiddenFor(modelItem => modelItem[i].ImageUrlFullxfull, new { id = "item_ImageUrlFullxfull" })
+                            </td>
+                            <td>
+                                @Html.TextBoxFor(modelItem => modelItem[i].CreatedTimestamp, new { id = "item_CreatedTimestamp" })
+                                @Html.HiddenFor(modelItem => modelItem[i].CreatedTimestamp, new { id = "item_CreatedTimestamp" })
+                                @Html.HiddenFor(modelItem => modelItem[i].UpdateTimestamp, new { id = "item_UpdateTimestamp" })
+                                @Html.HiddenFor(modelItem => modelItem[i].UpdatedTimestamp, new { id = "item_UpdatedTimestamp" })
+                                @Html.HiddenFor(modelItem => modelItem[i].BuyerUserId, new { id = "item_BuyerUserId" })
+                                @Html.HiddenFor(modelItem => modelItem[i].Language, new { id = "item_Language" })
+                                @Html.HiddenFor(modelItem => modelItem[i].ListingId, new { id = "item_ListingId" })
+                            </td>
+                            <td>
+                                @result
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+                <div class="form-group row">
+                    <div class="col-md-9 offset-md-3">
+                        <button type="submit" name="save" class="btn btn-primary">Seçili Yorumları Web Siteme Aktar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+</form>
+
+<script>
+  
+    $("#insertEtsyReviewsForm").submit(function () {
+      
+        var count = 0;
+        $("tbody tr").each(function () {
+            console.log('test3');
+            if ($(this).find("#item_IsChecked").prop("checked")) {
+                console.log('test4');
+                $(this).find("#item_Id").attr("name", "fromDelist[" + count + "].Id");
+                $(this).find("#item_TransactionId").attr("name", "fromDelist[" + count + "].TransactionId");
+                $(this).find("#item_Rating").attr("name", "fromDelist[" + count + "].Rating");
+                $(this).find("#item_Review").attr("name", "fromDelist[" + count + "].Review");
+                $(this).find("#item_ImageUrlFullxfull").attr("name", "fromDelist[" + count + "].ImageUrlFullxfull");
+                $(this).find("#item_CreatedTimestamp").attr("name", "fromDelist[" + count + "].CreatedTimestamp");
+                $(this).find("#item_IsChecked").attr("name", "fromDelist[" + count + "].IsChecked");
+               
+              
+                count++;
+            }
+        })
+    })
+
+</script>
+
+

@@ -1,0 +1,11 @@
+{
+  "Group": "Genius Software",
+  "FriendlyName": "Google Multi Language And Currency Plugin",
+  "SystemName": "Nop.Plugin.Misc.GoogleMultiLanguageAndCurrency",
+  "Version": "1.03",
+  "SupportedVersions": [ "4.80" ],
+  "Author": "Genius Software",
+  "DisplayOrder": 1,
+  "FileName": "Nop.Plugin.Misc.GoogleMultiLanguageAndCurrency.dll",
+  "Description": "The Google Multi Language And Currency Plugin makes it easy to manage multiple languages and currencies on your NopCommerce store."
+}

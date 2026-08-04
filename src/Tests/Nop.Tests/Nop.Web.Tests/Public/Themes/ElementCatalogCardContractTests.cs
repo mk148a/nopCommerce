@@ -29,6 +29,10 @@ public class ElementCatalogCardContractTests
         styles.Should().Contain("object-fit: contain");
         styles.Should().Contain("object-position: center");
         styles.Should().Contain(".catalog-product-card .prices");
+        styles.Should().Contain(".catalog-product-card .product-rating-box");
+        styles.Should().Contain(".product-details-page .overview .prices");
+        styles.Should().Contain(".product-details-page .product-reviews-overview");
+        styles.Should().Contain("justify-content: center");
         styles.Should().Contain(".product-details-page .full-description iframe");
         styles.Should().Contain("max-width: 100%");
         mobileStyles.Should().Contain(".catalog-product-card .product-title");

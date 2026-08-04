@@ -1,0 +1,62 @@
+﻿@model Nop.Plugin.Payments.Stripe.Models.ConfigurationModel
+@{
+    Layout = "_ConfigurePlugin";
+}
+
+<link rel="stylesheet" href="~/Plugins/Nop.Plugin.Payments.Stripe/Content/css/StripeAdminStyle.min.css" />
+
+@await Component.InvokeAsync("StoreScopeConfiguration")
+
+<form asp-controller="PaymentStripe" asp-action="Configure" method="post" autocomplete="off">
+    <div class="cards-group">
+        <div class="card card-default">
+            <div class="card-body">
+                <p>
+                    <h5>@T("Plugins.Payments.Stripe.Instructions")</h5>
+                    <br />
+                </p>
+                <hr />
+                <p>@T("Plugins.Payments.Stripe.AccountInfo")</p>
+                <div class="form-group row">
+                    <div class="col-md-3">
+                        <nop-override-store-checkbox asp-for="PublishableKey_OverrideForStore" asp-input="PublishableKey" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                        <nop-label asp-for="PublishableKey" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="PublishableKey" asp-required="true" />
+                        <span asp-validation-for="PublishableKey"></span>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-3">
+                        <nop-override-store-checkbox asp-for="SecretKey_OverrideForStore" asp-input="SecretKey" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                        <nop-label asp-for="SecretKey" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="SecretKey" asp-required="true" />
+                        <span asp-validation-for="SecretKey"></span>
+                    </div>
+                </div>
+               
+                <hr />
+                <p>@T("Plugins.Payments.Stripe.VirtualPosInfo")</p>
+                <div class="form-group row">
+                    <div class="col-md-3">
+                        <nop-override-store-checkbox asp-for="IsCardStorage_OverrideForStore" asp-input="IsCardStorage" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                        <nop-label asp-for="IsCardStorage" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="IsCardStorage" />
+                        <span asp-validation-for="IsCardStorage"></span>
+                    </div>
+                </div>
+                
+                <div class="form-group row">
+                    <div class="col-md-9 offset-md-3">
+                        <button type="submit" name="save" class="btn btn-primary">@T("Admin.Common.Save")</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

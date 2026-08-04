@@ -1,0 +1,95 @@
+﻿@using Nop.Plugin.Misc.EtsyToNopcommerce.Domains
+@using Nop.Plugin.Misc.EtsyToNopcommerce.Services
+@using Nop.Services.Catalog
+@using Nop.Services.Seo
+@using Nop.Web.Framework.TagHelpers.Shared
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model IList<Nop.Plugin.Misc.EtsyToNopcommerce.Models.Etsy.Listings.EtsyListing>
+@inject IProductReviewsTransactionsMappingService ProductReviewsTransactionsMappingService;
+@inject IProductService ProductService;
+@inject IUrlRecordService UrlRecordService;
+
+<form method="post" id="insertEtsyListingsForm" asp-area="Admin" asp-controller="EtsyListings" asp-action="InsertEtsyListingsToNopcommerce">
+    @{
+       
+                <div class="card">
+                <div class="card-body">
+                <div class="table-responsive">
+                <table class="table table-centered datatable dt-responsive nowrap " style="border-collapse: collapse; border-spacing: 0; width: 100%;">
+                <thead class="thead-light">
+                <tr>
+                <th style="width: 20px;">
+                Seç
+                </th>
+                <th>Skus</th>
+                <th>Title</th>
+                <th>Description</th>
+                <th>Tags</th>
+                </tr>
+                </thead>
+                <tbody id="tablolist">
+                @for (int i = 0; i < Model.Count; i++)
+                {
+
+                <tr>
+
+                <td>
+                                        @Html.CheckBoxFor(m => m[i].IsChecked, new { id = "EtsyListingitem_IsChecked" })
+                </td>
+                <td>
+                <a >@Model.ToList()[i].Skus </a>
+                </td>
+                <td>
+                @Model.ToList()[i].Title
+                @Html.HiddenFor(modelItem => modelItem[i].Title, new { id = "EtsyListingitem_Title" })
+                @Html.HiddenFor(modelItem => modelItem[i].Id, new { id = "EtsyListingitem_Id" })
+
+                </td>
+                <td>
+                    @Html.TextBoxFor(modelItem => modelItem[i].Description, new { id = "EtsyListingitem_Description" })
+
+                </td>
+                <td>
+                    @Html.TextBoxFor(modelItem => modelItem[i].Tags, new { id = "EtsyListingitem_Tags" })
+                    @Html.HiddenFor(modelItem => modelItem[i].ListingId, new { id = "EtsyListingitem_ListingId" })
+
+                </td>
+               
+                </tr>
+                }
+                </tbody>
+                </table>
+                <div class="form-group row">
+                <div class="col-md-9 offset-md-3">
+                <button type="submit" name="save" class="btn btn-primary">Insert Selected Listings To Website</button>
+                </div>
+                </div>
+                </div>
+                </div>
+                </div>
+
+         
+    }
+</form>
+
+<script>
+  
+    $("#insertEtsyListingsForm").submit(function () {
+      
+        var count = 0;
+        $("tbody tr").each(function () {
+          
+            if ($(this).find("#EtsyListingitem_IsChecked").prop("checked")) {
+             
+                $(this).find("#EtsyListingitem_Id").attr("name", "fromDelist[" + count + "].Id");
+                $(this).find("#EtsyListingitem_Title").attr("name", "fromDelist[" + count + "].Title");
+                $(this).find("#EtsyListingitem_Description").attr("name", "fromDelist[" + count + "].Description");
+                $(this).find("#EtsyListingitem_IsChecked").attr("name", "fromDelist[" + count + "].IsChecked");
+               
+              
+                count++;
+            }
+        })
+    })
+
+</script>

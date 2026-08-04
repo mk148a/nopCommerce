@@ -1,0 +1,47 @@
+@model Nop.Plugin.Misc.GoogleBotAggregator.Models.ConfigurationModel
+@{
+    Layout = "_ConfigurePlugin";
+}
+
+@await Component.InvokeAsync("StoreScopeConfiguration")
+
+<form asp-controller="GoogleBotAggregator" asp-action="Configure" method="post">
+    <div class="cards-group">
+        <div class="card card-default">
+            <div class="card-body">
+                <div class="form-group row">
+                    <div class="col-md-3">
+                        <nop-label asp-for="ExcludeFromAnalytics" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="ExcludeFromAnalytics" />
+                        <span asp-validation-for="ExcludeFromAnalytics"></span>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-3">
+                        <nop-label asp-for="MergeShoppingCarts" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="MergeShoppingCarts" />
+                        <span asp-validation-for="MergeShoppingCarts"></span>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-3">
+                        <nop-label asp-for="GoogleBotCustomerEmail" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="GoogleBotCustomerEmail" />
+                        <span asp-validation-for="GoogleBotCustomerEmail"></span>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-9 offset-md-3">
+                        <button type="submit" class="btn btn-primary">@T("Admin.Common.Save")</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form> 

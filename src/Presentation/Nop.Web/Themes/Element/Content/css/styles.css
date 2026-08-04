@@ -2404,8 +2404,17 @@ label+* {
     display: flex;
     flex-wrap: wrap;
     align-items: baseline;
+    justify-content: center;
+    text-align: center;
     gap: 0 0.45rem;
     min-width: 0;
+}
+
+.catalog-product-card .product-rating-box {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
 }
 
 .catalog-product-card .prices .price {
@@ -3583,6 +3592,26 @@ table .attributes {
 .product-details-page .prices {
     overflow: hidden;
     font-weight: 400;
+    text-align: center;
+}
+
+.product-details-page .overview .prices {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: baseline;
+    gap: 0 0.5rem;
+}
+
+.product-details-page .product-reviews-overview {
+    text-align: center;
+}
+
+.product-details-page .product-reviews-overview .product-review-box,
+.product-details-page .product-reviews-overview .product-review-links {
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .product-details-page .prices>div {

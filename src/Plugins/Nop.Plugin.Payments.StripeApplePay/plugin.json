@@ -1,0 +1,11 @@
+{
+  "Group": "Payment methods",
+  "FriendlyName": "Apple Pay & Google Pay",
+  "SystemName": "Payments.StripeApplePay",
+  "Version": "1.05",
+  "SupportedVersions": [ "4.80" ],
+  "Author": "Genius Software",
+  "DisplayOrder": 1,
+  "FileName": "Nop.Plugin.Payments.StripeApplePay.dll",
+  "Description": "Stripe Apple Pay / Google Pay Payment processor"
+}

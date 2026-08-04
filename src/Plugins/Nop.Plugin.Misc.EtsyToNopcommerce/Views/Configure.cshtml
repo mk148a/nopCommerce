@@ -1,0 +1,181 @@
+﻿@model Nop.Plugin.Misc.EtsyToNopcommerce.Models.ConfigurationModel
+@{
+    Layout = "_ConfigurePlugin";
+}
+
+@await Component.InvokeAsync("StoreScopeConfiguration")
+
+@*@if (Model.IsConfigured)
+{
+    @await Component.InvokeAsync("SettingMode")
+}*@
+
+
+
+
+    <div class="cards-group">
+        <div class="card card-default">
+            <div class="card-body">
+                <p>
+                    <h5>How To Get Connect Etsy</h5>
+                    <br />
+                    1-) Click the "Authorize" button.
+                    2-) You'll be redirected to Etsy for authorization.
+                    3-) Log in to your Etsy account.
+                    4-)Grant permission for the application.
+                    5-)After approval, you'll be redirected back.
+                    Now, you can see and our API credentials in panel.
+                    It's done!
+                </p>
+                <hr />
+                <ul class="nav nav-tabs" id="myTabs" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="apiInfo-tab" data-toggle="tab" href="#apiInfo" role="tab" aria-controls="apiInfo" aria-selected="true">Api Info</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="etsyReviews-tab" data-toggle="tab" href="#etsyReviews" role="tab" aria-controls="etsyReviews" aria-selected="false">Etsy Reviews</a>
+                    </li>
+                    <!-- Diğer sekmeleri buraya ekleyebilirsiniz -->
+                    <li class="nav-item">
+                        <a class="nav-link" id="etsyListings-tab" data-toggle="tab" href="#etsyListings" role="tab" aria-controls="etsyListings" aria-selected="false">Etsy Listings</a>
+                    </li>
+                    <li class="nav-item">
+                    <a class="nav-link" id="etsyCustomers-tab" data-toggle="tab" href="#etsyCustomers" role="tab" aria-controls="etsyCustomers" aria-selected="false">Etsy Customers</a>
+                    </li>
+                </ul>
+                <div class="tab-content" id="myTabsContent">
+                    <div class="tab-pane fade show active" id="apiInfo" role="tabpanel" aria-labelledby="apiInfo-tab">
+                        <!-- Api Info içeriği buraya gelecek -->
+                        <form asp-controller="EtsyToNopcommerce" asp-action="Configure" method="post">
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-override-store-checkbox asp-for="ShopName_OverrideForStore" asp-input="ShopName" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                                <nop-label asp-for="ShopName" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="ShopName" asp-required="true" />
+                                <span asp-validation-for="ShopName"></span>
+                            </div>
+                        </div>
+                        <!-- Diğer Api Info alanları buraya gelecek -->
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-override-store-checkbox asp-for="ShopId_OverrideForStore" asp-input="ShopId" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                                <nop-label asp-for="ShopId" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="ShopId" asp-required="false" />
+                                <span asp-validation-for="ShopId"></span>
+                            </div>
+                        </div>
+                        <div class="form-group row" type="hidden">
+                            <div class="col-md-3">
+                                <nop-override-store-checkbox asp-for="ConsumerKey_OverrideForStore" asp-input="ConsumerKey" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                                <nop-label asp-for="ConsumerKey" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="ConsumerKey" asp-required="true" />
+                                <span asp-validation-for="ConsumerKey"></span>
+                            </div>
+                        </div>
+                        <div class="form-group row" hidden>
+                            <div class="col-md-3">
+                                <nop-override-store-checkbox asp-for="ConsumerSecret_OverrideForStore" asp-input="ConsumerSecret" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                                <nop-label asp-for="ConsumerSecret" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="ConsumerSecret" asp-required="true" />
+                                <span asp-validation-for="ConsumerSecret"></span>
+                            </div>
+                        </div>
+                        <div class="form-group row" hidden>
+                            <div class="col-md-3">
+                                <nop-override-store-checkbox asp-for="RequestUrl_OverrideForStore" asp-input="RequestUrl" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                                <nop-label asp-for="RequestUrl" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="RequestUrl" asp-required="true" />
+                                <span asp-validation-for="RequestUrl"></span>
+                            </div>
+                        </div>
+                        <div class="form-group row" hidden>
+                            <div class="col-md-3">
+                                <nop-override-store-checkbox asp-for="RequestAccessTokenUrl_OverrideForStore" asp-input="RequestAccessTokenUrl" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                                <nop-label asp-for="RequestAccessTokenUrl" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="RequestAccessTokenUrl" asp-required="true" />
+                                <span asp-validation-for="RequestAccessTokenUrl"></span>
+                            </div>
+                        </div>
+                        <div class="form-group row" hidden>
+                            <div class="col-md-3">
+                                <nop-override-store-checkbox asp-for="Token_OverrideForStore" asp-input="Token" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                                <nop-label asp-for="Token" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="Token" asp-required="false" />
+                                <span asp-validation-for="Token"></span>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-override-store-checkbox asp-for="RefreshToken_OverrideForStore" asp-input="Token" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                                <nop-label asp-for="RefreshToken" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="RefreshToken" asp-required="false" />
+                                <span asp-validation-for="RefreshToken"></span>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-3">
+                                <nop-override-store-checkbox asp-for="TokenDate_OverrideForStore" asp-input="TokenDate" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                                <nop-label asp-for="TokenDate" />
+                            </div>
+                            <div class="col-md-9">
+                                <nop-editor asp-for="TokenDate" asp-required="false" />
+                                <span asp-validation-for="TokenDate"></span>
+
+                            </div>
+                        </div>
+                        <hr />
+
+                        <div class="form-group row">
+                            <div class="col-md-9 offset-md-3">
+                                <button type="submit" name="save" class="btn btn-primary">Kaydet</button>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <a class="btn btn-primary" asp-controller="EtsyToNopcommerce"
+                               asp-action="Yetkilendir"
+                               class="mr-3 text-primary"
+                               data-toggle="tooltip" data-placement="top"
+                               title="Yetkilendir"
+                               data-original-title="Yetkilendir">
+                                Yetkilendir
+                            </a>
+                        </div>
+                    </form>
+                    </div>
+                    <div class="tab-pane fade" id="etsyReviews" role="tabpanel" aria-labelledby="etsyReviews-tab">
+                        <!-- Etsy Reviews içeriği buraya gelecek -->
+                    <p><h5>You Can See Etsy Reviews Here</h5><br /></p>
+                        @await Component.InvokeAsync("EtsyReviews")
+                    </div>
+                    <!-- Diğer sekmelerin içeriği buraya gelecek -->
+                <div class="tab-pane fade" id="etsyListings" role="tabpanel" aria-labelledby="etsyListings-tab">
+                    <!-- Etsy Reviews içeriği buraya gelecek -->
+                    <p><h5>You Can See Etsy Listings Here</h5><br /></p>
+                    @await Component.InvokeAsync("EtsyListings")
+                </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+  
