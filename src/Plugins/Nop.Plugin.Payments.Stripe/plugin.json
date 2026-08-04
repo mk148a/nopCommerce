@@ -2,7 +2,7 @@
   "Group": "Payment methods",
   "FriendlyName": "Credit Card",
   "SystemName": "Payments.Stripe",
-  "Version": "1.24",
+  "Version": "1.25",
   "SupportedVersions": [ "4.80" ],
   "Author": "Genius Software",
   "DisplayOrder": 1,

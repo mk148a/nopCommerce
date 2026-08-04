@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using LinqToDB;
 using Nop.Core;
@@ -13,7 +14,6 @@ using Nop.Plugin.Payments.Stripe.Domains;
 using Nop.Services.Configuration;
 using Nop.Services.Logging;
 using Nop.Services.Orders;
-using Newtonsoft.Json.Linq;
 using Stripe;
 
 namespace Nop.Plugin.Payments.Stripe.Services;
@@ -86,9 +86,9 @@ public sealed class StripeWebhookService : IStripeWebhookService
         }
 
         var paymentIntent = stripeEvent.Data?.Object as PaymentIntent;
-        var rawObject = stripeEvent.Data?.RawJObject;
-        var paymentIntentId = paymentIntent?.Id ?? rawObject?["id"]?.Value<string>();
-        var paymentIntentStatus = paymentIntent?.Status ?? rawObject?["status"]?.Value<string>();
+        var rawObject = stripeEvent.Data?.RawJsonElement;
+        var paymentIntentId = paymentIntent?.Id ?? GetStringProperty(rawObject, "id");
+        var paymentIntentStatus = paymentIntent?.Status ?? GetStringProperty(rawObject, "status");
         var orderId = ParseOrderId(paymentIntent?.Metadata, rawObject);
 
         if (existingEvent == null)
@@ -160,7 +160,10 @@ public sealed class StripeWebhookService : IStripeWebhookService
             throw new NopException("Stripe API secret key is not configured.");
 
         var endpointUrl = BuildEndpointUrl();
-        var requestOptions = new RequestOptions { ApiKey = _settings.SecretKey };
+        var requestOptions = new RequestOptions
+        {
+            ApiKey = _settings.SecretKey
+        };
         var endpointService = new WebhookEndpointService();
         var endpoints = await endpointService.ListAsync(new WebhookEndpointListOptions { Limit = 100 }, requestOptions);
         var matchingEndpoints = endpoints.Data
@@ -197,7 +200,11 @@ public sealed class StripeWebhookService : IStripeWebhookService
 
             var idempotencyKey = BuildCreateIdempotencyKey(endpointUrl);
             endpoint = await endpointService.CreateAsync(createOptions,
-                new RequestOptions { ApiKey = _settings.SecretKey, IdempotencyKey = idempotencyKey });
+                new RequestOptions
+                {
+                    ApiKey = _settings.SecretKey,
+                    IdempotencyKey = idempotencyKey
+                });
             created = true;
 
             if (!string.IsNullOrWhiteSpace(endpoint.Secret))
@@ -347,13 +354,28 @@ public sealed class StripeWebhookService : IStripeWebhookService
         return $"stripe-webhook-{Convert.ToHexString(hash).ToLowerInvariant()}";
     }
 
-    private static int? ParseOrderId(Dictionary<string, string> metadata, JObject rawObject)
+    private static string GetStringProperty(JsonElement? rawObject, string propertyName)
+    {
+        if (!rawObject.HasValue || rawObject.Value.ValueKind != JsonValueKind.Object ||
+            !rawObject.Value.TryGetProperty(propertyName, out var property))
+            return null;
+
+        return property.ValueKind == JsonValueKind.String ? property.GetString() : property.ToString();
+    }
+
+    private static int? ParseOrderId(Dictionary<string, string> metadata, JsonElement? rawObject)
     {
         string value = null;
         if (metadata != null)
             metadata.TryGetValue("order_id", out value);
 
-        value ??= rawObject?["metadata"]?["order_id"]?.Value<string>();
+        if (string.IsNullOrWhiteSpace(value) && rawObject.HasValue &&
+            rawObject.Value.ValueKind == JsonValueKind.Object &&
+            rawObject.Value.TryGetProperty("metadata", out var metadataElement) &&
+            metadataElement.ValueKind == JsonValueKind.Object &&
+            metadataElement.TryGetProperty("order_id", out var orderIdElement))
+            value = orderIdElement.ValueKind == JsonValueKind.String ? orderIdElement.GetString() : orderIdElement.ToString();
+
         return int.TryParse(value, out var orderId) && orderId > 0 ? orderId : null;
     }
 }

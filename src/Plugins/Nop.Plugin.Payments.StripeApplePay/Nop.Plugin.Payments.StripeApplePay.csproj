@@ -69,7 +69,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Stripe.net" Version="45.1.0" />
+    <PackageReference Include="Stripe.net" Version="52.2.0" />
   </ItemGroup>
  
   <!-- This target execute after "Build" target -->

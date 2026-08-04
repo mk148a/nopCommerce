@@ -12,8 +12,8 @@
     <Company>Genius Software</Company>
     <Authors>Genius Software</Authors>
     <PackageIcon>logo.png</PackageIcon>
-    <AssemblyVersion>1.24</AssemblyVersion>
-    <FileVersion>1.24</FileVersion>
+    <AssemblyVersion>1.25</AssemblyVersion>
+    <FileVersion>1.25</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -87,7 +87,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Stripe.net" Version="45.1.0" />
+    <PackageReference Include="Stripe.net" Version="52.2.0" />
   </ItemGroup>
  
   <!-- This target execute after "Build" target -->
