@@ -1,0 +1,11 @@
+{
+  "bundle": "nopcommerce-stripe-applepay-unlicensed-compatibility",
+  "stripeNet": "52.2.0",
+  "licenseControl": "disabled-by-source-absence",
+  "versions": [
+    { "nopCommerce": "4.50", "targetFramework": "net6.0", "sourceRefs": { "core": "origin/StripePlugin", "stripe": "origin/StripePlugin", "wallet": "origin/StripeApplePayPlugin" } },
+    { "nopCommerce": "4.60", "targetFramework": "net7.0", "sourceRefs": { "core": "upstream/4.60-bug-fixes", "stripe": "origin/StripePlugin", "wallet": "origin/StripeApplePayPlugin" } },
+    { "nopCommerce": "4.70", "targetFramework": "net8.0", "sourceRefs": { "core": "origin/Lancelot-4.70-bugfix", "stripe": "origin/StripePlugin", "wallet": "origin/StripeApplePayPlugin" } },
+    { "nopCommerce": "4.80", "targetFramework": "net9.0", "sourceRefs": { "core": "HEAD", "stripe": "HEAD", "wallet": "HEAD" } }
+  ]
+}
