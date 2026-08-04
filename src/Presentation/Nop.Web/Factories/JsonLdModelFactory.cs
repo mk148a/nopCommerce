@@ -278,10 +278,24 @@ public partial class JsonLdModelFactory : IJsonLdModelFactory
             {
                 var customer = await _customerService.GetCustomerByIdAsync(eligibleReview.Stored.CustomerId);
                 if (customer != null)
+                {
                     authorName = (await _customerService.FormatUsernameAsync(customer))?.Trim();
+                    if (string.IsNullOrWhiteSpace(authorName))
+                    {
+                        authorName = !string.IsNullOrWhiteSpace(customer.Username)
+                            ? customer.Username.Trim()
+                            : !string.IsNullOrWhiteSpace(customer.Email)
+                                ? customer.Email.Trim()
+                                : null;
+                    }
+                }
             }
 
-            if (string.IsNullOrWhiteSpace(authorName) || authorName.Length > 100)
+            // A neutral UI label keeps the visible review list complete but is
+            // not a real person identity and must not be emitted as Review.author.
+            if (string.IsNullOrWhiteSpace(authorName)
+                || authorName.Equals("Customer review", StringComparison.OrdinalIgnoreCase)
+                || authorName.Length > 100)
                 continue;
 
             var reviewBody = NormalizePlainText(eligibleReview.Stored.ReviewText);

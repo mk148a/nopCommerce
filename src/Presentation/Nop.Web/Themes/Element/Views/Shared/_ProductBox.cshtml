@@ -144,10 +144,16 @@
                 ratingPercent = ((Model.ReviewOverviewModel.RatingSum * 100) / Model.ReviewOverviewModel.TotalReviews) / 5;
             }
             <div class="product-rating-box" title="@string.Format(T("Reviews.TotalReviews").Text, Model.ReviewOverviewModel.TotalReviews)">
-                <div class="rating">
+                <div class="rating" aria-hidden="true">
                     <div style="width: @(ratingPercent)%">
                     </div>
                 </div>
+                @if (Model.ReviewOverviewModel.TotalReviews > 0)
+                {
+                    <span class="rating-summary" aria-label="@($"{Model.ReviewOverviewModel.AverageRating:0.##}/5, {Model.ReviewOverviewModel.TotalReviews} reviews")">
+                        @Model.ReviewOverviewModel.AverageRating.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)/5 (@Model.ReviewOverviewModel.TotalReviews)
+                    </span>
+                }
             </div>
         }
         <div class="description" @(catalogSettings.ShowShortDescriptionOnCatalogPages ? "" : "data-short-description=none")>

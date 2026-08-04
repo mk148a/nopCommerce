@@ -1773,11 +1773,24 @@ public partial class ProductModelFactory : IProductModelFactory
         {
             customersById.TryGetValue(pr.CustomerId, out var customer);
 
+            var customerName = (await _customerService.FormatUsernameAsync(customer))?.Trim() ?? string.Empty;
+            // Imported reviews can have a real Customer row but no first/last
+            // name. Prefer the existing non-personal identifier rather than
+            // rendering an empty author or inventing a person name.
+            if (string.IsNullOrWhiteSpace(customerName) && customer != null)
+            {
+                customerName = !string.IsNullOrWhiteSpace(customer.Username)
+                    ? customer.Username.Trim()
+                    : !string.IsNullOrWhiteSpace(customer.Email)
+                        ? customer.Email.Trim()
+                        : "Customer review";
+            }
+
             var productReviewModel = new ProductReviewModel
             {
                 Id = pr.Id,
                 CustomerId = pr.CustomerId,
-                CustomerName = await _customerService.FormatUsernameAsync(customer),
+                CustomerName = customerName,
                 AllowViewingProfiles = _customerSettings.AllowViewingProfiles && customer != null && !await _customerService.IsGuestAsync(customer),
                 Title = pr.Title,
                 ReviewText = pr.ReviewText,

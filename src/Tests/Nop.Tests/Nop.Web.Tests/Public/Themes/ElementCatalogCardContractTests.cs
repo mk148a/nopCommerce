@@ -40,6 +40,31 @@ public class ElementCatalogCardContractTests
     }
 
     [Test]
+    public void Catalog_cards_show_review_summary_and_clamp_long_titles()
+    {
+        var productBox = ReadSource("src", "Presentation", "Nop.Web", "Themes", "Element", "Views", "Shared", "_ProductBox.cshtml");
+        var cardStyles = ReadSource("src", "Presentation", "Nop.Web", "Themes", "Element", "Content", "css", "catalog-card-meta.css");
+        var head = ReadSource("src", "Presentation", "Nop.Web", "Themes", "Element", "Views", "Shared", "Head.cshtml");
+
+        productBox.Should().Contain("rating-summary");
+        productBox.Should().Contain("AverageRating.ToString");
+        cardStyles.Should().Contain("line-clamp: 3");
+        cardStyles.Should().Contain("text-overflow: ellipsis");
+        cardStyles.Should().Contain(".catalog-product-card .product-rating-box .rating-summary");
+        head.Should().Contain("Content/css/catalog-card-meta.css");
+    }
+
+    [Test]
+    public void Product_review_mapping_uses_existing_customer_identifiers_when_display_name_is_empty()
+    {
+        var factory = ReadSource("src", "Presentation", "Nop.Web", "Factories", "ProductModelFactory.cs");
+
+        factory.Should().Contain("customer.Username.Trim()");
+        factory.Should().Contain("customer.Email.Trim()");
+        factory.Should().Contain("Customer review");
+    }
+
+    [Test]
     public void Root_head_removes_known_stale_hood_asset_tags_from_custom_html()
     {
         var elementRoot = ReadSource("src", "Presentation", "Nop.Web", "Themes", "Element", "Views", "Shared", "_Root.Head.cshtml");

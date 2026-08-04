@@ -31,6 +31,11 @@
     // with a cached theme stylesheet receive the correction immediately.
     NopHtml.AppendCssFileParts("~/Themes/Element/Content/css/review-pointer-fix.css", excludeFromBundle: true);
 
+    // Keep catalog-card metadata rules outside the long-lived theme bundle so
+    // title truncation and visible review counts are picked up without a stale
+    // cached styles.css file.
+    NopHtml.AppendCssFileParts("~/Themes/Element/Content/css/catalog-card-meta.css", excludeFromBundle: true);
+
     if (catalogSettings.DisplayAllPicturesOnCatalogPages)
     {
         NopHtml.AppendCssFileParts("~/lib_npm/swiper/swiper-bundle.min.css");

@@ -1,0 +1,52 @@
+/* Stable metadata rows for homepage/category product cards. The media area
+   remains untouched; these rules only reserve the text/rating rows below it. */
+.catalog-product-card .product-title {
+    height: 4.05em !important;
+    min-height: 4.05em !important;
+    overflow: hidden;
+}
+
+.catalog-product-card .product-title a {
+    display: -webkit-box;
+    display: box;
+    -webkit-box-orient: vertical;
+    box-orient: vertical;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    max-height: 4.05em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.35;
+}
+
+.catalog-product-card .product-rating-box {
+    display: flex !important;
+    align-items: center;
+    gap: 0.45rem;
+    min-height: 24px;
+    margin-bottom: 10px;
+    font-size: 13px !important;
+    line-height: 16px;
+}
+
+.catalog-product-card .product-rating-box .rating {
+    flex: 0 0 auto;
+}
+
+.catalog-product-card .product-rating-box .rating-summary {
+    color: #555;
+    font-size: 13px;
+    line-height: 16px;
+    white-space: nowrap;
+}
+
+@media all and (max-width: 1024px) {
+    .catalog-product-card .product-title {
+        height: 65px !important;
+        min-height: 65px !important;
+    }
+
+    .catalog-product-card .product-title a {
+        max-height: 65px;
+    }
+}
