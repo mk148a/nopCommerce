@@ -270,7 +270,8 @@ public class StripePendingPaymentTask : IScheduleTask
             {
 
                 await ConfirmPendingPaymentIntentAsync(order);
-                await _logger.InformationAsync($"[Stripe] Order {order.CustomOrderNumber} payment confirmed", customer: await _workContext.GetCurrentCustomerAsync());
+                if (order.PaymentStatus == PaymentStatus.Paid)
+                    await _logger.InformationAsync($"[Stripe] Order {order.CustomOrderNumber} payment confirmed", customer: await _workContext.GetCurrentCustomerAsync());
             }
             catch (StripeException ex)
             {
