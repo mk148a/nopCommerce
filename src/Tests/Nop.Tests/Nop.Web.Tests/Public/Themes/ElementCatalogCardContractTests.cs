@@ -195,6 +195,8 @@ public class ElementCatalogCardContractTests
         controller.Should().Contain("GetPluginDescriptorBySystemNameAsync<IPlugin>(\"Nop.Plugin.Misc.GoogleShoppingMultiCountry\")");
         task.Should().Contain("class GoogleFeedUpdateTask : IScheduleTask");
         task.Should().Contain("GetPluginDescriptorBySystemNameAsync<IPlugin>(\"Nop.Plugin.Misc.GoogleShoppingMultiCountry\")");
+        task.Should().Contain("string.IsNullOrWhiteSpace(settings.DefaultGoogleCategoryId)");
+        task.Should().Contain("if (configuredStores.Count == 0)");
     }
 
     [Test]
