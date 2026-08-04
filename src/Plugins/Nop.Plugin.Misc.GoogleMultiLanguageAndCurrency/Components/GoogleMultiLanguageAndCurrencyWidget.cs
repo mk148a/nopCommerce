@@ -94,11 +94,9 @@ namespace Nop.Plugin.Misc.GoogleMultiLanguageAndCurrency.Components
             {
                 stopwatch.Stop();
                 var elapsedTime = stopwatch.ElapsedMilliseconds;
-                Console.WriteLine($"Gecikme: {elapsedTime} ms");
                 if (elapsedTime > 100)
                 {
-                    // Gecikme 100 ms'den fazlaysa bir uyarı günlüğü kaydedin.
-                    _logger.LogWarning(DateTime.Now + "-" + $"Widget gecikti: {elapsedTime} ms" + " url:" + currentUrl);
+                    _logger.LogWarning("Google language widget took {ElapsedMilliseconds} ms for {Url}", elapsedTime, currentUrl);
                 }
             }
 

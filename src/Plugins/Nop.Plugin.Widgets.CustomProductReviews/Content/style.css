@@ -55,12 +55,22 @@
     height: 16px;
     margin: 0;
     overflow: hidden;
-    background: url('../../../Themes/Element/Content/img/rating-sprite.png') center bottom no-repeat;
+    background-image: url('../../../Themes/Element/Content/img/rating-sprite.png');
+    background-position: center bottom;
+    background-repeat: no-repeat;
     color: transparent;
     font-size: 0;
     line-height: 0;
     text-indent: -9999px;
     cursor: pointer;
+}
+
+.air-theme .custom-product-reviews-page .write-review .review-rating .rating-options label {
+    background-color: #eda187;
+}
+
+.earth-theme .custom-product-reviews-page .write-review .review-rating .rating-options label {
+    background-color: #007c5a;
 }
 
 .custom-product-reviews-page .write-review .review-rating .rating-options input[type="radio"] {

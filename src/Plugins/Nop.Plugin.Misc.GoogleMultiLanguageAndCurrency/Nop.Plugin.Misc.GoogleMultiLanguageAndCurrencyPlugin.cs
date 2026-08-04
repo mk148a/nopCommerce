@@ -38,18 +38,7 @@ namespace Nop.Plugin.Misc.GoogleMultiLanguageAndCurrency
         
         public override async Task InstallAsync()
         {
-
-            try
-            {
-           
-                await base.InstallAsync();
-          
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-
-            }
+            await base.InstallAsync();
         }
 
         /// <summary>

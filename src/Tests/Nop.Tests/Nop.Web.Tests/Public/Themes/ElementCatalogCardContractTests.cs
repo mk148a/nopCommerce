@@ -154,11 +154,16 @@ public class ElementCatalogCardContractTests
         var view = ReadSource("src", "Plugins", "Nop.Plugin.Widgets.CustomProductReviews", "Views", "ProductReviewComponent.cshtml");
 
         styles.Should().Contain(".custom-product-reviews-page .write-review .review-rating .rating-options label");
+        styles.Should().Contain("background-image: url('../../../Themes/Element/Content/img/rating-sprite.png')");
+        styles.Should().Contain(".earth-theme .custom-product-reviews-page .write-review .review-rating .rating-options label");
+        styles.Should().Contain("background-color: #007c5a");
         styles.Should().Contain("font-size: 0");
         styles.Should().Contain("text-indent: -9999px");
         styles.Should().Contain(".rating-options input[type=\"radio\"]:checked + label ~ label");
         view.Should().Contain("aria-label=\"@T(\"Reviews.Fields.Rating.Bad\")\"");
         view.Should().Contain("aria-label=\"@T(\"Reviews.Fields.Rating.Excellent\")\"");
+        view.Should().Contain("Content/style.css?v=1.12");
+        view.Should().NotContain("AddCssFileParts(\"~/Plugins/Widgets.CustomProductReviews/Content/style.css\")");
     }
 
     [Test]
@@ -184,9 +189,24 @@ public class ElementCatalogCardContractTests
     {
         var descriptor = ReadSource("src", "Plugins", "Nop.Plugin.Misc.GoogleShoppingMultiCountry", "plugin.json");
         var controller = ReadSource("src", "Plugins", "Nop.Plugin.Misc.GoogleShoppingMultiCountry", "Controllers", "GoogleShoppingMultiCountryController.cs");
+        var task = ReadSource("src", "Plugins", "Nop.Plugin.Misc.GoogleShoppingMultiCountry", "Services", "GoogleFeedUpdateTask.cs");
 
         descriptor.Should().Contain("\"SystemName\": \"Nop.Plugin.Misc.GoogleShoppingMultiCountry\"");
         controller.Should().Contain("GetPluginDescriptorBySystemNameAsync<IPlugin>(\"Nop.Plugin.Misc.GoogleShoppingMultiCountry\")");
+        task.Should().Contain("class GoogleFeedUpdateTask : IScheduleTask");
+        task.Should().Contain("GetPluginDescriptorBySystemNameAsync<IPlugin>(\"Nop.Plugin.Misc.GoogleShoppingMultiCountry\")");
+    }
+
+    [Test]
+    public void Google_language_widget_never_writes_to_an_iis_console_handle()
+    {
+        var component = ReadSource("src", "Plugins", "Nop.Plugin.Misc.GoogleMultiLanguageAndCurrency", "Components", "GoogleMultiLanguageAndCurrencyWidget.cs");
+        var plugin = ReadSource("src", "Plugins", "Nop.Plugin.Misc.GoogleMultiLanguageAndCurrency", "Nop.Plugin.Misc.GoogleMultiLanguageAndCurrencyPlugin.cs");
+        var view = ReadSource("src", "Plugins", "Nop.Plugin.Misc.GoogleMultiLanguageAndCurrency", "Views", "Shared", "Components", "GoogleMultiLanguageAndCurrencyWidget", "Default.cshtml");
+
+        component.Should().NotContain("Console.WriteLine");
+        plugin.Should().NotContain("Console.WriteLine");
+        view.Should().NotContain("Console.WriteLine");
     }
 
     [Test]

@@ -15,12 +15,11 @@
 
 @{
     NopHtml.AppendPageCssClassParts("html-product-reviews-page");
-    NopHtml.AddCssFileParts("~/Plugins/Widgets.CustomProductReviews/Content/style.css");
     NopHtml.AddCssFileParts("~/lib_npm/magnific-popup/magnific-popup.css");
     NopHtml.AddScriptParts(ResourceLocation.Footer, "~/lib_npm/magnific-popup/jquery.magnific-popup.min.js", excludeFromBundle: true);
     //Layout = "_ColumnsOne";
 }
-<link href="~/Plugins/Widgets.CustomProductReviews/Content/style.css" rel="stylesheet" />
+<link href="@Url.Content("~/Plugins/Widgets.CustomProductReviews/Content/style.css?v=1.12")" rel="stylesheet" />
 
 
 @{
