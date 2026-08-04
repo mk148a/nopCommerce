@@ -7,8 +7,9 @@
 @{
     // Keep the database-backed logo as the primary source, but always have a
     // theme asset fallback when the media endpoint is unavailable or empty.
-    var themeLogoPath = $"~/Themes/{await themeContext.GetWorkingThemeNameAsync()}/Content/img/logo.png";
-    var fallbackLogoPath = Url.Content(themeLogoPath);
+    // Keep the same high-resolution WebP as the fallback; the theme's bundled
+    // sample logo is unrelated to Hood Archery Shop.
+    var fallbackLogoPath = Url.Content("~/images/0003417_0.webp");
     var logoPath = Model.LogoPath;
     if (String.IsNullOrWhiteSpace(logoPath) ||
         logoPath.Contains("0003403_1000094787", StringComparison.OrdinalIgnoreCase))
@@ -18,9 +19,10 @@
 }
 
 <a href="@Url.RouteUrl("Homepage")">
-    <img title="" alt="@Model.StoreName"
+    <img class="store-logo" title="" alt="@Model.StoreName"
          width="150" height="150"
          loading="eager" decoding="async"
+         fetchpriority="high"
          src="@logoPath"
          onerror="this.onerror=null;this.src='@fallbackLogoPath';">
 </a>

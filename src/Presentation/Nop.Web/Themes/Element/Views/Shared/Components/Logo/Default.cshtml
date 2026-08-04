@@ -9,8 +9,9 @@
 @inject ILocalizationService localizationService
 
 @{
-    var themeLogoPath = $"~/Themes/{await themeContext.GetWorkingThemeNameAsync()}/Content/img/logo.png";
-    var fallbackLogoPath = Url.Content(themeLogoPath);
+    // Keep the same high-resolution WebP as the fallback; the theme's bundled
+    // sample logo is unrelated to Hood Archery Shop.
+    var fallbackLogoPath = Url.Content("~/images/0003417_0.webp");
     // The active store logo was uploaded as a 100px PNG and is visibly soft when
     // enlarged to the reserved 150px header slot. Use the retained 300px WebP
     // for that legacy asset while leaving other configurable store logos intact.
@@ -24,9 +25,10 @@
 }
 
 <a href="@Url.RouteUrl("Homepage")" class="logo">
-    <img title="" alt="@storeName"
+    <img class="store-logo" title="" alt="@storeName"
          width="150" height="150"
          loading="eager" decoding="async"
+         fetchpriority="high"
          src="@logoPath"
          onerror="this.onerror=null;this.src='@fallbackLogoPath';">
 </a>
