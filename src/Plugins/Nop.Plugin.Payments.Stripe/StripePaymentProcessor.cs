@@ -315,7 +315,15 @@ namespace Nop.Plugin.Payments.Stripe
                     AutomaticPaymentMethods = new PaymentIntentAutomaticPaymentMethodsOptions
                     {
                         Enabled = true,
-                        AllowRedirects = "never"
+                        // Stripe may send the customer to their bank for SCA/3DS.
+                        AllowRedirects = "always"
+                    },
+                    PaymentMethodOptions = new PaymentIntentPaymentMethodOptionsOptions
+                    {
+                        Card = new PaymentIntentPaymentMethodOptionsCardOptions
+                        {
+                            RequestThreeDSecure = "automatic"
+                        }
                     }
                 };
 
@@ -388,21 +396,10 @@ namespace Nop.Plugin.Payments.Stripe
                     result.NewPaymentStatus = PaymentStatus.Pending;
                     result.AuthorizationTransactionId = paymentIntent.Id;
                     result.AuthorizationTransactionResult = "You must complete additional verification steps to complete your payment.";
-                    result.Errors = new List<string> { "You must complete additional verification steps to complete your payment.." };
-
-                    // Stripe'ın sağladığı hata mesajını kullanıcıya daha anlaşılır hale getirebilirsiniz
-                    if (!string.IsNullOrEmpty(paymentIntent.LastPaymentError?.Message))
+                    result.Errors = new List<string>
                     {
-                        result.Errors.Add(paymentIntent.LastPaymentError.Message);
-                    }
-
-                    // Sipariş durumunu Cancelled olarak güncelle
-                    if (order != null)
-                    {
-                        order.OrderStatus = OrderStatus.Cancelled;
-                        await _orderService.UpdateOrderAsync(order);
-                    }
-
+                        "Your bank requires an additional verification step. Please complete the verification and try again."
+                    };
                     return result;
                 }
                 else
@@ -410,11 +407,8 @@ namespace Nop.Plugin.Payments.Stripe
                     // Hata durumunu logla ve kullanıcıya anlamlı mesaj göster
                     await _logger.ErrorAsync($"PaymentIntent oluşturulurken hata: ID={paymentIntent.Id}, Status={paymentIntent.Status}, Error={paymentIntent.LastPaymentError?.Message}");
 
-                    string errorMessage = "An error occurred during payment. Please try again.";
-                    if (!string.IsNullOrEmpty(paymentIntent.LastPaymentError?.Message))
-                    {
-                        errorMessage = paymentIntent.LastPaymentError.Message;
-                    }
+                    string errorMessage = GetStripePaymentErrorMessage(paymentIntent.LastPaymentError?.Code,
+                        paymentIntent.LastPaymentError?.DeclineCode);
 
                     // Sipariş durumunu Cancelled olarak güncelle
                     if (order != null)
@@ -443,16 +437,7 @@ namespace Nop.Plugin.Payments.Stripe
                     await _orderService.UpdateOrderAsync(order);
                 }
 
-                if (result.Errors!=null)
-                {
-                   result.Errors.Add("An error occurred while paying with Stripe. Please try again.");
-                   result.Errors.Add(ex.Message);
-                }
-                else
-                {
-                    result.Errors = new List<string> { "An error occurred while paying with Stripe. Please try again." };
-                    result.Errors.Add(ex.Message);
-                }
+                result.Errors = new List<string> { GetStripePaymentErrorMessage(ex.StripeError?.Code, ex.StripeError?.DeclineCode) };
               
                
 
@@ -481,14 +466,7 @@ namespace Nop.Plugin.Payments.Stripe
                     order.OrderStatus = OrderStatus.Cancelled;
                     await _orderService.UpdateOrderAsync(order);
                 }
-                if (result.Errors != null)
-                {
-                    result.Errors.Add("An error occurred while paying with Stripe. Please try again.");
-                }
-                else
-                {
-                    result.Errors = new List<string> { "An error occurred while paying with Stripe. Please try again." };
-                }
+                result.Errors = new List<string> { "We couldn't complete the card payment. Please try again or use another payment method." };
 
 
 
@@ -515,122 +493,133 @@ namespace Nop.Plugin.Payments.Stripe
         {
             try
             {
-                var orderId = postProcessPaymentRequest.Order.Id;
-
+                var order = postProcessPaymentRequest.Order;
                 var service = new PaymentIntentService();
+                var paymentIntent = await service.GetAsync(order.AuthorizationTransactionId, null, GetStripeApiRequestOptions());
 
-                // PaymentIntent'ı al
-                var paymentIntent = await service.GetAsync(postProcessPaymentRequest.Order.AuthorizationTransactionId, null, GetStripeApiRequestOptions());
+                // A webhook or a return from a 3DS challenge may have completed the
+                // intent already. Never confirm a succeeded intent a second time.
+                if (paymentIntent.Status == "succeeded")
+                {
+                    await MarkOrderPaidAsync(order, paymentIntent);
+                    return;
+                }
 
-                // PaymentMethodId'nin atanıp atanmadığını kontrol et
+                if (paymentIntent.Status == "processing")
+                {
+                    order.PaymentStatus = PaymentStatus.Pending;
+                    await _orderService.UpdateOrderAsync(order);
+                    await _logger.InformationAsync($"Stripe PaymentIntent is processing: ID={paymentIntent.Id}");
+                    return;
+                }
+
                 if (string.IsNullOrEmpty(paymentIntent.PaymentMethodId))
                 {
-                    // Metadata'dan payment_method_id'yi al
-                    string paymentMethodId;
-                    if (paymentIntent.Metadata.TryGetValue("payment_method_id", out paymentMethodId) && !string.IsNullOrEmpty(paymentMethodId))
+                    if (paymentIntent.Metadata.TryGetValue("payment_method_id", out var paymentMethodId) &&
+                        !string.IsNullOrEmpty(paymentMethodId))
                     {
-                        var updateOptionsPaymentMethod = new PaymentIntentUpdateOptions
+                        await service.UpdateAsync(paymentIntent.Id, new PaymentIntentUpdateOptions
                         {
                             PaymentMethod = paymentMethodId
-                        };
-                        await service.UpdateAsync(paymentIntent.Id, updateOptionsPaymentMethod, GetStripeApiRequestOptions());
+                        }, GetStripeApiRequestOptions());
 
-                        // PaymentIntent'ı tekrar alarak güncel bilgileri al
-                        paymentIntent = await service.GetAsync(postProcessPaymentRequest.Order.AuthorizationTransactionId, null, GetStripeApiRequestOptions());
-
-                        await _logger.InformationAsync($"PaymentMethod güncellendi: PaymentIntentID={paymentIntent.Id}, PaymentMethodID={paymentMethodId}");
+                        paymentIntent = await service.GetAsync(order.AuthorizationTransactionId, null, GetStripeApiRequestOptions());
                     }
                     else
                     {
-                        // PaymentMethodId bulunamadıysa hata logla ve siparişi Cancelled yap
-                        await _logger.ErrorAsync($"PaymentMethodId Metadata içinde bulunamadı: PaymentIntentID={paymentIntent.Id}");
-
-                        // Sipariş durumunu Cancelled olarak güncelle
-                        postProcessPaymentRequest.Order.OrderStatus = OrderStatus.Cancelled;
-                        await _orderService.UpdateOrderAsync(postProcessPaymentRequest.Order);
-
-                        // Hata mesajını logladıktan sonra işlemi durdur
-                        return;
+                        await _logger.ErrorAsync($"PaymentMethodId metadata missing: PaymentIntentID={paymentIntent.Id}");
+                        await FailPaymentAsync(order, "We couldn't prepare your card payment. Please try again.");
+                        throw new NopException("We couldn't prepare your card payment. Please try again.");
                     }
                 }
 
-                // Description ve Metadata'yı güncelle
-                var updateOptionsDescription = new PaymentIntentUpdateOptions
+                await service.UpdateAsync(paymentIntent.Id, new PaymentIntentUpdateOptions
                 {
-                    Description = "Order Number:" + orderId + Environment.NewLine + paymentIntent.Description,
-                    Metadata = new Dictionary<string, string> { { "order_id", orderId.ToString() } }
-                };
+                    Description = "Order Number:" + order.Id + Environment.NewLine + paymentIntent.Description,
+                    Metadata = new Dictionary<string, string> { { "order_id", order.Id.ToString() } }
+                }, GetStripeApiRequestOptions());
 
-                await service.UpdateAsync(paymentIntent.Id, updateOptionsDescription, GetStripeApiRequestOptions());
-
-                await _logger.InformationAsync($"PaymentIntent güncellendi: ID={paymentIntent.Id}, Description='Order Number:{orderId}', Metadata=order_id:{orderId}");
-
-                // PaymentIntent'ı onayla
-                var confirmOptions = new PaymentIntentConfirmOptions
+                var confirmResult = await service.ConfirmAsync(paymentIntent.Id, new PaymentIntentConfirmOptions
                 {
                     PaymentMethod = paymentIntent.PaymentMethodId,
-                };
+                    ReturnUrl = GetPaymentReturnUrl(),
+                    PaymentMethodOptions = new PaymentIntentPaymentMethodOptionsOptions
+                    {
+                        Card = new PaymentIntentPaymentMethodOptionsCardOptions
+                        {
+                            RequestThreeDSecure = "automatic"
+                        }
+                    }
+                }, GetStripeApiRequestOptions());
 
-                var confirmResult = await service.ConfirmAsync(paymentIntent.Id, confirmOptions, GetStripeApiRequestOptions());
-
-                // Log Confirm Sonucu
-                await _logger.InformationAsync($"PaymentIntent onaylandı: ID={confirmResult.Id}, Status={confirmResult.Status}, LatestChargeID={confirmResult.LatestChargeId}");
+                await _logger.InformationAsync($"Stripe PaymentIntent confirmation: ID={confirmResult.Id}, Status={confirmResult.Status}, LatestChargeID={confirmResult.LatestChargeId}");
 
                 if (confirmResult.Status == "succeeded")
                 {
-                    postProcessPaymentRequest.Order.PaymentStatus = PaymentStatus.Paid;
-                    postProcessPaymentRequest.Order.OrderStatus = OrderStatus.Processing;
-                    postProcessPaymentRequest.Order.AuthorizationTransactionId = confirmResult.LatestChargeId;
-                    postProcessPaymentRequest.Order.AuthorizationTransactionResult = $"Transaction was processed by using {confirmResult.LatestCharge?.Source.Object}. Status is {confirmResult.Status}";
-
-                    await _orderService.InsertOrderNoteAsync(new OrderNote
-                    {
-                        OrderId = postProcessPaymentRequest.Order.Id,
-                        Note = $"Transaction was processed by using {confirmResult.LatestCharge?.Source.Object}. Status is {confirmResult.Status}",
-                        DisplayToCustomer = false,
-                        CreatedOnUtc = DateTime.UtcNow
-                    });
-
-                    await _orderService.UpdateOrderAsync(postProcessPaymentRequest.Order);
-                    await _logger.InformationAsync($"Order updated to Paid: OrderID={postProcessPaymentRequest.Order.Id}");
+                    await MarkOrderPaidAsync(order, confirmResult);
+                    return;
                 }
-                else
+
+                if (confirmResult.Status == "processing")
                 {
-                    // Hata durumunu logla ve siparişi Cancelled yap
-                    await _logger.ErrorAsync($"PaymentIntent onaylanamadı: ID={confirmResult.Id}, Status={confirmResult.Status}, Error={confirmResult.LastPaymentError?.Message}");
-                    postProcessPaymentRequest.Order.OrderStatus = OrderStatus.Cancelled;
-                    await _orderService.UpdateOrderAsync(postProcessPaymentRequest.Order);
-
-                    // Kullanıcıya hata mesajı iletmek için NopException yerine hata mesajını logladık ve siparişi güncelledik
-                    // NopCommerce'un hata yönetim sistemi tarafından otomatik olarak işlenecektir
+                    order.PaymentStatus = PaymentStatus.Pending;
+                    await _orderService.UpdateOrderAsync(order);
+                    return;
                 }
+
+                if (confirmResult.Status == "requires_action")
+                {
+                    var redirectUrl = confirmResult.NextAction?.RedirectToUrl?.Url;
+                    if (string.Equals(confirmResult.NextAction?.Type, "redirect_to_url", StringComparison.OrdinalIgnoreCase) &&
+                        !string.IsNullOrWhiteSpace(redirectUrl))
+                    {
+                        // Stripe-hosted 3DS. The return URL re-enters this action, which
+                        // re-reads the intent and marks the order paid only after succeeded.
+                        _httpContextAccessor.HttpContext?.Response.Redirect(redirectUrl);
+                        return;
+                    }
+
+                    await FailPaymentAsync(order,
+                        "Your bank requires an additional verification step, but the verification could not be started. Please try another card.");
+                    throw new NopException("Your bank requires an additional verification step, but the verification could not be started. Please try another card.");
+                }
+
+                var paymentError = GetStripePaymentErrorMessage(confirmResult.LastPaymentError?.Code,
+                    confirmResult.LastPaymentError?.DeclineCode);
+                await _logger.ErrorAsync($"Stripe PaymentIntent confirmation did not succeed: ID={confirmResult.Id}, Status={confirmResult.Status}");
+                await FailPaymentAsync(order, paymentError);
+                throw new NopException(paymentError);
             }
             catch (StripeException ex)
             {
-                // Stripe spesifik hataları logla ve siparişi Cancelled yap
                 await _logger.ErrorAsync($"StripeException in PostProcessPaymentAsync: {ex.Message}, StripeResponse: {ex.StripeResponse?.Content}");
 
                 var order = await _orderService.GetOrderByGuidAsync(postProcessPaymentRequest.Order.OrderGuid);
+                var message = GetStripePaymentErrorMessage(ex.StripeError?.Code, ex.StripeError?.DeclineCode);
                 if (order != null)
                 {
-                    await LogPaymentError(order, ex, "PostProcesPayment");
-
-                    order.OrderStatus = OrderStatus.Cancelled;
-                    await _orderService.UpdateOrderAsync(order);
+                    await LogPaymentError(order, ex, "PostProcessPayment");
+                    await FailPaymentAsync(order, message);
                 }
+
+                throw new NopException(message);
+            }
+            catch (NopException)
+            {
+                throw;
             }
             catch (Exception ex)
             {
-                // Genel hataları logla ve siparişi Cancelled yap
                 await _logger.ErrorAsync($"Exception in PostProcessPaymentAsync: {ex.Message}");
 
                 var order = await _orderService.GetOrderByGuidAsync(postProcessPaymentRequest.Order.OrderGuid);
                 if (order != null)
                 {
-                    await LogPaymentError(order, ex, "PostProcesPayment");
-                    order.OrderStatus = OrderStatus.Cancelled;
-                    await _orderService.UpdateOrderAsync(order);
+                    await LogPaymentError(order, ex, "PostProcessPayment");
+                    await FailPaymentAsync(order, "We couldn't complete the card payment. Please try again or use another payment method.");
                 }
+
+                throw new NopException("We couldn't complete the card payment. Please try again or use another payment method.");
             }
         }
 
@@ -927,8 +916,10 @@ namespace Nop.Plugin.Payments.Stripe
         {
             var warnings = Task.FromResult<IList<string>>(new List<string>());
 
-            bool stripeTokenBool = (form.TryGetValue("stripeToken", out StringValues stripeToken) ||
-                                    stripeToken.Count != 1 || !IsStripeTokenID(stripeToken[0]));
+            var hasStripeToken = form.TryGetValue("stripeToken", out StringValues stripeToken) &&
+                                 stripeToken.Count == 1 &&
+                                 !string.IsNullOrWhiteSpace(stripeToken[0]) &&
+                                 IsStripeTokenID(stripeToken[0]);
          
             //validate
             var validator = new PaymentInfoValidator(this._localizationService);
@@ -943,7 +934,11 @@ namespace Nop.Plugin.Payments.Stripe
 
             var result = new List<string>();
 
-            if (!stripeTokenBool)
+            // The current card form intentionally posts card fields directly. A token,
+            // when supplied by an alternative Stripe.js form, must still be valid; a
+            // missing token is accepted here and the card-field validator remains the
+            // source of truth for the current checkout form.
+            if (form.ContainsKey("stripeToken") && !hasStripeToken)
             {
                 result.Add("Token was not supplied or invalid");
             }
@@ -1334,7 +1329,14 @@ namespace Nop.Plugin.Payments.Stripe
                 EmailAccountId = emailAccount.Id
             };
 
-            await _queuedEmailService.InsertQueuedEmailAsync(email);
+            try
+            {
+                await _queuedEmailService.InsertQueuedEmailAsync(email);
+            }
+            catch (Exception emailException)
+            {
+                await _logger.ErrorAsync("Stripe customer notification could not be queued.", emailException);
+            }
 
             // Loglama yap
             await _logger.InformationAsync($"[Stripe] Email sent to customer {customer.Email} for order {order.CustomOrderNumber} using template {messageTemplateName}");
@@ -1407,16 +1409,103 @@ namespace Nop.Plugin.Payments.Stripe
                 return;
             }
 
-            await _queuedEmailService.InsertQueuedEmailAsync(new QueuedEmail
+            try
             {
-                Priority = QueuedEmailPriority.High,
-                From = emailAccount.Email,
-                To = emailAccount.Email,
-                Subject = subject,
-                Body = message,
-                CreatedOnUtc = DateTime.UtcNow,
-                EmailAccountId = emailAccount.Id
-            });
+                await _queuedEmailService.InsertQueuedEmailAsync(new QueuedEmail
+                {
+                    Priority = QueuedEmailPriority.High,
+                    From = emailAccount.Email,
+                    To = emailAccount.Email,
+                    Subject = subject,
+                    Body = message,
+                    CreatedOnUtc = DateTime.UtcNow,
+                    EmailAccountId = emailAccount.Id
+                });
+            }
+            catch (Exception emailException)
+            {
+                // A notification must never replace the original payment error (for
+                // example, a stale EmailAccount FK must not become the checkout page).
+                await _logger.ErrorAsync("Stripe admin notification could not be queued.", emailException);
+            }
+        }
+
+        private string GetPaymentReturnUrl()
+        {
+            return $"{_webHelper.GetStoreLocation().TrimEnd('/')}/checkout/OpcCompleteRedirectionPayment";
+        }
+
+        private static string GetStripePaymentErrorMessage(string code, string declineCode)
+        {
+            var normalizedCode = (code ?? string.Empty).Trim().ToLowerInvariant();
+            var normalizedDeclineCode = (declineCode ?? string.Empty).Trim().ToLowerInvariant();
+
+            if (normalizedCode == "insufficient_funds" || normalizedDeclineCode == "insufficient_funds" ||
+                normalizedDeclineCode == "balance_insufficient")
+                return "Your card does not have enough available balance. Please use another card.";
+
+            if (normalizedCode == "card_declined" || normalizedDeclineCode is "generic_decline" or "do_not_honor" or "transaction_not_allowed")
+                return "Your card was declined. Please check your card details or try another card.";
+
+            if (normalizedCode is "expired_card" or "invalid_expiry_month" or "invalid_expiry_year")
+                return "Your card has expired or its expiry date is invalid. Please check the date and try again.";
+
+            if (normalizedCode is "incorrect_cvc" or "invalid_cvc")
+                return "The card security code is incorrect. Please check it and try again.";
+
+            if (normalizedCode is "incorrect_number" or "invalid_number")
+                return "The card number is invalid. Please check it and try again.";
+
+            if (normalizedCode is "authentication_required" or "payment_intent_authentication_failure")
+                return "Your bank requires additional verification. Please try again and complete the verification step.";
+
+            return "We couldn't complete the card payment. Please try again or use another payment method.";
+        }
+
+        private async Task MarkOrderPaidAsync(Order order, PaymentIntent paymentIntent)
+        {
+            order.PaymentStatus = PaymentStatus.Paid;
+            order.OrderStatus = OrderStatus.Processing;
+            order.AuthorizationTransactionId = paymentIntent.LatestChargeId ?? paymentIntent.Id;
+            order.AuthorizationTransactionResult = $"Stripe PaymentIntent {paymentIntent.Id} succeeded.";
+
+            await _orderService.UpdateOrderAsync(order);
+
+            try
+            {
+                await _orderService.InsertOrderNoteAsync(new OrderNote
+                {
+                    OrderId = order.Id,
+                    Note = order.AuthorizationTransactionResult,
+                    DisplayToCustomer = false,
+                    CreatedOnUtc = DateTime.UtcNow
+                });
+            }
+            catch (Exception noteException)
+            {
+                await _logger.ErrorAsync("Stripe success order note could not be created.", noteException);
+            }
+        }
+
+        private async Task FailPaymentAsync(Order order, string message)
+        {
+            order.PaymentStatus = PaymentStatus.Voided;
+            order.OrderStatus = OrderStatus.Cancelled;
+            await _orderService.UpdateOrderAsync(order);
+            try
+            {
+                await _orderService.InsertOrderNoteAsync(new OrderNote
+                {
+                    OrderId = order.Id,
+                    Note = $"Stripe payment was not completed: {message}",
+                    DisplayToCustomer = false,
+                    CreatedOnUtc = DateTime.UtcNow
+                });
+            }
+            catch (Exception noteException)
+            {
+                await _logger.ErrorAsync("Stripe failure order note could not be created.", noteException);
+            }
         }
 
         #endregion

@@ -1,0 +1,27 @@
+@model Nop.Web.Models.Checkout.CheckoutPaymentErrorModel
+@{
+    Layout = "_ColumnsOne";
+    NopHtml.AddTitleParts("Payment failed");
+    NopHtml.AppendPageCssClassParts("html-checkout-page");
+}
+
+<div class="page checkout-page payment-error-page">
+    <div class="page-title">
+        <h1>Payment could not be completed</h1>
+    </div>
+    <div class="page-body checkout-data">
+        <div class="message-error" role="alert">
+            <ul>
+                @foreach (var warning in Model.Warnings)
+                {
+                    <li>@warning</li>
+                }
+            </ul>
+        </div>
+        <p>Please check your card balance and details, or try another payment method.</p>
+        <div class="buttons">
+            <a class="button-1" href="@Url.RouteUrl("ShoppingCart")">Return to cart</a>
+            <a class="button-2" href="@Url.RouteUrl("Homepage")">Continue shopping</a>
+        </div>
+    </div>
+</div>

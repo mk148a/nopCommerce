@@ -178,8 +178,8 @@ public class ElementCatalogCardContractTests
         reviewsProject.Should().NotContain("ImageProcessor");
         reviewsProject.Should().NotContain("System.Drawing.Common");
         reviewsController.Should().Contain("SKEncodedImageFormat.Webp");
-        stripeProject.Should().Contain("Stripe.net\" Version=\"45.1.0");
-        applePayProject.Should().Contain("Stripe.net\" Version=\"45.1.0");
+        stripeProject.Should().Contain("Stripe.net\" Version=\"52.2.0");
+        applePayProject.Should().Contain("Stripe.net\" Version=\"52.2.0");
         applePayValidator.Should().Contain("namespace Nop.Plugin.Payments.StripeApplePay.Validators");
         applePayValidator.Should().NotContain("namespace Nop.Plugin.Payments.Stripe.Validators");
     }
