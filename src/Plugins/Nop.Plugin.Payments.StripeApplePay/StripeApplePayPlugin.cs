@@ -130,6 +130,17 @@ namespace Nop.Plugin.Payments.StripeApplePay
                 if (pending != null && !string.IsNullOrWhiteSpace(pending.PaymentIntentId))
                 {
                     var pendingIntent = await paymentIntentService.GetAsync(pending.PaymentIntentId, null, GetStripeApiRequestOptions());
+
+                    // A successful wallet 3DS challenge may leave the intent
+                    // awaiting confirmation. Confirm it on the server before
+                    // allowing nopCommerce to create the order.
+                    if (pendingIntent.Status == "requires_confirmation")
+                    {
+                        pendingIntent = await paymentIntentService.ConfirmAsync(
+                            pendingIntent.Id, null,
+                            GetStripeApiRequestOptions($"nop-wallet-order-confirm-{processPaymentRequest.OrderGuid:N}"));
+                    }
+
                     if (pendingIntent.Status == "succeeded")
                     {
                         await ClearPendingPaymentAsync(processPaymentRequest);

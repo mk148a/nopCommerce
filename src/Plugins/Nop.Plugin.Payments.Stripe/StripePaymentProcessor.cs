@@ -238,6 +238,17 @@ namespace Nop.Plugin.Payments.Stripe
                 if (pending != null && !string.IsNullOrWhiteSpace(pending.PaymentIntentId))
                 {
                     paymentIntent = await paymentIntentService.GetAsync(pending.PaymentIntentId, null, GetStripeApiRequestOptions());
+
+                    // handleCardAction completes the customer challenge first;
+                    // Stripe can then leave the intent in requires_confirmation.
+                    // Confirm it server-side before nopCommerce persists an order.
+                    if (paymentIntent.Status == "requires_confirmation")
+                    {
+                        paymentIntent = await paymentIntentService.ConfirmAsync(
+                            paymentIntent.Id, null,
+                            GetStripeApiRequestOptions($"nop-order-confirm-{processPaymentRequest.OrderGuid:N}"));
+                    }
+
                     if (paymentIntent.Status == "succeeded")
                     {
                         await ClearPendingPaymentAsync(processPaymentRequest);
