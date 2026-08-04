@@ -204,6 +204,17 @@ public class StripePendingPaymentTask : IScheduleTask
         await SendCustomerEmail(order, "PaymentActionRequired");
     }
 
+    private async Task HandleUnsuccessfulPaymentIntent(PaymentIntent paymentIntent, Order order)
+    {
+        // Stripe has no chargeable payment method (or the intent was cancelled).
+        // Stop retrying the pending order instead of turning an expected payment
+        // failure into an unhandled application error on every scheduled run.
+        await UpdateOrderStatus(order, PaymentStatus.Voided, OrderStatus.Cancelled);
+        await CreateOrderNote(order,
+            $"Stripe payment was not completed (status: {paymentIntent.Status}). The order was cancelled; the customer can place a new order with another payment method.");
+        await _logger.WarningAsync($"[Stripe] Payment intent {paymentIntent.Status}; order {order.CustomOrderNumber} cancelled without retry.");
+    }
+
     private async Task UpdateOrderStatus(Order order, PaymentStatus paymentStatus, OrderStatus orderStatus)
     {
         order.PaymentStatus = paymentStatus;
@@ -228,6 +239,10 @@ public class StripePendingPaymentTask : IScheduleTask
                 break;
             case "succeeded":
                 await UpdateOrderStatus(order, PaymentStatus.Paid, OrderStatus.Processing);
+                break;
+            case "requires_payment_method":
+            case "canceled":
+                await HandleUnsuccessfulPaymentIntent(paymentIntent, order);
                 break;
             default:
                 throw new NopException($"Unhandled payment status: {paymentIntent.Status}");
