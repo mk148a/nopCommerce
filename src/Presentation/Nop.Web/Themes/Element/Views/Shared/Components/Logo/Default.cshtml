@@ -11,6 +11,15 @@
 @{
     var themeLogoPath = $"~/Themes/{await themeContext.GetWorkingThemeNameAsync()}/Content/img/logo.png";
     var fallbackLogoPath = Url.Content(themeLogoPath);
+    // The active store logo was uploaded as a 100px PNG and is visibly soft when
+    // enlarged to the reserved 150px header slot. Use the retained 300px WebP
+    // for that legacy asset while leaving other configurable store logos intact.
+    var logoPath = Model.LogoPath;
+    if (String.IsNullOrWhiteSpace(logoPath) ||
+        logoPath.Contains("0003403_1000094787", StringComparison.OrdinalIgnoreCase))
+    {
+        logoPath = Url.Content("~/images/0003417_0.webp");
+    }
     var storeName = await localizationService.GetLocalizedAsync(await storeContext.GetCurrentStoreAsync(), x => x.Name);
 }
 
@@ -18,6 +27,6 @@
     <img title="" alt="@storeName"
          width="150" height="150"
          loading="eager" decoding="async"
-         src="@(String.IsNullOrWhiteSpace(Model.LogoPath) ? fallbackLogoPath : Model.LogoPath)"
+         src="@logoPath"
          onerror="this.onerror=null;this.src='@fallbackLogoPath';">
 </a>

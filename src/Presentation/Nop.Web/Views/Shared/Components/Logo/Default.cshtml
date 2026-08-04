@@ -9,12 +9,18 @@
     // theme asset fallback when the media endpoint is unavailable or empty.
     var themeLogoPath = $"~/Themes/{await themeContext.GetWorkingThemeNameAsync()}/Content/img/logo.png";
     var fallbackLogoPath = Url.Content(themeLogoPath);
+    var logoPath = Model.LogoPath;
+    if (String.IsNullOrWhiteSpace(logoPath) ||
+        logoPath.Contains("0003403_1000094787", StringComparison.OrdinalIgnoreCase))
+    {
+        logoPath = Url.Content("~/images/0003417_0.webp");
+    }
 }
 
 <a href="@Url.RouteUrl("Homepage")">
     <img title="" alt="@Model.StoreName"
          width="150" height="150"
          loading="eager" decoding="async"
-         src="@(String.IsNullOrWhiteSpace(Model.LogoPath) ? fallbackLogoPath : Model.LogoPath)"
+         src="@logoPath"
          onerror="this.onerror=null;this.src='@fallbackLogoPath';">
 </a>
