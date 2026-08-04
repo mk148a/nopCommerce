@@ -37,6 +37,45 @@
                         <span asp-validation-for="SecretKey"></span>
                     </div>
                 </div>
+
+                <hr />
+                <p><strong>Stripe webhook</strong></p>
+                <p>
+                    The public endpoint is signature-protected. Leave the password field empty to keep the stored signing secret unchanged.
+                </p>
+                <div class="form-group row">
+                    <div class="col-md-3">
+                        <nop-label asp-for="WebhookSecret" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="WebhookSecret" asp-required="false" />
+                        @if (Model.WebhookSecretConfigured)
+                        {
+                            <span class="text-success">Configured</span>
+                        }
+                        else
+                        {
+                            <span class="text-warning">Not configured</span>
+                        }
+                        <span asp-validation-for="WebhookSecret"></span>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-3">
+                        <nop-label asp-for="WebhookEndpointUrl" />
+                    </div>
+                    <div class="col-md-9">
+                        <input asp-for="WebhookEndpointUrl" class="form-control" readonly="readonly" />
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-3">
+                        <nop-label asp-for="WebhookEndpointId" />
+                    </div>
+                    <div class="col-md-9">
+                        <input asp-for="WebhookEndpointId" class="form-control" readonly="readonly" />
+                    </div>
+                </div>
                
                 <hr />
                 <p>@T("Plugins.Payments.Stripe.VirtualPosInfo")</p>
@@ -56,6 +95,20 @@
                         <button type="submit" name="save" class="btn btn-primary">@T("Admin.Common.Save")</button>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<form asp-controller="PaymentStripe" asp-action="SyncWebhook" method="post">
+    @Html.AntiForgeryToken()
+    <div class="cards-group">
+        <div class="card card-default">
+            <div class="card-body">
+                <p>
+                    Synchronize the exact endpoint URL and required PaymentIntent events with Stripe. Existing duplicate endpoints are reported, not deleted.
+                </p>
+                <button type="submit" class="btn btn-secondary">Create / sync Stripe webhook</button>
             </div>
         </div>
     </div>

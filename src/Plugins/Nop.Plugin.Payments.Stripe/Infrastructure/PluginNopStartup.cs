@@ -20,6 +20,7 @@ namespace Nop.Plugin.Payments.Stripe.Infrastructure
 
             //register services and interfaces
             services.AddScoped<IPaymentStripeService, PaymentStripeService>();
+            services.AddScoped<IStripeWebhookService, StripeWebhookService>();
             services.AddScoped<IScheduleTask, StripePendingPaymentTask>();
             services.AddHttpClient<StripePaymentProcessor>();
             services.AddScoped<IOrderModelFactory, OrderModelFactory>();

@@ -9,6 +9,22 @@ namespace Nop.Plugin.Payments.Stripe
         /// </summary>
         public string SecretKey { get; set; }
         public string PublishableKey { get; set; }
+
+        /// <summary>
+        /// Gets or sets the signing secret for the Stripe webhook endpoint.
+        /// This is intentionally separate from the Stripe API secret key.
+        /// </summary>
+        public string WebhookSecret { get; set; }
+
+        /// <summary>
+        /// Gets or sets the Stripe webhook endpoint identifier managed by the plugin.
+        /// </summary>
+        public string WebhookEndpointId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the last URL synchronized with Stripe.
+        /// </summary>
+        public string WebhookEndpointUrl { get; set; }
         
         /// <summary>
         /// Gets or sets an additional fee

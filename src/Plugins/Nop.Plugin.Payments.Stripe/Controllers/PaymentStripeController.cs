@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Nop.Core;
 using Nop.Plugin.Payments.Stripe.Models;
+using Nop.Plugin.Payments.Stripe.Services;
 using Nop.Services.Configuration;
 using Nop.Services.Localization;
 using Nop.Services.Messages;
@@ -31,6 +32,7 @@ namespace Nop.Plugin.Payments.Stripe.Controllers
         private readonly IOrderService _orderService;
         private readonly IWorkContext _workContext;
         private readonly StripePaymentSettings _stripePaymentSettings;
+        private readonly IStripeWebhookService _stripeWebhookService;
 
         #endregion
 
@@ -43,7 +45,8 @@ namespace Nop.Plugin.Payments.Stripe.Controllers
             IStoreContext storeContext,
             IOrderService orderService,
             IWorkContext workContext,
-            StripePaymentSettings stripePaymentSettings)
+            StripePaymentSettings stripePaymentSettings,
+            IStripeWebhookService stripeWebhookService)
         {
             _localizationService = localizationService;
             _notificationService = notificationService;
@@ -53,6 +56,7 @@ namespace Nop.Plugin.Payments.Stripe.Controllers
             _orderService = orderService;
             _workContext = workContext;
             _stripePaymentSettings= stripePaymentSettings;
+            _stripeWebhookService = stripeWebhookService;
         }
 
         #endregion
@@ -73,6 +77,9 @@ namespace Nop.Plugin.Payments.Stripe.Controllers
             {
                 PublishableKey = stripePaymentSettings.PublishableKey,
                 SecretKey = stripePaymentSettings.SecretKey,
+                WebhookSecretConfigured = !string.IsNullOrWhiteSpace(stripePaymentSettings.WebhookSecret),
+                WebhookEndpointId = stripePaymentSettings.WebhookEndpointId,
+                WebhookEndpointUrl = stripePaymentSettings.WebhookEndpointUrl,
                 ActiveStoreScopeConfiguration = storeScope
             };
 
@@ -103,6 +110,11 @@ namespace Nop.Plugin.Payments.Stripe.Controllers
             //save settings
             stripePaymentSettings.PublishableKey = model.PublishableKey;
             stripePaymentSettings.SecretKey = model.SecretKey;
+
+            // Do not bind the stored signing secret back into the page. An empty password
+            // field means "leave the existing secret unchanged".
+            if (!string.IsNullOrWhiteSpace(model.WebhookSecret))
+                stripePaymentSettings.WebhookSecret = model.WebhookSecret;
             
 
 
@@ -113,6 +125,8 @@ namespace Nop.Plugin.Payments.Stripe.Controllers
 
             await _settingService.SaveSettingOverridablePerStoreAsync(stripePaymentSettings, x => x.PublishableKey, model.PublishableKey_OverrideForStore, storeScope, false);
             await _settingService.SaveSettingOverridablePerStoreAsync(stripePaymentSettings, x => x.SecretKey, model.SecretKey_OverrideForStore, storeScope, false);
+            if (!string.IsNullOrWhiteSpace(model.WebhookSecret))
+                await _settingService.SaveSettingAsync(stripePaymentSettings);
             
 
             //now clear settings cache
@@ -121,6 +135,34 @@ namespace Nop.Plugin.Payments.Stripe.Controllers
             _notificationService.SuccessNotification(await _localizationService.GetResourceAsync("Admin.Plugins.Saved"));
 
             return await Configure();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SyncWebhook()
+        {
+            if (!await _permissionService.AuthorizeAsync(StandardPermission.Configuration.MANAGE_PAYMENT_METHODS))
+                return AccessDeniedView();
+
+            try
+            {
+                var result = await _stripeWebhookService.SyncEndpointAsync();
+                if (result.SigningSecretRequired)
+                {
+                    _notificationService.WarningNotification(
+                        "Stripe webhook endpoint is synchronized, but its signing secret is not stored. Copy the endpoint secret from Stripe Dashboard into the Webhook signing secret field.");
+                }
+                else
+                {
+                    _notificationService.SuccessNotification(
+                        $"Stripe webhook synchronized ({result.EndpointId}); {result.MatchingEndpointCount} existing endpoint(s) matched this URL.");
+                }
+            }
+            catch (Exception exception)
+            {
+                _notificationService.ErrorNotification($"Stripe webhook synchronization failed: {exception.Message}", false);
+            }
+
+            return RedirectToAction(nameof(Configure));
         }
 
         /// <returns>A task that represents the asynchronous operation</returns>

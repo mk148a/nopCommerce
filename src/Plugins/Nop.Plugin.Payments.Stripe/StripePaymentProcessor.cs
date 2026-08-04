@@ -1063,6 +1063,10 @@ namespace Nop.Plugin.Payments.Stripe
                     ["Plugins.Payments.Stripe.Fields.PublishableKey.Hint"] = "Enter your PublishableKey Api Key information on your Stripe control panel.",
                     ["Plugins.Payments.Stripe.Fields.SecretKey"] = "Api Secret Key",
                     ["Plugins.Payments.Stripe.Fields.SecretKey.Hint"] = "Enter your Api Secret information on your Stripe control panel.",
+                    ["Plugins.Payments.Stripe.Fields.WebhookSecret"] = "Webhook signing secret",
+                    ["Plugins.Payments.Stripe.Fields.WebhookSecret.Hint"] = "The whsec_ signing secret shown by Stripe for this endpoint. Never use the Stripe API secret key here.",
+                    ["Plugins.Payments.Stripe.Fields.WebhookEndpointId"] = "Webhook endpoint ID",
+                    ["Plugins.Payments.Stripe.Fields.WebhookEndpointUrl"] = "Webhook endpoint URL",
                     ["Plugins.Payments.Stripe.VirtualPosInfo"] = "Define Your Stripe Payment Settings",
                     ["Plugins.Payments.Stripe.Fields.IsCardStorage"] = "Store Card Information",
                     ["Plugins.Payments.Stripe.Fields.IsCardStorage.Hint"] = "This option stores the first six digits and the last four digits of the credit card information transmitted by Stripe in the database (not sent to any third party processors).",
@@ -1093,6 +1097,10 @@ namespace Nop.Plugin.Payments.Stripe
                     ["Plugins.Payments.Stripe.Fields.PublishableKey.Hint"] = "Enter your PublishableKey Api Key information on your Stripe control panel.",
                     ["Plugins.Payments.Stripe.Fields.SecretKey"] = "Api Secret Key",
                     ["Plugins.Payments.Stripe.Fields.SecretKey.Hint"] = "Enter your Api Secret information on your Stripe control panel.",
+                    ["Plugins.Payments.Stripe.Fields.WebhookSecret"] = "Webhook signing secret",
+                    ["Plugins.Payments.Stripe.Fields.WebhookSecret.Hint"] = "The whsec_ signing secret shown by Stripe for this endpoint. Never use the Stripe API secret key here.",
+                    ["Plugins.Payments.Stripe.Fields.WebhookEndpointId"] = "Webhook endpoint ID",
+                    ["Plugins.Payments.Stripe.Fields.WebhookEndpointUrl"] = "Webhook endpoint URL",
                     ["Plugins.Payments.Stripe.VirtualPosInfo"] = "Define Your Stripe Payment Settings",
                     ["Plugins.Payments.Stripe.Fields.IsCardStorage"] = "Store Card Information",
                     ["Plugins.Payments.Stripe.Fields.IsCardStorage.Hint"] = "This option stores the first six digits and the last four digits of the credit card information transmitted by Stripe in the database (not sent to any third party processors).",
@@ -1126,6 +1134,33 @@ namespace Nop.Plugin.Payments.Stripe
             }
 
             await base.InstallAsync();
+        }
+
+        public override async Task UpdateAsync(string currentVersion, string targetVersion)
+        {
+            await _localizationService.AddOrUpdateLocaleResourceAsync(new Dictionary<string, string>
+            {
+                ["Plugins.Payments.Stripe.Fields.WebhookSecret"] = "Webhook signing secret",
+                ["Plugins.Payments.Stripe.Fields.WebhookSecret.Hint"] = "The whsec_ signing secret shown by Stripe for this endpoint. Never use the Stripe API secret key here.",
+                ["Plugins.Payments.Stripe.Fields.WebhookEndpointId"] = "Webhook endpoint ID",
+                ["Plugins.Payments.Stripe.Fields.WebhookEndpointUrl"] = "Webhook endpoint URL"
+            });
+
+            foreach (var language in await _languageService.GetAllLanguagesAsync())
+            {
+                if (!string.Equals(language.UniqueSeoCode, "tr", StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                await _localizationService.AddOrUpdateLocaleResourceAsync(new Dictionary<string, string>
+                {
+                    ["Plugins.Payments.Stripe.Fields.WebhookSecret"] = "Webhook imza anahtarı",
+                    ["Plugins.Payments.Stripe.Fields.WebhookSecret.Hint"] = "Bu endpoint için Stripe Dashboard’da görünen whsec_ imza anahtarıdır. Stripe API gizli anahtarını burada kullanmayın.",
+                    ["Plugins.Payments.Stripe.Fields.WebhookEndpointId"] = "Webhook endpoint kimliği",
+                    ["Plugins.Payments.Stripe.Fields.WebhookEndpointUrl"] = "Webhook endpoint URL’si"
+                }, language.Id);
+            }
+
+            await base.UpdateAsync(currentVersion, targetVersion);
         }
 
         /// <summary>

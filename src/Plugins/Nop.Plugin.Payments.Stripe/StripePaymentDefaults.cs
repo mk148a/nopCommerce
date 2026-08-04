@@ -28,6 +28,23 @@ namespace Nop.Plugin.Payments.Stripe
         /// </summary>
         public static string PaymentFormScriptPath => "https://js.stripe.com/v3/";
 
+        /// <summary>
+        /// Public endpoint that receives signed Stripe events.
+        /// </summary>
+        public const string WebhookPath = "PaymentStripe/WebhookHandler";
+
+        /// <summary>
+        /// Events required by the nopCommerce PaymentIntent flow.
+        /// </summary>
+        public static IReadOnlyList<string> WebhookEvents { get; } = new[]
+        {
+            "payment_intent.succeeded",
+            "payment_intent.payment_failed",
+            "payment_intent.canceled",
+            "payment_intent.processing",
+            "payment_intent.requires_action"
+        };
+
 
         /// <summary>
         /// Note passed for each payment transaction
