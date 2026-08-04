@@ -31,7 +31,7 @@ using LinqToDB.Common;
 using Nop.Services.Common;
 using Nop.Core.Domain.Localization;
 using Microsoft.Extensions.Primitives;
-using Nop.Plugin.Payments.Stripe.Validators;
+using Nop.Plugin.Payments.StripeApplePay.Validators;
 using Nop.Plugin.Payments.StripeApplePay.Models;
 using Autofac.Core;
 using Microsoft.Extensions.Options;

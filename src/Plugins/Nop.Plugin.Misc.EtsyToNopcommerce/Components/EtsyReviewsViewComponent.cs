@@ -19,6 +19,7 @@ using Nop.Services.Localization;
 using Nop.Services.Orders;
 using Nop.Services.Plugins;
 using Nop.Plugin.Misc.EtsyToNopcommerce.Services;
+using EtsyReview = Nop.Plugin.Misc.EtsyToNopcommerce.Domains.EtsyReview;
 
 namespace Nop.Plugin.Misc.EtsyToNopcommerce.Components
 {

@@ -45,6 +45,36 @@
 .custom-product-reviews-page .write-review .review-rating div.last {
 	color: #4cb17c;
 }
+
+/* Render the accessible numeric labels as the Element theme star control.
+   The generic label rule above previously won the cascade and exposed 1-5. */
+.custom-product-reviews-page .write-review .review-rating .rating-options label {
+    display: inline-block;
+    float: none;
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    overflow: hidden;
+    background: url('../../../Themes/Element/Content/img/rating-sprite.png') center bottom no-repeat;
+    color: transparent;
+    font-size: 0;
+    line-height: 0;
+    text-indent: -9999px;
+    cursor: pointer;
+}
+
+.custom-product-reviews-page .write-review .review-rating .rating-options input[type="radio"] {
+    position: absolute;
+    z-index: -1;
+    width: 1px;
+    height: 1px;
+    margin: 1px 0 0 1px;
+    opacity: 0;
+}
+
+.custom-product-reviews-page .write-review .review-rating .rating-options input[type="radio"]:checked + label ~ label {
+    background-position: center top;
+}
 .custom-product-reviews-page .formProductReviews-body .inputs{
 clear: both;
     font-size: 0;

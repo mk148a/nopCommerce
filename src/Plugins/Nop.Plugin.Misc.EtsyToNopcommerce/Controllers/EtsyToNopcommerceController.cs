@@ -25,15 +25,12 @@ using Nop.Core.Domain.Common;
 using Nop.Core.Domain.Customers;
 using Nop.Services.Catalog;
 using Nop.Services.Customers;
-using StackExchange.Profiling.Internal;
 using Nop.Services.Directory;
 using Nop.Data;
 using Nop.Services.Common;
 using StateProvince = Nop.Core.Domain.Directory.StateProvince;
 using System.IO;
 using DocumentFormat.OpenXml.Presentation;
-using ImageProcessor;
-using ImageProcessor.Plugins.WebP.Imaging.Formats;
 using LinqToDB.Common;
 using Nop.Plugin.Misc.EtsyToNopcommerce.Domains;
 using Nop.Plugin.Misc.EtsyToNopcommerce.Services;
@@ -44,12 +41,14 @@ using Nop.Services.Seo;
 using Nop.Web.Factories;
 using Nop.Web.Models.Customer;
 using Nop.Plugin.Misc.EtsyToNopcommerce.Models.Etsy;
+using Nop.Plugin.Misc.EtsyToNopcommerce.Infrastructure;
+using EtsyReview = Nop.Plugin.Misc.EtsyToNopcommerce.Domains.EtsyReview;
 
 
 namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
 {
 
-    [Area(AreaNames.Admin)]
+    [Area(AreaNames.ADMIN)]
     [AutoValidateAntiforgeryToken]
     public class EtsyToNopcommerceController : BasePluginController
     {
@@ -128,7 +127,7 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
 
         public async Task<IActionResult> Configure()
         {
-            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.AccessAdminPanel))
+            if (!await _permissionService.AuthorizeAsync(StandardPermission.Security.ACCESS_ADMIN_PANEL))
                 return AccessDeniedView();
 
             var storeId = await _storeContext.GetActiveStoreScopeConfigurationAsync();
@@ -178,7 +177,7 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
             //        _notificationService.SuccessNotification(await _localizationService.GetResourceAsync("Plugins.Payments.PayPalCommerce.Credentials.Valid"));
             //}
 
-            if (model.RefreshToken.IsNullOrEmpty())
+            if (string.IsNullOrEmpty(model.RefreshToken))
             {
                 _notificationService.WarningNotification(await _localizationService.GetResourceAsync("Nop.Plugins.Misc.EtsyToNopcommerce.Fields.AuthorizeNecessary"));
             }
@@ -192,7 +191,7 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
         [FormValueRequired("save")]
         public async Task<IActionResult> Configure(ConfigurationModel model)
         {
-            if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManagePaymentMethods))
+            if (!await _permissionService.AuthorizeAsync(StandardPermission.Configuration.MANAGE_PLUGINS))
                 return AccessDeniedView();
 
             var storeId = await _storeContext.GetActiveStoreScopeConfigurationAsync();
@@ -632,17 +631,9 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
                 {
                     sw.Start();
 
-                    var ms = new MemoryStream();
-                    ImageFactory imageFactory = new ImageFactory(preserveExifData: false);
-                    imageFactory.Load(data.BinaryData).Format(new WebPFormat()).Quality(90).Save(ms);
+                    var raw = WebpEncoder.Encode(data.BinaryData);
                     sw.Stop();
                     Console.WriteLine("Elapsed Picture Encode={0}", sw.Elapsed);
-
-                    byte[] raw = ms.ToArray();
-                    await ms.DisposeAsync();
-                    imageFactory.Dispose();
-
-
                     pic = await _pictureService.InsertPictureAsync(raw, "image/webp", name);
                 }
                 catch (Exception e)
@@ -963,9 +954,10 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
 
 
                                         if (_customerSettings.FirstNameEnabled)
-                                            await _genericAttributeService.SaveAttributeAsync(kayitliMusteri, NopCustomerDefaults.FirstNameAttribute, kayitliMusteriAdresi.FirstName);
+                                            kayitliMusteri.FirstName = kayitliMusteriAdresi.FirstName;
                                         if (_customerSettings.LastNameEnabled)
-                                            await _genericAttributeService.SaveAttributeAsync(kayitliMusteri, NopCustomerDefaults.LastNameAttribute, kayitliMusteriAdresi.LastName);
+                                            kayitliMusteri.LastName = kayitliMusteriAdresi.LastName;
+                                        await _customerService.UpdateCustomerAsync(kayitliMusteri);
 
 
                                     }

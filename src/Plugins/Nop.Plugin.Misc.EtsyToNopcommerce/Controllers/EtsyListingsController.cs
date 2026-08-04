@@ -20,8 +20,6 @@ using Nop.Services.Common;
 using StateProvince = Nop.Core.Domain.Directory.StateProvince;
 using System.IO;
 using DocumentFormat.OpenXml.Presentation;
-using ImageProcessor;
-using ImageProcessor.Plugins.WebP.Imaging.Formats;
 using Nop.Plugin.Misc.EtsyToNopcommerce.Domains;
 using Nop.Plugin.Misc.EtsyToNopcommerce.Services;
 using Nop.Services.Media;
@@ -30,12 +28,13 @@ using Nop.Core.Domain.Catalog;
 using Nop.Plugin.Misc.EtsyToNopcommerce.Models.Etsy.Listings;
 using Nop.Services.Seo;
 using Nop.Web.Factories;
+using Nop.Plugin.Misc.EtsyToNopcommerce.Infrastructure;
 
 
 namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
 {
 
-    [Area(AreaNames.Admin)]
+    [Area(AreaNames.ADMIN)]
     [RequestFormLimits(ValueCountLimit = int.MaxValue)]
     public class EtsyListingsController : BasePluginController
     {
@@ -129,17 +128,9 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
                 {
                     sw.Start();
 
-                    var ms = new MemoryStream();
-                    ImageFactory imageFactory = new ImageFactory(preserveExifData: false);
-                    imageFactory.Load(data.BinaryData).Format(new WebPFormat()).Quality(90).Save(ms);
+                    var raw = WebpEncoder.Encode(data.BinaryData);
                     sw.Stop();
                     Console.WriteLine("Elapsed Picture Encode={0}", sw.Elapsed);
-
-                    byte[] raw = ms.ToArray();
-                    await ms.DisposeAsync();
-                    imageFactory.Dispose();
-
-
                     pic = await _pictureService.InsertPictureAsync(raw, "image/webp", name);
                 }
                 catch (Exception e)

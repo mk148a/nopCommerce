@@ -23,8 +23,6 @@ using Nop.Services.Common;
 using StateProvince = Nop.Core.Domain.Directory.StateProvince;
 using System.IO;
 using DocumentFormat.OpenXml.Presentation;
-using ImageProcessor;
-using ImageProcessor.Plugins.WebP.Imaging.Formats;
 using LinqToDB.Common;
 using Nop.Plugin.Misc.EtsyToNopcommerce.Domains;
 using Nop.Plugin.Misc.EtsyToNopcommerce.Services;
@@ -33,12 +31,14 @@ using Picture = Nop.Core.Domain.Media.Picture;
 using Nop.Core.Domain.Catalog;
 using Nop.Services.Seo;
 using Nop.Web.Factories;
+using Nop.Plugin.Misc.EtsyToNopcommerce.Infrastructure;
+using EtsyReview = Nop.Plugin.Misc.EtsyToNopcommerce.Domains.EtsyReview;
 
 
 namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
 {
 
-    [Area(AreaNames.Admin)]
+    [Area(AreaNames.ADMIN)]
     [RequestFormLimits(ValueCountLimit = Int32.MaxValue)]
     public class EtsyReviewsController : BasePluginController
     {
@@ -132,17 +132,9 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
                 {
                     sw.Start();
 
-                    var ms = new MemoryStream();
-                    ImageFactory imageFactory = new ImageFactory(preserveExifData: false);
-                    imageFactory.Load(data.BinaryData).Format(new WebPFormat()).Quality(90).Save(ms);
+                    var raw = WebpEncoder.Encode(data.BinaryData);
                     sw.Stop();
                     Console.WriteLine("Elapsed Picture Encode={0}", sw.Elapsed);
-
-                    byte[] raw = ms.ToArray();
-                    await ms.DisposeAsync();
-                    imageFactory.Dispose();
-
-
                     pic = await _pictureService.InsertPictureAsync(raw, "image/webp", name);
                 }
                 catch (Exception e)
@@ -229,7 +221,7 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
 
                             if (ilgiliReceipt != null)
                      {
-                         if (ilgiliReceipt.BuyerEmail.IsNullOrEmpty())
+                         if (string.IsNullOrEmpty(ilgiliReceipt.BuyerEmail))
                          {
                              ilgiliReceipt.BuyerEmail = "test_" + rnd.Next(1000, 9999)+"@site.com";
                          }
@@ -352,9 +344,10 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Controllers
 
 
                                         if (_customerSettings.FirstNameEnabled)
-                                            await _genericAttributeService.SaveAttributeAsync(kayitliMusteri, NopCustomerDefaults.FirstNameAttribute, kayitliMusteriAdresi.FirstName);
+                                            kayitliMusteri.FirstName = kayitliMusteriAdresi.FirstName;
                                         if (_customerSettings.LastNameEnabled)
-                                            await _genericAttributeService.SaveAttributeAsync(kayitliMusteri, NopCustomerDefaults.LastNameAttribute, kayitliMusteriAdresi.LastName);
+                                            kayitliMusteri.LastName = kayitliMusteriAdresi.LastName;
+                                        await _customerService.UpdateCustomerAsync(kayitliMusteri);
 
                                  }
                                  

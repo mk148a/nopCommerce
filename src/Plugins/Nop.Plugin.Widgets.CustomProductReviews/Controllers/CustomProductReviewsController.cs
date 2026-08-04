@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Security.Policy;
@@ -42,11 +41,9 @@ using Nop.Services.Stores;
 using Nop.Web.Factories;
 using Nop.Web.Framework.Controllers;
 using Nop.Web.Framework.Mvc.Filters;
-using ImageProcessor;
-using ImageProcessor.Plugins.WebP.Imaging.Formats;
-
 using System.Runtime.InteropServices;
 using Nop.Web.Models.Catalog;
+using SkiaSharp;
 
 namespace Nop.Plugin.Widgets.CustomProductReviews.Controllers
 {
@@ -341,18 +338,16 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Controllers
                     {
                         sw.Start();
 
-                        var ms = new MemoryStream();
-                        ImageFactory imageFactory = new ImageFactory(preserveExifData: false);
-                        imageFactory.Load(data.BinaryData).Format(new WebPFormat()).Quality(90).Save(ms);
+                        using var bitmap = SKBitmap.Decode(data.BinaryData)
+                            ?? throw new InvalidDataException("The uploaded review image could not be decoded.");
+                        using var image = SKImage.FromBitmap(bitmap);
+                        using var encoded = image.Encode(SKEncodedImageFormat.Webp, 90)
+                            ?? throw new InvalidDataException("The uploaded review image could not be encoded as WebP.");
                         sw.Stop();
                         Console.WriteLine("Elapsed Picture Encode={0}", sw.Elapsed);
                         System.IO.File.AppendAllText(@"ImageProcessPerformace.log", string.Format("Elapsed Picture Encode={0}", sw.Elapsed) + Environment.NewLine);
 
-                        byte[] raw = ms.ToArray();
-                        await ms.DisposeAsync();
-                        imageFactory.Dispose();
-
-
+                        var raw = encoded.ToArray();
                         pic = await _pictureService.InsertPictureAsync(raw, "image/webp", name);
                     }
                     catch (Exception e)

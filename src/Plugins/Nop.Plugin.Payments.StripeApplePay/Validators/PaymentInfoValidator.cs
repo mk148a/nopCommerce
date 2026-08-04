@@ -4,7 +4,7 @@ using Nop.Plugin.Payments.StripeApplePay.Models;
 using Nop.Services.Localization;
 using Nop.Web.Framework.Validators;
 
-namespace Nop.Plugin.Payments.Stripe.Validators
+namespace Nop.Plugin.Payments.StripeApplePay.Validators
 {
     public partial class PaymentInfoValidator : BaseNopValidator<PaymentInfoModel>
     {

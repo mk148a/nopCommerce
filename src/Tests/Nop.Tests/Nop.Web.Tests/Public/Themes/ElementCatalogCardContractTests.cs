@@ -148,6 +148,38 @@ public class ElementCatalogCardContractTests
     }
 
     [Test]
+    public void Custom_review_rating_control_hides_numeric_labels_behind_accessible_stars()
+    {
+        var styles = ReadSource("src", "Plugins", "Nop.Plugin.Widgets.CustomProductReviews", "Content", "style.css");
+        var view = ReadSource("src", "Plugins", "Nop.Plugin.Widgets.CustomProductReviews", "Views", "ProductReviewComponent.cshtml");
+
+        styles.Should().Contain(".custom-product-reviews-page .write-review .review-rating .rating-options label");
+        styles.Should().Contain("font-size: 0");
+        styles.Should().Contain("text-indent: -9999px");
+        styles.Should().Contain(".rating-options input[type=\"radio\"]:checked + label ~ label");
+        view.Should().Contain("aria-label=\"@T(\"Reviews.Fields.Rating.Bad\")\"");
+        view.Should().Contain("aria-label=\"@T(\"Reviews.Fields.Rating.Excellent\")\"");
+    }
+
+    [Test]
+    public void Storefront_plugins_use_compatible_image_and_payment_dependencies()
+    {
+        var reviewsProject = ReadSource("src", "Plugins", "Nop.Plugin.Widgets.CustomProductReviews", "Nop.Plugin.Widgets.CustomProductReviews.csproj");
+        var reviewsController = ReadSource("src", "Plugins", "Nop.Plugin.Widgets.CustomProductReviews", "Controllers", "CustomProductReviewsController.cs");
+        var stripeProject = ReadSource("src", "Plugins", "Nop.Plugin.Payments.Stripe", "Nop.Plugin.Payments.Stripe.csproj");
+        var applePayProject = ReadSource("src", "Plugins", "Nop.Plugin.Payments.StripeApplePay", "Nop.Plugin.Payments.StripeApplePay.csproj");
+        var applePayValidator = ReadSource("src", "Plugins", "Nop.Plugin.Payments.StripeApplePay", "Validators", "PaymentInfoValidator.cs");
+
+        reviewsProject.Should().NotContain("ImageProcessor");
+        reviewsProject.Should().NotContain("System.Drawing.Common");
+        reviewsController.Should().Contain("SKEncodedImageFormat.Webp");
+        stripeProject.Should().Contain("Stripe.net\" Version=\"45.1.0");
+        applePayProject.Should().Contain("Stripe.net\" Version=\"45.1.0");
+        applePayValidator.Should().Contain("namespace Nop.Plugin.Payments.StripeApplePay.Validators");
+        applePayValidator.Should().NotContain("namespace Nop.Plugin.Payments.Stripe.Validators");
+    }
+
+    [Test]
     public void Catalog_old_price_requires_effective_old_price_above_current_minimum()
     {
         var factory = ReadSource("src", "Presentation", "Nop.Web", "Factories", "ProductModelFactory.cs");

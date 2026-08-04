@@ -375,7 +375,7 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Services
                     etsyCustomer =  await _etsyCustomersService.GetCustomerByBuyerUserIdAsync(buyerId.Value);
                     foreach (var transaction in etsyOrder.Transactions)
                     {
-                        if (etsyCustomer.OrderedItems.IsNullOrEmpty())
+                        if (string.IsNullOrEmpty(etsyCustomer.OrderedItems))
                         {
                             etsyCustomer.OrderedItems = "";
                         }
@@ -386,7 +386,7 @@ namespace Nop.Plugin.Misc.EtsyToNopcommerce.Services
                         }
                         try
                         {
-                            if (etsyCustomer.RatingAndReviews.IsNullOrEmpty())
+                            if (string.IsNullOrEmpty(etsyCustomer.RatingAndReviews))
                             {
                                 etsyCustomer.RatingAndReviews = "";
                             }

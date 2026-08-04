@@ -8,8 +8,6 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using ImageProcessor.Plugins.WebP.Imaging.Formats;
-using ImageProcessor;
 using Microsoft.Extensions.Hosting;
 using Nop.Plugin.Widgets.CustomProductReviews.Domains;
 using Nop.Web.Models.Catalog;

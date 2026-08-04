@@ -1,7 +1,4 @@
 ﻿using Azure;
-using ImageProcessor;
-using ImageProcessor.Imaging;
-using ImageProcessor.Plugins.WebP.Imaging.Formats;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
@@ -11,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -23,7 +19,6 @@ using System.Threading.Tasks;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 using Path = System.IO.Path;
 using SHA256 = System.Security.Cryptography.SHA256;
-using Image = System.Drawing.Image;
 
 using System.Net;
 using Azure.Core;
