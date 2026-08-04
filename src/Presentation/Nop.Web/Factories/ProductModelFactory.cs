@@ -669,13 +669,7 @@ public partial class ProductModelFactory : IProductModelFactory
         try
         {
             var customer = await _customerService.GetCustomerByIdAsync(review.CustomerId);
-            var username = customer?.Username?.Trim();
-            var email = customer?.Email?.Trim();
-
-            return (!string.IsNullOrWhiteSpace(username)
-                    && username.StartsWith("etsy_review_", StringComparison.OrdinalIgnoreCase))
-                || (!string.IsNullOrWhiteSpace(email)
-                    && email.EndsWith("@hoodarcheryshop.invalid", StringComparison.OrdinalIgnoreCase));
+            return ReviewAuthorDisplay.IsMarketplaceImportedCustomer(customer);
         }
         catch
         {
@@ -1773,11 +1767,14 @@ public partial class ProductModelFactory : IProductModelFactory
         {
             customersById.TryGetValue(pr.CustomerId, out var customer);
 
-            var customerName = (await _customerService.FormatUsernameAsync(customer))?.Trim() ?? string.Empty;
+            var marketplaceImportedCustomer = ReviewAuthorDisplay.IsMarketplaceImportedCustomer(customer);
+            var customerName = marketplaceImportedCustomer
+                ? ReviewAuthorDisplay.MarketplaceCustomerLabel
+                : (await _customerService.FormatUsernameAsync(customer))?.Trim() ?? string.Empty;
             // Imported reviews can have a real Customer row but no first/last
-            // name. Prefer the existing non-personal identifier rather than
-            // rendering an empty author or inventing a person name.
-            if (string.IsNullOrWhiteSpace(customerName) && customer != null)
+            // name. Keep a neutral label rather than exposing a synthetic
+            // marketplace username or inventing a person's name.
+            if (!marketplaceImportedCustomer && string.IsNullOrWhiteSpace(customerName) && customer != null)
             {
                 customerName = !string.IsNullOrWhiteSpace(customer.Username)
                     ? customer.Username.Trim()
@@ -1791,7 +1788,10 @@ public partial class ProductModelFactory : IProductModelFactory
                 Id = pr.Id,
                 CustomerId = pr.CustomerId,
                 CustomerName = customerName,
-                AllowViewingProfiles = _customerSettings.AllowViewingProfiles && customer != null && !await _customerService.IsGuestAsync(customer),
+                AllowViewingProfiles = !marketplaceImportedCustomer
+                    && _customerSettings.AllowViewingProfiles
+                    && customer != null
+                    && !await _customerService.IsGuestAsync(customer),
                 Title = pr.Title,
                 ReviewText = pr.ReviewText,
                 ReplyText = pr.ReplyText,

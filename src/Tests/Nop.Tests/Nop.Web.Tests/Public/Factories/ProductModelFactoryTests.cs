@@ -114,6 +114,22 @@ public class ProductModelFactoryTests : WebTest
     }
 
     [Test]
+    public void MarketplaceImportedCustomerMarkerIsRecognizedWithoutExposingUsername()
+    {
+        _productModelFactoryForTest.IsMarketplaceImportedCustomerForTest(new Customer
+        {
+            Username = "etsy_review_1423898",
+            Email = "etsy-review-1423898@hoodarcheryshop.invalid"
+        }).Should().BeTrue();
+
+        _productModelFactoryForTest.IsMarketplaceImportedCustomerForTest(new Customer
+        {
+            Username = "real-customer",
+            Email = "customer@example.test"
+        }).Should().BeFalse();
+    }
+
+    [Test]
     public async Task CanPrepareCustomerProductReviewsModel()
     {
         var model = await _productModelFactory.PrepareCustomerProductReviewsModelAsync(null);
@@ -159,6 +175,9 @@ public class ProductModelFactoryTests : WebTest
         }
 
         #region Methods
+
+        public bool IsMarketplaceImportedCustomerForTest(Customer customer) =>
+            ReviewAuthorDisplay.IsMarketplaceImportedCustomer(customer);
 
         /// <summary>
         /// Prepare the product overview price model

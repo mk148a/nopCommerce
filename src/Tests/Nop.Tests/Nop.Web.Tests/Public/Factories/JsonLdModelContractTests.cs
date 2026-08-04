@@ -376,6 +376,9 @@ public class JsonLdModelContractTests
         result.Reviews.Should().HaveCount(2);
         result.Reviews.Should().Contain(review => review.ReviewBody == "Native review");
         result.Reviews.Should().Contain(review => review.ReviewBody == "Imported marketplace");
+        result.Reviews.Single(review => review.ReviewBody == "Imported marketplace")
+            .Author.Name.Should().Be("Anonymous");
+        result.Reviews.Should().NotContain(review => review.Author.Name.Contains("etsy_review_", StringComparison.OrdinalIgnoreCase));
     }
 
     [Test]

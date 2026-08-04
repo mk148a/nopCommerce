@@ -273,8 +273,11 @@ public partial class JsonLdModelFactory : IJsonLdModelFactory
         var individualReviews = new List<JsonLdReviewModel>();
         foreach (var eligibleReview in eligibleReviews.Take(5))
         {
-            var authorName = eligibleReview.Visible?.CustomerName?.Trim();
-            if (string.IsNullOrWhiteSpace(authorName) && _customerService != null)
+            var marketplaceImportedReview = await IsExternalMarketplaceReviewAsync(eligibleReview.Stored);
+            var authorName = marketplaceImportedReview
+                ? ReviewAuthorDisplay.MarketplaceCustomerLabel
+                : eligibleReview.Visible?.CustomerName?.Trim();
+            if (!marketplaceImportedReview && string.IsNullOrWhiteSpace(authorName) && _customerService != null)
             {
                 var customer = await _customerService.GetCustomerByIdAsync(eligibleReview.Stored.CustomerId);
                 if (customer != null)
@@ -334,13 +337,7 @@ public partial class JsonLdModelFactory : IJsonLdModelFactory
         try
         {
             var customer = await _customerService.GetCustomerByIdAsync(review.CustomerId);
-            var username = customer?.Username?.Trim();
-            var email = customer?.Email?.Trim();
-
-            return (!string.IsNullOrWhiteSpace(username)
-                    && username.StartsWith("etsy_review_", StringComparison.OrdinalIgnoreCase))
-                || (!string.IsNullOrWhiteSpace(email)
-                    && email.EndsWith("@hoodarcheryshop.invalid", StringComparison.OrdinalIgnoreCase));
+            return ReviewAuthorDisplay.IsMarketplaceImportedCustomer(customer);
         }
         catch
         {
