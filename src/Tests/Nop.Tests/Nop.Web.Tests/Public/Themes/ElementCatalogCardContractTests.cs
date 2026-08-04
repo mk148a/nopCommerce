@@ -180,6 +180,16 @@ public class ElementCatalogCardContractTests
     }
 
     [Test]
+    public void Google_shopping_manifest_matches_the_existing_plugin_identity()
+    {
+        var descriptor = ReadSource("src", "Plugins", "Nop.Plugin.Misc.GoogleShoppingMultiCountry", "plugin.json");
+        var controller = ReadSource("src", "Plugins", "Nop.Plugin.Misc.GoogleShoppingMultiCountry", "Controllers", "GoogleShoppingMultiCountryController.cs");
+
+        descriptor.Should().Contain("\"SystemName\": \"Nop.Plugin.Misc.GoogleShoppingMultiCountry\"");
+        controller.Should().Contain("GetPluginDescriptorBySystemNameAsync<IPlugin>(\"Nop.Plugin.Misc.GoogleShoppingMultiCountry\")");
+    }
+
+    [Test]
     public void Catalog_old_price_requires_effective_old_price_above_current_minimum()
     {
         var factory = ReadSource("src", "Presentation", "Nop.Web", "Factories", "ProductModelFactory.cs");

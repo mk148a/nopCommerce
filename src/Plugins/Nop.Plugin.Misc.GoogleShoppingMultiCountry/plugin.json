@@ -1,7 +1,7 @@
 {
   "Group": "Misc",
   "FriendlyName": "Google Shopping Multi Country",
-  "SystemName": "Misc.GoogleShoppingMultiCountry",
+  "SystemName": "Nop.Plugin.Misc.GoogleShoppingMultiCountry",
   "Version": "1.23",
   "SupportedVersions": [ "4.80" ],
   "Author": "Genius Software",
