@@ -362,6 +362,16 @@
 
     function loadGtm() {
         if (!cfg.loadGtm || !cfg.gtmId || state.gtm || !marketingAllowed()) return;
+
+        /* NopStation may already have emitted the same container in the
+           server-rendered HTML.  Reuse it instead of creating a second GTM
+           runtime (which would duplicate page_view and conversion events). */
+        if (document.querySelector('script[src*="googletagmanager.com/gtm.js"]')) {
+            state.gtm = true;
+            log('GTM already present; skipped duplicate load');
+            return;
+        }
+
         window.dataLayer = window.dataLayer || [];
         window.dataLayer.push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' });
         loadScriptOnce('hood-gtm-js', 'https://www.googletagmanager.com/gtm.js?id=' + encodeURIComponent(cfg.gtmId), cfg.scriptTimeoutMs)
@@ -498,4 +508,3 @@
         window.setTimeout(schedule, 0);
     }
 })(window, document);
-
