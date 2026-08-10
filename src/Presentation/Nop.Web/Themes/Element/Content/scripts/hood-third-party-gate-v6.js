@@ -53,6 +53,18 @@
     };
 
     var cfg = merge(defaultConfig, window.HOOD_TP_CONFIG || {});
+
+    /*
+       FooterCustomHtml is rendered by nopCommerce after theme footer script
+       parts.  Refresh the configuration immediately before scheduling so a
+       valid store setting is not lost simply because the inline configuration
+       appears later in the response.
+    */
+    function refreshConfig() {
+        cfg = merge(defaultConfig, window.HOOD_TP_CONFIG || {});
+        cfg.blockedMarketingCountries = normalizeCountryList(cfg.blockedMarketingCountries);
+    }
+
     cfg.blockedMarketingCountries = normalizeCountryList(cfg.blockedMarketingCountries);
 
     var state = {
@@ -447,6 +459,7 @@
     }
 
     function schedule() {
+        refreshConfig();
         getCountrySync();
         resolveCountry();
         detectExternalFacebook('external-plugin-or-gtm');
@@ -481,8 +494,8 @@
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', schedule, { once: true });
     } else {
-        schedule();
+        /* Let later footer inline settings (including Tawk/GTM) be parsed. */
+        window.setTimeout(schedule, 0);
     }
 })(window, document);
-
 

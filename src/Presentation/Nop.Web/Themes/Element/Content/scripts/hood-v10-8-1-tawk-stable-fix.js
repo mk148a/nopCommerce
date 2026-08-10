@@ -7,6 +7,14 @@
   var cfg = window.HOOD_TP_CONFIG || {};
   var tawkSrc = cfg.tawkSrc || DEFAULT_TAWK_SRC;
 
+  /* FooterCustomHtml can arrive after this footer script.  Re-read it during
+     init so the configured property URL is used without hardcoding it in the
+     theme asset. */
+  function refreshConfig() {
+    cfg = window.HOOD_TP_CONFIG || {};
+    tawkSrc = cfg.tawkSrc || DEFAULT_TAWK_SRC;
+  }
+
   var state = {
     loading: false,
     loaded: false,
@@ -281,6 +289,7 @@
   }
 
   function init() {
+    refreshConfig();
     installTelemetryGuard();
     installOnLoadHook();
     removeDuplicateTawkScripts();
@@ -297,7 +306,7 @@
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init, { once: true });
   } else {
-    init();
+    window.setTimeout(init, 0);
   }
 
   window.addEventListener('load', function () {
@@ -338,4 +347,3 @@
     return data;
   };
 })();
-
