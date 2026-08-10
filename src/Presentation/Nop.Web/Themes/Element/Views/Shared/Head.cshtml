@@ -1,11 +1,17 @@
 ﻿@using Nop.Core
 @using Nop.Core.Domain.Catalog
+@using Nop.Services.Configuration
 
 @inject CatalogSettings catalogSettings
 @inject IWorkContext workContext
+@inject ISettingService settingService
+@inject IStoreContext storeContext
 
 @{
     var supportRtl = (await workContext.GetWorkingLanguageAsync()).Rtl;
+    var currentStore = await storeContext.GetCurrentStoreAsync();
+    var storeId = currentStore?.Id ?? 0;
+    var gtmEnabled = await settingService.GetSettingByKeyAsync("googletagmanagersettings.isenable", false, storeId, true);
 
     if (supportRtl)
     {
@@ -36,6 +42,9 @@
     // cached styles.css file.
     NopHtml.AppendCssFileParts("~/Themes/Element/Content/css/catalog-card-meta.css?v=140b5e665c", excludeFromBundle: true);
 
+    NopHtml.AppendCssFileParts("~/Themes/Element/Content/css/hood-third-party-gate-v6.css?v=660", excludeFromBundle: true);
+    NopHtml.AppendCssFileParts("~/Themes/Element/Content/css/hood-v9-report-fixes.css?v=920", excludeFromBundle: true);
+
     if (catalogSettings.DisplayAllPicturesOnCatalogPages)
     {
         NopHtml.AppendCssFileParts("~/lib_npm/swiper/swiper-bundle.min.css");
@@ -49,4 +58,40 @@
     <script src="~/Plugins/SevenSpikes.Core/Scripts/sevenspikes.theme.ex.min.js" asp-location="Footer"></script>
 
     <script src="~/Themes/Element/Content/scripts/element.js" asp-location="Footer"></script>
+    <script src="~/Themes/Element/Content/scripts/hood-third-party-gate-v6.js?v=660" asp-location="Footer"></script>
+    <script src="~/Themes/Element/Content/scripts/hood-v9-report-fixes.js?v=920" asp-location="Footer"></script>
+    @if (gtmEnabled)
+    {
+        @* The NopStation event client is loaded only when its widget did not
+           already add the same script tag. The country gate still owns the
+           configured GTM container load, so this bridge cannot create a second
+           GTM container or a second page view. *@
+        <script asp-location="Footer">
+            (function () {
+                function ensureNopStationEventClient() {
+                    if (document.querySelector('script[src*="/NopStation.Plugin.Widgets.GoogleTagManager/Content/js/ns.gtm.js"]'))
+                        return;
+
+                    if (!document.querySelector('.page_type_gtm')) {
+                        var marker = document.createElement('div');
+                        marker.className = 'page_type_gtm';
+                        marker.style.display = 'none';
+                        var body = document.body;
+                        marker.setAttribute('data-page-type', body && body.classList.contains('html-product-page') ? 'Product' :
+                            (body && body.classList.contains('html-category-page') ? 'Category' : 'home'));
+                        (body || document.documentElement).appendChild(marker);
+                    }
+
+                    var script = document.createElement('script');
+                    script.async = false;
+                    script.src = '/Plugins/NopStation.Plugin.Widgets.GoogleTagManager/Content/js/ns.gtm.js';
+                    (document.body || document.documentElement).appendChild(script);
+                }
+
+                window.setTimeout(ensureNopStationEventClient, 0);
+            })();
+        </script>
+    }
+    @* Keep the existing lazy Tawk loader guarded against duplicate embed loads. *@
+    <script src="~/Themes/Element/Content/scripts/hood-v10-8-1-tawk-stable-fix.js" asp-location="Footer"></script>
 }

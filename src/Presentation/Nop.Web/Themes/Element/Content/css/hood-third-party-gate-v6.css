@@ -1,0 +1,38 @@
+/* Hood Third Party Gate V6 - Lightweight chat button */
+.hood-chat-button {
+    position: fixed;
+    right: 18px;
+    bottom: 18px;
+    z-index: 2147483000;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    min-width: 78px;
+    height: 38px;
+    padding: 0 14px;
+    border: 0;
+    border-radius: 999px;
+    background: #008a61;
+    color: #fff;
+    font: 700 13px/1 Arial, Helvetica, sans-serif;
+    box-shadow: 0 8px 24px rgba(0,0,0,.24);
+    cursor: pointer;
+}
+.hood-chat-button:hover { background: #007654; }
+.hood-chat-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #fff;
+    display: inline-block;
+}
+.hood-chat-loading { opacity: .78; pointer-events: none; }
+@media (max-width: 480px) {
+    .hood-chat-button {
+        right: 12px;
+        bottom: 12px;
+        min-width: 72px;
+        height: 36px;
+        padding: 0 12px;
+    }
+}
