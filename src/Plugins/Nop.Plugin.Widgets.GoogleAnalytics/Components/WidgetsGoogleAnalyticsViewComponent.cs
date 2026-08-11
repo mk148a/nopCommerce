@@ -4,6 +4,7 @@ using System.Text.Encodings.Web;
 using System.Text.Json;
 using Nop.Core;
 using Nop.Core.Domain.Logging;
+using Nop.Core.Domain.Orders;
 using Nop.Core.Domain.Payments;
 using Nop.Plugin.Widgets.GoogleAnalytics.Models;
 using Nop.Services.Catalog;
@@ -95,7 +96,7 @@ public class WidgetsGoogleAnalyticsViewComponent : NopViewComponent
         // Authorized orders may still be cancelled or fail capture, so they
         // must not emit the purchase data layer event.
         if (order == null || order.Deleted || order.CustomerId != customer.Id ||
-            order.PaymentStatus != PaymentStatus.Paid)
+            order.OrderStatus == OrderStatus.Cancelled || order.PaymentStatus != PaymentStatus.Paid)
             return string.Empty;
 
         var currency = string.IsNullOrWhiteSpace(order.CustomerCurrencyCode)
