@@ -161,7 +161,12 @@ public class WidgetsGoogleAnalyticsViewComponent : NopViewComponent
     {
         if (widgetZone.Equals(PublicWidgetZones.CheckoutCompletedBottom, StringComparison.OrdinalIgnoreCase) &&
             additionalData is CheckoutCompletedModel completedModel)
-            return Content(await GetPurchaseScriptAsync(completedModel));
+            // PublicInfo.cshtml renders the supplied script with Html.Raw.  A
+            // ContentViewComponentResult is encoded by the WidgetViewComponent
+            // aggregator and would leave the script visible as text instead of
+            // executing it in the completed-page DOM.
+            return View("~/Plugins/Widgets.GoogleAnalytics/Views/PublicInfo.cshtml",
+                await GetPurchaseScriptAsync(completedModel));
 
         var script = await GetScriptAsync();
         return View("~/Plugins/Widgets.GoogleAnalytics/Views/PublicInfo.cshtml", script);
