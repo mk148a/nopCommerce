@@ -91,8 +91,11 @@ public class WidgetsGoogleAnalyticsViewComponent : NopViewComponent
         var order = await _orderService.GetOrderByIdAsync(completedModel.OrderId);
         var customer = await _workContext.GetCurrentCustomerAsync();
 
+        // A conversion represents a successfully captured/paid transaction.
+        // Authorized orders may still be cancelled or fail capture, so they
+        // must not emit the purchase data layer event.
         if (order == null || order.Deleted || order.CustomerId != customer.Id ||
-            (order.PaymentStatus != PaymentStatus.Paid && order.PaymentStatus != PaymentStatus.Authorized))
+            order.PaymentStatus != PaymentStatus.Paid)
             return string.Empty;
 
         var currency = string.IsNullOrWhiteSpace(order.CustomerCurrencyCode)
