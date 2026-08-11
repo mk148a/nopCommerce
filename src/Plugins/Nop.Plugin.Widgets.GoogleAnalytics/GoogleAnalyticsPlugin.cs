@@ -82,7 +82,8 @@ public class GoogleAnalyticsPlugin : BasePlugin, IWidgetPlugin
     {
         ArgumentNullException.ThrowIfNull(widgetZone);
 
-        if (widgetZone.Equals(PublicWidgetZones.HeadHtmlTag))
+        if (widgetZone.Equals(PublicWidgetZones.HeadHtmlTag) ||
+            widgetZone.Equals(PublicWidgetZones.CheckoutCompletedBottom))
             return typeof(WidgetsGoogleAnalyticsViewComponent);
 
         return null;
