@@ -71,7 +71,7 @@ public class StripePendingPaymentTask : IScheduleTask
     {
         return new RequestOptions
         {
-            ApiKey = _stripePaymentSettings.SecretKey,
+            ApiKey = _stripePaymentSettings.GetActiveSecretKey(),
             IdempotencyKey = Guid.NewGuid().ToString()
         };
     }

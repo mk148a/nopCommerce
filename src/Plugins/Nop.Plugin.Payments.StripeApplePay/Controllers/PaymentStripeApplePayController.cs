@@ -79,6 +79,9 @@ namespace Nop.Plugin.Payments.StripeApplePay.Controllers
             {
                 PublishableKey = stripePaymentSettings.PublishableKey,
                 SecretKey = stripePaymentSettings.SecretKey,
+                UseSandbox = stripePaymentSettings.UseSandbox,
+                TestPublishableKey = stripePaymentSettings.TestPublishableKey,
+                TestSecretKey = stripePaymentSettings.TestSecretKey,
                 ActiveStoreScopeConfiguration = storeScope
             };
 
@@ -86,6 +89,9 @@ namespace Nop.Plugin.Payments.StripeApplePay.Controllers
             {
                 model.PublishableKey_OverrideForStore = await _settingService.SettingExistsAsync(stripePaymentSettings, x => x.PublishableKey, storeScope);
                 model.SecretKey_OverrideForStore = await _settingService.SettingExistsAsync(stripePaymentSettings, x => x.SecretKey, storeScope);
+                model.UseSandbox_OverrideForStore = await _settingService.SettingExistsAsync(stripePaymentSettings, x => x.UseSandbox, storeScope);
+                model.TestPublishableKey_OverrideForStore = await _settingService.SettingExistsAsync(stripePaymentSettings, x => x.TestPublishableKey, storeScope);
+                model.TestSecretKey_OverrideForStore = await _settingService.SettingExistsAsync(stripePaymentSettings, x => x.TestSecretKey, storeScope);
             }
 
             return View("~/Plugins/Nop.Plugin.Payments.StripeApplePay/Views/Configure.cshtml", model);
@@ -110,9 +116,16 @@ namespace Nop.Plugin.Payments.StripeApplePay.Controllers
             //save settings
             stripePaymentSettings.PublishableKey = model.PublishableKey;
             stripePaymentSettings.SecretKey = model.SecretKey;
+            stripePaymentSettings.UseSandbox = model.UseSandbox;
+            stripePaymentSettings.TestPublishableKey = model.TestPublishableKey;
+            if (!string.IsNullOrWhiteSpace(model.TestSecretKey))
+                stripePaymentSettings.TestSecretKey = model.TestSecretKey;
 
             await _settingService.SaveSettingOverridablePerStoreAsync(stripePaymentSettings, x => x.PublishableKey, model.PublishableKey_OverrideForStore, storeScope, false);
             await _settingService.SaveSettingOverridablePerStoreAsync(stripePaymentSettings, x => x.SecretKey, model.SecretKey_OverrideForStore, storeScope, false);
+            await _settingService.SaveSettingOverridablePerStoreAsync(stripePaymentSettings, x => x.UseSandbox, model.UseSandbox_OverrideForStore, storeScope, false);
+            await _settingService.SaveSettingOverridablePerStoreAsync(stripePaymentSettings, x => x.TestPublishableKey, model.TestPublishableKey_OverrideForStore, storeScope, false);
+            await _settingService.SaveSettingOverridablePerStoreAsync(stripePaymentSettings, x => x.TestSecretKey, model.TestSecretKey_OverrideForStore, storeScope, false);
 
             await _settingService.ClearCacheAsync();
 
@@ -149,7 +162,7 @@ namespace Nop.Plugin.Payments.StripeApplePay.Controllers
             var storeScope = await _storeContext.GetActiveStoreScopeConfigurationAsync();
             var stripePaymentSettings = await _settingService.LoadSettingAsync<StripeApplePayPaymentSettings>(storeScope);
 
-            StripeConfiguration.ApiKey = stripePaymentSettings.SecretKey;
+            StripeConfiguration.ApiKey = stripePaymentSettings.GetActiveSecretKey();
 
             var paymentIntentService = new PaymentIntentService();
 
@@ -178,7 +191,7 @@ namespace Nop.Plugin.Payments.StripeApplePay.Controllers
                 var storeScope = await _storeContext.GetActiveStoreScopeConfigurationAsync();
                 var stripePaymentSettings = await _settingService.LoadSettingAsync<StripeApplePayPaymentSettings>(storeScope);
 
-                StripeConfiguration.ApiKey = stripePaymentSettings.SecretKey;
+                StripeConfiguration.ApiKey = stripePaymentSettings.GetActiveSecretKey();
 
                 var paymentIntentService = new PaymentIntentService();
                 var paymentIntent = await paymentIntentService.CancelAsync(paymentIntentId,null, GetStripeApiRequestOptions());
@@ -214,7 +227,7 @@ namespace Nop.Plugin.Payments.StripeApplePay.Controllers
         {
             return new RequestOptions
             {
-                ApiKey = _stripePaymentSettings.SecretKey,
+                ApiKey = _stripePaymentSettings.GetActiveSecretKey(),
                 IdempotencyKey = Guid.NewGuid().ToString()
             };
         }

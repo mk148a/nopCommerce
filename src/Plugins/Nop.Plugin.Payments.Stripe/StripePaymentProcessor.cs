@@ -184,7 +184,7 @@ namespace Nop.Plugin.Payments.Stripe
         {
             return new RequestOptions
             {
-                ApiKey = _stripePaymentSettings.SecretKey,
+                ApiKey = _stripePaymentSettings.GetActiveSecretKey(),
                 IdempotencyKey = string.IsNullOrWhiteSpace(idempotencyKey) ? Guid.NewGuid().ToString("N") : idempotencyKey
             };
         }
@@ -916,6 +916,12 @@ namespace Nop.Plugin.Payments.Stripe
                     ["Plugins.Payments.Stripe.Fields.PublishableKey.Hint"] = "Enter your PublishableKey Api Key information on your Stripe control panel.",
                     ["Plugins.Payments.Stripe.Fields.SecretKey"] = "Api Secret Key",
                     ["Plugins.Payments.Stripe.Fields.SecretKey.Hint"] = "Enter your Api Secret information on your Stripe control panel.",
+                    ["Plugins.Payments.Stripe.Fields.UseSandbox"] = "Use Stripe test mode",
+                    ["Plugins.Payments.Stripe.Fields.TestPublishableKey"] = "Test publishable key",
+                    ["Plugins.Payments.Stripe.Fields.TestSecretKey"] = "Test secret key",
+                    ["Plugins.Payments.Stripe.Fields.TestWebhookSecret"] = "Test webhook signing secret",
+                    ["Plugins.Payments.Stripe.Fields.TestWebhookEndpointId"] = "Test webhook endpoint ID",
+                    ["Plugins.Payments.Stripe.Fields.TestWebhookEndpointUrl"] = "Test webhook endpoint URL",
                     ["Plugins.Payments.Stripe.Fields.WebhookSecret"] = "Webhook signing secret",
                     ["Plugins.Payments.Stripe.Fields.WebhookSecret.Hint"] = "The whsec_ signing secret shown by Stripe for this endpoint. Never use the Stripe API secret key here.",
                     ["Plugins.Payments.Stripe.Fields.WebhookEndpointId"] = "Webhook endpoint ID",
@@ -950,6 +956,12 @@ namespace Nop.Plugin.Payments.Stripe
                     ["Plugins.Payments.Stripe.Fields.PublishableKey.Hint"] = "Enter your PublishableKey Api Key information on your Stripe control panel.",
                     ["Plugins.Payments.Stripe.Fields.SecretKey"] = "Api Secret Key",
                     ["Plugins.Payments.Stripe.Fields.SecretKey.Hint"] = "Enter your Api Secret information on your Stripe control panel.",
+                    ["Plugins.Payments.Stripe.Fields.UseSandbox"] = "Use Stripe test mode",
+                    ["Plugins.Payments.Stripe.Fields.TestPublishableKey"] = "Test publishable key",
+                    ["Plugins.Payments.Stripe.Fields.TestSecretKey"] = "Test secret key",
+                    ["Plugins.Payments.Stripe.Fields.TestWebhookSecret"] = "Test webhook signing secret",
+                    ["Plugins.Payments.Stripe.Fields.TestWebhookEndpointId"] = "Test webhook endpoint ID",
+                    ["Plugins.Payments.Stripe.Fields.TestWebhookEndpointUrl"] = "Test webhook endpoint URL",
                     ["Plugins.Payments.Stripe.Fields.WebhookSecret"] = "Webhook signing secret",
                     ["Plugins.Payments.Stripe.Fields.WebhookSecret.Hint"] = "The whsec_ signing secret shown by Stripe for this endpoint. Never use the Stripe API secret key here.",
                     ["Plugins.Payments.Stripe.Fields.WebhookEndpointId"] = "Webhook endpoint ID",
@@ -993,6 +1005,12 @@ namespace Nop.Plugin.Payments.Stripe
         {
             await _localizationService.AddOrUpdateLocaleResourceAsync(new Dictionary<string, string>
             {
+                ["Plugins.Payments.Stripe.Fields.UseSandbox"] = "Use Stripe test mode",
+                ["Plugins.Payments.Stripe.Fields.TestPublishableKey"] = "Test publishable key",
+                ["Plugins.Payments.Stripe.Fields.TestSecretKey"] = "Test secret key",
+                ["Plugins.Payments.Stripe.Fields.TestWebhookSecret"] = "Test webhook signing secret",
+                ["Plugins.Payments.Stripe.Fields.TestWebhookEndpointId"] = "Test webhook endpoint ID",
+                ["Plugins.Payments.Stripe.Fields.TestWebhookEndpointUrl"] = "Test webhook endpoint URL",
                 ["Plugins.Payments.Stripe.Fields.WebhookSecret"] = "Webhook signing secret",
                 ["Plugins.Payments.Stripe.Fields.WebhookSecret.Hint"] = "The whsec_ signing secret shown by Stripe for this endpoint. Never use the Stripe API secret key here.",
                 ["Plugins.Payments.Stripe.Fields.WebhookEndpointId"] = "Webhook endpoint ID",
@@ -1006,6 +1024,12 @@ namespace Nop.Plugin.Payments.Stripe
 
                 await _localizationService.AddOrUpdateLocaleResourceAsync(new Dictionary<string, string>
                 {
+                    ["Plugins.Payments.Stripe.Fields.UseSandbox"] = "Stripe test modu kullan",
+                    ["Plugins.Payments.Stripe.Fields.TestPublishableKey"] = "Test yayınlanabilir anahtar",
+                    ["Plugins.Payments.Stripe.Fields.TestSecretKey"] = "Test gizli anahtar",
+                    ["Plugins.Payments.Stripe.Fields.TestWebhookSecret"] = "Test webhook imza anahtarı",
+                    ["Plugins.Payments.Stripe.Fields.TestWebhookEndpointId"] = "Test webhook endpoint kimliği",
+                    ["Plugins.Payments.Stripe.Fields.TestWebhookEndpointUrl"] = "Test webhook endpoint URL’si",
                     ["Plugins.Payments.Stripe.Fields.WebhookSecret"] = "Webhook imza anahtarı",
                     ["Plugins.Payments.Stripe.Fields.WebhookSecret.Hint"] = "Bu endpoint için Stripe Dashboard’da görünen whsec_ imza anahtarıdır. Stripe API gizli anahtarını burada kullanmayın.",
                     ["Plugins.Payments.Stripe.Fields.WebhookEndpointId"] = "Webhook endpoint kimliği",

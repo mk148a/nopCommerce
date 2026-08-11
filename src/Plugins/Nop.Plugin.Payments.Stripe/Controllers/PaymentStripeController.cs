@@ -77,9 +77,15 @@ namespace Nop.Plugin.Payments.Stripe.Controllers
             {
                 PublishableKey = stripePaymentSettings.PublishableKey,
                 SecretKey = stripePaymentSettings.SecretKey,
+                UseSandbox = stripePaymentSettings.UseSandbox,
+                TestPublishableKey = stripePaymentSettings.TestPublishableKey,
+                TestSecretKey = stripePaymentSettings.TestSecretKey,
                 WebhookSecretConfigured = !string.IsNullOrWhiteSpace(stripePaymentSettings.WebhookSecret),
                 WebhookEndpointId = stripePaymentSettings.WebhookEndpointId,
                 WebhookEndpointUrl = stripePaymentSettings.WebhookEndpointUrl,
+                TestWebhookSecretConfigured = !string.IsNullOrWhiteSpace(stripePaymentSettings.TestWebhookSecret),
+                TestWebhookEndpointId = stripePaymentSettings.TestWebhookEndpointId,
+                TestWebhookEndpointUrl = stripePaymentSettings.TestWebhookEndpointUrl,
                 ActiveStoreScopeConfiguration = storeScope
             };
 
@@ -87,6 +93,9 @@ namespace Nop.Plugin.Payments.Stripe.Controllers
             {
                 model.PublishableKey_OverrideForStore = await _settingService.SettingExistsAsync(stripePaymentSettings, x => x.PublishableKey, storeScope);
                 model.SecretKey_OverrideForStore = await _settingService.SettingExistsAsync(stripePaymentSettings, x => x.SecretKey, storeScope);
+                model.UseSandbox_OverrideForStore = await _settingService.SettingExistsAsync(stripePaymentSettings, x => x.UseSandbox, storeScope);
+                model.TestPublishableKey_OverrideForStore = await _settingService.SettingExistsAsync(stripePaymentSettings, x => x.TestPublishableKey, storeScope);
+                model.TestSecretKey_OverrideForStore = await _settingService.SettingExistsAsync(stripePaymentSettings, x => x.TestSecretKey, storeScope);
 
             }
 
@@ -110,11 +119,17 @@ namespace Nop.Plugin.Payments.Stripe.Controllers
             //save settings
             stripePaymentSettings.PublishableKey = model.PublishableKey;
             stripePaymentSettings.SecretKey = model.SecretKey;
+            stripePaymentSettings.UseSandbox = model.UseSandbox;
+            stripePaymentSettings.TestPublishableKey = model.TestPublishableKey;
+            if (!string.IsNullOrWhiteSpace(model.TestSecretKey))
+                stripePaymentSettings.TestSecretKey = model.TestSecretKey;
 
             // Do not bind the stored signing secret back into the page. An empty password
             // field means "leave the existing secret unchanged".
             if (!string.IsNullOrWhiteSpace(model.WebhookSecret))
                 stripePaymentSettings.WebhookSecret = model.WebhookSecret;
+            if (!string.IsNullOrWhiteSpace(model.TestWebhookSecret))
+                stripePaymentSettings.TestWebhookSecret = model.TestWebhookSecret;
             
 
 
@@ -125,7 +140,10 @@ namespace Nop.Plugin.Payments.Stripe.Controllers
 
             await _settingService.SaveSettingOverridablePerStoreAsync(stripePaymentSettings, x => x.PublishableKey, model.PublishableKey_OverrideForStore, storeScope, false);
             await _settingService.SaveSettingOverridablePerStoreAsync(stripePaymentSettings, x => x.SecretKey, model.SecretKey_OverrideForStore, storeScope, false);
-            if (!string.IsNullOrWhiteSpace(model.WebhookSecret))
+            await _settingService.SaveSettingOverridablePerStoreAsync(stripePaymentSettings, x => x.UseSandbox, model.UseSandbox_OverrideForStore, storeScope, false);
+            await _settingService.SaveSettingOverridablePerStoreAsync(stripePaymentSettings, x => x.TestPublishableKey, model.TestPublishableKey_OverrideForStore, storeScope, false);
+            await _settingService.SaveSettingOverridablePerStoreAsync(stripePaymentSettings, x => x.TestSecretKey, model.TestSecretKey_OverrideForStore, storeScope, false);
+            if (!string.IsNullOrWhiteSpace(model.WebhookSecret) || !string.IsNullOrWhiteSpace(model.TestWebhookSecret))
                 await _settingService.SaveSettingAsync(stripePaymentSettings);
             
 
@@ -184,7 +202,7 @@ namespace Nop.Plugin.Payments.Stripe.Controllers
         {
             return new RequestOptions
             {
-                ApiKey = _stripePaymentSettings.SecretKey,
+                ApiKey = _stripePaymentSettings.GetActiveSecretKey(),
                 IdempotencyKey = Guid.NewGuid().ToString()
             };
         }

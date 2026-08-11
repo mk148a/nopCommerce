@@ -18,6 +18,19 @@ namespace Nop.Plugin.Payments.StripeApplePay.Models
         public string SecretKey { get; set; }
         public bool SecretKey_OverrideForStore { get; set; }
 
+        [NopResourceDisplayName("Plugins.Payments.StripeApplePay.Fields.UseSandbox")]
+        public bool UseSandbox { get; set; }
+        public bool UseSandbox_OverrideForStore { get; set; }
+
+        [NopResourceDisplayName("Plugins.Payments.StripeApplePay.Fields.TestPublishableKey")]
+        public string TestPublishableKey { get; set; }
+        public bool TestPublishableKey_OverrideForStore { get; set; }
+
+        [NopResourceDisplayName("Plugins.Payments.StripeApplePay.Fields.TestSecretKey")]
+        [System.ComponentModel.DataAnnotations.DataType(System.ComponentModel.DataAnnotations.DataType.Password)]
+        public string TestSecretKey { get; set; }
+        public bool TestSecretKey_OverrideForStore { get; set; }
+
         [NopResourceDisplayName("Plugins.Payments.StripeApplePay.Fields.IsCardStorage")]
         public bool IsCardStorage { get; set; }
         

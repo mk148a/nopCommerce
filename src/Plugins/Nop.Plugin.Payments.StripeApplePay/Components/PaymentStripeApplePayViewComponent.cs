@@ -79,7 +79,7 @@ namespace Nop.Plugin.Payments.StripeApplePay.Components
                 OrderTotalMinor = orderTotalMinor,
                 Currency = currency.CurrencyCode.ToLowerInvariant(),
                 Country = billingAddressCountry.TwoLetterIsoCode.ToUpperInvariant(),
-                StripePublishableKey = stripePaymentSettings.PublishableKey
+                StripePublishableKey = stripePaymentSettings.GetActivePublishableKey()
             };
 
 

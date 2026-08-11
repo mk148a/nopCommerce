@@ -70,7 +70,7 @@ namespace Nop.Plugin.Payments.StripeApplePay
             "Nop.Plugin.Payments.StripeApplePay.PendingPayment") { CacheTime = 15 };
 
         private static string GetConfigurationInstructions() =>
-            "\t<p>For plugin configuration follow these steps:<br /> <br /> 1. If you haven't already, create an account on Stripe.com and sign in.<br /> 2. In the Developers menu, choose API keys. You will see a Publishable key and a Secret key; both are required. (Restricted keys are also supported.) <em>Stripe supports separate test and production key pairs. Use whichever pair is appropriate; there is no separate sandbox switch.</em><br /> 3. Paste the keys into this plug-in's configuration page. <br /> <em>Production keys require HTTPS. Test keys can be used on HTTP sites. For test mode, use Stripe's documented test card numbers at <a href='https://stripe.com/docs/testing'>stripe.com/docs/testing</a>.</em><br /> </p>";
+            "\t<p>For plugin configuration follow these steps:<br /> <br /> 1. If you haven't already, create an account on Stripe.com and sign in.<br /> 2. In the Developers menu, choose API keys. Enter the live pair in the live fields and the test pair in the test-mode fields. (Restricted keys are also supported.)<br /> 3. Leave <em>Use Stripe test mode</em> disabled for real payments; enable it only on a staging/test store. <br /> 4. Paste the keys into this plug-in's configuration page. <br /> <em>Production keys require HTTPS. Test keys can be used on HTTP sites. For test mode, use Stripe's documented test card numbers at <a href='https://stripe.com/docs/testing'>stripe.com/docs/testing</a>.</em><br /> </p>";
 
         public StripeApplePayPlugin(
             IHttpContextAccessor httpContextAccessor,
@@ -183,7 +183,7 @@ namespace Nop.Plugin.Payments.StripeApplePay
                 var paymentMethodId = paymentMethodValue.ToString();
                 var storeScope = await _storeContext.GetActiveStoreScopeConfigurationAsync();
                 var stripePaymentSettings = await _settingService.LoadSettingAsync<StripeApplePayPaymentSettings>(storeScope);
-                StripeConfiguration.ApiKey = stripePaymentSettings.SecretKey;
+                StripeConfiguration.ApiKey = stripePaymentSettings.GetActiveSecretKey();
 
                 var currentCustomer = await _workContext.GetCurrentCustomerAsync();
                 var currency = await _workContext.GetWorkingCurrencyAsync();
@@ -514,7 +514,7 @@ namespace Nop.Plugin.Payments.StripeApplePay
         {
             return new RequestOptions
             {
-                ApiKey = _stripePaymentSettings.SecretKey,
+                ApiKey = _stripePaymentSettings.GetActiveSecretKey(),
                 IdempotencyKey = string.IsNullOrWhiteSpace(idempotencyKey) ? Guid.NewGuid().ToString("N") : idempotencyKey
             };
         }
@@ -579,6 +579,9 @@ namespace Nop.Plugin.Payments.StripeApplePay
                     ["Plugins.Payments.StripeApplePay.Fields.PublishableKey.Hint"] = "Enter your PublishableKey Api Key information on your Stripe control panel.",
                     ["Plugins.Payments.StripeApplePay.Fields.SecretKey"] = "Api Secret Key",
                     ["Plugins.Payments.StripeApplePay.Fields.SecretKey.Hint"] = "Enter your Api Secret information on your Stripe control panel.",
+                    ["Plugins.Payments.StripeApplePay.Fields.UseSandbox"] = "Use Stripe test mode",
+                    ["Plugins.Payments.StripeApplePay.Fields.TestPublishableKey"] = "Test publishable key",
+                    ["Plugins.Payments.StripeApplePay.Fields.TestSecretKey"] = "Test secret key",
                     ["Plugins.Payments.StripeApplePay.VirtualPosInfo"] = "Define Your Stripe Payment Settings",
                     ["Plugins.Payments.StripeApplePay.Fields.PaymentFailed"] = "Payment Failed",
                     ["Plugins.Payments.StripeApplePay.Fields.PaymentErrors"] = "Payment Errors",
@@ -608,6 +611,9 @@ namespace Nop.Plugin.Payments.StripeApplePay
                     ["Plugins.Payments.StripeApplePay.Fields.PublishableKey.Hint"] = "Enter your PublishableKey Api Key information on your Stripe control panel.",
                     ["Plugins.Payments.StripeApplePay.Fields.SecretKey"] = "Api Secret Key",
                     ["Plugins.Payments.StripeApplePay.Fields.SecretKey.Hint"] = "Enter your Api Secret information on your Stripe control panel.",
+                    ["Plugins.Payments.StripeApplePay.Fields.UseSandbox"] = "Use Stripe test mode",
+                    ["Plugins.Payments.StripeApplePay.Fields.TestPublishableKey"] = "Test publishable key",
+                    ["Plugins.Payments.StripeApplePay.Fields.TestSecretKey"] = "Test secret key",
                     ["Plugins.Payments.StripeApplePay.VirtualPosInfo"] = "Define Your Stripe Payment Settings",
                     ["Plugins.Payments.StripeApplePay.Fields.PaymentFailed"] = "Payment Failed",
                     ["Plugins.Payments.StripeApplePay.Fields.PaymentErrors"] = "Payment Errors",
@@ -630,6 +636,9 @@ namespace Nop.Plugin.Payments.StripeApplePay
                 .FirstOrDefault(item => string.Equals(item.UniqueSeoCode, "en", StringComparison.OrdinalIgnoreCase));
             await _localizationService.AddOrUpdateLocaleResourceAsync(new Dictionary<string, string>
             {
+                ["Plugins.Payments.StripeApplePay.Fields.UseSandbox"] = "Use Stripe test mode",
+                ["Plugins.Payments.StripeApplePay.Fields.TestPublishableKey"] = "Test publishable key",
+                ["Plugins.Payments.StripeApplePay.Fields.TestSecretKey"] = "Test secret key",
                 ["Plugins.Payments.StripeApplePay.Instructions"] = GetConfigurationInstructions()
             }, language?.Id);
 

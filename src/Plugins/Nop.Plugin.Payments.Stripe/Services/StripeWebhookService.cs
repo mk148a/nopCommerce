@@ -58,13 +58,13 @@ public sealed class StripeWebhookService : IStripeWebhookService
         if (string.IsNullOrWhiteSpace(signature))
             throw new StripeWebhookValidationException("Stripe-Signature header is missing.");
 
-        if (string.IsNullOrWhiteSpace(_settings.WebhookSecret))
+        if (string.IsNullOrWhiteSpace(_settings.GetActiveWebhookSecret()))
             throw new StripeWebhookValidationException("Stripe webhook signing secret is not configured.");
 
         Event stripeEvent;
         try
         {
-            stripeEvent = EventUtility.ConstructEvent(payload, signature, _settings.WebhookSecret,
+            stripeEvent = EventUtility.ConstructEvent(payload, signature, _settings.GetActiveWebhookSecret(),
                 SignatureToleranceSeconds, throwOnApiVersionMismatch: false);
         }
         catch (Exception exception)
@@ -156,13 +156,13 @@ public sealed class StripeWebhookService : IStripeWebhookService
 
     public async Task<StripeWebhookSyncResult> SyncEndpointAsync()
     {
-        if (string.IsNullOrWhiteSpace(_settings.SecretKey))
+        if (string.IsNullOrWhiteSpace(_settings.GetActiveSecretKey()))
             throw new NopException("Stripe API secret key is not configured.");
 
         var endpointUrl = BuildEndpointUrl();
         var requestOptions = new RequestOptions
         {
-            ApiKey = _settings.SecretKey
+            ApiKey = _settings.GetActiveSecretKey()
         };
         var endpointService = new WebhookEndpointService();
         var endpoints = await endpointService.ListAsync(new WebhookEndpointListOptions { Limit = 100 }, requestOptions);
@@ -171,17 +171,17 @@ public sealed class StripeWebhookService : IStripeWebhookService
             .ToList();
 
         var endpoint = matchingEndpoints
-            .FirstOrDefault(item => string.Equals(item.Id, _settings.WebhookEndpointId, StringComparison.OrdinalIgnoreCase))
+            .FirstOrDefault(item => string.Equals(item.Id, _settings.GetActiveWebhookEndpointId(), StringComparison.OrdinalIgnoreCase))
             ?? matchingEndpoints.FirstOrDefault();
 
         var created = false;
         var updated = false;
         var signingSecretSaved = false;
 
-        if (endpoint == null && !string.IsNullOrWhiteSpace(_settings.WebhookEndpointId))
+        if (endpoint == null && !string.IsNullOrWhiteSpace(_settings.GetActiveWebhookEndpointId()))
         {
             endpoint = endpoints.Data.FirstOrDefault(item =>
-                string.Equals(item.Id, _settings.WebhookEndpointId, StringComparison.OrdinalIgnoreCase));
+                string.Equals(item.Id, _settings.GetActiveWebhookEndpointId(), StringComparison.OrdinalIgnoreCase));
         }
 
         if (endpoint == null)
@@ -202,14 +202,13 @@ public sealed class StripeWebhookService : IStripeWebhookService
             endpoint = await endpointService.CreateAsync(createOptions,
                 new RequestOptions
                 {
-                    ApiKey = _settings.SecretKey,
+                    ApiKey = _settings.GetActiveSecretKey(),
                     IdempotencyKey = idempotencyKey
                 });
             created = true;
 
             if (!string.IsNullOrWhiteSpace(endpoint.Secret))
             {
-                _settings.WebhookSecret = endpoint.Secret;
                 signingSecretSaved = true;
             }
         }
@@ -232,20 +231,19 @@ public sealed class StripeWebhookService : IStripeWebhookService
             updated = true;
         }
 
-        _settings.WebhookEndpointId = endpoint.Id;
-        _settings.WebhookEndpointUrl = endpoint.Url ?? endpointUrl;
+        _settings.SetActiveWebhookEndpoint(endpoint.Id, endpoint.Url ?? endpointUrl, endpoint.Secret);
         await _settingService.SaveSettingAsync(_settings);
         await _settingService.ClearCacheAsync();
 
         return new StripeWebhookSyncResult
         {
             EndpointId = endpoint.Id,
-            EndpointUrl = _settings.WebhookEndpointUrl,
+            EndpointUrl = _settings.GetActiveWebhookEndpointUrl(),
             EndpointStatus = endpoint.Status,
             Created = created,
             Updated = updated,
             SigningSecretSaved = signingSecretSaved,
-            SigningSecretRequired = string.IsNullOrWhiteSpace(_settings.WebhookSecret),
+            SigningSecretRequired = string.IsNullOrWhiteSpace(_settings.GetActiveWebhookSecret()),
             MatchingEndpointCount = matchingEndpoints.Count
         };
     }
