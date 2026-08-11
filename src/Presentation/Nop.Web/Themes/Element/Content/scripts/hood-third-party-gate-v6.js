@@ -63,6 +63,13 @@
     function refreshConfig() {
         cfg = merge(defaultConfig, window.HOOD_TP_CONFIG || {});
         cfg.blockedMarketingCountries = normalizeCountryList(cfg.blockedMarketingCountries);
+        // Keep the public diagnostics handle aligned with the store setting as
+        // well as the private loader state. FooterCustomHtml is parsed after
+        // this file, so the initial object otherwise exposes only defaults.
+        if (window.HOOD_TP) {
+            window.HOOD_TP.config = cfg;
+            window.HOOD_TP.version = cfg.version || defaultConfig.version;
+        }
     }
 
     cfg.blockedMarketingCountries = normalizeCountryList(cfg.blockedMarketingCountries);
