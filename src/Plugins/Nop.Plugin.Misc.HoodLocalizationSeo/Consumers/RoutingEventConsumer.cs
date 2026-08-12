@@ -1,0 +1,95 @@
+using Nop.Core;
+using Nop.Core.Domain.Topics;
+using Nop.Core.Events;
+using Nop.Core.Http;
+using Nop.Services.Events;
+using Nop.Services.Localization;
+using Nop.Services.Seo;
+using Nop.Services.Topics;
+using Nop.Web.Framework.Events;
+using Nop.Web.Framework.Mvc.Routing;
+
+namespace Nop.Plugin.Misc.HoodLocalizationSeo.Consumers;
+
+public sealed class RoutingEventConsumer : IConsumer<GenericRoutingEvent>
+{
+    private readonly ILanguageService _languageService;
+    private readonly IStoreContext _storeContext;
+    private readonly ITopicService _topicService;
+    private readonly IUrlRecordService _urlRecordService;
+
+    public RoutingEventConsumer(ILanguageService languageService,
+        IStoreContext storeContext,
+        ITopicService topicService,
+        IUrlRecordService urlRecordService)
+    {
+        _languageService = languageService;
+        _storeContext = storeContext;
+        _topicService = topicService;
+        _urlRecordService = urlRecordService;
+    }
+
+    public async Task HandleEventAsync(GenericRoutingEvent eventMessage)
+    {
+        ArgumentNullException.ThrowIfNull(eventMessage);
+
+        var language = await GetRequestedLanguageAsync(eventMessage);
+        if (language is null)
+            return;
+
+        var urlRecord = eventMessage.UrlRecord;
+        var activeLocalizedSlug = await _urlRecordService.GetActiveSlugAsync(
+            urlRecord.EntityId, urlRecord.EntityName, language.Id);
+
+        // Redirect retired slugs and a valid slug from the wrong language to
+        // the active slug for the language code in the current request.
+        if (!string.IsNullOrWhiteSpace(activeLocalizedSlug) &&
+            (!urlRecord.IsActive ||
+             !activeLocalizedSlug.Equals(urlRecord.Slug, StringComparison.OrdinalIgnoreCase)))
+        {
+            SetPermanentRedirect(eventMessage, $"/{language.UniqueSeoCode}/{activeLocalizedSlug}");
+            return;
+        }
+
+        if (!urlRecord.EntityName.Equals(nameof(Topic), StringComparison.OrdinalIgnoreCase))
+            return;
+
+        var topic = await _topicService.GetTopicByIdAsync(urlRecord.EntityId);
+        if (topic?.SystemName.Equals("ContactUs", StringComparison.OrdinalIgnoreCase) != true)
+            return;
+
+        // Render the contact form at the localized Topic URL. This deliberately
+        // avoids TopicController and keeps the public URL/canonical unchanged.
+        eventMessage.RouteValues[NopRoutingDefaults.RouteValue.Controller] = "Common";
+        eventMessage.RouteValues[NopRoutingDefaults.RouteValue.Action] = "ContactUs";
+        eventMessage.RouteValues[NopRoutingDefaults.RouteValue.SeName] = urlRecord.Slug;
+        eventMessage.Handled = true;
+    }
+
+    private async Task<Nop.Core.Domain.Localization.Language> GetRequestedLanguageAsync(GenericRoutingEvent eventMessage)
+    {
+        var store = await _storeContext.GetCurrentStoreAsync();
+        var languages = await _languageService.GetAllLanguagesAsync(storeId: store.Id);
+        if (eventMessage.RouteValues.TryGetValue(NopRoutingDefaults.RouteValue.Language, out var value))
+        {
+            var language = languages.FirstOrDefault(item => item.Published &&
+                item.UniqueSeoCode.Equals(value?.ToString(), StringComparison.OrdinalIgnoreCase));
+            if (language is not null)
+                return language;
+        }
+
+        return languages.FirstOrDefault(item => item.Id == store.DefaultLanguageId)
+            ?? languages.FirstOrDefault(item => item.Published);
+    }
+
+    private static void SetPermanentRedirect(GenericRoutingEvent eventMessage, string path)
+    {
+        eventMessage.RouteValues[NopRoutingDefaults.RouteValue.Controller] = "Common";
+        eventMessage.RouteValues[NopRoutingDefaults.RouteValue.Action] = "InternalRedirect";
+        eventMessage.RouteValues[NopRoutingDefaults.RouteValue.Url] =
+            $"{eventMessage.HttpContext.Request.PathBase}{path}{eventMessage.HttpContext.Request.QueryString}";
+        eventMessage.RouteValues[NopRoutingDefaults.RouteValue.PermanentRedirect] = true;
+        eventMessage.HttpContext.Items[NopHttpDefaults.GenericRouteInternalRedirect] = true;
+        eventMessage.Handled = true;
+    }
+}

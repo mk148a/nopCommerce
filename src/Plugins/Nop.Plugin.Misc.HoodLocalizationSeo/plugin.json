@@ -1,0 +1,11 @@
+{
+  "Group": "Hood Archery",
+  "FriendlyName": "Hood Localization SEO",
+  "SystemName": "Nop.Plugin.Misc.HoodLocalizationSeo",
+  "Version": "1.00",
+  "SupportedVersions": [ "4.80" ],
+  "Author": "Hood Archery",
+  "DisplayOrder": 1,
+  "FileName": "Nop.Plugin.Misc.HoodLocalizationSeo.dll",
+  "Description": "Upgrade-resilient localized blog, routing, sitemap and SEO behavior for Hood Archery Shop."
+}
