@@ -2,7 +2,7 @@
   "Group": "Hood Archery",
   "FriendlyName": "Hood Localization SEO",
   "SystemName": "Nop.Plugin.Misc.HoodLocalizationSeo",
-  "Version": "1.22",
+  "Version": "1.23",
   "SupportedVersions": [ "4.90" ],
   "Author": "Hood Archery",
   "DisplayOrder": 1,

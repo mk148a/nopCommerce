@@ -1758,7 +1758,7 @@ public sealed class LocalizationResourceInstaller : ILocalizationResourceInstall
         if (package is null || package.SchemaVersion != 2 || package.SlugPolicyVersion != 2 ||
             !string.Equals(package.Status, "PASS", StringComparison.Ordinal) ||
             !string.Equals(package.SourceDatabase,
-                "HoodLocalizationPluginStage_Final_20260813", StringComparison.Ordinal) ||
+                "HoodArcheryShopV480bugfixLancelotDb", StringComparison.Ordinal) ||
             !string.Equals(package.SourceMode, "ApplicationIntentReadOnly", StringComparison.Ordinal) ||
             package.RowCount != 44 || package.ProductCount != 36 || package.LanguageCount != 1 ||
             package.Rows is null || package.Rows.Count != 44 ||
