@@ -1,4 +1,4 @@
-using System.Globalization;
+using System.Security.Cryptography;
 using System.Text;
 using Nop.Core.Domain.Blogs;
 using Nop.Services.Localization;
@@ -83,28 +83,7 @@ public sealed class BlogLocalizationService : IBlogLocalizationService
 
     private static string BuildStableKey(string value)
     {
-        var normalized = value.Normalize(NormalizationForm.FormD);
-        var result = new StringBuilder(normalized.Length);
-        var separatorPending = false;
-
-        foreach (var character in normalized)
-        {
-            if (CharUnicodeInfo.GetUnicodeCategory(character) == UnicodeCategory.NonSpacingMark)
-                continue;
-
-            if (char.IsLetterOrDigit(character))
-            {
-                if (separatorPending && result.Length > 0)
-                    result.Append('.');
-                result.Append(char.ToLowerInvariant(character));
-                separatorPending = false;
-            }
-            else
-            {
-                separatorPending = true;
-            }
-        }
-
-        return result.ToString().Trim('.');
+        var normalized = value.Trim().ToLowerInvariant();
+        return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(normalized)))[..16].ToLowerInvariant();
     }
 }

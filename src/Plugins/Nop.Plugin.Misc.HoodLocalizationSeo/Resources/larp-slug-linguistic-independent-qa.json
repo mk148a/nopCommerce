@@ -1,0 +1,737 @@
+{
+  "schemaVersion": 1,
+  "status": "PASS",
+  "deployable": true,
+  "auditMode": "Read-only deterministic exact review of all 63 LARP slug remediations, all manifest/product-tag current and historical claims, and a fresh full live dbo.UrlRecord ownership snapshot; no sampling and no mutation.",
+  "inputBindings": {
+    "generator": {
+      "file": "build_larp_slug_linguistic_independent_qa.py",
+      "sha256": "91A38349AD3F0345608C900DF5C359375E9028F53ADE3AAC31641B0991C2AEAF",
+      "byteLength": 19550
+    },
+    "manifest": {
+      "file": "localization-manifest.json",
+      "sha256": "F8241B4EF839DE2355073F096D471417E889B29FBAD21F8AC5E6FEC9D2D3F26F",
+      "byteLength": 7370758
+    },
+    "productTag": {
+      "file": "product-tag-localization.json",
+      "sha256": "37382D8BB83EA739D54F63BF5917E9C9CC7275664D66715946DDAF111AF9745B",
+      "byteLength": 11283198
+    },
+    "liveUrlRecordSnapshot": {
+      "file": "live-urlrecord-ownership-snapshot.json",
+      "sha256": "1451B30965CF0C65787C65872F7E6D267CDECA01F2857245CB4E2A778A25F2B8",
+      "byteLength": 2676214
+    },
+    "mappingContractSha256": "8BF69EDB9A93D25277F2EB1CEC19DE345E7A14172B8332AF85BDC3C7CE7FC54F"
+  },
+  "summary": {
+    "expectedMappingCount": 63,
+    "numericOldSlugMappingCount": 62,
+    "larpCosplayOldSlugMappingCount": 1,
+    "matchedMappingCount": 63,
+    "mappingMismatchCount": 0,
+    "numericLarpCurrentSlugCount": 0,
+    "larpCosplayPackageClaimCount": 0,
+    "elvenProductTag783JpPreviousAliasCount": 0,
+    "packageCurrentHistoryOwnerConflictCount": 0,
+    "liveDesiredOwnerConflictCount": 0,
+    "liveHistoryOwnerConflictCount": 0,
+    "liveUrlRecordCount": 10023,
+    "larpCosplayProduct341WitnessCount": 1,
+    "elvenProduct339WitnessCount": 1,
+    "blockingFindingCount": 0
+  },
+  "terminologyDecisions": {
+    "gr": {
+      "script": "τόξο",
+      "asciiSlugToken": "toxo",
+      "meaning": "bow"
+    },
+    "jp": {
+      "script": "弓",
+      "asciiSlugToken": "yumi",
+      "meaning": "bow"
+    },
+    "ru": {
+      "script": "лук",
+      "asciiSlugToken": "luk",
+      "meaning": "bow"
+    },
+    "ur": {
+      "script": "کمان",
+      "asciiSlugToken": "kaman",
+      "meaning": "bow"
+    },
+    "ar": {
+      "script": "قوس",
+      "asciiSlugToken": "qaws",
+      "meaning": "bow"
+    }
+  },
+  "checks": [
+    {
+      "id": "exact-63-mapping",
+      "status": "PASS"
+    },
+    {
+      "id": "numeric-larp-current-closure",
+      "status": "PASS"
+    },
+    {
+      "id": "larp-cosplay-foreign-owner-preserved",
+      "status": "PASS"
+    },
+    {
+      "id": "elven-foreign-previous-alias-removed",
+      "status": "PASS"
+    },
+    {
+      "id": "global-package-current-history-ownership",
+      "status": "PASS"
+    },
+    {
+      "id": "live-database-desired-history-ownership",
+      "status": "PASS"
+    }
+  ],
+  "expectedMappings": [
+    {
+      "package": "manifest",
+      "entityType": "BlogPost",
+      "entityId": 6,
+      "languageCode": "gr",
+      "oldSlug": "larp-2",
+      "expectedSlug": "prosarmosmenes-stoles-tainion-kai-larp",
+      "actualSlug": "prosarmosmenes-stoles-tainion-kai-larp",
+      "status": "PASS"
+    },
+    {
+      "package": "manifest",
+      "entityType": "BlogPost",
+      "entityId": 6,
+      "languageCode": "jp",
+      "oldSlug": "larp-2",
+      "expectedSlug": "eiga-larp-you-oodaa-meido-ishou",
+      "actualSlug": "eiga-larp-you-oodaa-meido-ishou",
+      "status": "PASS"
+    },
+    {
+      "package": "manifest",
+      "entityType": "BlogPost",
+      "entityId": 6,
+      "languageCode": "ru",
+      "oldSlug": "larp-2",
+      "expectedSlug": "kostyumy-na-zakaz-dlya-kino-i-larp",
+      "actualSlug": "kostyumy-na-zakaz-dlya-kino-i-larp",
+      "status": "PASS"
+    },
+    {
+      "package": "manifest",
+      "entityType": "BlogPost",
+      "entityId": 6,
+      "languageCode": "ur",
+      "oldSlug": "larp-2",
+      "expectedSlug": "apni-marzi-ke-mutabiq-film-aur-larp-malbusat",
+      "actualSlug": "apni-marzi-ke-mutabiq-film-aur-larp-malbusat",
+      "status": "PASS"
+    },
+    {
+      "package": "manifest",
+      "entityType": "BlogPost",
+      "entityId": 12,
+      "languageCode": "gr",
+      "oldSlug": "larp-cosplay",
+      "expectedSlug": "dermatini-panoplia-gia-larp-cosplay",
+      "actualSlug": "dermatini-panoplia-gia-larp-cosplay",
+      "status": "PASS"
+    },
+    {
+      "package": "manifest",
+      "entityType": "BlogPost",
+      "entityId": 12,
+      "languageCode": "jp",
+      "oldSlug": "larp-3",
+      "expectedSlug": "larp-kosupure-you-rezaa-aamaa",
+      "actualSlug": "larp-kosupure-you-rezaa-aamaa",
+      "status": "PASS"
+    },
+    {
+      "package": "manifest",
+      "entityType": "BlogPost",
+      "entityId": 12,
+      "languageCode": "ru",
+      "oldSlug": "larp-3",
+      "expectedSlug": "kozhanaya-bronya-dlya-larp-i-kospleya",
+      "actualSlug": "kozhanaya-bronya-dlya-larp-i-kospleya",
+      "status": "PASS"
+    },
+    {
+      "package": "manifest",
+      "entityType": "BlogPost",
+      "entityId": 12,
+      "languageCode": "ur",
+      "oldSlug": "larp-3",
+      "expectedSlug": "larp-aur-cosplay-chamre-ki-zirah",
+      "actualSlug": "larp-aur-cosplay-chamre-ki-zirah",
+      "status": "PASS"
+    },
+    {
+      "package": "productTag",
+      "entityType": "ProductTag",
+      "entityId": 383,
+      "languageCode": "gr",
+      "oldSlug": "larp-4",
+      "expectedSlug": "velos-larp",
+      "actualSlug": "velos-larp",
+      "status": "PASS"
+    },
+    {
+      "package": "productTag",
+      "entityType": "ProductTag",
+      "entityId": 362,
+      "languageCode": "gr",
+      "oldSlug": "larp-5",
+      "expectedSlug": "toxo-larp",
+      "actualSlug": "toxo-larp",
+      "status": "PASS"
+    },
+    {
+      "package": "productTag",
+      "entityType": "ProductTag",
+      "entityId": 591,
+      "languageCode": "gr",
+      "oldSlug": "larp-6",
+      "expectedSlug": "stoli-larp",
+      "actualSlug": "stoli-larp",
+      "status": "PASS"
+    },
+    {
+      "package": "productTag",
+      "entityType": "ProductTag",
+      "entityId": 223,
+      "languageCode": "gr",
+      "oldSlug": "larp-7",
+      "expectedSlug": "spathi-larp",
+      "actualSlug": "spathi-larp",
+      "status": "PASS"
+    },
+    {
+      "package": "productTag",
+      "entityType": "ProductTag",
+      "entityId": 271,
+      "languageCode": "gr",
+      "oldSlug": "larp-8",
+      "expectedSlug": "kranos-larp",
+      "actualSlug": "kranos-larp",
+      "status": "PASS"
+    },
+    {
+      "package": "productTag",
+      "entityType": "ProductTag",
+      "entityId": 610,
+      "languageCode": "gr",
+      "oldSlug": "larp-9",
+      "expectedSlug": "panoplia-larp-polemisti",
+      "actualSlug": "panoplia-larp-polemisti",
+      "status": "PASS"
+    },
+    {
+      "package": "productTag",
+      "entityType": "ProductTag",
+      "entityId": 412,
+      "languageCode": "gr",
+      "oldSlug": "larp-10",
+      "expectedSlug": "stoli-samanou-larp",
+      "actualSlug": "stoli-samanou-larp",
+      "status": "PASS"
+    },
+    {
+      "package": "productTag",
+      "entityType": "ProductTag",
+      "entityId": 288,
+      "languageCode": "gr",
+      "oldSlug": "larp-11",
+      "expectedSlug": "zoni-larp",
+      "actualSlug": "zoni-larp",
+      "status": "PASS"
+    },
+    {
+      "package": "productTag",
+      "entityType": "ProductTag",
+      "entityId": 794,
+      "languageCode": "gr",
+      "oldSlug": "larp-12",
+      "expectedSlug": "exoplismos-larp",
+      "actualSlug": "exoplismos-larp",
+      "status": "PASS"
+    },
+    {
+      "package": "productTag",
+      "entityType": "ProductTag",
+      "entityId": 776,
+      "languageCode": "gr",
+      "oldSlug": "larp-13",
+      "expectedSlug": "dermatino-gileko-larp",
+      "actualSlug": "dermatino-gileko-larp",
+      "status": "PASS"
+    },
+    {
+      "package": "productTag",
+      "entityType": "ProductTag",
+      "entityId": 813,
+      "languageCode": "gr",
+      "oldSlug": "larp-14",
+      "expectedSlug": "larp-exoplismos",
+      "actualSlug": "larp-exoplismos",
+      "status": "PASS"
+    },
+    {
+      "package": "productTag",
+      "entityType": "ProductTag",
+      "entityId": 383,
+      "languageCode": "jp",
+      "oldSlug": "larp-4",
+      "expectedSlug": "larp-no-ya",
+      "actualSlug": "larp-no-ya",
+      "status": "PASS"
+    },
+    {
+      "package": "productTag",
+      "entityType": "ProductTag",
+      "entityId": 362,
+      "languageCode": "jp",
+      "oldSlug": "larp-5",
+      "expectedSlug": "larp-no-yumi",
+      "actualSlug": "larp-no-yumi",
+      "status": "PASS"
+    },
+    {
+      "package": "productTag",
+      "entityType": "ProductTag",
+      "entityId": 591,
+      "languageCode": "jp",
+      "oldSlug": "larp-6",
+      "expectedSlug": "larp-no-ishou",
+      "actualSlug": "larp-no-ishou",
+      "status": "PASS"
+    },
+    {
+      "package": "productTag",
+      "entityType": "ProductTag",
+      "entityId": 223,
+      "languageCode": "jp",
+      "oldSlug": "larp-7",
+      "expectedSlug": "larp-no-ken",
+      "actualSlug": "larp-no-ken",
+      "status": "PASS"
+    },
+    {
+      "package": "productTag",
+      "entityType": "ProductTag",
+      "entityId": 271,
+      "languageCode": "jp",
+      "oldSlug": "larp-8",
+      "expectedSlug": "larp-no-kabuto",
+      "actualSlug": "larp-no-kabuto",
+      "status": "PASS"
+    },
+    {
+      "package": "productTag",
+      "entityType": "ProductTag",
+      "entityId": 610,
+      "languageCode": "jp",
+      "oldSlug": "larp-9",
+      "expectedSlug": "larp-senshi-you-no-yoroi",
+      "actualSlug": "larp-senshi-you-no-yoroi",
+      "status": "PASS"
+    },
+    {
+      "package": "productTag",
+      "entityType": "ProductTag",
+      "entityId": 412,
+      "languageCode": "jp",
+      "oldSlug": "larp-10",
+      "expectedSlug": "larp-you-shaaman-ishou",
+      "actualSlug": "larp-you-shaaman-ishou",
+      "status": "PASS"
+    },
+    {
+      "package": "productTag",
+      "entityType": "ProductTag",
+      "entityId": 288,
+      "languageCode": "jp",
+      "oldSlug": "larp-11",
+      "expectedSlug": "larp-no-beruto",
+      "actualSlug": "larp-no-beruto",
+      "status": "PASS"
+    },
+    {
+      "package": "productTag",
+      "entityType": "ProductTag",
+      "entityId": 794,
+      "languageCode": "jp",
+      "oldSlug": "larp-12",
+      "expectedSlug": "larp-no-soubi",
+      "actualSlug": "larp-no-soubi",
+      "status": "PASS"
+    },
+    {
+      "package": "productTag",
+      "entityType": "ProductTag",
+      "entityId": 776,
+      "languageCode": "jp",
+      "oldSlug": "larp-13",
+      "expectedSlug": "larp-no-jaakin",
+      "actualSlug": "larp-no-jaakin",
+      "status": "PASS"
+    },
+    {
+      "package": "productTag",
+      "entityType": "ProductTag",
+      "entityId": 813,
+      "languageCode": "jp",
+      "oldSlug": "larp-14",
+      "expectedSlug": "larp-soubi",
+      "actualSlug": "larp-soubi",
+      "status": "PASS"
+    },
+    {
+      "package": "productTag",
+      "entityType": "ProductTag",
+      "entityId": 383,
+      "languageCode": "ru",
+      "oldSlug": "larp-4",
+      "expectedSlug": "strela-larp",
+      "actualSlug": "strela-larp",
+      "status": "PASS"
+    },
+    {
+      "package": "productTag",
+      "entityType": "ProductTag",
+      "entityId": 362,
+      "languageCode": "ru",
+      "oldSlug": "larp-5",
+      "expectedSlug": "luk-larp",
+      "actualSlug": "luk-larp",
+      "status": "PASS"
+    },
+    {
+      "package": "productTag",
+      "entityType": "ProductTag",
+      "entityId": 591,
+      "languageCode": "ru",
+      "oldSlug": "larp-6",
+      "expectedSlug": "kostyum-larp",
+      "actualSlug": "kostyum-larp",
+      "status": "PASS"
+    },
+    {
+      "package": "productTag",
+      "entityType": "ProductTag",
+      "entityId": 223,
+      "languageCode": "ru",
+      "oldSlug": "larp-7",
+      "expectedSlug": "mech-larp",
+      "actualSlug": "mech-larp",
+      "status": "PASS"
+    },
+    {
+      "package": "productTag",
+      "entityType": "ProductTag",
+      "entityId": 271,
+      "languageCode": "ru",
+      "oldSlug": "larp-8",
+      "expectedSlug": "shlem-larp",
+      "actualSlug": "shlem-larp",
+      "status": "PASS"
+    },
+    {
+      "package": "productTag",
+      "entityType": "ProductTag",
+      "entityId": 610,
+      "languageCode": "ru",
+      "oldSlug": "larp-9",
+      "expectedSlug": "dospekh-larp-voina",
+      "actualSlug": "dospekh-larp-voina",
+      "status": "PASS"
+    },
+    {
+      "package": "productTag",
+      "entityType": "ProductTag",
+      "entityId": 412,
+      "languageCode": "ru",
+      "oldSlug": "larp-10",
+      "expectedSlug": "kostyum-shamana-dlya-larp",
+      "actualSlug": "kostyum-shamana-dlya-larp",
+      "status": "PASS"
+    },
+    {
+      "package": "productTag",
+      "entityType": "ProductTag",
+      "entityId": 288,
+      "languageCode": "ru",
+      "oldSlug": "larp-11",
+      "expectedSlug": "remen-larp",
+      "actualSlug": "remen-larp",
+      "status": "PASS"
+    },
+    {
+      "package": "productTag",
+      "entityType": "ProductTag",
+      "entityId": 794,
+      "languageCode": "ru",
+      "oldSlug": "larp-12",
+      "expectedSlug": "snaryazhenie-larp",
+      "actualSlug": "snaryazhenie-larp",
+      "status": "PASS"
+    },
+    {
+      "package": "productTag",
+      "entityType": "ProductTag",
+      "entityId": 776,
+      "languageCode": "ru",
+      "oldSlug": "larp-13",
+      "expectedSlug": "kamzol-larp",
+      "actualSlug": "kamzol-larp",
+      "status": "PASS"
+    },
+    {
+      "package": "productTag",
+      "entityType": "ProductTag",
+      "entityId": 813,
+      "languageCode": "ru",
+      "oldSlug": "larp-14",
+      "expectedSlug": "larp-snaryazhenie",
+      "actualSlug": "larp-snaryazhenie",
+      "status": "PASS"
+    },
+    {
+      "package": "productTag",
+      "entityType": "ProductTag",
+      "entityId": 383,
+      "languageCode": "ur",
+      "oldSlug": "larp-4",
+      "expectedSlug": "larp-teer",
+      "actualSlug": "larp-teer",
+      "status": "PASS"
+    },
+    {
+      "package": "productTag",
+      "entityType": "ProductTag",
+      "entityId": 362,
+      "languageCode": "ur",
+      "oldSlug": "larp-5",
+      "expectedSlug": "larp-kaman",
+      "actualSlug": "larp-kaman",
+      "status": "PASS"
+    },
+    {
+      "package": "productTag",
+      "entityType": "ProductTag",
+      "entityId": 591,
+      "languageCode": "ur",
+      "oldSlug": "larp-6",
+      "expectedSlug": "larp-libas",
+      "actualSlug": "larp-libas",
+      "status": "PASS"
+    },
+    {
+      "package": "productTag",
+      "entityType": "ProductTag",
+      "entityId": 223,
+      "languageCode": "ur",
+      "oldSlug": "larp-7",
+      "expectedSlug": "larp-talwar",
+      "actualSlug": "larp-talwar",
+      "status": "PASS"
+    },
+    {
+      "package": "productTag",
+      "entityType": "ProductTag",
+      "entityId": 271,
+      "languageCode": "ur",
+      "oldSlug": "larp-8",
+      "expectedSlug": "larp-khud",
+      "actualSlug": "larp-khud",
+      "status": "PASS"
+    },
+    {
+      "package": "productTag",
+      "entityType": "ProductTag",
+      "entityId": 610,
+      "languageCode": "ur",
+      "oldSlug": "larp-9",
+      "expectedSlug": "larp-jangju-ka-zirah",
+      "actualSlug": "larp-jangju-ka-zirah",
+      "status": "PASS"
+    },
+    {
+      "package": "productTag",
+      "entityType": "ProductTag",
+      "entityId": 412,
+      "languageCode": "ur",
+      "oldSlug": "larp-10",
+      "expectedSlug": "larp-shaman-ka-libas",
+      "actualSlug": "larp-shaman-ka-libas",
+      "status": "PASS"
+    },
+    {
+      "package": "productTag",
+      "entityType": "ProductTag",
+      "entityId": 288,
+      "languageCode": "ur",
+      "oldSlug": "larp-11",
+      "expectedSlug": "larp-kamar-band",
+      "actualSlug": "larp-kamar-band",
+      "status": "PASS"
+    },
+    {
+      "package": "productTag",
+      "entityType": "ProductTag",
+      "entityId": 794,
+      "languageCode": "ur",
+      "oldSlug": "larp-12",
+      "expectedSlug": "larp-saman",
+      "actualSlug": "larp-saman",
+      "status": "PASS"
+    },
+    {
+      "package": "productTag",
+      "entityType": "ProductTag",
+      "entityId": 776,
+      "languageCode": "ur",
+      "oldSlug": "larp-13",
+      "expectedSlug": "larp-charmi-waskat",
+      "actualSlug": "larp-charmi-waskat",
+      "status": "PASS"
+    },
+    {
+      "package": "productTag",
+      "entityType": "ProductTag",
+      "entityId": 813,
+      "languageCode": "ur",
+      "oldSlug": "larp-14",
+      "expectedSlug": "larp-ka-saman",
+      "actualSlug": "larp-ka-saman",
+      "status": "PASS"
+    },
+    {
+      "package": "productTag",
+      "entityType": "ProductTag",
+      "entityId": 383,
+      "languageCode": "ar",
+      "oldSlug": "larp-4",
+      "expectedSlug": "sahm-larp",
+      "actualSlug": "sahm-larp",
+      "status": "PASS"
+    },
+    {
+      "package": "productTag",
+      "entityType": "ProductTag",
+      "entityId": 362,
+      "languageCode": "ar",
+      "oldSlug": "larp-5",
+      "expectedSlug": "qaws-larp",
+      "actualSlug": "qaws-larp",
+      "status": "PASS"
+    },
+    {
+      "package": "productTag",
+      "entityType": "ProductTag",
+      "entityId": 591,
+      "languageCode": "ar",
+      "oldSlug": "larp-6",
+      "expectedSlug": "ziyy-larp",
+      "actualSlug": "ziyy-larp",
+      "status": "PASS"
+    },
+    {
+      "package": "productTag",
+      "entityType": "ProductTag",
+      "entityId": 223,
+      "languageCode": "ar",
+      "oldSlug": "larp-7",
+      "expectedSlug": "sayf-larp",
+      "actualSlug": "sayf-larp",
+      "status": "PASS"
+    },
+    {
+      "package": "productTag",
+      "entityType": "ProductTag",
+      "entityId": 271,
+      "languageCode": "ar",
+      "oldSlug": "larp-8",
+      "expectedSlug": "khudha-larp",
+      "actualSlug": "khudha-larp",
+      "status": "PASS"
+    },
+    {
+      "package": "productTag",
+      "entityType": "ProductTag",
+      "entityId": 610,
+      "languageCode": "ar",
+      "oldSlug": "larp-9",
+      "expectedSlug": "dir-larp-muharib",
+      "actualSlug": "dir-larp-muharib",
+      "status": "PASS"
+    },
+    {
+      "package": "productTag",
+      "entityType": "ProductTag",
+      "entityId": 412,
+      "languageCode": "ar",
+      "oldSlug": "larp-10",
+      "expectedSlug": "ziyy-shaman-larp",
+      "actualSlug": "ziyy-shaman-larp",
+      "status": "PASS"
+    },
+    {
+      "package": "productTag",
+      "entityType": "ProductTag",
+      "entityId": 288,
+      "languageCode": "ar",
+      "oldSlug": "larp-11",
+      "expectedSlug": "hizam-larp",
+      "actualSlug": "hizam-larp",
+      "status": "PASS"
+    },
+    {
+      "package": "productTag",
+      "entityType": "ProductTag",
+      "entityId": 794,
+      "languageCode": "ar",
+      "oldSlug": "larp-12",
+      "expectedSlug": "muaddat-larp",
+      "actualSlug": "muaddat-larp",
+      "status": "PASS"
+    },
+    {
+      "package": "productTag",
+      "entityType": "ProductTag",
+      "entityId": 776,
+      "languageCode": "ar",
+      "oldSlug": "larp-13",
+      "expectedSlug": "sudayri-jildi-larp",
+      "actualSlug": "sudayri-jildi-larp",
+      "status": "PASS"
+    },
+    {
+      "package": "productTag",
+      "entityType": "ProductTag",
+      "entityId": 813,
+      "languageCode": "ar",
+      "oldSlug": "larp-14",
+      "expectedSlug": "larp-muaddat",
+      "actualSlug": "larp-muaddat",
+      "status": "PASS"
+    }
+  ],
+  "blockingFindings": [],
+  "releaseDecision": {
+    "status": "PASS",
+    "deployable": true,
+    "reason": "All 63 exact linguistic/SEO slug mappings and ownership gates passed."
+  }
+}

@@ -9,6 +9,7 @@ using Nop.Services.Events;
 using Nop.Services.Seo;
 using Nop.Web.Framework.Events;
 using Nop.Web.Framework.Models;
+using Nop.Web.Framework.Mvc.Routing;
 using Nop.Web.Models.Blogs;
 
 namespace Nop.Plugin.Misc.HoodLocalizationSeo.Consumers;
@@ -16,7 +17,8 @@ namespace Nop.Plugin.Misc.HoodLocalizationSeo.Consumers;
 /// <summary>
 /// Localizes SevenSpikes RichBlog projection models without a compile-time
 /// reference to the commercial assembly. Only a narrowly allow-listed set of
-/// public properties is changed; vendor URLs/filter keys remain untouched.
+/// public properties is changed; only the current post URL is regenerated,
+/// while vendor filter keys remain untouched.
 /// </summary>
 public sealed class RichBlogModelEventConsumer : IConsumer<ModelPreparedEvent<BaseNopModel>>
 {
@@ -32,19 +34,22 @@ public sealed class RichBlogModelEventConsumer : IConsumer<ModelPreparedEvent<Ba
     };
 
     private readonly IBlogLocalizationService _blogLocalizationService;
+    private readonly IBlogRouteLanguageResolver _blogRouteLanguageResolver;
     private readonly IBlogService _blogService;
+    private readonly INopUrlHelper _nopUrlHelper;
     private readonly IUrlRecordService _urlRecordService;
-    private readonly IWorkContext _workContext;
 
     public RichBlogModelEventConsumer(IBlogLocalizationService blogLocalizationService,
+        IBlogRouteLanguageResolver blogRouteLanguageResolver,
         IBlogService blogService,
-        IUrlRecordService urlRecordService,
-        IWorkContext workContext)
+        INopUrlHelper nopUrlHelper,
+        IUrlRecordService urlRecordService)
     {
         _blogLocalizationService = blogLocalizationService;
+        _blogRouteLanguageResolver = blogRouteLanguageResolver;
         _blogService = blogService;
+        _nopUrlHelper = nopUrlHelper;
         _urlRecordService = urlRecordService;
-        _workContext = workContext;
     }
 
     public async Task HandleEventAsync(ModelPreparedEvent<BaseNopModel> eventMessage)
@@ -54,13 +59,12 @@ public sealed class RichBlogModelEventConsumer : IConsumer<ModelPreparedEvent<Ba
                 StringComparison.Ordinal))
             return;
 
-        var language = await _workContext.GetWorkingLanguageAsync();
+        var language = await _blogRouteLanguageResolver.ResolveAsync();
         await LocalizeObjectGraphAsync(model, language.Id,
-            language.LanguageCulture?.StartsWith("en", StringComparison.OrdinalIgnoreCase) != true,
             new HashSet<object>(ReferenceEqualityComparer.Instance), 0);
     }
 
-    private async Task LocalizeObjectGraphAsync(object model, int languageId, bool hideTags,
+    private async Task LocalizeObjectGraphAsync(object model, int languageId,
         ISet<object> visited, int depth)
     {
         if (model is null || depth > 3 || !visited.Add(model))
@@ -81,6 +85,11 @@ public sealed class RichBlogModelEventConsumer : IConsumer<ModelPreparedEvent<Ba
             var slug = await _blogLocalizationService.GetSlugAsync(blogPost, languageId);
             SetStringProperty(model, "SeName", slug);
             SetStringProperty(model, "BlogPostSeName", slug);
+            if (!string.IsNullOrWhiteSpace(slug))
+            {
+                var url = await _nopUrlHelper.RouteGenericUrlAsync<BlogPost>(new { SeName = slug });
+                SetStringProperty(model, "BlogPostUrl", url);
+            }
         }
 
         await LocalizeRelatedReferenceAsync(model, "PreviousBlogPostId", "PreviousBlogPostTitle",
@@ -105,30 +114,46 @@ public sealed class RichBlogModelEventConsumer : IConsumer<ModelPreparedEvent<Ba
                 continue;
             }
 
-            if (value is null || value is string)
+            if (value is string text)
             {
-                if (hideTags && value is string && property.CanWrite && property.PropertyType == typeof(string) &&
+                if (property.CanWrite && property.PropertyType == typeof(string) &&
                     property.Name.Equals("Tags", StringComparison.OrdinalIgnoreCase))
-                    property.SetValue(model, string.Empty);
+                    property.SetValue(model, await LocalizeCommaSeparatedTagsAsync(text, languageId));
                 continue;
             }
 
-            if (hideTags && IsTagCollection(property.Name) && value is IList tagList)
-            {
-                if (!tagList.IsReadOnly && !tagList.IsFixedSize)
-                    tagList.Clear();
+            if (value is null)
                 continue;
+
+            if (IsTagCollection(property.Name) && value is IList tagList)
+            {
+                for (var index = 0; index < tagList.Count; index++)
+                {
+                    if (tagList[index] is string rawTag && !tagList.IsReadOnly && !tagList.IsFixedSize)
+                    {
+                        tagList[index] = await _blogLocalizationService.GetTagLabelAsync(rawTag, languageId);
+                        continue;
+                    }
+
+                    var tagModel = tagList[index];
+                    var nameProperty = tagModel?.GetType().GetProperty("Name",
+                        BindingFlags.Instance | BindingFlags.Public);
+                    if (nameProperty?.CanRead == true && nameProperty.CanWrite &&
+                        nameProperty.PropertyType == typeof(string) && nameProperty.GetValue(tagModel) is string name)
+                        nameProperty.SetValue(tagModel,
+                            await _blogLocalizationService.GetTagLabelAsync(name, languageId));
+                }
             }
 
             if (value is IEnumerable collection)
             {
                 foreach (var item in collection.Cast<object>().Where(item => item is not null).Take(100))
-                    await LocalizeObjectGraphAsync(item, languageId, hideTags, visited, depth + 1);
+                    await LocalizeObjectGraphAsync(item, languageId, visited, depth + 1);
             }
             else if (value.GetType().Namespace?.StartsWith("SevenSpikes.Nop.Plugins.RichBlog.",
                          StringComparison.Ordinal) == true)
             {
-                await LocalizeObjectGraphAsync(value, languageId, hideTags, visited, depth + 1);
+                await LocalizeObjectGraphAsync(value, languageId, visited, depth + 1);
             }
         }
     }
@@ -188,8 +213,20 @@ public sealed class RichBlogModelEventConsumer : IConsumer<ModelPreparedEvent<Ba
             property.SetValue(model, value);
     }
 
+    private async Task<string> LocalizeCommaSeparatedTagsAsync(string value, int languageId)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return value;
+
+        var tags = value.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        for (var index = 0; index < tags.Length; index++)
+            tags[index] = await _blogLocalizationService.GetTagLabelAsync(tags[index], languageId);
+        return string.Join(", ", tags);
+    }
+
     private static bool IsTagCollection(string propertyName) =>
         propertyName.Equals("Tags", StringComparison.OrdinalIgnoreCase) ||
         propertyName.Equals("BlogPostTags", StringComparison.OrdinalIgnoreCase) ||
         propertyName.Equals("TagModels", StringComparison.OrdinalIgnoreCase);
+
 }

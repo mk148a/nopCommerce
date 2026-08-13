@@ -22,7 +22,7 @@ public sealed class LocalizedBlogModelFactory : IBlogModelFactory
     private readonly IBlogService _blogService;
     private readonly IStaticCacheManager _staticCacheManager;
     private readonly IStoreContext _storeContext;
-    private readonly IWorkContext _workContext;
+    private readonly IBlogRouteLanguageResolver _routeLanguageResolver;
 
     public LocalizedBlogModelFactory(IBlogModelFactory inner,
         BlogSettings blogSettings,
@@ -30,7 +30,7 @@ public sealed class LocalizedBlogModelFactory : IBlogModelFactory
         IBlogService blogService,
         IStaticCacheManager staticCacheManager,
         IStoreContext storeContext,
-        IWorkContext workContext)
+        IBlogRouteLanguageResolver routeLanguageResolver)
     {
         _inner = inner;
         _blogSettings = blogSettings;
@@ -38,16 +38,16 @@ public sealed class LocalizedBlogModelFactory : IBlogModelFactory
         _blogService = blogService;
         _staticCacheManager = staticCacheManager;
         _storeContext = storeContext;
-        _workContext = workContext;
+        _routeLanguageResolver = routeLanguageResolver;
     }
 
     public async Task PrepareBlogPostModelAsync(BlogPostModel model, BlogPost blogPost, bool prepareComments)
     {
         await _inner.PrepareBlogPostModelAsync(model, blogPost, prepareComments);
-        var language = await _workContext.GetWorkingLanguageAsync();
+        var language = await _routeLanguageResolver.ResolveAsync();
         await _blogLocalizationService.ApplyAsync(model, blogPost, language.Id);
-        if (!IsEnglish(language.LanguageCulture))
-            model.Tags.Clear();
+        for (var index = 0; index < model.Tags.Count; index++)
+            model.Tags[index] = await _blogLocalizationService.GetTagLabelAsync(model.Tags[index], language.Id);
     }
 
     public async Task<BlogPostListModel> PrepareBlogPostListModelAsync(BlogPagingFilteringModel command)
@@ -59,22 +59,54 @@ public sealed class LocalizedBlogModelFactory : IBlogModelFactory
         if (command.PageNumber <= 0)
             command.PageNumber = 1;
 
-        var language = await _workContext.GetWorkingLanguageAsync();
+        var language = await _routeLanguageResolver.ResolveAsync();
         var store = await _storeContext.GetCurrentStoreAsync();
+        var requestedTag = command.Tag;
+        var sourceTags = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        if (!string.IsNullOrWhiteSpace(requestedTag))
+        {
+            var allTags = await _blogService.GetAllBlogPostTagsAsync(store.Id, store.DefaultLanguageId);
+            foreach (var candidate in allTags)
+            {
+                var label = await _blogLocalizationService.GetTagLabelAsync(candidate.Name, language.Id);
+                if (label.Equals(requestedTag, StringComparison.OrdinalIgnoreCase) ||
+                    candidate.Name.Equals(requestedTag, StringComparison.OrdinalIgnoreCase))
+                    sourceTags.Add(candidate.Name);
+            }
+            if (sourceTags.Count == 0)
+                sourceTags.Add(requestedTag);
+        }
         var dateFrom = command.GetFromMonth();
         var dateTo = command.GetToMonth();
 
         // Hood has one canonical/default-language BlogPost row per article.
         // LocalizedProperty and UrlRecord hold the per-language projections.
-        var blogPosts = string.IsNullOrEmpty(command.Tag)
-            ? await _blogService.GetAllBlogPostsAsync(store.Id, store.DefaultLanguageId, dateFrom, dateTo,
-                command.PageNumber - 1, command.PageSize)
-            : await _blogService.GetAllBlogPostsByTagAsync(store.Id, store.DefaultLanguageId, command.Tag,
+        IPagedList<BlogPost> blogPosts;
+        if (sourceTags.Count == 0)
+        {
+            blogPosts = await _blogService.GetAllBlogPostsAsync(store.Id, store.DefaultLanguageId, dateFrom, dateTo,
                 command.PageNumber - 1, command.PageSize);
+        }
+        else
+        {
+            // Distinct English source tags can legitimately translate to the
+            // same customer-facing label. Query their union so a localized tag
+            // link never drops posts merely because one alias was encountered
+            // first.
+            var allPosts = await _blogService.GetAllBlogPostsAsync(store.Id, store.DefaultLanguageId);
+            var matchingPosts = new List<BlogPost>();
+            foreach (var post in allPosts)
+            {
+                var tags = await _blogService.ParseTagsAsync(post);
+                if (tags.Any(sourceTags.Contains))
+                    matchingPosts.Add(post);
+            }
+            blogPosts = new PagedList<BlogPost>(matchingPosts, command.PageNumber - 1, command.PageSize);
+        }
 
         var model = new BlogPostListModel
         {
-            PagingFilteringContext = { Tag = command.Tag, Month = command.Month },
+            PagingFilteringContext = { Tag = requestedTag, Month = command.Month },
             WorkingLanguageId = language.Id,
             BlogPosts = await blogPosts.SelectAwait(async blogPost =>
             {
@@ -91,29 +123,53 @@ public sealed class LocalizedBlogModelFactory : IBlogModelFactory
     public async Task<BlogPostTagListModel> PrepareBlogPostTagListModelAsync()
     {
         var model = new BlogPostTagListModel();
-        var language = await _workContext.GetWorkingLanguageAsync();
-        if (!IsEnglish(language.LanguageCulture))
-            return model;
-
+        var language = await _routeLanguageResolver.ResolveAsync();
         var store = await _storeContext.GetCurrentStoreAsync();
-        var tags = (await _blogService.GetAllBlogPostTagsAsync(store.Id, store.DefaultLanguageId))
-            .OrderByDescending(tag => tag.BlogPostCount)
-            .Take(_blogSettings.NumberOfTags);
+        var tags = await _blogService.GetAllBlogPostTagsAsync(store.Id, store.DefaultLanguageId);
+        var labelBySource = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var tag in tags)
+            labelBySource[tag.Name] = await _blogLocalizationService.GetTagLabelAsync(tag.Name, language.Id);
 
-        // Keep Name as the raw filter key. Views/RichBlog models translate only
-        // the visible label so tag URLs continue to select the canonical data.
-        model.Tags.AddRange(tags.OrderBy(tag => tag.Name).Select(tag => new BlogPostTagModel
+        // Collapse aliases that share a reviewed localized label. Count each
+        // post once even when its source metadata contains multiple aliases.
+        var countByLabel = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+        var labelSpelling = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        var posts = await _blogService.GetAllBlogPostsAsync(store.Id, store.DefaultLanguageId);
+        foreach (var post in posts)
         {
-            Name = tag.Name,
-            BlogPostCount = tag.BlogPostCount
-        }));
+            var labelsOnPost = (await _blogService.ParseTagsAsync(post))
+                .Where(labelBySource.ContainsKey)
+                .Select(source => labelBySource[source])
+                .Distinct(StringComparer.OrdinalIgnoreCase);
+            foreach (var label in labelsOnPost)
+            {
+                labelSpelling.TryAdd(label, label);
+                countByLabel[label] = countByLabel.GetValueOrDefault(label) + 1;
+            }
+        }
+        var localizedTags = countByLabel
+            .Select(pair => new BlogPostTagModel
+            {
+                Name = labelSpelling[pair.Key],
+                BlogPostCount = pair.Value
+            })
+            .OrderByDescending(tag => tag.BlogPostCount)
+            .Take(_blogSettings.NumberOfTags)
+            .OrderBy(tag => tag.Name, StringComparer.CurrentCulture);
+
+        foreach (var tag in localizedTags)
+            model.Tags.Add(new BlogPostTagModel
+            {
+                Name = tag.Name,
+                BlogPostCount = tag.BlogPostCount
+            });
         return model;
     }
 
     public async Task<List<BlogPostYearModel>> PrepareBlogPostYearModelAsync()
     {
         var store = await _storeContext.GetCurrentStoreAsync();
-        var currentLanguage = await _workContext.GetWorkingLanguageAsync();
+        var currentLanguage = await _routeLanguageResolver.ResolveAsync();
         var cacheKey = _staticCacheManager.PrepareKeyForDefaultCache(
             NopModelCacheDefaults.BlogMonthsModelKey, currentLanguage, store);
 
@@ -162,6 +218,4 @@ public sealed class LocalizedBlogModelFactory : IBlogModelFactory
         return _inner.PrepareBlogPostCommentModelAsync(blogComment);
     }
 
-    private static bool IsEnglish(string culture) =>
-        culture?.StartsWith("en", StringComparison.OrdinalIgnoreCase) == true;
 }

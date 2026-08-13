@@ -1,6 +1,7 @@
 using Nop.Core;
 using Nop.Core.Domain.Blogs;
 using Nop.Core.Events;
+using System.Text;
 using Nop.Plugin.Misc.HoodLocalizationSeo.Services;
 using Nop.Services.Blogs;
 using Nop.Services.Events;
@@ -88,9 +89,8 @@ public sealed class SitemapCreatedEventConsumer : IConsumer<SitemapCreatedEvent>
                     contactLocations.Add($"{storeLocation}/{language.UniqueSeoCode}/{slug}");
             }
 
-            foreach (var existing in eventMessage.SitemapUrls.Where(item =>
-                         item.Location?.Contains("/contactus", StringComparison.OrdinalIgnoreCase) == true ||
-                         contactLocations.Any(location => UrlsEqual(item.Location, location))).ToList())
+            foreach (var existing in eventMessage.SitemapUrls
+                         .Where(item => IsContactLocation(item, contactLocations)).ToList())
             {
                 eventMessage.SitemapUrls.Remove(existing);
             }
@@ -102,32 +102,149 @@ public sealed class SitemapCreatedEventConsumer : IConsumer<SitemapCreatedEvent>
             }
         }
 
-        // Defensive final deduplication by canonical location; keep the first
-        // event-provided item so core frequency/lastmod data wins.
-        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        foreach (var duplicate in eventMessage.SitemapUrls
-                     .Where(item => !string.IsNullOrWhiteSpace(item.Location) && !seen.Add(Normalize(item.Location)))
-                     .ToList())
-        {
-            eventMessage.SitemapUrls.Remove(duplicate);
-        }
+        NormalizeAndDeduplicate(eventMessage.SitemapUrls);
     }
 
     private static bool UrlMatchesAnySlug(SitemapUrlModel item, ISet<string> slugs)
     {
         return slugs.Any(slug => EndsWithSlug(item.Location, slug) ||
-            item.AlternateLocations.Any(location => EndsWithSlug(location, slug)));
+            (item.AlternateLocations ?? Array.Empty<string>())
+            .Any(location => EndsWithSlug(location, slug)));
     }
 
     private static bool EndsWithSlug(string url, string slug)
     {
-        return !string.IsNullOrWhiteSpace(url) && !string.IsNullOrWhiteSpace(slug) &&
-               Normalize(url).EndsWith($"/{slug}", StringComparison.OrdinalIgnoreCase);
+        if (string.IsNullOrWhiteSpace(url) || string.IsNullOrWhiteSpace(slug))
+            return false;
+
+        var path = GetSemanticPath(url);
+        var slugPath = GetSemanticPath(slug);
+        return !string.IsNullOrEmpty(path) && !string.IsNullOrEmpty(slugPath) &&
+               (path.Equals(slugPath, StringComparison.OrdinalIgnoreCase) ||
+                path.EndsWith($"/{slugPath}", StringComparison.OrdinalIgnoreCase));
     }
 
-    private static bool UrlsEqual(string left, string right) =>
-        Normalize(left).Equals(Normalize(right), StringComparison.OrdinalIgnoreCase);
+    private static bool IsContactLocation(SitemapUrlModel item, IReadOnlyCollection<string> contactLocations)
+    {
+        return EnumerateLocations(item).Any(candidate =>
+            EndsWithSlug(candidate, "contactus") ||
+            contactLocations.Any(contact => UrlsEqual(candidate, contact)));
+    }
 
-    private static string Normalize(string url) =>
-        (url ?? string.Empty).Split('?', '#')[0].TrimEnd('/');
+    private static IEnumerable<string> EnumerateLocations(SitemapUrlModel item)
+    {
+        if (!string.IsNullOrWhiteSpace(item?.Location))
+            yield return item.Location;
+
+        foreach (var alternate in item?.AlternateLocations ?? Array.Empty<string>())
+            if (!string.IsNullOrWhiteSpace(alternate))
+                yield return alternate;
+    }
+
+    private static void NormalizeAndDeduplicate(IList<SitemapUrlModel> sitemapUrls)
+    {
+        foreach (var item in sitemapUrls)
+            AlignLocationWithAlternates(item);
+
+        // Keep the first model's update metadata, but merge any distinct
+        // hreflang alternates before removing a semantic duplicate.
+        var firstByLocation = new Dictionary<string, SitemapUrlModel>(StringComparer.OrdinalIgnoreCase);
+        foreach (var item in sitemapUrls.ToList())
+        {
+            var key = Normalize(item.Location);
+            if (string.IsNullOrEmpty(key))
+                continue;
+
+            if (!firstByLocation.TryGetValue(key, out var first))
+            {
+                firstByLocation[key] = item;
+                continue;
+            }
+
+            MergeAlternates(first, item.AlternateLocations);
+            AlignLocationWithAlternates(first);
+            sitemapUrls.Remove(item);
+        }
+    }
+
+    private static void MergeAlternates(SitemapUrlModel target, IEnumerable<string> additions)
+    {
+        var merged = (target.AlternateLocations ?? Array.Empty<string>()).ToList();
+        merged.AddRange(additions ?? Array.Empty<string>());
+        target.AlternateLocations = merged;
+    }
+
+    private static void AlignLocationWithAlternates(SitemapUrlModel item)
+    {
+        if (item is null)
+            return;
+
+        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var uniqueAlternates = new List<string>();
+        foreach (var alternate in item.AlternateLocations ?? Array.Empty<string>())
+        {
+            if (string.IsNullOrWhiteSpace(alternate))
+                continue;
+
+            var key = Normalize(alternate);
+            if (string.IsNullOrEmpty(key) || seen.Add(key))
+                uniqueAlternates.Add(alternate);
+        }
+
+        item.AlternateLocations = uniqueAlternates;
+        var exactRepresentative = uniqueAlternates.FirstOrDefault(alternate =>
+            UrlsEqual(item.Location, alternate));
+        if (exactRepresentative is not null)
+            item.Location = exactRepresentative;
+    }
+
+    private static bool UrlsEqual(string left, string right)
+    {
+        var normalizedLeft = Normalize(left);
+        var normalizedRight = Normalize(right);
+        return !string.IsNullOrEmpty(normalizedLeft) &&
+               normalizedLeft.Equals(normalizedRight, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static string Normalize(string url)
+    {
+        var value = StripQueryAndFragment(url);
+        if (string.IsNullOrEmpty(value))
+            return string.Empty;
+
+        if (Uri.TryCreate(value, UriKind.Absolute, out var absolute) &&
+            (absolute.Scheme.Equals(Uri.UriSchemeHttp, StringComparison.OrdinalIgnoreCase) ||
+             absolute.Scheme.Equals(Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase)))
+        {
+            var origin = absolute.GetComponents(UriComponents.SchemeAndServer, UriFormat.SafeUnescaped)
+                .Normalize(NormalizationForm.FormC);
+            return $"absolute|{origin}|{GetNormalizedPath(absolute)}";
+        }
+
+        var rooted = value.StartsWith("/", StringComparison.Ordinal);
+        return $"{(rooted ? "root" : "relative")}|{GetSemanticPath(value)}";
+    }
+
+    private static string GetSemanticPath(string value)
+    {
+        var stripped = StripQueryAndFragment(value);
+        if (string.IsNullOrEmpty(stripped))
+            return string.Empty;
+
+        if (Uri.TryCreate(stripped, UriKind.Absolute, out var absolute))
+            return GetNormalizedPath(absolute);
+
+        if (Uri.TryCreate(new Uri("https://semantic.invalid/"), stripped.TrimStart('/'), out var relative))
+            return GetNormalizedPath(relative);
+
+        return stripped.Trim('/').Normalize(NormalizationForm.FormC);
+    }
+
+    private static string GetNormalizedPath(Uri uri) =>
+        uri.GetComponents(UriComponents.Path, UriFormat.SafeUnescaped)
+            .Normalize(NormalizationForm.FormC)
+            .TrimEnd('/');
+
+    private static string StripQueryAndFragment(string url) =>
+        (url ?? string.Empty).Split('?', '#')[0].Trim().TrimEnd('/');
 }

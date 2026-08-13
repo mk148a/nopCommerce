@@ -1,0 +1,316 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-08-12T22:19:20+03:00",
+  "reviewType": "independent second-pass linguistic, catalog, franchise-title and archery-terminology QA",
+  "sourceReport": {
+    "file": "final-repetition-review-global.json",
+    "sha256": "C026C0A1FBA27C0E1E0F4CB68AABB1527B1A213FDD7CDE477AC19FD591CE0973",
+    "byteLength": 89389,
+    "exactCorrectedValuesReviewed": 344
+  },
+  "scope": {
+    "languages": [
+      "gr",
+      "my",
+      "jp",
+      "ru",
+      "ur",
+      "ar"
+    ],
+    "packages": [
+      "attribute",
+      "tag"
+    ],
+    "checks": [
+      "source-to-target semantic fidelity",
+      "target-language grammar and natural ecommerce catalog wording",
+      "archery, armor and historical-reenactment terminology",
+      "Malay word order, Malay-versus-Indonesian usage and dropped technical meaning",
+      "Urdu and Arabic semantic precision and target-script catalog wording",
+      "Greek mixed-script leakage and weapon terminology",
+      "Japanese and Russian technical terms and official localized franchise titles",
+      "proper-name preservation including Koç, LARP, LOTR and Archery Tag",
+      "adjacent repetition, meaningless machine text and unjustified English leakage"
+    ]
+  },
+  "result": {
+    "status": "corrections_required",
+    "reviewedCount": 344,
+    "passedWithoutChangeCount": 324,
+    "suggestionCount": 20,
+    "countsByPackage": {
+      "attribute": 5,
+      "tag": 15
+    },
+    "countsByLanguage": {
+      "gr": 4,
+      "my": 2,
+      "jp": 2,
+      "ru": 2,
+      "ur": 6,
+      "ar": 4
+    }
+  },
+  "automatedCrossChecks": {
+    "sourceSha256Matched": true,
+    "sourceExactFixCountMatched": true,
+    "suggestionRowsMatchedSourceExactly": 20,
+    "suggestionCurrentValuesMatchedSourceExactly": 20,
+    "duplicateSuggestionKeyCount": 0,
+    "sourceCasingChecks": {
+      "exact8PcsRows": 1,
+      "wrong8PcsCaseRows": 0,
+      "exactJapaneseKatanaRows": 1,
+      "wrongJapaneseKatanaCaseRows": 0
+    },
+    "kocRowsInReviewedSet": 0,
+    "larpSourceRows": 35,
+    "lotrSourceRows": 36,
+    "archeryTagSourceRows": 0,
+    "contactCorrectionsInSourceReport": 0,
+    "protectedNameViolations": 0
+  },
+  "terminologyEvidence": [
+    {
+      "language": "gr",
+      "term": "θηκάρι",
+      "url": "https://www.wordreference.com/engr/scabbard",
+      "note": "The Greek dictionary entry identifies θηκάρι as the weapon-specific word for a sword scabbard; generic θήκη is broader."
+    },
+    {
+      "language": "gr",
+      "term": "Οι Μάγοι του Γουέιβερλι",
+      "url": "https://www.disneyplus.com/el-gr/browse/entity-f9cd33a5-678b-45c6-a7b9-607c327962e6",
+      "note": "Disney+ Greece uses Οι Μάγοι του Γουέιβερλι as the official localized series title."
+    },
+    {
+      "language": "gr",
+      "term": "Καλίσι Ταργκάριεν",
+      "url": "https://www.in.gr/2019/03/28/life/sokolatenia-ayga-drakon-tou-game-thrones/",
+      "note": "Greek media usage writes both the title/name and Targaryen surname in Greek script, supporting a natural Greek-script catalog tag."
+    },
+    {
+      "language": "jp",
+      "term": "ウェイバリー通りのウィザードたち",
+      "url": "https://www.disney.co.jp/studio/liveaction/1078",
+      "note": "Disney Japan uses ウェイバリー通りのウィザードたち as the official localized franchise title."
+    },
+    {
+      "language": "ru",
+      "term": "Волшебники из Вэйверли Плэйс",
+      "url": "https://www.kinopoisk.ru/series/396481/",
+      "note": "The established Russian catalog title is Волшебники из Вэйверли Плэйс."
+    },
+    {
+      "language": "ar",
+      "term": "إلف",
+      "url": "https://dictionary.cambridge.org/dictionary/english-arabic/elf",
+      "note": "The English-Arabic dictionary gives إلف for the fantasy creature, avoiding the jinn ambiguity of الجان."
+    },
+    {
+      "language": "ar",
+      "term": "ويزردز أوف ويفرلي بليس",
+      "url": "https://tv.apple.com/sa/show/%D9%88%D9%8A%D8%B2%D8%B1%D8%AF%D8%B2-%D8%A7%D9%88%D9%81-%D9%88%D9%8A%D9%81%D8%B1%D9%84%D9%8A-%D8%A8%D9%84%D9%8A%D8%B3/umc.cmc.3p5qoi9jce14j7v6ntzc9vf3y?l=ar",
+      "note": "Apple TV's Arabic catalog uses the Arabic-script franchise title ويزردز أوف ويفرلي بليس."
+    },
+    {
+      "language": "ur",
+      "term": "فل گرین لیدر",
+      "url": "https://www.aaj.tv/news/96971/life-style",
+      "note": "Urdu commercial writing uses فل گرین لیدر for the leather grade; the literal grain-by-grain rendering is not natural catalog terminology."
+    },
+    {
+      "language": "ur",
+      "term": "لارڈ آف دی رنگز",
+      "url": "https://www.linkshop.pk/lord-of-the-rings-urdu-edition-3-books-box-set?order=ASC&page=288&sort=ps.price",
+      "note": "The published Urdu edition and Urdu book catalog use لارڈ آف دی رنگز, supporting target-script SEO wording."
+    },
+    {
+      "language": "ur",
+      "term": "ویورلی پلیس کے جادوگر",
+      "url": "https://fandubdb.fandom.com/wiki/Wizards_of_Waverly_Place",
+      "note": "The dubbing catalog records ویورلی پلیس کے جادوگر for the Urdu Disney Channel title."
+    },
+    {
+      "language": "my",
+      "term": "barrelled arrow profile",
+      "url": "https://www.bow-international.com/features/roll-out-the-barrel/",
+      "note": "A barrelled arrow tapers from a thicker center toward both the point and nock; merely saying berbentuk tirus drops this defining geometry."
+    },
+    {
+      "language": "my",
+      "term": "batang anak panah",
+      "url": "https://news.uitm.edu.my/2023/03/kejohanan-persahabatan-pusat-latihan-negeri-uitm-pahang-dan-pasukan-memanah-karista-uitm-pahang/",
+      "note": "Malaysian archery usage counts arrows with batang anak panah, not generic unit."
+    }
+  ],
+  "suggestions": [
+    {
+      "source": "Quiver and Pauldrons Sheath Parts with Bow Holder",
+      "package": "attribute",
+      "language": "gr",
+      "currentProposedValue": "φαρέτρα, επωμίδες και μέρη θήκης με βάση τόξου",
+      "correctedValue": "φαρέτρα, επωμίδες και μέρη θηκαριού με στήριγμα τόξου",
+      "reason": "Θηκάρι is the weapon-specific term for a scabbard, while θήκη is a generic case. Στήριγμα also conveys a bow holder more accurately than βάση."
+    },
+    {
+      "source": "Sword&Scabbard",
+      "package": "attribute",
+      "language": "gr",
+      "currentProposedValue": "σπαθί και θήκη",
+      "correctedValue": "σπαθί και θηκάρι",
+      "reason": "The current generic word means case or sheath broadly; θηκάρι is the precise Greek catalog term for a sword scabbard."
+    },
+    {
+      "source": "wizards of waverly place",
+      "package": "tag",
+      "language": "gr",
+      "currentProposedValue": "Wizards of Waverly Place",
+      "correctedValue": "Οι Μάγοι του Γουέιβερλι",
+      "reason": "The English title was left unchanged. Disney+ Greece uses Οι Μάγοι του Γουέιβερλι as the official Greek title."
+    },
+    {
+      "source": "khaleesi targaryen",
+      "package": "tag",
+      "language": "gr",
+      "currentProposedValue": "Khaleesi Targaryen",
+      "correctedValue": "Καλίσι Ταργκάριεν",
+      "reason": "Greek franchise usage writes the name in Greek script; the current all-Latin value is unnecessary mixed-script leakage in a Greek catalog tag."
+    },
+    {
+      "source": "12 pcs Barelled",
+      "package": "attribute",
+      "language": "my",
+      "currentProposedValue": "12 unit, berbentuk tirus",
+      "correctedValue": "12 batang anak panah yang lebih tebal di tengah dan menirus di kedua-dua hujung",
+      "reason": "The current value says only tapered and loses the defining barrelled-arrow geometry: thickest in the center and tapered toward both ends. Batang anak panah is natural Malaysian archery counting language."
+    },
+    {
+      "source": "24 pcs Barelled",
+      "package": "attribute",
+      "language": "my",
+      "currentProposedValue": "24 unit, berbentuk tirus",
+      "correctedValue": "24 batang anak panah yang lebih tebal di tengah dan menirus di kedua-dua hujung",
+      "reason": "The current value says only tapered and loses the defining barrelled-arrow geometry: thickest in the center and tapered toward both ends. Batang anak panah is natural Malaysian archery counting language."
+    },
+    {
+      "source": "Quiver and Pauldrons Sheath Parts with Bow Holder",
+      "package": "attribute",
+      "language": "jp",
+      "currentProposedValue": "矢筒、肩当て、鞘部品、弓ホルダー",
+      "correctedValue": "矢筒、肩当て、弓ホルダー付きの鞘パーツ",
+      "reason": "The current punctuation turns the bow holder into a separate fourth item and drops the source's attachment relation. The correction clearly says sheath parts with a bow holder."
+    },
+    {
+      "source": "wizards of waverly place",
+      "package": "tag",
+      "language": "jp",
+      "currentProposedValue": "Wizards of Waverly Place",
+      "correctedValue": "ウェイバリー通りのウィザードたち",
+      "reason": "The English title was left unchanged. Disney Japan uses ウェイバリー通りのウィザードたち as the official Japanese title."
+    },
+    {
+      "source": "lord of the rings costumes",
+      "package": "tag",
+      "language": "ru",
+      "currentProposedValue": "костюмы «Властелин колец»",
+      "correctedValue": "костюмы из «Властелина колец»",
+      "reason": "The current phrase is grammatically malformed. Russian requires the preposition and genitive franchise title to express costumes from The Lord of the Rings."
+    },
+    {
+      "source": "wizards of waverly place",
+      "package": "tag",
+      "language": "ru",
+      "currentProposedValue": "Wizards of Waverly Place",
+      "correctedValue": "Волшебники из Вэйверли Плэйс",
+      "reason": "The English title was left unchanged; Волшебники из Вэйверли Плэйс is the established Russian localized title."
+    },
+    {
+      "source": "FullGrainLeather",
+      "package": "tag",
+      "language": "ur",
+      "currentProposedValue": "مکمل دانے والا چمڑا",
+      "correctedValue": "فل گرین لیدر",
+      "reason": "The current value is an awkward literal rendering of leather grain. فل گرین لیدر is the established Urdu commercial term for this leather grade."
+    },
+    {
+      "source": "elven cloak",
+      "package": "tag",
+      "language": "ur",
+      "currentProposedValue": "ایلف کی چادر",
+      "correctedValue": "ایلف کا لبادہ",
+      "reason": "چادر is a broad word for a sheet or shawl; لبادہ is the precise Urdu apparel term for a cloak and fits the fantasy catalog context."
+    },
+    {
+      "source": "camping backpack",
+      "package": "tag",
+      "language": "ur",
+      "currentProposedValue": "کیمپنگ بیگ",
+      "correctedValue": "کیمپنگ بیک پیک",
+      "reason": "The current value reduces backpack to a generic bag. بیک پیک preserves the product type and is natural Urdu ecommerce wording."
+    },
+    {
+      "source": "traveler backpack",
+      "package": "tag",
+      "language": "ur",
+      "currentProposedValue": "مسافر کا بیگ",
+      "correctedValue": "سفری بیک پیک",
+      "reason": "The current possessive phrase means a traveler's generic bag. سفری بیک پیک is concise catalog wording and preserves the backpack product type."
+    },
+    {
+      "source": "lord of the rings costumes",
+      "package": "tag",
+      "language": "ur",
+      "currentProposedValue": "The Lord of the Rings کے ملبوسات",
+      "correctedValue": "لارڈ آف دی رنگز کے ملبوسات",
+      "reason": "The current tag leaves the franchise title in Latin script. The published Urdu edition and Urdu media use لارڈ آف دی رنگز."
+    },
+    {
+      "source": "wizards of waverly place",
+      "package": "tag",
+      "language": "ur",
+      "currentProposedValue": "Wizards of Waverly Place",
+      "correctedValue": "ویورلی پلیس کے جادوگر",
+      "reason": "The title was left entirely in English. ویورلی پلیس کے جادوگر is the recorded Urdu Disney dubbing title and reads naturally in an Urdu catalog."
+    },
+    {
+      "source": "elven cloak",
+      "package": "tag",
+      "language": "ar",
+      "currentProposedValue": "عباءة الجان",
+      "correctedValue": "عباءة إلفية",
+      "reason": "الجان can be understood as jinn and is ambiguous for Tolkien-style elves. إلفية identifies the fantasy race unambiguously."
+    },
+    {
+      "source": "elvish sword",
+      "package": "tag",
+      "language": "ar",
+      "currentProposedValue": "سيف الجان",
+      "correctedValue": "سيف إلفي",
+      "reason": "الجان can mean jinn; إلفي is the precise Arabic adjective for an elvish fantasy weapon."
+    },
+    {
+      "source": "lord of the rings costumes",
+      "package": "tag",
+      "language": "ar",
+      "currentProposedValue": "أزياء The Lord of the Rings",
+      "correctedValue": "أزياء سيد الخواتم",
+      "reason": "The current mixed-script value leaves the franchise title in English. سيد الخواتم is the established Arabic title."
+    },
+    {
+      "source": "wizards of waverly place",
+      "package": "tag",
+      "language": "ar",
+      "currentProposedValue": "Wizards of Waverly Place",
+      "correctedValue": "ويزردز أوف ويفرلي بليس",
+      "reason": "The title was left in Latin script. Arabic streaming catalogs use ويزردز أوف ويفرلي بليس, preserving the franchise identity in customer-readable Arabic script."
+    }
+  ],
+  "mutationSafeguards": {
+    "sourceReportMutated": false,
+    "packageFilesMutated": false,
+    "glossaryFilesMutated": false,
+    "pluginSourceMutated": false,
+    "reportOnly": true
+  }
+}

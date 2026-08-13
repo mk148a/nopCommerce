@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "errorCount": 0,
+  "reviewedCellCheckCount": 11921,
+  "glossaryExactMatchCount": 11921,
+  "caseAliasCheckCount": 410,
+  "kocBrandTerminologyCheckCount": 76,
+  "protectedTokenCheckCount": 1178,
+  "protectedTokenExactMatchCount": 1178,
+  "protectedResolutionCheckCount": 278,
+  "protectedResolutionExactMatchCount": 278,
+  "postSemanticResolutionCheckCount": 21,
+  "postSemanticResolutionExactMatchCount": 21,
+  "domainResolutionSha256": "66AD24060CC703178411C2294007BF7BE61B6A8D2BFC94651CCC3FF655C049D7",
+  "crossScopeResolutionSha256": "868CF0FD1723C243532FE41CCF2000B9C43130F52D0A11FC2F800F09507938E0",
+  "northCaseAliasResolutionSha256": "B89C0874730454B6A6EA2D6E7A8AE6BCEE9073B3B432CBB1E614069AFD02D25D",
+  "protectedTokenResolutionSha256": "88FB52C1597BF304DE5682C2331DD53FBCBF3370BE5F3CCB5AF3F3D20CE327DF",
+  "postSemanticResolutionSha256": "CEBF6499ECACFBFBCD39F3101640296793FCE17199966E8E8E9C3C7A1F0CBAD2",
+  "postSemanticApplicationAuditSha256": "1613004E9798292EDCCDEE0D894A62979C4D1F03FA2C47AC75ECA012B7093E05",
+  "groups": {
+    "west": {
+      "languageCount": 6,
+      "reviewedSourceCount": 1251,
+      "reviewedLanguageCellCount": 7506,
+      "resolvedDomainOwnerCount": 12,
+      "glossarySha256": "8AD2EE18D050E3614366C2B339B0DE9089C3E83FAB25F927D6CD26FD42890FD6"
+    },
+    "north": {
+      "languageCount": 7,
+      "reviewedSourceCount": 1251,
+      "reviewedLanguageCellCount": 8757,
+      "resolvedDomainOwnerCount": 19,
+      "glossarySha256": "EE649E6DA701DBAA4067CC0FEF2A2B22DEE6714EE2E9C3103BF4C223D3AE9F5C"
+    },
+    "global": {
+      "languageCount": 6,
+      "reviewedSourceCount": 1251,
+      "reviewedLanguageCellCount": 7506,
+      "resolvedDomainOwnerCount": 21,
+      "glossarySha256": "25D95E458AAEC3FB098FE7888024DCA3EDC444BCB094A44B68DBC12A4E7D31AD"
+    }
+  },
+  "errors": []
+}

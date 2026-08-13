@@ -63,7 +63,7 @@ public sealed class RoutingEventConsumer : IConsumer<GenericRoutingEvent>
         eventMessage.RouteValues[NopRoutingDefaults.RouteValue.Controller] = "Common";
         eventMessage.RouteValues[NopRoutingDefaults.RouteValue.Action] = "ContactUs";
         eventMessage.RouteValues[NopRoutingDefaults.RouteValue.SeName] = urlRecord.Slug;
-        eventMessage.Handled = true;
+        StopRouting(eventMessage);
     }
 
     private async Task<Nop.Core.Domain.Localization.Language> GetRequestedLanguageAsync(GenericRoutingEvent eventMessage)
@@ -90,6 +90,17 @@ public sealed class RoutingEventConsumer : IConsumer<GenericRoutingEvent>
             $"{eventMessage.HttpContext.Request.PathBase}{path}{eventMessage.HttpContext.Request.QueryString}";
         eventMessage.RouteValues[NopRoutingDefaults.RouteValue.PermanentRedirect] = true;
         eventMessage.HttpContext.Items[NopHttpDefaults.GenericRouteInternalRedirect] = true;
-        eventMessage.Handled = true;
+        StopRouting(eventMessage);
+    }
+
+    private static void StopRouting(GenericRoutingEvent eventMessage)
+    {
+        // nopCommerce 4.80 calls this flag Handled; 4.90+ renamed it to
+        // StopProcessing. Reflection keeps this source compatible with both
+        // contracts while each major-version package is rebuilt normally.
+        var property = eventMessage.GetType().GetProperty("StopProcessing")
+            ?? eventMessage.GetType().GetProperty("Handled")
+            ?? throw new InvalidOperationException("GenericRoutingEvent has no stop-processing flag.");
+        property.SetValue(eventMessage, true);
     }
 }

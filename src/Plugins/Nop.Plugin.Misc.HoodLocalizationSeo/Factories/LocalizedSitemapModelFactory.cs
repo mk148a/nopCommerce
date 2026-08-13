@@ -95,7 +95,15 @@ public sealed class LocalizedSitemapModelFactory : ISitemapModelFactory
         DateTime? dateTimeUpdatedOn = null,
         UpdateFrequency updateFreq = UpdateFrequency.Weekly)
     {
-        return _inner.PrepareLocalizedSitemapUrlAsync(routeName, getRouteParamsAwait, dateTimeUpdatedOn, updateFreq);
+        // This member is part of the 4.80 interface and was removed in 4.90.
+        // Invoke it reflectively so the same source remains compilable after
+        // retargeting the plugin project to a newer nopCommerce checkout.
+        var method = _inner.GetType().GetMethod(nameof(PrepareLocalizedSitemapUrlAsync),
+            new[] { typeof(string), typeof(Func<int?, Task<object>>), typeof(DateTime?), typeof(UpdateFrequency) })
+            ?? throw new MissingMethodException(_inner.GetType().FullName,
+                nameof(PrepareLocalizedSitemapUrlAsync));
+        return (Task<SitemapUrlModel>)method.Invoke(_inner,
+            new object[] { routeName, getRouteParamsAwait, dateTimeUpdatedOn, updateFreq });
     }
 
     private static string BuildLocalizedPath(string languageCode, string slug)

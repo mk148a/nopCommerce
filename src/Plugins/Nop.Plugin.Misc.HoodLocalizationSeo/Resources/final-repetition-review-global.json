@@ -1,0 +1,2499 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-08-12T19:10:00.000Z",
+  "reviewType": "final systematic repetition, symbol-garbage, English-leak, semantic and archery terminology audit",
+  "scope": {
+    "targetLanguages": [
+      "gr",
+      "my",
+      "jp",
+      "ru",
+      "ur",
+      "ar"
+    ],
+    "packages": [
+      {
+        "file": "product-tag-localization.json",
+        "sha256AtReview": "F293AE0FCB1851C61DCCB2BD985E415ECBD96900E9B4B5876E8726577458985A",
+        "localizedRowsReviewed": 4914,
+        "distinctSourcesReviewed": 819
+      },
+      {
+        "file": "product-attribute-localization.json",
+        "sha256AtReview": "8AEF7E92C64DBD3D072D404C9EA02E0C2811880C28647BEAA3489000F7C4B28C",
+        "localizedRowsReviewed": 2592,
+        "distinctNormalizedSourcesInPackage": 432,
+        "distinctExactSourceStringsReviewed": 464
+      }
+    ],
+    "checks": [
+      "adjacent token and sub-token repetition across every tag and attribute value",
+      "symbol-only, unrelated prose, geocoder, weather, URL and color artifacts",
+      "untranslated or mixed English customer-visible catalog terms",
+      "semantic reversal, dropped head nouns and meaningless machine-generated output",
+      "Malay word salad and Indonesian leakage",
+      "archery terminology and discipline names",
+      "proper names, LARP, LOTR, Archery Tag and Koç brand preservation"
+    ],
+    "sourceReportsConsulted": [
+      "translation-pathology-audit.json",
+      "product-localization-quality-audit.json",
+      "tag-quality-pathology-global.json",
+      "technical-leak-review-global.json",
+      "additional-pathology-review-global.json",
+      "attribute-quality-review-global.json",
+      "archery-glossary-global.json"
+    ]
+  },
+  "safeguards": {
+    "packageFilesMutated": false,
+    "reportOnly": true,
+    "contactUiEntriesReviewed": 90,
+    "contactUiCorrectionsRequired": 0,
+    "kocRule": "Koç is a brand; preserve Koç and translate only nock terminology.",
+    "kocAnimalMeaningLeakFound": false,
+    "archeryTagRule": "Archery Tag is a protected activity name and must not be translated as a generic tag label.",
+    "acceptedTerms": [
+      "Koç",
+      "Archery Tag",
+      "LARP",
+      "LOTR",
+      "nock",
+      "longbow",
+      "recurve"
+    ]
+  },
+  "summary": {
+    "exactFixCount": 344,
+    "countsByPackage": {
+      "attribute": 54,
+      "tag": 290
+    },
+    "countsByLanguage": {
+      "ar": 32,
+      "gr": 34,
+      "jp": 26,
+      "my": 168,
+      "ru": 33,
+      "ur": 51
+    },
+    "countsByReason": {
+      "Removes machine-generated repetition while preserving the source meaning.": 95,
+      "Corrects a clear semantic mistranslation or meaningless machine-generated text.": 124,
+      "Restores the exact model identifier and its source punctuation.": 10,
+      "Preserves the proper name or acronym and translates only the descriptive catalog term.": 111,
+      "Replaces symbol-only or unrelated output with the exact customer-facing catalog meaning.": 4
+    }
+  },
+  "contactCorrections": [],
+  "exactFixes": [
+    {
+      "package": "attribute",
+      "languageCode": "ar",
+      "source": "Leather Covered",
+      "correctedValue": "مكسو بالجلد",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "gr",
+      "source": "Brown1",
+      "correctedValue": "Καφέ 1",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "gr",
+      "source": "Only Pauldrons(pair)",
+      "correctedValue": "μόνο επωμίδες (ζεύγος)",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "gr",
+      "source": "Quiver and Pauldrons Sheath Parts with Bow Holder",
+      "correctedValue": "φαρέτρα, επωμίδες και μέρη θήκης με βάση τόξου",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "gr",
+      "source": "Red1",
+      "correctedValue": "Κόκκινο 1",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "gr",
+      "source": "Sword&Scabbard",
+      "correctedValue": "σπαθί και θήκη",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "jp",
+      "source": "Only Wolf Fur",
+      "correctedValue": "オオカミの毛皮のみ",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "jp",
+      "source": "Quiver and Pauldrons Sheath Parts with Bow Holder",
+      "correctedValue": "矢筒、肩当て、鞘部品、弓ホルダー",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "jp",
+      "source": "Wolf Fur",
+      "correctedValue": "オオカミの毛皮",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "jp",
+      "source": "Woman",
+      "correctedValue": "女性",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "my",
+      "source": "1 Pcs",
+      "correctedValue": "1 unit",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "my",
+      "source": "12 pcs Barelled",
+      "correctedValue": "12 unit, berbentuk tirus",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "my",
+      "source": "12 Pcs Horn",
+      "correctedValue": "12 unit dengan nok tanduk",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "my",
+      "source": "2 Pcs",
+      "correctedValue": "2 unit",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "my",
+      "source": "24 pcs Barelled",
+      "correctedValue": "24 unit, berbentuk tirus",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "my",
+      "source": "24 Pcs Horn",
+      "correctedValue": "24 unit dengan nok tanduk",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "my",
+      "source": "30-35 lbs(Yellow One)",
+      "correctedValue": "30-35 lb (kuning)",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "my",
+      "source": "4 Pcs",
+      "correctedValue": "4 unit",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "my",
+      "source": "6 Pcs",
+      "correctedValue": "6 unit",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "my",
+      "source": "6 Pcs Horn",
+      "correctedValue": "6 unit dengan nok tanduk",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "my",
+      "source": "70+lbs(6 PCS)",
+      "correctedValue": "70+ lb (6 unit)",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "my",
+      "source": "8 pcs",
+      "correctedValue": "8 unit",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "my",
+      "source": "Armor&Bracers",
+      "correctedValue": "zirah dan pelindung lengan",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "my",
+      "source": "Armor&Helmet",
+      "correctedValue": "zirah dan topi keledar",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "my",
+      "source": "Brown1",
+      "correctedValue": "Coklat 1",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "my",
+      "source": "Leather Covered",
+      "correctedValue": "bersalut kulit",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "my",
+      "source": "Man",
+      "correctedValue": "Lelaki",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "my",
+      "source": "Medium Rise",
+      "correctedValue": "pinggang sederhana",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "my",
+      "source": "Only Drum",
+      "correctedValue": "gendang sahaja",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "my",
+      "source": "Only Pauldrons(pair)",
+      "correctedValue": "pelindung bahu sahaja (sepasang)",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "my",
+      "source": "Only Vest",
+      "correctedValue": "vest sahaja",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "my",
+      "source": "Only Wolf Fur",
+      "correctedValue": "bulu serigala sahaja",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "my",
+      "source": "Quiver and Pauldrons Sheath Parts with Bow Holder",
+      "correctedValue": "bekas anak panah, pelindung bahu dan bahagian sarung dengan pemegang busur",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "my",
+      "source": "Quiver and Pauldrons with Sheath Parts",
+      "correctedValue": "bekas anak panah dan pelindung bahu dengan bahagian sarung",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "my",
+      "source": "Red",
+      "correctedValue": "Merah",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "my",
+      "source": "Red1",
+      "correctedValue": "Merah 1",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "my",
+      "source": "Sword&Scabbard",
+      "correctedValue": "pedang dan sarung",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "my",
+      "source": "With Leather Cover",
+      "correctedValue": "dengan sarung kulit",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "my",
+      "source": "With Painting(Tezhib art)",
+      "correctedValue": "dengan lukisan (seni Tezhib)",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "my",
+      "source": "Wolf Fur",
+      "correctedValue": "bulu serigala",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "ru",
+      "source": "Quiver and Pauldrons Sheath Parts with Bow Holder",
+      "correctedValue": "колчан, наплечники и части ножен с держателем для лука",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "ru",
+      "source": "Quiver and Pauldrons with Sheath Parts",
+      "correctedValue": "колчан и наплечники с частями ножен",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "ru",
+      "source": "Standard (Sheep Fur)",
+      "correctedValue": "стандарт (овечий мех)",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "ru",
+      "source": "Type-1",
+      "correctedValue": "Тип-1",
+      "reason": "Restores the exact model identifier and its source punctuation."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "ru",
+      "source": "type-1",
+      "correctedValue": "тип-1",
+      "reason": "Restores the exact model identifier and its source punctuation."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "ru",
+      "source": "Type-17",
+      "correctedValue": "Тип-17",
+      "reason": "Restores the exact model identifier and its source punctuation."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "ru",
+      "source": "type-17",
+      "correctedValue": "тип-17",
+      "reason": "Restores the exact model identifier and its source punctuation."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "ru",
+      "source": "Type-2",
+      "correctedValue": "Тип-2",
+      "reason": "Restores the exact model identifier and its source punctuation."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "ru",
+      "source": "type-2",
+      "correctedValue": "тип-2",
+      "reason": "Restores the exact model identifier and its source punctuation."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "ru",
+      "source": "Type-3",
+      "correctedValue": "Тип-3",
+      "reason": "Restores the exact model identifier and its source punctuation."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "ru",
+      "source": "type-3",
+      "correctedValue": "тип-3",
+      "reason": "Restores the exact model identifier and its source punctuation."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "ru",
+      "source": "Type-4",
+      "correctedValue": "Тип-4",
+      "reason": "Restores the exact model identifier and its source punctuation."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "ru",
+      "source": "type-4",
+      "correctedValue": "тип-4",
+      "reason": "Restores the exact model identifier and its source punctuation."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "ur",
+      "source": "Standard (Sheep Fur)",
+      "correctedValue": "معیاری (بھیڑ کی کھال)",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ar",
+      "source": "archery bow holster",
+      "correctedValue": "حامل قوس الرماية",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ar",
+      "source": "butane canister",
+      "correctedValue": "عبوة بوتان",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ar",
+      "source": "CosplayBelt",
+      "correctedValue": "حزام كوسبلاي",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ar",
+      "source": "CosplayCostume",
+      "correctedValue": "زي كوسبلاي",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ar",
+      "source": "elven cloak",
+      "correctedValue": "عباءة الجان",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ar",
+      "source": "elvish sword",
+      "correctedValue": "سيف الجان",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ar",
+      "source": "FullGrainLeather",
+      "correctedValue": "جلد كامل الحبيبات",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ar",
+      "source": "GenuineLeatherBelt",
+      "correctedValue": "حزام من الجلد الطبيعي",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ar",
+      "source": "HandmadeLeatherBelt",
+      "correctedValue": "حزام جلدي مصنوع يدوياً",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ar",
+      "source": "HistoricalReenactment",
+      "correctedValue": "إعادة تمثيل تاريخي",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ar",
+      "source": "Larp Gear",
+      "correctedValue": "معدات LARP",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ar",
+      "source": "larp helmet",
+      "correctedValue": "خوذة LARP",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ar",
+      "source": "larp warrior armor",
+      "correctedValue": "درع محارب LARP",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ar",
+      "source": "LARPgear",
+      "correctedValue": "معدات LARP",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ar",
+      "source": "leather greaves",
+      "correctedValue": "واقيات ساق جلدية",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ar",
+      "source": "lord of the rings costumes",
+      "correctedValue": "أزياء The Lord of the Rings",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ar",
+      "source": "lotr",
+      "correctedValue": "LOTR",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ar",
+      "source": "lotr costume",
+      "correctedValue": "زي LOTR",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ar",
+      "source": "lotr fan gift",
+      "correctedValue": "هدية لمحبي LOTR",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ar",
+      "source": "lotr lovers",
+      "correctedValue": "محبو LOTR",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ar",
+      "source": "lotr sword",
+      "correctedValue": "سيف LOTR",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ar",
+      "source": "MedievalLeatherBelt",
+      "correctedValue": "حزام جلدي من العصور الوسطى",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ar",
+      "source": "MongolianBelt",
+      "correctedValue": "حزام منغولي",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ar",
+      "source": "MongolianWarrior",
+      "correctedValue": "محارب منغولي",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ar",
+      "source": "Reading Renfaire",
+      "correctedValue": "Reading Renfaire",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ar",
+      "source": "shaman larp costume",
+      "correctedValue": "زي شامان LARP",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ar",
+      "source": "shieldmaiden armor",
+      "correctedValue": "درع المحاربة حاملة الدرع",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ar",
+      "source": "uruk hai helmet",
+      "correctedValue": "خوذة Uruk-hai",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ar",
+      "source": "walmart camping stove",
+      "correctedValue": "موقد تخييم Walmart",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ar",
+      "source": "warrior dress",
+      "correctedValue": "زي المحارب",
+      "reason": "Replaces symbol-only or unrelated output with the exact customer-facing catalog meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ar",
+      "source": "wizards of waverly place",
+      "correctedValue": "Wizards of Waverly Place",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "gr",
+      "source": "camping wood stove with oven",
+      "correctedValue": "ξυλόσομπα κάμπινγκ με φούρνο",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "gr",
+      "source": "CosplayBelt",
+      "correctedValue": "ζώνη cosplay",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "gr",
+      "source": "CosplayCostume",
+      "correctedValue": "στολή cosplay",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "gr",
+      "source": "elven cloak",
+      "correctedValue": "μανδύας ξωτικού",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "gr",
+      "source": "elvish sword",
+      "correctedValue": "σπαθί ξωτικού",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "gr",
+      "source": "End Of The Road Renfaire",
+      "correctedValue": "End Of The Road Renfaire",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "gr",
+      "source": "FullGrainLeather",
+      "correctedValue": "δέρμα πλήρους κόκκου",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "gr",
+      "source": "GenuineLeatherBelt",
+      "correctedValue": "ζώνη από γνήσιο δέρμα",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "gr",
+      "source": "HandmadeLeatherBelt",
+      "correctedValue": "χειροποίητη δερμάτινη ζώνη",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "gr",
+      "source": "HistoricalReenactment",
+      "correctedValue": "ιστορική αναπαράσταση",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "gr",
+      "source": "khaleesi targaryen",
+      "correctedValue": "Khaleesi Targaryen",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "gr",
+      "source": "Larp Gear",
+      "correctedValue": "εξοπλισμός LARP",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "gr",
+      "source": "larp helmet",
+      "correctedValue": "κράνος LARP",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "gr",
+      "source": "larp sword",
+      "correctedValue": "σπαθί LARP",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "gr",
+      "source": "larp warrior armor",
+      "correctedValue": "πανοπλία πολεμιστή LARP",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "gr",
+      "source": "LARPgear",
+      "correctedValue": "εξοπλισμός LARP",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "gr",
+      "source": "lord of the rings costumes",
+      "correctedValue": "στολές του Άρχοντα των Δαχτυλιδιών",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "gr",
+      "source": "lotr",
+      "correctedValue": "LOTR",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "gr",
+      "source": "lotr costume",
+      "correctedValue": "στολή LOTR",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "gr",
+      "source": "lotr fan gift",
+      "correctedValue": "δώρο για θαυμαστή του LOTR",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "gr",
+      "source": "lotr lovers",
+      "correctedValue": "θαυμαστές του LOTR",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "gr",
+      "source": "lotr sword",
+      "correctedValue": "σπαθί LOTR",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "gr",
+      "source": "MedievalLeatherBelt",
+      "correctedValue": "μεσαιωνική δερμάτινη ζώνη",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "gr",
+      "source": "MongolianBelt",
+      "correctedValue": "μογγολική ζώνη",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "gr",
+      "source": "Reading Renfaire",
+      "correctedValue": "Reading Renfaire",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "gr",
+      "source": "rustic home decor",
+      "correctedValue": "ρουστίκ διακόσμηση σπιτιού",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "gr",
+      "source": "shaman larp costume",
+      "correctedValue": "στολή σαμάνου LARP",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "gr",
+      "source": "travel backpack for men",
+      "correctedValue": "ανδρικό ταξιδιωτικό σακίδιο",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "gr",
+      "source": "wizards of waverly place",
+      "correctedValue": "Wizards of Waverly Place",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "jp",
+      "source": "CosplayCostume",
+      "correctedValue": "コスプレ衣装",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "jp",
+      "source": "elven cloak",
+      "correctedValue": "エルフのマント",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "jp",
+      "source": "elven orcish dwarven",
+      "correctedValue": "エルフ・オーク・ドワーフ",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "jp",
+      "source": "elvish sword",
+      "correctedValue": "エルフの剣",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "jp",
+      "source": "hiking rucksack",
+      "correctedValue": "ハイキング用リュックサック",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "jp",
+      "source": "HistoricalReenactment",
+      "correctedValue": "歴史再現",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "jp",
+      "source": "khaleesi targaryen",
+      "correctedValue": "カリーシ・ターガリエン",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "jp",
+      "source": "Larp Gear",
+      "correctedValue": "LARP装備",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "jp",
+      "source": "larp helmet",
+      "correctedValue": "LARP用ヘルメット",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "jp",
+      "source": "larp sword",
+      "correctedValue": "LARP用の剣",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "jp",
+      "source": "larp warrior armor",
+      "correctedValue": "LARP戦士の鎧",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "jp",
+      "source": "LARPgear",
+      "correctedValue": "LARP装備",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "jp",
+      "source": "lord of the rings costumes",
+      "correctedValue": "『ロード・オブ・ザ・リング』の衣装",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "jp",
+      "source": "lotr",
+      "correctedValue": "LOTR",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "jp",
+      "source": "lotr costume",
+      "correctedValue": "LOTR衣装",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "jp",
+      "source": "lotr fan gift",
+      "correctedValue": "LOTRファン向けギフト",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "jp",
+      "source": "lotr lovers",
+      "correctedValue": "LOTRファン",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "jp",
+      "source": "lotr sword",
+      "correctedValue": "LOTRの剣",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "jp",
+      "source": "MedievalLeatherBelt",
+      "correctedValue": "中世の革ベルト",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "jp",
+      "source": "Reading Renfaire",
+      "correctedValue": "Reading Renfaire",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "jp",
+      "source": "shaman larp costume",
+      "correctedValue": "LARP用シャーマン衣装",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "jp",
+      "source": "wizards of waverly place",
+      "correctedValue": "Wizards of Waverly Place",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "ancient bag",
+      "correctedValue": "beg antik",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "ancient greek helmet",
+      "correctedValue": "topi keledar Yunani purba",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "anniversary gift",
+      "correctedValue": "hadiah ulang tahun perkahwinan",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "archery quiver arrow",
+      "correctedValue": "tabung dan anak panah",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "arrow ring",
+      "correctedValue": "cincin pemanah",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "arrowhead jewelry",
+      "correctedValue": "barang kemas mata anak panah",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "arrowhead necklace",
+      "correctedValue": "rantai mata anak panah",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "authentic pant",
+      "correctedValue": "seluar autentik",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "backpack",
+      "correctedValue": "beg galas",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "bronze helmet",
+      "correctedValue": "topi keledar gangsa",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "burning stove",
+      "correctedValue": "dapur pembakaran",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "bushcraft rucksack",
+      "correctedValue": "beg galas bushcraft",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "butane canister",
+      "correctedValue": "kartrij butana",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "camp chef everest 2x",
+      "correctedValue": "Camp Chef Everest 2X",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "camping stove",
+      "correctedValue": "dapur perkhemahan",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "cooking stove",
+      "correctedValue": "dapur memasak",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "cosplay bow",
+      "correctedValue": "busur cosplay",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "cosplay gear",
+      "correctedValue": "peralatan cosplay",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "CosplayBelt",
+      "correctedValue": "tali pinggang cosplay",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "CosplayCostume",
+      "correctedValue": "kostum cosplay",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "craft feathers",
+      "correctedValue": "bulu kraf",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "Dragon Faire",
+      "correctedValue": "Dragon Faire",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "elven cloak",
+      "correctedValue": "jubah elf",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "elvish sword",
+      "correctedValue": "pedang elf",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "Fairfield Renaissance Faire",
+      "correctedValue": "Fairfield Renaissance Faire",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "fantasy armour",
+      "correctedValue": "zirah fantasi",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "father days gift",
+      "correctedValue": "hadiah Hari Bapa",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "fluffy feathers",
+      "correctedValue": "bulu gebu",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "full armor set",
+      "correctedValue": "set lengkap zirah",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "FullGrainLeather",
+      "correctedValue": "kulit bijian penuh",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "GenuineLeatherBelt",
+      "correctedValue": "tali pinggang kulit tulen",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "geralt of rivia",
+      "correctedValue": "Geralt of Rivia",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "gladiator bracelet",
+      "correctedValue": "gelang gladiator",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "Great Plains Renaissance & Scottish Festival",
+      "correctedValue": "Great Plains Renaissance & Scottish Festival",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "grey worm helmet",
+      "correctedValue": "topi keledar Grey Worm",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "halloween costumes",
+      "correctedValue": "kostum Halloween",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "handmade armor",
+      "correctedValue": "zirah buatan tangan",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "handmade belt",
+      "correctedValue": "tali pinggang buatan tangan",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "HandmadeLeatherBelt",
+      "correctedValue": "tali pinggang kulit buatan tangan",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "headscarf",
+      "correctedValue": "tudung kepala",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "helmet",
+      "correctedValue": "topi keledar",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "helmet bracelet",
+      "correctedValue": "gelang bertema topi keledar",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "helmet charms",
+      "correctedValue": "hiasan topi keledar",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "hiking gear",
+      "correctedValue": "peralatan mendaki",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "historical medieval battle",
+      "correctedValue": "pertempuran bersejarah zaman pertengahan",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "HistoricalReenactment",
+      "correctedValue": "lakonan semula sejarah",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "hmb",
+      "correctedValue": "HMB",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "hunger games",
+      "correctedValue": "The Hunger Games",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "hunting archery bow",
+      "correctedValue": "busur memanah untuk memburu",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "Idyllwild Renaissance Faire",
+      "correctedValue": "Idyllwild Renaissance Faire",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "islamic helmet",
+      "correctedValue": "topi keledar Islam",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "khaleesi targaryen",
+      "correctedValue": "Khaleesi Targaryen",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "kid archery bow",
+      "correctedValue": "busur memanah kanak-kanak",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "kuksa carving",
+      "correctedValue": "ukiran kuksa",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "lannister",
+      "correctedValue": "Lannister",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "large feathers",
+      "correctedValue": "bulu besar",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "Larp Gear",
+      "correctedValue": "peralatan LARP",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "larp helmet",
+      "correctedValue": "topi keledar LARP",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "larp sword",
+      "correctedValue": "pedang LARP",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "larp warrior armor",
+      "correctedValue": "zirah pahlawan LARP",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "LARPgear",
+      "correctedValue": "peralatan LARP",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "leather greaves",
+      "correctedValue": "pelindung betis kulit",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "leather plates",
+      "correctedValue": "kepingan kulit",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "leather plates armor",
+      "correctedValue": "zirah kepingan kulit",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "longbow for kid",
+      "correctedValue": "busur panjang untuk kanak-kanak",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "lord of the rings costumes",
+      "correctedValue": "kostum The Lord of the Rings",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "loth elf woman armor",
+      "correctedValue": "zirah wanita elf Loth",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "lotr",
+      "correctedValue": "LOTR",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "lotr costume",
+      "correctedValue": "kostum LOTR",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "lotr fan gift",
+      "correctedValue": "hadiah untuk peminat LOTR",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "lotr lovers",
+      "correctedValue": "peminat LOTR",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "lotr sword",
+      "correctedValue": "pedang LOTR",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "medicine bag",
+      "correctedValue": "beg ubat",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "medieval armor",
+      "correctedValue": "zirah zaman pertengahan",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "medieval weapon",
+      "correctedValue": "senjata zaman pertengahan",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "MedievalLeatherBelt",
+      "correctedValue": "tali pinggang kulit zaman pertengahan",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "middle earth",
+      "correctedValue": "Middle-earth",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "military gift",
+      "correctedValue": "hadiah ketenteraan",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "Mission Renaissance Faire",
+      "correctedValue": "Mission Renaissance Faire",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "modern shamanism",
+      "correctedValue": "shamanisme moden",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "MongolianBelt",
+      "correctedValue": "tali pinggang Mongolia",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "MongolianWarrior",
+      "correctedValue": "pahlawan Mongolia",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "nomad warrior armor",
+      "correctedValue": "zirah pahlawan nomad",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "pauldron shoulders",
+      "correctedValue": "pelindung bahu",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "Persian armor",
+      "correctedValue": "zirah Parsi",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "professional backpack",
+      "correctedValue": "beg galas profesional",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "Queensferry Renaissance Festival",
+      "correctedValue": "Queensferry Renaissance Festival",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "ranger armor",
+      "correctedValue": "zirah renjer",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "ranger cosplay",
+      "correctedValue": "kosplay renjer",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "Reading Renfaire",
+      "correctedValue": "Reading Renfaire",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "renaissance boots",
+      "correctedValue": "but Renaissance",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "renaissance fair",
+      "correctedValue": "pesta Renaissance",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "resurrection armor",
+      "correctedValue": "zirah Diriliş",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "resurrection cosplay",
+      "correctedValue": "kosplay Diriliş",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "robe caftan 2019",
+      "correctedValue": "jubah kaftan 2019",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "robe of winter night",
+      "correctedValue": "jubah malam musim sejuk",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "rustic home decor",
+      "correctedValue": "hiasan rumah rustik",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "shaman ceremonie",
+      "correctedValue": "upacara shaman",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "shaman clothes",
+      "correctedValue": "pakaian shaman",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "shaman drum",
+      "correctedValue": "gendang shaman",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "shaman headdress",
+      "correctedValue": "hiasan kepala shaman",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "shaman healing ceremonie",
+      "correctedValue": "upacara penyembuhan shaman",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "shaman king",
+      "correctedValue": "raja shaman",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "shaman larp costume",
+      "correctedValue": "kostum shaman LARP",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "shamanin club",
+      "correctedValue": "belantan shaman",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "shield maiden",
+      "correctedValue": "gadis perisai",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "shieldmaiden armor",
+      "correctedValue": "zirah gadis perisai",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "silver arrow ring",
+      "correctedValue": "cincin pemanah perak",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "sleeping bag",
+      "correctedValue": "beg tidur",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "small wood burning stove",
+      "correctedValue": "dapur pembakaran kayu kecil",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "Spring Fling At Sleepy Hollow Renaissance Faire",
+      "correctedValue": "Spring Fling At Sleepy Hollow Renaissance Faire",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "steel warrior shield",
+      "correctedValue": "perisai keluli pahlawan",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "stove for camping",
+      "correctedValue": "dapur untuk perkhemahan",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "tactical mask",
+      "correctedValue": "topeng taktikal",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "templar knight",
+      "correctedValue": "kesatria Templar",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "the hobbit wow",
+      "correctedValue": "The Hobbit",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "Topeka Renaissance Fall Festival",
+      "correctedValue": "Topeka Renaissance Fall Festival",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "travel backpack for men",
+      "correctedValue": "beg galas perjalanan lelaki",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "traveler backpack",
+      "correctedValue": "beg galas pengembara",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "turkish kaftan",
+      "correctedValue": "kaftan Turki",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "uruk hai helmet",
+      "correctedValue": "topi keledar Uruk-hai",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "viking cosplay",
+      "correctedValue": "kosplay Viking",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "viking drink cup",
+      "correctedValue": "cawan minuman Viking",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "wall lamp bedroom",
+      "correctedValue": "lampu dinding bilik tidur",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "warrior armor",
+      "correctedValue": "zirah pahlawan",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "warrior helmet",
+      "correctedValue": "topi keledar pahlawan",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "warrior shirt",
+      "correctedValue": "baju pahlawan",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "warrior woman armor",
+      "correctedValue": "zirah wanita pahlawan",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "wedding feathers",
+      "correctedValue": "bulu perkahwinan",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "Whispering Grove Faire",
+      "correctedValue": "Whispering Grove Faire",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "Winds Of Time Renaissance Faire",
+      "correctedValue": "Winds Of Time Renaissance Faire",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "winter is coming",
+      "correctedValue": "Winter Is Coming",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "winterfell",
+      "correctedValue": "Winterfell",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "wizards of waverly place",
+      "correctedValue": "Wizards of Waverly Place",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "wood stove for tent camping",
+      "correctedValue": "dapur kayu untuk perkhemahan khemah",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "wood wall sconce",
+      "correctedValue": "lampu dinding kayu",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "wooden spoon",
+      "correctedValue": "sudu kayu",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "yatagan",
+      "correctedValue": "yatagan",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ru",
+      "source": "CosplayBelt",
+      "correctedValue": "пояс для косплея",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ru",
+      "source": "CosplayCostume",
+      "correctedValue": "костюм для косплея",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ru",
+      "source": "FullGrainLeather",
+      "correctedValue": "полнозернистая кожа",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ru",
+      "source": "HandmadeLeatherBelt",
+      "correctedValue": "кожаный пояс ручной работы",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ru",
+      "source": "khaleesi targaryen",
+      "correctedValue": "Кхалиси Таргариен",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ru",
+      "source": "Larp Gear",
+      "correctedValue": "снаряжение LARP",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ru",
+      "source": "larp helmet",
+      "correctedValue": "шлем для LARP",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ru",
+      "source": "larp sword",
+      "correctedValue": "меч для LARP",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ru",
+      "source": "larp warrior armor",
+      "correctedValue": "доспех воина LARP",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ru",
+      "source": "LARPgear",
+      "correctedValue": "снаряжение LARP",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ru",
+      "source": "lord of the rings costumes",
+      "correctedValue": "костюмы «Властелин колец»",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ru",
+      "source": "lotr",
+      "correctedValue": "LOTR",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ru",
+      "source": "lotr costume",
+      "correctedValue": "костюм LOTR",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ru",
+      "source": "lotr fan gift",
+      "correctedValue": "подарок поклоннику LOTR",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ru",
+      "source": "lotr lovers",
+      "correctedValue": "поклонники LOTR",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ru",
+      "source": "lotr sword",
+      "correctedValue": "меч LOTR",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ru",
+      "source": "Reading Renfaire",
+      "correctedValue": "Reading Renfaire",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ru",
+      "source": "shaman larp costume",
+      "correctedValue": "костюм шамана для LARP",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ru",
+      "source": "warrior armor",
+      "correctedValue": "доспех воина",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ru",
+      "source": "wizards of waverly place",
+      "correctedValue": "Wizards of Waverly Place",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ur",
+      "source": "camping accessories",
+      "correctedValue": "کیمپنگ کے لوازمات",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ur",
+      "source": "camping backpack",
+      "correctedValue": "کیمپنگ بیگ",
+      "reason": "Replaces symbol-only or unrelated output with the exact customer-facing catalog meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ur",
+      "source": "camping wood stove with oven",
+      "correctedValue": "اوون والا لکڑی کا کیمپنگ چولہا",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ur",
+      "source": "CosplayBelt",
+      "correctedValue": "کوس پلے پیٹی",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ur",
+      "source": "CosplayCostume",
+      "correctedValue": "کوس پلے لباس",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ur",
+      "source": "elven cloak",
+      "correctedValue": "ایلف کی چادر",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ur",
+      "source": "elvish sword",
+      "correctedValue": "ایلف کی تلوار",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ur",
+      "source": "FullGrainLeather",
+      "correctedValue": "مکمل دانے والا چمڑا",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ur",
+      "source": "GenuineLeatherBelt",
+      "correctedValue": "اصلی چمڑے کی پیٹی",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ur",
+      "source": "Great Lakes Medieval Faire",
+      "correctedValue": "Great Lakes Medieval Faire",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ur",
+      "source": "HandmadeLeatherBelt",
+      "correctedValue": "ہاتھ سے بنی چمڑے کی پیٹی",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ur",
+      "source": "harry potter wizard hat",
+      "correctedValue": "Harry Potter جادوگر کی ٹوپی",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ur",
+      "source": "HistoricalReenactment",
+      "correctedValue": "تاریخی باز آفرینی",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ur",
+      "source": "hunting archery bow",
+      "correctedValue": "شکار کے لیے تیر اندازی کی کمان",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ur",
+      "source": "Idyllwild Renaissance Faire",
+      "correctedValue": "Idyllwild Renaissance Faire",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ur",
+      "source": "japanese home decor",
+      "correctedValue": "جاپانی گھریلو سجاوٹ",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ur",
+      "source": "japanese katana",
+      "correctedValue": "جاپانی کاتانا",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ur",
+      "source": "khaleesi targaryen",
+      "correctedValue": "Khaleesi Targaryen",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ur",
+      "source": "kid archery bow",
+      "correctedValue": "بچوں کی تیر اندازی کی کمان",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ur",
+      "source": "Larp Gear",
+      "correctedValue": "LARP سازوسامان",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ur",
+      "source": "larp helmet",
+      "correctedValue": "LARP خود",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ur",
+      "source": "larp sword",
+      "correctedValue": "LARP تلوار",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ur",
+      "source": "larp warrior armor",
+      "correctedValue": "LARP جنگجو کی زرہ",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ur",
+      "source": "LARPgear",
+      "correctedValue": "LARP سازوسامان",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ur",
+      "source": "lord of the rings costumes",
+      "correctedValue": "The Lord of the Rings کے ملبوسات",
+      "reason": "Replaces symbol-only or unrelated output with the exact customer-facing catalog meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ur",
+      "source": "lotr",
+      "correctedValue": "LOTR",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ur",
+      "source": "lotr costume",
+      "correctedValue": "LOTR کا لباس",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ur",
+      "source": "lotr fan gift",
+      "correctedValue": "LOTR مداح کے لیے تحفہ",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ur",
+      "source": "lotr lovers",
+      "correctedValue": "LOTR کے مداح",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ur",
+      "source": "lotr sword",
+      "correctedValue": "LOTR تلوار",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ur",
+      "source": "MedievalLeatherBelt",
+      "correctedValue": "قرون وسطیٰ کی چمڑے کی پیٹی",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ur",
+      "source": "mens leather belt",
+      "correctedValue": "مردوں کی چمڑے کی پیٹی",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ur",
+      "source": "MongolianBelt",
+      "correctedValue": "منگولیائی پیٹی",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ur",
+      "source": "Montana Renaissance Festival",
+      "correctedValue": "Montana Renaissance Festival",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ur",
+      "source": "Oakenmist Renaissance Faire",
+      "correctedValue": "Oakenmist Renaissance Faire",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ur",
+      "source": "portable wood stove indoor",
+      "correctedValue": "اندرونی استعمال کے لیے قابل حمل لکڑی کا چولہا",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ur",
+      "source": "Reading Renfaire",
+      "correctedValue": "Reading Renfaire",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ur",
+      "source": "renaissance boots",
+      "correctedValue": "نشاۃ ثانیہ کے جوتے",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ur",
+      "source": "Renaissance Faire At Sleepy Hollow",
+      "correctedValue": "Renaissance Faire At Sleepy Hollow",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ur",
+      "source": "Renaissance Festival Of Nebraska",
+      "correctedValue": "Renaissance Festival Of Nebraska",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ur",
+      "source": "shaman larp costume",
+      "correctedValue": "LARP شمان کا لباس",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ur",
+      "source": "Silver Sage Renaissance Festival",
+      "correctedValue": "Silver Sage Renaissance Festival",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ur",
+      "source": "small tent wood stove",
+      "correctedValue": "چھوٹے خیمے کے لیے لکڑی کا چولہا",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ur",
+      "source": "traveler backpack",
+      "correctedValue": "مسافر کا بیگ",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ur",
+      "source": "wall lamp bedroom",
+      "correctedValue": "سونے کے کمرے کی دیواری لائٹ",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ur",
+      "source": "Winds Of Time Renaissance Faire",
+      "correctedValue": "Winds Of Time Renaissance Faire",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ur",
+      "source": "wizards of waverly place",
+      "correctedValue": "Wizards of Waverly Place",
+      "reason": "Replaces symbol-only or unrelated output with the exact customer-facing catalog meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ur",
+      "source": "wood marbling",
+      "correctedValue": "لکڑی پر ماربلنگ",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ur",
+      "source": "wood stove for tent camping",
+      "correctedValue": "خیمہ کیمپنگ کے لیے لکڑی کا چولہا",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ur",
+      "source": "wooden spoon",
+      "correctedValue": "لکڑی کا چمچ",
+      "reason": "Corrects a clear semantic mistranslation or meaningless machine-generated text."
+    }
+  ]
+}

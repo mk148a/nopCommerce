@@ -107,9 +107,10 @@ public sealed class HoodLocalizationController : BasePublicController
             }
         }
 
-        // Fail safely when a language package has not supplied a contact alias.
+        // Fail safely through the current core contact view when a language
+        // package has not supplied a localized contact alias.
         var model = await _commonModelFactory.PrepareContactUsModelAsync(new ContactUsModel(), false);
-        return View("~/Plugins/Nop.Plugin.Misc.HoodLocalizationSeo/Views/Common/ContactUs.cshtml", model);
+        return View("~/Views/Common/ContactUs.cshtml", model);
     }
 
     private string BuildAbsoluteLocalizedUrl(string languageCode, string slug)

@@ -1,39 +1,27 @@
+using Nop.Plugin.Misc.HoodLocalizationSeo.Services;
 using Nop.Services.Common;
-using Nop.Services.Localization;
 using Nop.Services.Plugins;
 
 namespace Nop.Plugin.Misc.HoodLocalizationSeo;
 
 public sealed class HoodLocalizationSeoPlugin : BasePlugin, IMiscPlugin
 {
-    private readonly ILocalizationService _localizationService;
+    private readonly ILocalizationResourceInstaller _resourceInstaller;
 
-    public HoodLocalizationSeoPlugin(ILocalizationService localizationService)
+    public HoodLocalizationSeoPlugin(ILocalizationResourceInstaller resourceInstaller)
     {
-        _localizationService = localizationService;
+        _resourceInstaller = resourceInstaller;
     }
 
     public override async Task InstallAsync()
     {
-        await UpsertOwnedResourcesAsync();
+        await _resourceInstaller.InstallEmbeddedPackageAsync();
         await base.InstallAsync();
     }
 
     public override async Task UpdateAsync(string currentVersion, string targetVersion)
     {
-        await UpsertOwnedResourcesAsync();
+        await _resourceInstaller.InstallEmbeddedPackageAsync();
         await base.UpdateAsync(currentVersion, targetVersion);
-    }
-
-    private Task UpsertOwnedResourcesAsync()
-    {
-        // The deployment package may add language-specific values for these keys.
-        // Supplying English defaults here makes a clean installation deterministic.
-        return _localizationService.AddOrUpdateLocaleResourceAsync(new Dictionary<string, string>
-        {
-            ["Hood.LocalizationSeo.ContactCanonical"] = "Contact",
-            ["Hood.LocalizationSeo.BlogFeedDescription"] = "Blog",
-            ["Hood.LocalizationSeo.ResourcePackageVersion"] = "1.00"
-        });
     }
 }

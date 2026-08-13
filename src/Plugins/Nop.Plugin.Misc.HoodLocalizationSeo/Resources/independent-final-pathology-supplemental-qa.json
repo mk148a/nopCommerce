@@ -1,0 +1,240 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-08-12T22:39:00+03:00",
+  "reviewType": "independent second-pass QA of final supplemental pathology corrections",
+  "sourceReport": {
+    "file": "final-pathology-supplemental-review.json",
+    "sha256": "97784243B1BF589F6D4311236D82699D98E07774D8953550A13BAED8EEC15379",
+    "byteLength": 12279,
+    "exactFixesReviewed": 16
+  },
+  "scope": {
+    "reviewedCount": 16,
+    "expectedCount": 16,
+    "packages": {
+      "tag": 16
+    },
+    "languages": {
+      "tr": 3,
+      "de": 1,
+      "pt": 3,
+      "gr": 7,
+      "my": 1,
+      "ur": 1
+    },
+    "checks": [
+      "source-to-target semantic fidelity",
+      "natural customer-facing ecommerce and SEO wording",
+      "target-language grammar and word order",
+      "numeral preservation",
+      "proper names and protected acronyms",
+      "IYI, Kayı and börk historical product context",
+      "LOTR, Coleman, Rentopia and Ames identity preservation",
+      "symbol garbage, mixed-script corruption and repetition",
+      "case-sensitive package/language/source and current-value preconditions"
+    ]
+  },
+  "result": {
+    "status": "corrections_required",
+    "reviewedCount": 16,
+    "passedWithoutChangeCount": 15,
+    "suggestionCount": 1,
+    "countsByPackage": {
+      "tag": 1
+    },
+    "countsByLanguage": {
+      "de": 1
+    }
+  },
+  "automatedCrossChecks": {
+    "sourceSha256Matched": true,
+    "sourceExactFixCountMatched": true,
+    "sourceRowsReviewedExactlyOnce": 16,
+    "caseSensitivePackageLanguageSourceMatchCount": 16,
+    "packageCurrentValueExactMatchCount": 16,
+    "duplicateSourceTupleCount": 0,
+    "missingSourceTupleCount": 0,
+    "emptyProposedValueCount": 0,
+    "unchangedProposedValueCount": 0,
+    "numeralBearingRowsReviewed": 3,
+    "numeralParityPassCount": 3,
+    "productTagPackageSha256": "4F6C6E2A88A5B5B48DE7A5FDB8629AAC1B1C9F84168699A231997C2569E0CF80",
+    "productTagPackageSha256MatchedPrimary": true
+  },
+  "reviewedRows": [
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "coleman 1 burner butane camping stove",
+      "currentProposedValue": "Coleman 1 gözlü bütanlı kamp ocağı",
+      "verdict": "accepted"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "coleman 2 burner stove",
+      "currentProposedValue": "Coleman 2 gözlü ocak",
+      "verdict": "accepted"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "iyi hat",
+      "currentProposedValue": "Kayı IYI börkü",
+      "verdict": "accepted"
+    },
+    {
+      "package": "tag",
+      "languageCode": "de",
+      "source": "lotr fan gift",
+      "currentProposedValue": "LOTR-Fangeschenk",
+      "verdict": "correction_required"
+    },
+    {
+      "package": "tag",
+      "languageCode": "pt",
+      "source": "lotr fan gift",
+      "currentProposedValue": "presente para fã de LOTR",
+      "verdict": "accepted"
+    },
+    {
+      "package": "tag",
+      "languageCode": "pt",
+      "source": "lotr sword",
+      "currentProposedValue": "espada de LOTR",
+      "verdict": "accepted"
+    },
+    {
+      "package": "tag",
+      "languageCode": "pt",
+      "source": "lotr lovers",
+      "currentProposedValue": "fãs de LOTR",
+      "verdict": "accepted"
+    },
+    {
+      "package": "tag",
+      "languageCode": "gr",
+      "source": "robe caftan",
+      "currentProposedValue": "ρόμπα καφτάνι",
+      "verdict": "accepted"
+    },
+    {
+      "package": "tag",
+      "languageCode": "gr",
+      "source": "robe caftan 2019",
+      "currentProposedValue": "ρόμπα καφτάνι 2019",
+      "verdict": "accepted"
+    },
+    {
+      "package": "tag",
+      "languageCode": "gr",
+      "source": "shieldmaiden costume",
+      "currentProposedValue": "στολή Βίκινγκ πολεμίστριας",
+      "verdict": "accepted"
+    },
+    {
+      "package": "tag",
+      "languageCode": "gr",
+      "source": "shaman clothing",
+      "currentProposedValue": "ενδυμασία σαμάνου",
+      "verdict": "accepted"
+    },
+    {
+      "package": "tag",
+      "languageCode": "gr",
+      "source": "Rentopia Renaissance Faire",
+      "currentProposedValue": "Αναγεννησιακό πανηγύρι Rentopia",
+      "verdict": "accepted"
+    },
+    {
+      "package": "tag",
+      "languageCode": "gr",
+      "source": "role play",
+      "currentProposedValue": "παιχνίδι ρόλων",
+      "verdict": "accepted"
+    },
+    {
+      "package": "tag",
+      "languageCode": "gr",
+      "source": "rustic wall sconce",
+      "currentProposedValue": "ρουστίκ απλίκα τοίχου",
+      "verdict": "accepted"
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "iyi bork hat",
+      "currentProposedValue": "topi börk Kayı IYI",
+      "verdict": "accepted"
+    },
+    {
+      "package": "tag",
+      "languageCode": "ur",
+      "source": "Ames Renaissance Faire",
+      "currentProposedValue": "ایمز نشاۃ ثانیہ میلہ",
+      "verdict": "accepted"
+    }
+  ],
+  "suggestions": [
+    {
+      "package": "tag",
+      "languageCode": "de",
+      "source": "lotr fan gift",
+      "currentProposedValue": "LOTR-Fangeschenk",
+      "correctedValue": "Geschenk für LOTR-Fans",
+      "reason": "The compact compound is understandable, but German ecommerce consistently uses Geschenk für LOTR-Fans; this is more idiomatic, clearer and stronger as a customer-facing SEO tag while preserving LOTR exactly."
+    }
+  ],
+  "terminologyEvidence": [
+    {
+      "languageCode": "de",
+      "term": "Geschenk für LOTR-Fans",
+      "url": "https://falkenkoenig.com/products/fingerring-edelstahl-the-lord-of-the-rings-1-01-009",
+      "note": "German ecommerce product copy uses Das perfekte Geschenk für LOTR-Fans."
+    },
+    {
+      "languageCode": "de",
+      "term": "Geschenk für LOTR-Fans",
+      "url": "https://www.elbenwald.de/der-herr-der-ringe/der-eine-ring-armband-der-herr-der-ringe",
+      "note": "A specialist German fantasy retailer uses Geschenk für Der Herr der Ringe-Fans, supporting the same natural construction."
+    },
+    {
+      "languageCode": "gr",
+      "term": "καφτάνι / ρόμπα",
+      "url": "https://www.tapandaedo.gr/categories/34491/12795865039-beachwear-gynaikeia-kaftania-kalokairi-tapandaedo.gr-/",
+      "note": "Greek retail product titles use Καφτάνι Ρόμπα, supporting the accepted catalog phrase."
+    }
+  ],
+  "protectedTerminology": {
+    "kocRule": "Koç remains a brand and must never be translated as an animal; Koç Nock is outside these 16 rows.",
+    "iyiRule": "IYI is the Kayı tamga in this catalog context, not the Turkish adjective iyi.",
+    "borkRule": "börk is the historical Turkic headwear term and must not become pork.",
+    "preservedNames": [
+      "LOTR",
+      "Coleman",
+      "Rentopia",
+      "Ames",
+      "Kayı",
+      "IYI",
+      "börk"
+    ],
+    "protectedNameViolationCount": 0
+  },
+  "mutationSafeguards": {
+    "reportOnly": true,
+    "sourcePrimaryReportModified": false,
+    "localizationPackageModified": false,
+    "glossaryModified": false,
+    "pluginSourceModified": false,
+    "nopCommerceCoreModified": false
+  },
+  "qualityGate": {
+    "sixteenOfSixteenReviewed": true,
+    "reviewCoverage": "16/16",
+    "allRowsCaseSensitiveMatched": true,
+    "currentValuePreconditionsMatched": true,
+    "duplicateOrMissingRows": 0,
+    "blockingSuggestionCount": 1,
+    "blockingUntilSuggestionResolvedAppliedAndReaudited": true
+  }
+}

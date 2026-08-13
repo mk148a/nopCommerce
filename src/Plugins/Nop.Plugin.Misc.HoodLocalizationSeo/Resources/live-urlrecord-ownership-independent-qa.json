@@ -1,0 +1,81 @@
+{
+  "schemaVersion": 1,
+  "reportId": "HOOD-LIVE-URLRECORD-OWNERSHIP-INDEPENDENT-QA",
+  "generatedAtUtc": "2026-08-13T10:03:33.325901+00:00",
+  "status": "PASS",
+  "deployable": true,
+  "immutableInputs": {
+    "manifest": {
+      "file": "localization-manifest.json",
+      "sha256": "F8241B4EF839DE2355073F096D471417E889B29FBAD21F8AC5E6FEC9D2D3F26F"
+    },
+    "productTagPackage": {
+      "file": "product-tag-localization.json",
+      "sha256": "37382D8BB83EA739D54F63BF5917E9C9CC7275664D66715946DDAF111AF9745B"
+    },
+    "liveUrlRecordSnapshot": {
+      "file": "live-urlrecord-ownership-snapshot-20260813.json",
+      "sha256": "EBE8BC194FC262ED3C614DE7F81B33D7C5EDC09A81AE310ED086C030D7F84497",
+      "canonicalRowsSha256": "1C20DF533BD2F002199940BEAE92A47706BECFFF66936C1319B06EFC38048DC0",
+      "rowCount": 10023
+    }
+  },
+  "summary": {
+    "reviewedLarpSlugChangeCount": 63,
+    "reviewedManifestLarpSlugChangeCount": 8,
+    "reviewedProductTagLarpSlugChangeCount": 55,
+    "numericLarpSlugCount": 0,
+    "disavowedForeignProductTagHistoryCount": 1,
+    "desiredUniqueSlugCount": 13466,
+    "previousUniqueSlugCount": 6815,
+    "internalOwnerConflictCount": 0,
+    "desiredUrlRecordForeignOwnerConflictCount": 0,
+    "previousUrlRecordForeignOwnerConflictCount": 0,
+    "totalUrlRecordForeignOwnerConflictCount": 0
+  },
+  "checks": [
+    {
+      "id": "exact-63-reviewed-larp-slugs",
+      "status": "PASS",
+      "checkedCount": 63
+    },
+    {
+      "id": "no-numeric-larp-counter-slugs",
+      "status": "PASS",
+      "remainingCount": 0
+    },
+    {
+      "id": "live-10023-current-desired-owner-scan",
+      "status": "PASS",
+      "conflictCount": 0
+    },
+    {
+      "id": "live-10023-previous-slug-owner-scan",
+      "status": "PASS",
+      "conflictCount": 0
+    },
+    {
+      "id": "foreign-history-disavowal",
+      "status": "PASS",
+      "removedClaims": [
+        {
+          "slug": "elven",
+          "formerClaimedOwner": [
+            "ProductTag",
+            783
+          ],
+          "preservedLiveOwner": [
+            "Product",
+            339
+          ],
+          "urlRecordId": 9551
+        }
+      ]
+    }
+  ],
+  "releaseDecision": {
+    "status": "PASS",
+    "deployable": true,
+    "reason": "Every current and previous package slug is conflict-free against all 10,023 live UrlRecords."
+  }
+}

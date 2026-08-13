@@ -1,0 +1,306 @@
+{
+  "schemaVersion": 1,
+  "reviewType": "final supplemental pathology, semantics and catalog-context review",
+  "generatedAt": "2026-08-12T22:31:28+03:00",
+  "scope": {
+    "targetErrorCount": 16,
+    "packages": {
+      "tag": 16
+    },
+    "languages": {
+      "tr": 3,
+      "de": 1,
+      "pt": 3,
+      "gr": 7,
+      "my": 1,
+      "ur": 1
+    }
+  },
+  "inputEvidence": {
+    "translationPathologyAudit": {
+      "path": "C:\\inetpub\\hood-localization-audit-20260812-083849\\translation-pathology-audit.json",
+      "sha256": "32F6081823F3C191DA0DC7C5BA0D8D861725AD11A393B29BCA54CE3011C7E825",
+      "bytes": 10198,
+      "errorCount": 16
+    },
+    "productTagLocalizationPackage": {
+      "path": "C:\\inetpub\\hood-localization-audit-20260812-083849\\product-tag-localization.json",
+      "sha256": "4F6C6E2A88A5B5B48DE7A5FDB8629AAC1B1C9F84168699A231997C2569E0CF80",
+      "bytes": 6936847
+    },
+    "productTagSourceExport": {
+      "path": "C:\\inetpub\\hood-localization-audit-20260812-083849\\product-tags-export.json",
+      "sha256": "299A4B28E1EBF0C6CFBAC6C408CD08593C65D6590EA7F576CA794F7C75866558",
+      "bytes": 237158
+    },
+    "westGlossary": {
+      "path": "C:\\inetpub\\hood-localization-audit-20260812-083849\\archery-glossary-west.json",
+      "sha256": "6F5DD03E42A95F46E3FE74B9269BE3664E61ECDA00ED6E2887FDE6845CECBF01",
+      "bytes": 173381
+    },
+    "globalGlossary": {
+      "path": "C:\\inetpub\\hood-localization-audit-20260812-083849\\archery-glossary-global.json",
+      "sha256": "11F0908B42C91C9752CEB27CB93357EED055B7C32A5CC564227F966E18D01DBB",
+      "bytes": 206266
+    }
+  },
+  "exactMatchProof": {
+    "auditRowsReviewed": 16,
+    "auditPackageLanguageSourceTupleExactMatchCount": 16,
+    "packageCurrentValueExactMatchCount": 16,
+    "productTagExportSourceExactMatchCount": 16,
+    "uniqueSourceCount": 15,
+    "uniqueProductTagExportSourceMatchCount": 15,
+    "unmatchedTargetCount": 0,
+    "ambiguousPackageMatchCount": 0,
+    "note": "lotr fan gift is one exact source used by two target language tuples (de and pt), so 16 reviewed tuples correspond to 15 distinct source strings."
+  },
+  "glossaryVerification": {
+    "targetTuplesReviewed": 16,
+    "exactLanguageAndSourceKeysPresent": 2,
+    "exactLanguageAndSourceKeysMissing": 14,
+    "existingExactGlossaryValuesEqualCurrentPackageValues": 2,
+    "presentEntries": [
+      {
+        "languageCode": "tr",
+        "source": "coleman 1 burner butane camping stove",
+        "value": "Coleman tek gözlü bütanlı kamp ocağı"
+      },
+      {
+        "languageCode": "tr",
+        "source": "coleman 2 burner stove",
+        "value": "Coleman çift gözlü ocak"
+      }
+    ],
+    "note": "The other 14 target language/source pairs are absent as exact glossary keys; this report does not claim glossary coverage and does not modify either glossary."
+  },
+  "protectedTerminology": [
+    {
+      "term": "Koç Nock",
+      "rule": "Koç is a protected brand name and Nock is the archery component term; never translate Koç as ram or another animal. This term is not one of the 16 target rows."
+    },
+    {
+      "term": "IYI / Kayı / börk",
+      "rule": "IYI denotes the Kayı tamga in this product context, not the Turkish adjective iyi; börk is the historical Turkic headwear term and must not become pork."
+    },
+    {
+      "term": "LOTR, Coleman, Rentopia, Ames",
+      "rule": "Preserve brand, acronym and proper-name identity while translating the surrounding catalog phrase naturally."
+    }
+  ],
+  "exactFixes": [
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "coleman 1 burner butane camping stove",
+      "currentValue": "Coleman tek gözlü bütanlı kamp ocağı",
+      "proposedValue": "Coleman 1 gözlü bütanlı kamp ocağı",
+      "reason": "Natural Turkish catalog wording while preserving the source numeral 1 exactly; this fixes the validator finding without adding a meaningless standalone digit."
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "coleman 2 burner stove",
+      "currentValue": "Coleman çift gözlü ocak",
+      "proposedValue": "Coleman 2 gözlü ocak",
+      "reason": "Natural Turkish stove terminology while preserving the source numeral 2 exactly."
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "iyi hat",
+      "currentValue": "iyi şapka şapka",
+      "proposedValue": "Kayı IYI börkü",
+      "reason": "The exact source tag maps to the Kayı börk product; IYI is the Kayı tamga, not the adjective iyi, and the duplicate generic word şapka is removed."
+    },
+    {
+      "package": "tag",
+      "languageCode": "de",
+      "source": "lotr fan gift",
+      "currentValue": "Lotter-Fan-Geschenk LOTR",
+      "proposedValue": "LOTR-Fangeschenk",
+      "reason": "Natural compact German catalog term; preserves the LOTR acronym and removes the unrelated lottery corruption Lotter."
+    },
+    {
+      "package": "tag",
+      "languageCode": "pt",
+      "source": "lotr fan gift",
+      "currentValue": "presente do fã lotter LOTR",
+      "proposedValue": "presente para fã de LOTR",
+      "reason": "Natural Portuguese catalog wording for a gift intended for a LOTR fan; removes the unrelated lotter artifact."
+    },
+    {
+      "package": "tag",
+      "languageCode": "pt",
+      "source": "lotr sword",
+      "currentValue": "espada de lotter LOTR",
+      "proposedValue": "espada de LOTR",
+      "reason": "Exact natural Portuguese phrase with the protected LOTR acronym and no invented lottery term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "pt",
+      "source": "lotr lovers",
+      "currentValue": "amantes lotter LOTR",
+      "proposedValue": "fãs de LOTR",
+      "reason": "Fãs is the natural Portuguese catalog/audience term; LOTR remains intact and the corrupted lotter token is removed."
+    },
+    {
+      "package": "tag",
+      "languageCode": "gr",
+      "source": "robe caftan",
+      "currentValue": "robeσοκαφτάνη",
+      "proposedValue": "ρόμπα καφτάνι",
+      "reason": "Natural Greek garment terms preserve both robe and caftan semantics and eliminate the joined Latin-Greek token."
+    },
+    {
+      "package": "tag",
+      "languageCode": "gr",
+      "source": "robe caftan 2019",
+      "currentValue": "robeσο καφτάν 2019",
+      "proposedValue": "ρόμπα καφτάνι 2019",
+      "reason": "Natural Greek garment wording, no mixed-script token, and the source year 2019 is preserved exactly."
+    },
+    {
+      "package": "tag",
+      "languageCode": "gr",
+      "source": "shieldmaiden costume",
+      "currentValue": "φορεσιά ve ασπιρmaiden",
+      "proposedValue": "στολή Βίκινγκ πολεμίστριας",
+      "reason": "Natural Greek costume-catalog wording for a shieldmaiden; the Viking warrior-woman concept is retained and the Turkish/English/Greek language salad is removed."
+    },
+    {
+      "package": "tag",
+      "languageCode": "gr",
+      "source": "shaman clothing",
+      "currentValue": "clothingχισμός σαμάνου",
+      "proposedValue": "ενδυμασία σαμάνου",
+      "reason": "Natural Greek catalog phrase for shaman clothing with no joined English-Greek token."
+    },
+    {
+      "package": "tag",
+      "languageCode": "gr",
+      "source": "Rentopia Renaissance Faire",
+      "currentValue": "Αναγεννησιακό πανηγύρι της Rentτοπίας",
+      "proposedValue": "Αναγεννησιακό πανηγύρι Rentopia",
+      "reason": "Rentopia is the verified event proper name and remains intact; the surrounding event type is natural Greek and the corrupt hybrid name is removed."
+    },
+    {
+      "package": "tag",
+      "languageCode": "gr",
+      "source": "role play",
+      "currentValue": "παιχνίδι roleόλων",
+      "proposedValue": "παιχνίδι ρόλων",
+      "reason": "Established natural Greek term for role play; removes the joined English-Greek token."
+    },
+    {
+      "package": "tag",
+      "languageCode": "gr",
+      "source": "rustic wall sconce",
+      "currentValue": "rustστίκ σκυρός τοίχου",
+      "proposedValue": "ρουστίκ απλίκα τοίχου",
+      "reason": "Natural Greek lighting-catalog terminology: απλίκα τοίχου means wall sconce and ρουστίκ conveys the style; the mixed-script corruption is removed."
+    },
+    {
+      "package": "tag",
+      "languageCode": "my",
+      "source": "iyi bork hat",
+      "currentValue": "♪ ♪ iyi pork topi ♪",
+      "proposedValue": "topi börk Kayı IYI",
+      "reason": "Natural Malay headwear phrase with protected historical/product terms; IYI is the Kayı tamga and börk is not pork. All injected music symbols are removed."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ur",
+      "source": "Ames Renaissance Faire",
+      "currentValue": "اَے [ یہوواہ ] !",
+      "proposedValue": "ایمز نشاۃ ثانیہ میلہ",
+      "reason": "Ames is preserved by Urdu transliteration, while Renaissance Faire is translated with the standard historical term نشاۃ ثانیہ and the natural event term میلہ; the invented religious/exclamation text is removed."
+    }
+  ],
+  "catalogContextEvidence": [
+    {
+      "targets": [
+        "iyi hat",
+        "iyi bork hat"
+      ],
+      "url": "https://hoodarcheryshop.com/tr/iyi-bork-hat",
+      "finding": "The exact tag resolves to Ertuğrul Alp Kayı Börk Şapka, and the product description explicitly identifies a Kayı börk."
+    },
+    {
+      "targets": [
+        "Rentopia Renaissance Faire"
+      ],
+      "url": "https://www.therenlist.com/fairs/rentopia-renaissance-faire",
+      "finding": "Rentopia Renaissance Faire is a real event; Rentopia must remain an intact proper name."
+    },
+    {
+      "targets": [
+        "Ames Renaissance Faire"
+      ],
+      "url": "https://discoverames.com/community-grant/",
+      "finding": "Discover Ames lists Ames Renaissance Faire as a real named event."
+    },
+    {
+      "targets": [
+        "shieldmaiden costume"
+      ],
+      "url": "https://www.public.gr/product/kids-and-toys/playmobil/playmo-friends/playmobil-playmo-friends-bikingk-polemistria-70854/1670946",
+      "finding": "Greek retail usage supports Βίκινγκ πολεμίστρια for a Viking warrior woman with shield and helmet."
+    },
+    {
+      "targets": [
+        "robe caftan",
+        "robe caftan 2019"
+      ],
+      "url": "https://www2.hm.com/el_gr/productpage.1294580001.html",
+      "finding": "Greek retail usage supports the garment term καφτάνι."
+    },
+    {
+      "targets": [
+        "rustic wall sconce"
+      ],
+      "url": "https://www.oikonomou-shop.gr/product/ilektrologika-ulika/ilektrikes-suskeues/fotistika/aplika-toixou-vekna-hm4876-driftwood-se-fusiko-43x15paxosx100uek1xe27-hm4876",
+      "finding": "Greek lighting retail uses απλίκα τοίχου and describes the style as ρουστίκ."
+    },
+    {
+      "targets": [
+        "Ames Renaissance Faire"
+      ],
+      "url": "https://internews.pk/22/04/2025/36062/",
+      "finding": "Urdu news usage supports نشاۃ ثانیہ and میلہ for a Renaissance faire/festival."
+    }
+  ],
+  "safeguards": {
+    "reportOnly": true,
+    "sourceAuditModified": false,
+    "localizationPackageModified": false,
+    "glossaryModified": false,
+    "pluginSourceModified": false,
+    "nopCommerceCoreModified": false,
+    "requiresExactPackageLanguageSourceMatchBeforeApplication": true,
+    "requiresCurrentValuePreconditionBeforeApplication": true,
+    "requiresPostApplicationPathologyAuditErrorCount": 0,
+    "requiresPostApplicationNumeralParity": true,
+    "requiresProtectedTermChecks": [
+      "Koç Nock",
+      "IYI",
+      "Kayı",
+      "börk",
+      "LOTR",
+      "Coleman",
+      "Rentopia",
+      "Ames"
+    ]
+  },
+  "qualityGate": {
+    "expectedFixCount": 16,
+    "actualFixCount": 16,
+    "allAuditTargetsCoveredExactlyOnce": true,
+    "allPackageRowsMatchedExactlyOnce": true,
+    "allCurrentValuesVerified": true,
+    "sourceAndCatalogContextChecked": true,
+    "numeralsPreservedWherePresent": true,
+    "blockingUntilAppliedAndReaudited": true
+  }
+}

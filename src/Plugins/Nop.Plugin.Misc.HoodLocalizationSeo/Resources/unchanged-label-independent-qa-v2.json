@@ -1,0 +1,115 @@
+{
+  "schemaVersion": 2,
+  "reportId": "HOOD-PRODUCT-UNCHANGED-LABEL-INDEPENDENT-QA-V2",
+  "generatedAtUtc": "2026-08-13T10:22:25.973014+00:00",
+  "status": "PASS",
+  "deployable": true,
+  "decision": "PASS",
+  "scope": "Complete identity-bound closure of the original 7,413 product-label warning rows.",
+  "immutableInputs": [
+    {
+      "kind": "finalProductTagPackage",
+      "path": "C:\\inetpub\\hood-localization-audit-20260812-083849\\product-tag-localization.json",
+      "sha256": "37382D8BB83EA739D54F63BF5917E9C9CC7275664D66715946DDAF111AF9745B",
+      "lengthBytes": 11283198
+    },
+    {
+      "kind": "finalProductAttributePackage",
+      "path": "C:\\inetpub\\hood-localization-audit-20260812-083849\\product-attribute-localization.json",
+      "sha256": "51DCC3AC06BCF3CDE4EB38514BA30E78FBAC67EFF1E8987C1366D4E0537D0B64",
+      "lengthBytes": 23614639
+    },
+    {
+      "kind": "original7413Classification",
+      "path": "C:\\inetpub\\hood-localization-audit-20260812-083849\\unchanged-label-independent-qa-v1.json",
+      "sha256": "31806127D3506489C65C8953C335C45E095E31BD961DD41A93DD87E215070259",
+      "lengthBytes": 1980468
+    },
+    {
+      "kind": "base177FixReview",
+      "path": "C:\\inetpub\\hood-localization-audit-20260812-083849\\unchanged-label-fix-independent-review-v1.json",
+      "sha256": "1916BD20674C0DEFE4B92796C85FE8AAFD6083EBEF085F1338C8F9F52FF8E86A",
+      "lengthBytes": 152328
+    },
+    {
+      "kind": "accepted6804Review",
+      "path": "C:\\inetpub\\hood-localization-audit-20260812-083849\\accepted-label-independent-review-v1.json",
+      "sha256": "7460B71D1A11680CEFDC6EE434E56467416DD7FFF157AAFB850102064D075D99",
+      "lengthBytes": 2949826
+    },
+    {
+      "kind": "finalEffectiveCorrections",
+      "path": "C:\\inetpub\\hood-localization-audit-20260812-083849\\final-product-label-corrections-v1.json",
+      "sha256": "9884B183765F16BFDD2AB5E702D639784E680DEFEC5161FA5F61DF67788A9A99",
+      "lengthBytes": 161989
+    }
+  ],
+  "summary": {
+    "blockingFindingCount": 0,
+    "reviewedOriginalWarningRowCount": 7413,
+    "reviewedBaseBlockingWarningRowCount": 609,
+    "reviewedAcceptedWarningRowCount": 6804,
+    "reviewedBaseFixCount": 177,
+    "effectiveFixCount": 203,
+    "effectiveFixMismatchCount": 0,
+    "missedAcceptedFixCount": 26,
+    "remainingBlockingWarningRowCount": 0,
+    "deployable": true
+  },
+  "checks": [
+    {
+      "id": "original-7413-complete-classification",
+      "status": "PASS",
+      "classifiedWarningRowCount": 7413,
+      "baseBlockingWarningRowCount": 609,
+      "acceptedWarningRowCount": 6804
+    },
+    {
+      "id": "base-177-fix-quality-review",
+      "status": "PASS",
+      "reviewedFixCount": 177
+    },
+    {
+      "id": "accepted-6804-identity-review",
+      "status": "PASS",
+      "reviewedClassificationCount": 4415,
+      "reviewedWarningRowCount": 6804,
+      "missedAcceptedFixCount": 26
+    },
+    {
+      "id": "effective-fix-package-closure",
+      "status": "PASS",
+      "effectiveFixCount": 203,
+      "affectedRowCount": 635,
+      "mismatchCount": 0,
+      "mismatches": []
+    },
+    {
+      "id": "blank-and-identity-drift",
+      "status": "PASS",
+      "blankValueCount": 0,
+      "duplicateIdentityCount": 0,
+      "languageCount": 24
+    },
+    {
+      "id": "exact-final-package-hash-binding",
+      "status": "PASS",
+      "tagPackageSha256": "37382D8BB83EA739D54F63BF5917E9C9CC7275664D66715946DDAF111AF9745B",
+      "attributePackageSha256": "51DCC3AC06BCF3CDE4EB38514BA30E78FBAC67EFF1E8987C1366D4E0537D0B64"
+    }
+  ],
+  "releaseDecision": {
+    "status": "PASS",
+    "deployable": true,
+    "reason": "All 7,413 original warning rows were identity-reviewed and every effective correction is exact in the SHA-bound final packages.",
+    "notAuthorized": [
+      "nopCommerce core/theme changes",
+      "hidden labels",
+      "direct live mutation"
+    ]
+  },
+  "reportArtifact": {
+    "path": "C:\\inetpub\\hood-localization-audit-20260812-083849\\unchanged-label-independent-qa-v2.json",
+    "selfSha256Disposition": "Compute externally after immutable write."
+  }
+}

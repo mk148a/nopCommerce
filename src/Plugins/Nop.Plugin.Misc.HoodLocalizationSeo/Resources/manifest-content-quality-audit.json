@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "errorCount": 0,
+  "categoryHtmlBoundaryCheckCount": 589,
+  "archeryTagFieldCheckCount": 95,
+  "productMetaDescriptionCheckCount": 76,
+  "productSeoOverlayExactFieldCheckCount": 380,
+  "productSeoOverlayFullDescriptionCheckCount": 76,
+  "turkishFieldCheckCount": 304,
+  "officePayloadFieldCheckCount": 6276,
+  "blogOfficeSanitizationCheckCount": 24,
+  "insecureImageSourceCheckCount": 1312,
+  "blogLocalizedProductUrlCheckCount": 24,
+  "internalStoreUrlLocaleCheckCount": 120,
+  "seoTitleCompletenessCheckCount": 1168,
+  "publicMetaDescriptionCompletenessCheckCount": 479,
+  "requiredProductTranslationPairCount": 76,
+  "actualProductTranslationPairCount": 76,
+  "productSeoOverlaySha256": "E8D7D112018B1BE40377E8C043747275D696C8CB84FDCC0C172DCA3ADF338C2E",
+  "productSeoOverlayExpectedFieldCheckCount": 380,
+  "errors": []
+}
