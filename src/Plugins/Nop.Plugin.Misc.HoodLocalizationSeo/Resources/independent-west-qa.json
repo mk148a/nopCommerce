@@ -1,0 +1,314 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-08-12T22:08:01+03:00",
+  "reviewType": "independent second-pass linguistic, catalog and archery-terminology QA",
+  "sourceReport": {
+    "file": "final-repetition-review-west.json",
+    "sha256": "9319EE131C6ABE437489B34DBF0BD9916A188C172808407727D649D9F7692F25",
+    "byteLength": 132019,
+    "exactCorrectedValuesReviewed": 428
+  },
+  "scope": {
+    "languages": [
+      "tr",
+      "fr",
+      "de",
+      "it",
+      "es",
+      "pt"
+    ],
+    "packages": [
+      "attribute",
+      "tag"
+    ],
+    "checks": [
+      "source-to-target semantic fidelity",
+      "target-language grammar and natural ecommerce catalog wording",
+      "Turkish archery and historical-reenactment terminology",
+      "proper-name handling including Koç, LARP, LOTR and Archery Tag",
+      "franchise-localized character and group names",
+      "city, weather, forecast, name, symbol and mixed-script injection",
+      "adjacent repetition and meaningless word order",
+      "unjustified English leakage"
+    ]
+  },
+  "result": {
+    "status": "corrections_required",
+    "reviewedCount": 428,
+    "passedWithoutChangeCount": 402,
+    "suggestionCount": 26,
+    "countsByPackage": {
+      "attribute": 2,
+      "tag": 24
+    },
+    "countsByLanguage": {
+      "tr": 15,
+      "fr": 1,
+      "de": 2,
+      "it": 2,
+      "es": 3,
+      "pt": 3
+    }
+  },
+  "automatedCrossChecks": {
+    "adjacentRepeatedPhraseCount": 0,
+    "foreignScriptIntrusionCount": 0,
+    "cityWeatherForecastNameArtifactCount": 0,
+    "conflictingDuplicateCorrectionCount": 0,
+    "sameAsEnglishSourceCount": 26,
+    "kocRowsInReviewedSet": 0,
+    "larpSourceRows": 17,
+    "lotrSourceRows": 1,
+    "archeryTagSourceRows": 0,
+    "protectedNameViolations": 0
+  },
+  "terminologyEvidence": [
+    {
+      "languageCode": "tr",
+      "term": "kişiye özel deri zırh",
+      "url": "https://hoodarcheryshop.com/gb/custom-leather-armor",
+      "note": "The product is explicitly custom made, so kişiye özel conveys the commercial meaning more precisely than generic özel."
+    },
+    {
+      "languageCode": "de",
+      "term": "Grauer Wurm",
+      "url": "https://gameofthrones.fandom.com/de/wiki/Grauer_Wurm",
+      "note": "The German franchise name is Grauer Wurm; the proposed compound Grey-Worm-Helm retains English unnecessarily."
+    },
+    {
+      "languageCode": "es",
+      "term": "Gusano Gris",
+      "url": "https://hieloyfuego.fandom.com/wiki/Gusano_Gris",
+      "note": "Spanish franchise usage localizes Grey Worm as Gusano Gris."
+    },
+    {
+      "languageCode": "pt",
+      "term": "Verme Cinzento",
+      "url": "https://pt.wikipedia.org/wiki/Verme_Cinzento",
+      "note": "Portuguese franchise usage localizes Grey Worm as Verme Cinzento."
+    },
+    {
+      "languageCode": "pt",
+      "term": "O Feiticeiro de Oz",
+      "url": "https://www.rtp.pt/programa/tv/p16624",
+      "note": "The Portuguese title is O Feiticeiro de Oz; this also matches the storefront's European Portuguese locale."
+    }
+  ],
+  "suggestions": [
+    {
+      "package": "attribute",
+      "languageCode": "tr",
+      "source": "Front and Back Pair",
+      "currentProposed": "ön ve arka çift",
+      "corrected": "ön ve arka parça çifti",
+      "reason": "Ön ve arka çift, iki yönün çift olduğu izlenimini veren eksik bir ifadedir; düzeltme, ürün seçeneğinin ön ve arka parçalardan oluşan bir çift olduğunu açıkça belirtir."
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "aragorn halloween costume",
+      "currentProposed": "Aragorn Halloween kostümü",
+      "corrected": "Aragorn Cadılar Bayramı kostümü",
+      "reason": "Halloween için yerleşik Türkçe karşılık Cadılar Bayramı'dır; Aragorn özel adı korunmuştur."
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "best halloween costumes",
+      "currentProposed": "en iyi Halloween kostümleri",
+      "corrected": "en iyi Cadılar Bayramı kostümleri",
+      "reason": "İngilizce etkinlik adı gereksiz yere bırakılmıştır; Cadılar Bayramı doğal ve SEO açısından anlaşılır Türkçe karşılıktır."
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "halloween",
+      "currentProposed": "Halloween",
+      "corrected": "Cadılar Bayramı",
+      "reason": "Genel etkinlik etiketi Türkçe vitrinde yerleşik adıyla sunulmalıdır."
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "halloween costume",
+      "currentProposed": "Halloween kostümü",
+      "corrected": "Cadılar Bayramı kostümü",
+      "reason": "Karma dil yerine etkinliğin yerleşik Türkçe adı kullanılmalıdır."
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "halloween costumes",
+      "currentProposed": "Halloween kostümleri",
+      "corrected": "Cadılar Bayramı kostümleri",
+      "reason": "Karma dil yerine etkinliğin yerleşik Türkçe adı kullanılmalıdır; çoğul anlam korunmuştur."
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "legolas halloween costume",
+      "currentProposed": "Legolas Halloween kostümü",
+      "corrected": "Legolas Cadılar Bayramı kostümü",
+      "reason": "Halloween Türkçeleştirilirken Legolas özel adı aynen korunmalıdır."
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "custom leather armor",
+      "currentProposed": "özel deri zırh",
+      "corrected": "kişiye özel deri zırh",
+      "reason": "Özel sözcüğü yalnızca unusual/special anlamına da gelebilir; ürünün custom-made niteliğini katalog dilinde kişiye özel daha doğru aktarır."
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "grey worm helmet",
+      "currentProposed": "Grey Worm miğferi",
+      "corrected": "Gri Solucan miğferi",
+      "reason": "Grey Worm karakter adı Türkçe Game of Thrones kullanımında Gri Solucan olarak yerelleştirilir; miğfer terimi doğru biçimde korunmuştur."
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "hot tent camping",
+      "currentProposed": "sıcak çadır kampçılığı",
+      "corrected": "sobalı çadır kampçılığı",
+      "reason": "Hot tent, yalnızca sıcak bir çadırı değil soba kullanımına uygun ısıtılabilir çadır kampını ifade eder; sobalı çadır kampçılığı ürün bağlamını doğru verir."
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "longbow for kid",
+      "currentProposed": "çocuk uzun yayı",
+      "corrected": "çocuklar için uzun yay",
+      "reason": "Mevcut ifade Türkçede iyelik ilişkisi kurarak çocuk tarafından sahip olunan bir yayı çağrıştırır; düzeltme hedef kullanıcı anlamını doğal biçimde verir."
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "MongolianWarrior",
+      "currentProposed": "Moğol savaşçı",
+      "corrected": "Moğol savaşçısı",
+      "reason": "Türkçe ad tamlamasında savaşçı sözcüğü iyelik eki almalıdır; Moğol savaşçısı doğal katalog biçimidir."
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "outdoor store",
+      "currentProposed": "açık hava mağazası",
+      "corrected": "doğa sporları mağazası",
+      "reason": "Açık hava mağazası sözcüğü sözcüğüne bir çeviridir ve mağazanın faaliyet alanını doğal Türkçeyle anlatmaz; doğa sporları mağazası yerleşik ticari ifadedir."
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "renaissance fair",
+      "currentProposed": "Rönesans fuarı",
+      "corrected": "Rönesans panayırı",
+      "reason": "Buradaki fair bir ticaret fuarı değil, dönem canlandırmaları ve eğlenceleri içeren tarihî panayırdır; panayır anlamı doğru karşılar."
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "unsullied helmet",
+      "currentProposed": "Unsullied miğferi",
+      "corrected": "Lekesizler miğferi",
+      "reason": "Unsullied topluluğu Türkçe Game of Thrones kullanımında Lekesizler olarak yerelleştirilir; İngilizce adın bırakılması gereksizdir."
+    },
+    {
+      "package": "tag",
+      "languageCode": "fr",
+      "source": "kid archery bow",
+      "currentProposed": "arc de tir à l’arc pour enfant",
+      "corrected": "arc pour enfant",
+      "reason": "Arc de tir à l’arc is tautological in French because arc already names the bow; arc pour enfant is the natural catalog phrase."
+    },
+    {
+      "package": "tag",
+      "languageCode": "de",
+      "source": "aragorn ranger vest",
+      "currentProposed": "Aragorn-Rangerweste",
+      "corrected": "Aragorn-Waldläuferweste",
+      "reason": "Ranger is localized as Waldläufer in the German Tolkien context; the correction preserves Aragorn and forms a natural German product compound."
+    },
+    {
+      "package": "tag",
+      "languageCode": "de",
+      "source": "grey worm helmet",
+      "currentProposed": "Grey-Worm-Helm",
+      "corrected": "Helm des Grauen Wurms",
+      "reason": "The character is localized as Grauer Wurm in German; the genitive phrase is grammatical and avoids an unnecessary English hybrid compound."
+    },
+    {
+      "package": "tag",
+      "languageCode": "it",
+      "source": "butane canister",
+      "currentProposed": "bombola di butano",
+      "corrected": "cartuccia di butano",
+      "reason": "In camping-product terminology a small replaceable fuel canister is a cartuccia, whereas bombola normally denotes a larger gas cylinder."
+    },
+    {
+      "package": "tag",
+      "languageCode": "it",
+      "source": "grey worm helmet",
+      "currentProposed": "elmo di Grey Worm",
+      "corrected": "elmo di Verme Grigio",
+      "reason": "Italian franchise usage localizes the character name as Verme Grigio; elmo remains the correct historical-armor term."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "es",
+      "source": "Set1",
+      "currentProposed": "Juego 1",
+      "corrected": "Conjunto 1",
+      "reason": "Juego 1 reads as Game 1; in an armor-set product attribute, Conjunto 1 preserves the intended set/group meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "es",
+      "source": "grey worm helmet",
+      "currentProposed": "casco de Grey Worm",
+      "corrected": "casco de Gusano Gris",
+      "reason": "The established Spanish franchise name is Gusano Gris; retaining the English name creates an avoidable mixed-language tag."
+    },
+    {
+      "package": "tag",
+      "languageCode": "es",
+      "source": "kid archery bow",
+      "currentProposed": "arco infantil de tiro con arco",
+      "corrected": "arco de tiro para niños",
+      "reason": "Tiro con arco after arco is repetitive; the correction is idiomatic Spanish and preserves both the shooting-bow and child-target meanings."
+    },
+    {
+      "package": "tag",
+      "languageCode": "pt",
+      "source": "backcountry",
+      "currentProposed": "natureza remota",
+      "corrected": "região selvagem",
+      "reason": "Natureza remota is an unnatural literal phrase; região selvagem naturally denotes a remote undeveloped backcountry area."
+    },
+    {
+      "package": "tag",
+      "languageCode": "pt",
+      "source": "grey worm helmet",
+      "currentProposed": "capacete de Grey Worm",
+      "corrected": "capacete de Verme Cinzento",
+      "reason": "Portuguese franchise usage localizes the character as Verme Cinzento; the English name should not remain in a localized tag."
+    },
+    {
+      "package": "tag",
+      "languageCode": "pt",
+      "source": "wizard of oz",
+      "currentProposed": "Mágico de Oz",
+      "corrected": "O Feiticeiro de Oz",
+      "reason": "The storefront uses European Portuguese, where the canonical title is O Feiticeiro de Oz; Mágico de Oz is not the established title."
+    }
+  ],
+  "mutationSafeguards": {
+    "sourceReportMutated": false,
+    "packageFilesMutated": false,
+    "glossaryFilesMutated": false,
+    "pluginSourceMutated": false,
+    "reportOnly": true
+  }
+}

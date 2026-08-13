@@ -1,0 +1,4134 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-08-12T18:43:26.986Z",
+  "reviewType": "final systematic repetition, English-leak, semantic-order and archery terminology audit",
+  "scope": {
+    "targetLanguages": [
+      "dk",
+      "se",
+      "nl",
+      "hu",
+      "no",
+      "pl",
+      "ro"
+    ],
+    "packages": [
+      {
+        "file": "product-tag-localization.json",
+        "sha256AtReview": "F293AE0FCB1851C61DCCB2BD985E415ECBD96900E9B4B5876E8726577458985A",
+        "localizedRowsReviewed": 5733,
+        "distinctSourcesReviewed": 819
+      },
+      {
+        "file": "product-attribute-localization.json",
+        "sha256AtReview": "8AEF7E92C64DBD3D072D404C9EA02E0C2811880C28647BEAA3489000F7C4B28C",
+        "localizedRowsReviewed": 30968,
+        "distinctExactSourceStringsReviewed": 464,
+        "distinctNormalizedSourcesInPackage": 432
+      }
+    ],
+    "checks": [
+      "adjacent token and sub-token repetition",
+      "injected geocoder, weather, Name, color and SCA artifacts",
+      "untranslated English customer-visible catalog terms",
+      "semantic reversal, dropped head nouns and wrong grammatical order",
+      "archery terminology and discipline names",
+      "proper names, LARP, LOTR, Archery Tag and Koç brand preservation"
+    ]
+  },
+  "safeguards": {
+    "packageFilesMutated": false,
+    "reportOnly": true,
+    "kocRule": "Koç is a brand; preserve Koç and translate only nock terminology.",
+    "kocAnimalMeaningLeakFound": false,
+    "acceptedTerms": [
+      "Koç",
+      "Archery Tag",
+      "LARP",
+      "LOTR",
+      "nock",
+      "longbow",
+      "recurve"
+    ]
+  },
+  "summary": {
+    "exactFixCount": 577,
+    "countsByPackage": {
+      "attribute": 125,
+      "tag": 452
+    },
+    "countsByLanguage": {
+      "dk": 72,
+      "hu": 74,
+      "nl": 66,
+      "no": 78,
+      "pl": 80,
+      "ro": 83,
+      "se": 124
+    },
+    "countsByReason": {
+      "Removes untranslated English leakage and uses the natural catalog term.": 164,
+      "Removes an injected machine-translation artifact that is absent from the source.": 39,
+      "Corrects a clear semantic mistranslation or meaningless word order.": 185,
+      "Restores the exact model identifier; punctuation is part of the identifier.": 21,
+      "Removes machine-generated repetition while preserving the source meaning.": 24,
+      "Preserves the proper name or acronym and translates only the descriptive catalog term.": 142,
+      "Uses the established target-language archery term without changing the discipline or brand.": 2
+    }
+  },
+  "uiReview": {
+    "file": "contact-ui-manual-overrides.json",
+    "sha256AtReview": "BD89F35AB6A2171D6B756D4BCA5113048E1D5EDD160931505C6971C0BB6E2161",
+    "targetLanguageCount": 7,
+    "resourcesPerLanguage": 15,
+    "localizedValuesReviewed": 105,
+    "checks": [
+      "natural contact-form wording",
+      "required-field and hint consistency",
+      "spelling, punctuation and address-register consistency"
+    ],
+    "passed": true,
+    "exactFixes": []
+  },
+  "exactFixes": [
+    {
+      "package": "attribute",
+      "languageCode": "dk",
+      "source": "Amber &Blue",
+      "correctedValue": "rav og blå",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "dk",
+      "source": "Amber &Green",
+      "correctedValue": "rav og grøn",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "dk",
+      "source": "Amber &Light Green",
+      "correctedValue": "rav og lysegrøn",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "dk",
+      "source": "Amber &Orange",
+      "correctedValue": "rav og orange",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "dk",
+      "source": "Amber &Red",
+      "correctedValue": "rav og rød",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "dk",
+      "source": "Brown",
+      "correctedValue": "Brun",
+      "reason": "Removes an injected machine-translation artifact that is absent from the source."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "dk",
+      "source": "Only Shirt",
+      "correctedValue": "Kun skjorte",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "dk",
+      "source": "Orthopedic Sole",
+      "correctedValue": "ortopædisk sål",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "dk",
+      "source": "Shaft Type",
+      "correctedValue": "pilskafttype",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "dk",
+      "source": "t1_2",
+      "correctedValue": "t1_2",
+      "reason": "Restores the exact model identifier; punctuation is part of the identifier."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "dk",
+      "source": "t1_3",
+      "correctedValue": "t1_3",
+      "reason": "Restores the exact model identifier; punctuation is part of the identifier."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "dk",
+      "source": "t1_4",
+      "correctedValue": "t1_4",
+      "reason": "Restores the exact model identifier; punctuation is part of the identifier."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "dk",
+      "source": "type2",
+      "correctedValue": "Type 2",
+      "reason": "Removes an injected machine-translation artifact that is absent from the source."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "dk",
+      "source": "Type2",
+      "correctedValue": "Type 2",
+      "reason": "Removes an injected machine-translation artifact that is absent from the source."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "hu",
+      "source": "Amber &Blue",
+      "correctedValue": "borostyán és kék",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "hu",
+      "source": "Amber &Green",
+      "correctedValue": "borostyán és zöld",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "hu",
+      "source": "Amber &Light Green",
+      "correctedValue": "borostyán és világoszöld",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "hu",
+      "source": "Amber &Orange",
+      "correctedValue": "borostyán és narancssárga",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "hu",
+      "source": "Amber &Red",
+      "correctedValue": "borostyán és piros",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "hu",
+      "source": "Full Set Without Boots",
+      "correctedValue": "Teljes készlet csizmák nélkül",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "hu",
+      "source": "Full Set Without Helmet",
+      "correctedValue": "Teljes készlet sisak nélkül",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "hu",
+      "source": "Lamellar Color",
+      "correctedValue": "lamellás páncél színe",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "hu",
+      "source": "No Pocket",
+      "correctedValue": "Nincs zseb",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "hu",
+      "source": "Only Cloak",
+      "correctedValue": "Csak köpeny",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "hu",
+      "source": "Only Drum",
+      "correctedValue": "Csak dob",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "hu",
+      "source": "Only Shirt",
+      "correctedValue": "Csak ing",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "hu",
+      "source": "Only Vest",
+      "correctedValue": "Csak mellény",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "hu",
+      "source": "Orthopedic Sole",
+      "correctedValue": "ortopéd talp",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "hu",
+      "source": "Painting Type",
+      "correctedValue": "festés típusa",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "hu",
+      "source": "t1_2",
+      "correctedValue": "t1_2",
+      "reason": "Restores the exact model identifier; punctuation is part of the identifier."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "hu",
+      "source": "t1_3",
+      "correctedValue": "t1_3",
+      "reason": "Restores the exact model identifier; punctuation is part of the identifier."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "hu",
+      "source": "t1_4",
+      "correctedValue": "t1_4",
+      "reason": "Restores the exact model identifier; punctuation is part of the identifier."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "hu",
+      "source": "Without Buckle",
+      "correctedValue": "Csat nélkül",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "nl",
+      "source": "1 Pcs",
+      "correctedValue": "1 stuk",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "nl",
+      "source": "Amber &Blue",
+      "correctedValue": "amber en blauw",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "nl",
+      "source": "Amber &Green",
+      "correctedValue": "amber en groen",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "nl",
+      "source": "Amber &Light Green",
+      "correctedValue": "amber en lichtgroen",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "nl",
+      "source": "Amber &Orange",
+      "correctedValue": "amber en oranje",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "nl",
+      "source": "Amber &Red",
+      "correctedValue": "amber en rood",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "nl",
+      "source": "Blue Standard",
+      "correctedValue": "blauw, standaard",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "nl",
+      "source": "Gift Card Amount",
+      "correctedValue": "cadeaukaartbedrag",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "nl",
+      "source": "Horn Black",
+      "correctedValue": "zwarte hoorn",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "nl",
+      "source": "Only Shirt",
+      "correctedValue": "Alleen overhemd",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "nl",
+      "source": "Only Vest",
+      "correctedValue": "Alleen vest",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "nl",
+      "source": "Orthopedic Sole",
+      "correctedValue": "orthopedische zool",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "nl",
+      "source": "Shaft Type",
+      "correctedValue": "pijlschachttype",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "nl",
+      "source": "t1_2",
+      "correctedValue": "t1_2",
+      "reason": "Restores the exact model identifier; punctuation is part of the identifier."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "nl",
+      "source": "t1_3",
+      "correctedValue": "t1_3",
+      "reason": "Restores the exact model identifier; punctuation is part of the identifier."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "nl",
+      "source": "t1_4",
+      "correctedValue": "t1_4",
+      "reason": "Restores the exact model identifier; punctuation is part of the identifier."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "no",
+      "source": "30-35 lbs(Yellow One)",
+      "correctedValue": "30–35 lb (gul variant)",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "no",
+      "source": "Amber &Blue",
+      "correctedValue": "rav og blå",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "no",
+      "source": "Amber &Green",
+      "correctedValue": "rav og grønn",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "no",
+      "source": "Amber &Light Green",
+      "correctedValue": "rav og lysegrønn",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "no",
+      "source": "Amber &Orange",
+      "correctedValue": "rav og oransje",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "no",
+      "source": "Amber &Red",
+      "correctedValue": "rav og rød",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "no",
+      "source": "Front and Back Pair",
+      "correctedValue": "par foran og bak",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "no",
+      "source": "Full Set Without Boots",
+      "correctedValue": "komplett sett uten støvler",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "no",
+      "source": "Full Set Without Helmet",
+      "correctedValue": "komplett sett uten hjelm",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "no",
+      "source": "Lamellar Color",
+      "correctedValue": "farge på lamellrustning",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "no",
+      "source": "Only Cloak",
+      "correctedValue": "Kun kappe",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "no",
+      "source": "Only Vest",
+      "correctedValue": "Kun vest",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "no",
+      "source": "Orthopedic Sole",
+      "correctedValue": "ortopedisk såle",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "no",
+      "source": "Painting Type",
+      "correctedValue": "malingstype",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "no",
+      "source": "Shaft Type",
+      "correctedValue": "pilskafttype",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "no",
+      "source": "t1_2",
+      "correctedValue": "t1_2",
+      "reason": "Restores the exact model identifier; punctuation is part of the identifier."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "no",
+      "source": "t1_3",
+      "correctedValue": "t1_3",
+      "reason": "Restores the exact model identifier; punctuation is part of the identifier."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "no",
+      "source": "t1_4",
+      "correctedValue": "t1_4",
+      "reason": "Restores the exact model identifier; punctuation is part of the identifier."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "no",
+      "source": "Without Buckle",
+      "correctedValue": "Uten spenne",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "pl",
+      "source": "Amber &Blue",
+      "correctedValue": "bursztynowy i niebieski",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "pl",
+      "source": "Amber &Green",
+      "correctedValue": "bursztynowy i zielony",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "pl",
+      "source": "Amber &Light Green",
+      "correctedValue": "bursztynowy i jasnozielony",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "pl",
+      "source": "Amber &Orange",
+      "correctedValue": "bursztynowy i pomarańczowy",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "pl",
+      "source": "Amber &Red",
+      "correctedValue": "bursztynowy i czerwony",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "pl",
+      "source": "Full Set Without Helmet",
+      "correctedValue": "Pełny zestaw bez hełmu",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "pl",
+      "source": "Lamellar Color",
+      "correctedValue": "kolor pancerza lamelkowego",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "pl",
+      "source": "No Pocket",
+      "correctedValue": "Bez kieszeni",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "pl",
+      "source": "Only Drum",
+      "correctedValue": "Tylko bęben",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "pl",
+      "source": "Only Vest",
+      "correctedValue": "Tylko kamizelka",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "pl",
+      "source": "Orthopedic Sole",
+      "correctedValue": "podeszwa ortopedyczna",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "pl",
+      "source": "t1_2",
+      "correctedValue": "t1_2",
+      "reason": "Restores the exact model identifier; punctuation is part of the identifier."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "pl",
+      "source": "t1_3",
+      "correctedValue": "t1_3",
+      "reason": "Restores the exact model identifier; punctuation is part of the identifier."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "pl",
+      "source": "t1_4",
+      "correctedValue": "t1_4",
+      "reason": "Restores the exact model identifier; punctuation is part of the identifier."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "ro",
+      "source": "30-35 lbs(Yellow One)",
+      "correctedValue": "30–35 lb (varianta galbenă)",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "ro",
+      "source": "Amber &Blue",
+      "correctedValue": "chihlimbar și albastru",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "ro",
+      "source": "Amber &Green",
+      "correctedValue": "chihlimbar și verde",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "ro",
+      "source": "Amber &Light Green",
+      "correctedValue": "chihlimbar și verde deschis",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "ro",
+      "source": "Amber &Orange",
+      "correctedValue": "chihlimbar și portocaliu",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "ro",
+      "source": "Amber &Red",
+      "correctedValue": "chihlimbar și roșu",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "ro",
+      "source": "Full Set Without Helmet",
+      "correctedValue": "Set complet fără cască",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "ro",
+      "source": "Lamellar Color",
+      "correctedValue": "culoarea armurii lamelare",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "ro",
+      "source": "No Pocket",
+      "correctedValue": "Fără buzunar",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "ro",
+      "source": "Only Cloak",
+      "correctedValue": "Doar mantie",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "ro",
+      "source": "Only Face Mask",
+      "correctedValue": "Doar mască facială",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "ro",
+      "source": "Orthopedic Sole",
+      "correctedValue": "talpă ortopedică",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "ro",
+      "source": "Shape Type",
+      "correctedValue": "Tip de formă",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "ro",
+      "source": "Shipping",
+      "correctedValue": "Livrare",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "ro",
+      "source": "Shoe Size",
+      "correctedValue": "Mărimea pantofilor",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "ro",
+      "source": "t1_2",
+      "correctedValue": "t1_2",
+      "reason": "Restores the exact model identifier; punctuation is part of the identifier."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "ro",
+      "source": "t1_3",
+      "correctedValue": "t1_3",
+      "reason": "Restores the exact model identifier; punctuation is part of the identifier."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "ro",
+      "source": "t1_4",
+      "correctedValue": "t1_4",
+      "reason": "Restores the exact model identifier; punctuation is part of the identifier."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "ro",
+      "source": "Without Buckle",
+      "correctedValue": "Fără cataramă",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "se",
+      "source": "Amber &Blue",
+      "correctedValue": "bärnsten och blå",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "se",
+      "source": "Amber &Green",
+      "correctedValue": "bärnsten och grön",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "se",
+      "source": "Amber &Light Green",
+      "correctedValue": "bärnsten och ljusgrön",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "se",
+      "source": "Amber &Orange",
+      "correctedValue": "bärnsten och orange",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "se",
+      "source": "Amber &Red",
+      "correctedValue": "bärnsten och röd",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "se",
+      "source": "Black",
+      "correctedValue": "Svart",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "se",
+      "source": "Brown",
+      "correctedValue": "Brun",
+      "reason": "Removes an injected machine-translation artifact that is absent from the source."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "se",
+      "source": "Front and Back Pair",
+      "correctedValue": "fram- och bakstycke",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "se",
+      "source": "Gender",
+      "correctedValue": "Kön",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "se",
+      "source": "Gift Card Amount",
+      "correctedValue": "Presentkortsbelopp",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "se",
+      "source": "Gold",
+      "correctedValue": "Guld",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "se",
+      "source": "Green",
+      "correctedValue": "Grön",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "se",
+      "source": "Long",
+      "correctedValue": "Lång",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "se",
+      "source": "No Pocket",
+      "correctedValue": "Ingen ficka",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "se",
+      "source": "Only Cloak",
+      "correctedValue": "Endast mantel",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "se",
+      "source": "Only Face Mask",
+      "correctedValue": "Endast ansiktsmask",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "se",
+      "source": "Orthopedic Sole",
+      "correctedValue": "ortopedisk sula",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "se",
+      "source": "Painting Type",
+      "correctedValue": "målningstyp",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "se",
+      "source": "Short",
+      "correctedValue": "Kort",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "se",
+      "source": "t1_2",
+      "correctedValue": "t1_2",
+      "reason": "Restores the exact model identifier; punctuation is part of the identifier."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "se",
+      "source": "t1_3",
+      "correctedValue": "t1_3",
+      "reason": "Restores the exact model identifier; punctuation is part of the identifier."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "se",
+      "source": "t1_4",
+      "correctedValue": "t1_4",
+      "reason": "Restores the exact model identifier; punctuation is part of the identifier."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "se",
+      "source": "White",
+      "correctedValue": "Vit",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "se",
+      "source": "Without Buckle",
+      "correctedValue": "Utan spänne",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "dk",
+      "source": "anniversary gift",
+      "correctedValue": "jubilæumsgave",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "dk",
+      "source": "archery tag",
+      "correctedValue": "Archery Tag",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "dk",
+      "source": "archery tag mask",
+      "correctedValue": "Archery Tag-maske",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "dk",
+      "source": "backcountry",
+      "correctedValue": "vildmark",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "dk",
+      "source": "backpacking",
+      "correctedValue": "vandring med rygsæk",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "dk",
+      "source": "belt",
+      "correctedValue": "bælte",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "dk",
+      "source": "birch burl",
+      "correctedValue": "birkeknude",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "dk",
+      "source": "bushcraft cup",
+      "correctedValue": "bushcraft-krus",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "dk",
+      "source": "camping cup",
+      "correctedValue": "campingkrus",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "dk",
+      "source": "CosplayBelt",
+      "correctedValue": "cosplaybælte",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "dk",
+      "source": "CosplayCostume",
+      "correctedValue": "cosplaykostume",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "dk",
+      "source": "damascus steel",
+      "correctedValue": "damaskusstål",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "dk",
+      "source": "daypack",
+      "correctedValue": "dagtursrygsæk",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "dk",
+      "source": "elven orcish dwarven",
+      "correctedValue": "elvisk, orkisk, dværgisk",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "dk",
+      "source": "elven pauldron",
+      "correctedValue": "elvisk skulderplade",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "dk",
+      "source": "fantasy armour",
+      "correctedValue": "fantasyrustning",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "dk",
+      "source": "FullGrainLeather",
+      "correctedValue": "fuldnarvet læder",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "dk",
+      "source": "gander mountain",
+      "correctedValue": "Gander Mountain",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "dk",
+      "source": "GenuineLeatherBelt",
+      "correctedValue": "bælte i ægte læder",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "dk",
+      "source": "HandmadeLeatherBelt",
+      "correctedValue": "håndlavet læderbælte",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "dk",
+      "source": "headdress",
+      "correctedValue": "hovedbeklædning",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "dk",
+      "source": "headdress indian",
+      "correctedValue": "indiansk hovedbeklædning",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "dk",
+      "source": "headscarf",
+      "correctedValue": "hovedtørklæde",
+      "reason": "Removes an injected machine-translation artifact that is absent from the source."
+    },
+    {
+      "package": "tag",
+      "languageCode": "dk",
+      "source": "helmet bracelet",
+      "correctedValue": "armbånd med hjelmmotiv",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "dk",
+      "source": "HistoricalReenactment",
+      "correctedValue": "historisk levendegørelse",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "dk",
+      "source": "horse breast collar",
+      "correctedValue": "brystrem til hest",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "dk",
+      "source": "hunting archery bow",
+      "correctedValue": "jagtbue",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "dk",
+      "source": "jon snow",
+      "correctedValue": "Jon Snow",
+      "reason": "Removes an injected machine-translation artifact that is absent from the source."
+    },
+    {
+      "package": "tag",
+      "languageCode": "dk",
+      "source": "kuksa cup",
+      "correctedValue": "kuksa-krus",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "dk",
+      "source": "larp",
+      "correctedValue": "LARP",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "dk",
+      "source": "larp belt",
+      "correctedValue": "LARP-bælte",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "dk",
+      "source": "Larp Gear",
+      "correctedValue": "LARP-udstyr",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "dk",
+      "source": "larp helmet",
+      "correctedValue": "LARP-hjelm",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "dk",
+      "source": "larp jerkin",
+      "correctedValue": "LARP-vams",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "dk",
+      "source": "larp sword",
+      "correctedValue": "LARP-sværd",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "dk",
+      "source": "larp warrior armor",
+      "correctedValue": "LARP-krigerrustning",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "dk",
+      "source": "LARPgear",
+      "correctedValue": "LARP-udstyr",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "dk",
+      "source": "lotr",
+      "correctedValue": "LOTR",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "dk",
+      "source": "lotr costume",
+      "correctedValue": "LOTR-kostume",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "dk",
+      "source": "lotr fan gift",
+      "correctedValue": "gave til LOTR-fan",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "dk",
+      "source": "lotr lovers",
+      "correctedValue": "LOTR-elskere",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "dk",
+      "source": "lotr sword",
+      "correctedValue": "LOTR-sværd",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "dk",
+      "source": "MedievalLeatherBelt",
+      "correctedValue": "middelalderligt læderbælte",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "dk",
+      "source": "middle earth",
+      "correctedValue": "Midgård",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "dk",
+      "source": "MongolianBelt",
+      "correctedValue": "mongolsk bælte",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "dk",
+      "source": "MongolianWarrior",
+      "correctedValue": "mongolsk kriger",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "dk",
+      "source": "moroccan kaftan",
+      "correctedValue": "marokkansk kaftan",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "dk",
+      "source": "outdoor gear",
+      "correctedValue": "friluftsudstyr",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "dk",
+      "source": "popinjay",
+      "correctedValue": "popinjay",
+      "reason": "Removes an injected machine-translation artifact that is absent from the source."
+    },
+    {
+      "package": "tag",
+      "languageCode": "dk",
+      "source": "qabak",
+      "correctedValue": "qabak",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "dk",
+      "source": "scandinavian",
+      "correctedValue": "skandinavisk",
+      "reason": "Removes an injected machine-translation artifact that is absent from the source."
+    },
+    {
+      "package": "tag",
+      "languageCode": "dk",
+      "source": "scandinavian kuksa",
+      "correctedValue": "skandinavisk kuksa",
+      "reason": "Removes an injected machine-translation artifact that is absent from the source."
+    },
+    {
+      "package": "tag",
+      "languageCode": "dk",
+      "source": "shaman ceremonie",
+      "correctedValue": "shamanceremoni",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "dk",
+      "source": "shaman headdress",
+      "correctedValue": "shamanhovedbeklædning",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "dk",
+      "source": "shaman king",
+      "correctedValue": "Shaman King",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "dk",
+      "source": "shamans",
+      "correctedValue": "shamaner",
+      "reason": "Removes an injected machine-translation artifact that is absent from the source."
+    },
+    {
+      "package": "tag",
+      "languageCode": "dk",
+      "source": "vikings",
+      "correctedValue": "vikinger",
+      "reason": "Removes an injected machine-translation artifact that is absent from the source."
+    },
+    {
+      "package": "tag",
+      "languageCode": "hu",
+      "source": "archery tag",
+      "correctedValue": "Archery Tag",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "hu",
+      "source": "archery tag mask",
+      "correctedValue": "Archery Tag-maszk",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "hu",
+      "source": "arrow target",
+      "correctedValue": "íjász céltábla",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "hu",
+      "source": "backcountry",
+      "correctedValue": "vadon",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "hu",
+      "source": "backpacking",
+      "correctedValue": "hátizsákos túrázás",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "hu",
+      "source": "belt",
+      "correctedValue": "öv",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "hu",
+      "source": "bushcraft cup",
+      "correctedValue": "bushcraft bögre",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "hu",
+      "source": "camping cup",
+      "correctedValue": "kempingbögre",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "hu",
+      "source": "CosplayBelt",
+      "correctedValue": "cosplayöv",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "hu",
+      "source": "CosplayCostume",
+      "correctedValue": "cosplayjelmez",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "hu",
+      "source": "daypack",
+      "correctedValue": "egynapos túrahátizsák",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "hu",
+      "source": "elven orcish dwarven",
+      "correctedValue": "elf, ork és törp",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "hu",
+      "source": "elven pauldron",
+      "correctedValue": "elf vállvért",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "hu",
+      "source": "FullGrainLeather",
+      "correctedValue": "teljes barkás bőr",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "hu",
+      "source": "GenuineLeatherBelt",
+      "correctedValue": "valódi bőröv",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "hu",
+      "source": "glamping",
+      "correctedValue": "glamping",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "hu",
+      "source": "HandmadeLeatherBelt",
+      "correctedValue": "kézzel készített bőröv",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "hu",
+      "source": "headdress indian",
+      "correctedValue": "indián fejdísz",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "hu",
+      "source": "headscarf",
+      "correctedValue": "fejkendő",
+      "reason": "Removes an injected machine-translation artifact that is absent from the source."
+    },
+    {
+      "package": "tag",
+      "languageCode": "hu",
+      "source": "helmet",
+      "correctedValue": "sisak",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "hu",
+      "source": "HistoricalReenactment",
+      "correctedValue": "történelmi újrajátszás",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "hu",
+      "source": "hunting archery bow",
+      "correctedValue": "vadászíj",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "hu",
+      "source": "kuksa cup",
+      "correctedValue": "kuksa bögre",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "hu",
+      "source": "larp",
+      "correctedValue": "LARP",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "hu",
+      "source": "larp belt",
+      "correctedValue": "LARP-öv",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "hu",
+      "source": "Larp Gear",
+      "correctedValue": "LARP-felszerelés",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "hu",
+      "source": "larp helmet",
+      "correctedValue": "LARP-sisak",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "hu",
+      "source": "larp jerkin",
+      "correctedValue": "LARP-mellény",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "hu",
+      "source": "larp sword",
+      "correctedValue": "LARP-kard",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "hu",
+      "source": "larp warrior armor",
+      "correctedValue": "LARP-harcospáncél",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "hu",
+      "source": "LARPgear",
+      "correctedValue": "LARP-felszerelés",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "hu",
+      "source": "lotr",
+      "correctedValue": "LOTR",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "hu",
+      "source": "lotr costume",
+      "correctedValue": "LOTR-jelmez",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "hu",
+      "source": "lotr fan gift",
+      "correctedValue": "ajándék LOTR-rajongónak",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "hu",
+      "source": "lotr lovers",
+      "correctedValue": "LOTR-rajongók",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "hu",
+      "source": "lotr sword",
+      "correctedValue": "LOTR-kard",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "hu",
+      "source": "marbling",
+      "correctedValue": "márványozás",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "hu",
+      "source": "MedievalLeatherBelt",
+      "correctedValue": "középkori bőröv",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "hu",
+      "source": "middle earth",
+      "correctedValue": "Középfölde",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "hu",
+      "source": "MongolianBelt",
+      "correctedValue": "mongol öv",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "hu",
+      "source": "MongolianWarrior",
+      "correctedValue": "mongol harcos",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "hu",
+      "source": "moroccan kaftan",
+      "correctedValue": "marokkói kaftán",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "hu",
+      "source": "popinjay",
+      "correctedValue": "popinjay",
+      "reason": "Removes an injected machine-translation artifact that is absent from the source."
+    },
+    {
+      "package": "tag",
+      "languageCode": "hu",
+      "source": "qabak",
+      "correctedValue": "qabak",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "hu",
+      "source": "scandinavian",
+      "correctedValue": "skandináv",
+      "reason": "Removes an injected machine-translation artifact that is absent from the source."
+    },
+    {
+      "package": "tag",
+      "languageCode": "hu",
+      "source": "scandinavian kuksa",
+      "correctedValue": "skandináv kuksa",
+      "reason": "Removes an injected machine-translation artifact that is absent from the source."
+    },
+    {
+      "package": "tag",
+      "languageCode": "hu",
+      "source": "shaman ceremonie",
+      "correctedValue": "sámánszertartás",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "hu",
+      "source": "shaman larp costume",
+      "correctedValue": "sámán LARP-jelmez",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "hu",
+      "source": "templar knight",
+      "correctedValue": "templomos lovag",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "hu",
+      "source": "traditional boot",
+      "correctedValue": "hagyományos csizma",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "hu",
+      "source": "vikings",
+      "correctedValue": "vikingek",
+      "reason": "Removes an injected machine-translation artifact that is absent from the source."
+    },
+    {
+      "package": "tag",
+      "languageCode": "hu",
+      "source": "wood marbling",
+      "correctedValue": "famárványozás",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "hu",
+      "source": "wood stove for tent camping",
+      "correctedValue": "fakályha sátorozáshoz",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "hu",
+      "source": "wooden wall light",
+      "correctedValue": "fa fali lámpa",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "hu",
+      "source": "yatagan",
+      "correctedValue": "jatagán",
+      "reason": "Removes an injected machine-translation artifact that is absent from the source."
+    },
+    {
+      "package": "tag",
+      "languageCode": "nl",
+      "source": "archery tag",
+      "correctedValue": "Archery Tag",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "nl",
+      "source": "archery tag mask",
+      "correctedValue": "Archery Tag-masker",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "nl",
+      "source": "backcountry",
+      "correctedValue": "wildernis",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "nl",
+      "source": "backpacking",
+      "correctedValue": "trekken met rugzak",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "nl",
+      "source": "bushcraft cup",
+      "correctedValue": "bushcraftbeker",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "nl",
+      "source": "camping cup",
+      "correctedValue": "campingbeker",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "nl",
+      "source": "caravan stove",
+      "correctedValue": "caravankachel",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "nl",
+      "source": "CosplayBelt",
+      "correctedValue": "cosplayriem",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "nl",
+      "source": "CosplayCostume",
+      "correctedValue": "cosplaykostuum",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "nl",
+      "source": "daypack",
+      "correctedValue": "dagrugzak",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "nl",
+      "source": "duffle bag",
+      "correctedValue": "duffeltas",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "nl",
+      "source": "elven orcish dwarven",
+      "correctedValue": "elfs, orkachtig, dwergachtig",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "nl",
+      "source": "elven pauldron",
+      "correctedValue": "elfenschouderplaat",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "nl",
+      "source": "FullGrainLeather",
+      "correctedValue": "volnerfleer",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "nl",
+      "source": "gander mountain",
+      "correctedValue": "Gander Mountain",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "nl",
+      "source": "GenuineLeatherBelt",
+      "correctedValue": "riem van echt leer",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "nl",
+      "source": "HandmadeLeatherBelt",
+      "correctedValue": "handgemaakte leren riem",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "nl",
+      "source": "headdress",
+      "correctedValue": "hoofdtooi",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "nl",
+      "source": "headdress indian",
+      "correctedValue": "Indiaanse hoofdtooi",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "nl",
+      "source": "headscarf",
+      "correctedValue": "hoofddoek",
+      "reason": "Removes an injected machine-translation artifact that is absent from the source."
+    },
+    {
+      "package": "tag",
+      "languageCode": "nl",
+      "source": "hunting archery bow",
+      "correctedValue": "jachtboog",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "nl",
+      "source": "King Richard’s Faire",
+      "correctedValue": "King Richard’s Faire",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "nl",
+      "source": "kuksa cup",
+      "correctedValue": "kuksa-beker",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "nl",
+      "source": "kuksa shot glass",
+      "correctedValue": "kuksa-shotglas",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "nl",
+      "source": "larp",
+      "correctedValue": "LARP",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "nl",
+      "source": "larp belt",
+      "correctedValue": "LARP-riem",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "nl",
+      "source": "Larp Gear",
+      "correctedValue": "LARP-uitrusting",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "nl",
+      "source": "larp helmet",
+      "correctedValue": "LARP-helm",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "nl",
+      "source": "larp jerkin",
+      "correctedValue": "LARP-wambuis",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "nl",
+      "source": "larp sword",
+      "correctedValue": "LARP-zwaard",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "nl",
+      "source": "larp warrior armor",
+      "correctedValue": "LARP-krijgersharnas",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "nl",
+      "source": "LARPgear",
+      "correctedValue": "LARP-uitrusting",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "nl",
+      "source": "lotr",
+      "correctedValue": "LOTR",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "nl",
+      "source": "lotr costume",
+      "correctedValue": "LOTR-kostuum",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "nl",
+      "source": "lotr fan gift",
+      "correctedValue": "cadeau voor LOTR-fan",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "nl",
+      "source": "lotr lovers",
+      "correctedValue": "LOTR-liefhebbers",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "nl",
+      "source": "lotr sword",
+      "correctedValue": "LOTR-zwaard",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "nl",
+      "source": "marbling",
+      "correctedValue": "marmering",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "nl",
+      "source": "MedievalLeatherBelt",
+      "correctedValue": "middeleeuwse leren riem",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "nl",
+      "source": "middle earth",
+      "correctedValue": "Midden-aarde",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "nl",
+      "source": "MongolianBelt",
+      "correctedValue": "Mongoolse riem",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "nl",
+      "source": "MongolianWarrior",
+      "correctedValue": "Mongoolse krijger",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "nl",
+      "source": "moroccan kaftan",
+      "correctedValue": "Marokkaanse kaftan",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "nl",
+      "source": "scandinavian",
+      "correctedValue": "Scandinavisch",
+      "reason": "Removes an injected machine-translation artifact that is absent from the source."
+    },
+    {
+      "package": "tag",
+      "languageCode": "nl",
+      "source": "scandinavian kuksa",
+      "correctedValue": "Scandinavische kuksa",
+      "reason": "Removes an injected machine-translation artifact that is absent from the source."
+    },
+    {
+      "package": "tag",
+      "languageCode": "nl",
+      "source": "shaman ceremonie",
+      "correctedValue": "sjamanenceremonie",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "nl",
+      "source": "shaman king",
+      "correctedValue": "Shaman King",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "nl",
+      "source": "spartan bracelet",
+      "correctedValue": "Spartaanse armband",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "nl",
+      "source": "traditional boot",
+      "correctedValue": "traditionele laars",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "nl",
+      "source": "warrior bracelet",
+      "correctedValue": "krijgersarmband",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "no",
+      "source": "archery tag",
+      "correctedValue": "Archery Tag",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "no",
+      "source": "archery tag mask",
+      "correctedValue": "Archery Tag-maske",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "no",
+      "source": "backcountry",
+      "correctedValue": "villmark",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "no",
+      "source": "backpacking",
+      "correctedValue": "ryggsekktur",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "no",
+      "source": "bushcraft cup",
+      "correctedValue": "bushcraftkopp",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "no",
+      "source": "camping glass",
+      "correctedValue": "campingkopp",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "no",
+      "source": "CosplayBelt",
+      "correctedValue": "cosplaybelte",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "no",
+      "source": "CosplayCostume",
+      "correctedValue": "cosplaykostyme",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "no",
+      "source": "daypack",
+      "correctedValue": "dagstursekk",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "no",
+      "source": "elven orcish dwarven",
+      "correctedValue": "alvisk, orkisk, dvergisk",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "no",
+      "source": "elven pauldron",
+      "correctedValue": "alvisk skulderplate",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "no",
+      "source": "full armor set",
+      "correctedValue": "komplett rustningssett",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "no",
+      "source": "FullGrainLeather",
+      "correctedValue": "fullnarvet skinn",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "no",
+      "source": "gander mountain",
+      "correctedValue": "Gander Mountain",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "no",
+      "source": "GenuineLeatherBelt",
+      "correctedValue": "belte i ekte skinn",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "no",
+      "source": "HandmadeLeatherBelt",
+      "correctedValue": "håndlaget skinnbelte",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "no",
+      "source": "headdress",
+      "correctedValue": "hodeplagg",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "no",
+      "source": "headdress costume",
+      "correctedValue": "kostymehodeplagg",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "no",
+      "source": "headdress indian",
+      "correctedValue": "indiansk hodeplagg",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "no",
+      "source": "headscarf",
+      "correctedValue": "hodeskjerf",
+      "reason": "Removes an injected machine-translation artifact that is absent from the source."
+    },
+    {
+      "package": "tag",
+      "languageCode": "no",
+      "source": "HistoricalReenactment",
+      "correctedValue": "historisk gjenskaping",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "no",
+      "source": "hunting archery bow",
+      "correctedValue": "jaktbue",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "no",
+      "source": "kaftan",
+      "correctedValue": "kaftan",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "no",
+      "source": "kuksa cup",
+      "correctedValue": "kuksa",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "no",
+      "source": "kuksa shot glass",
+      "correctedValue": "kuksa-snapskopp",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "no",
+      "source": "larp",
+      "correctedValue": "LARP",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "no",
+      "source": "larp belt",
+      "correctedValue": "LARP-belte",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "no",
+      "source": "Larp Gear",
+      "correctedValue": "LARP-utstyr",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "no",
+      "source": "larp helmet",
+      "correctedValue": "LARP-hjelm",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "no",
+      "source": "larp jerkin",
+      "correctedValue": "LARP-vams",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "no",
+      "source": "larp sword",
+      "correctedValue": "LARP-sverd",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "no",
+      "source": "larp warrior armor",
+      "correctedValue": "LARP-krigerrustning",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "no",
+      "source": "LARPgear",
+      "correctedValue": "LARP-utstyr",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "no",
+      "source": "lotr",
+      "correctedValue": "LOTR",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "no",
+      "source": "lotr costume",
+      "correctedValue": "LOTR-kostyme",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "no",
+      "source": "lotr fan gift",
+      "correctedValue": "gave til LOTR-fan",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "no",
+      "source": "lotr lovers",
+      "correctedValue": "LOTR-elskere",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "no",
+      "source": "lotr sword",
+      "correctedValue": "LOTR-sverd",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "no",
+      "source": "marbling",
+      "correctedValue": "marmorering",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "no",
+      "source": "MedievalLeatherBelt",
+      "correctedValue": "middelaldersk skinnbelte",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "no",
+      "source": "middle earth",
+      "correctedValue": "Midgard",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "no",
+      "source": "mongol armor",
+      "correctedValue": "mongolsk rustning",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "no",
+      "source": "mongol helmet",
+      "correctedValue": "mongolsk hjelm",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "no",
+      "source": "mongolian helmet",
+      "correctedValue": "mongolsk hjelm",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "no",
+      "source": "MongolianBelt",
+      "correctedValue": "mongolsk belte",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "no",
+      "source": "MongolianWarrior",
+      "correctedValue": "mongolsk kriger",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "no",
+      "source": "moroccan kaftan",
+      "correctedValue": "marokkansk kaftan",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "no",
+      "source": "natural glass",
+      "correctedValue": "kopp i naturmateriale",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "no",
+      "source": "outdoor glass",
+      "correctedValue": "turkopp",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "no",
+      "source": "paintball",
+      "correctedValue": "paintball",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "no",
+      "source": "scandinavian",
+      "correctedValue": "skandinavisk",
+      "reason": "Removes an injected machine-translation artifact that is absent from the source."
+    },
+    {
+      "package": "tag",
+      "languageCode": "no",
+      "source": "scandinavian kuksa",
+      "correctedValue": "skandinavisk kuksa",
+      "reason": "Removes an injected machine-translation artifact that is absent from the source."
+    },
+    {
+      "package": "tag",
+      "languageCode": "no",
+      "source": "shaman ceremonie",
+      "correctedValue": "sjamansseremoni",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "no",
+      "source": "shaman headdress",
+      "correctedValue": "sjamanhodeplagg",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "no",
+      "source": "shaman king",
+      "correctedValue": "Shaman King",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "no",
+      "source": "shamans",
+      "correctedValue": "sjamaner",
+      "reason": "Removes an injected machine-translation artifact that is absent from the source."
+    },
+    {
+      "package": "tag",
+      "languageCode": "no",
+      "source": "viking drink cup",
+      "correctedValue": "vikingdrikkekopp",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "no",
+      "source": "viking tunic",
+      "correctedValue": "vikingtunika",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "no",
+      "source": "wooden glass",
+      "correctedValue": "trekopp",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "pl",
+      "source": "archery tag",
+      "correctedValue": "Archery Tag",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "pl",
+      "source": "archery tag mask",
+      "correctedValue": "maska Archery Tag",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "pl",
+      "source": "arrow ring",
+      "correctedValue": "pierścień ze strzałą",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "pl",
+      "source": "backcountry",
+      "correctedValue": "dzicz",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "pl",
+      "source": "backpacking",
+      "correctedValue": "wędrówki z plecakiem",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "pl",
+      "source": "camping cup",
+      "correctedValue": "kubek kempingowy",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "pl",
+      "source": "CosplayBelt",
+      "correctedValue": "pas cosplay",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "pl",
+      "source": "CosplayCostume",
+      "correctedValue": "kostium cosplay",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "pl",
+      "source": "daypack",
+      "correctedValue": "plecak jednodniowy",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "pl",
+      "source": "elven orcish dwarven",
+      "correctedValue": "elficki, orkowy, krasnoludzki",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "pl",
+      "source": "elven pauldron",
+      "correctedValue": "elficki naramiennik",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "pl",
+      "source": "fantasy armour",
+      "correctedValue": "zbroja fantasy",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "pl",
+      "source": "FullGrainLeather",
+      "correctedValue": "skóra licowa",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "pl",
+      "source": "gander mountain",
+      "correctedValue": "Gander Mountain",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "pl",
+      "source": "GenuineLeatherBelt",
+      "correctedValue": "pasek z prawdziwej skóry",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "pl",
+      "source": "glamping",
+      "correctedValue": "glamping",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "pl",
+      "source": "handmade bag",
+      "correctedValue": "ręcznie robiona torba",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "pl",
+      "source": "HandmadeLeatherBelt",
+      "correctedValue": "ręcznie robiony skórzany pasek",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "pl",
+      "source": "harry potter wizard hat",
+      "correctedValue": "kapelusz czarodzieja Harry'ego Pottera",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "pl",
+      "source": "headdress",
+      "correctedValue": "nakrycie głowy",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "pl",
+      "source": "headdress indian",
+      "correctedValue": "indiańskie nakrycie głowy",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "pl",
+      "source": "headscarf",
+      "correctedValue": "chusta na głowę",
+      "reason": "Removes an injected machine-translation artifact that is absent from the source."
+    },
+    {
+      "package": "tag",
+      "languageCode": "pl",
+      "source": "helmet",
+      "correctedValue": "hełm",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "pl",
+      "source": "hornbow",
+      "correctedValue": "łuk rogowy",
+      "reason": "Uses the established target-language archery term without changing the discipline or brand."
+    },
+    {
+      "package": "tag",
+      "languageCode": "pl",
+      "source": "hunting archery bow",
+      "correctedValue": "łuk myśliwski",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "pl",
+      "source": "kuksa cup",
+      "correctedValue": "kubek kuksa",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "pl",
+      "source": "kuksa shot glass",
+      "correctedValue": "kieliszek kuksa",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "pl",
+      "source": "larp",
+      "correctedValue": "LARP",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "pl",
+      "source": "larp belt",
+      "correctedValue": "pas LARP",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "pl",
+      "source": "Larp Gear",
+      "correctedValue": "sprzęt LARP",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "pl",
+      "source": "larp helmet",
+      "correctedValue": "hełm LARP",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "pl",
+      "source": "larp jerkin",
+      "correctedValue": "kaftan LARP",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "pl",
+      "source": "larp sword",
+      "correctedValue": "miecz LARP",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "pl",
+      "source": "larp warrior armor",
+      "correctedValue": "zbroja wojownika LARP",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "pl",
+      "source": "LARPgear",
+      "correctedValue": "sprzęt LARP",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "pl",
+      "source": "leather",
+      "correctedValue": "skóra",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "pl",
+      "source": "leather greaves",
+      "correctedValue": "skórzane nagolenniki",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "pl",
+      "source": "loth elf woman armor",
+      "correctedValue": "kobieca zbroja elfki Loth",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "pl",
+      "source": "lotr",
+      "correctedValue": "LOTR",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "pl",
+      "source": "lotr costume",
+      "correctedValue": "kostium LOTR",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "pl",
+      "source": "lotr fan gift",
+      "correctedValue": "prezent dla fana LOTR",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "pl",
+      "source": "lotr lovers",
+      "correctedValue": "miłośnicy LOTR",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "pl",
+      "source": "lotr sword",
+      "correctedValue": "miecz LOTR",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "pl",
+      "source": "MedievalLeatherBelt",
+      "correctedValue": "średniowieczny skórzany pas",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "pl",
+      "source": "middle earth",
+      "correctedValue": "Śródziemie",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "pl",
+      "source": "MongolianBelt",
+      "correctedValue": "mongolski pas",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "pl",
+      "source": "MongolianWarrior",
+      "correctedValue": "mongolski wojownik",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "pl",
+      "source": "moroccan kaftan",
+      "correctedValue": "marokański kaftan",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "pl",
+      "source": "outdoor gear",
+      "correctedValue": "sprzęt outdoorowy",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "pl",
+      "source": "outdoor store",
+      "correctedValue": "sklep outdoorowy",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "pl",
+      "source": "popinjay",
+      "correctedValue": "popinjay",
+      "reason": "Removes an injected machine-translation artifact that is absent from the source."
+    },
+    {
+      "package": "tag",
+      "languageCode": "pl",
+      "source": "qabak",
+      "correctedValue": "qabak",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "pl",
+      "source": "role play",
+      "correctedValue": "odgrywanie ról",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "pl",
+      "source": "scandinavian",
+      "correctedValue": "skandynawski",
+      "reason": "Removes an injected machine-translation artifact that is absent from the source."
+    },
+    {
+      "package": "tag",
+      "languageCode": "pl",
+      "source": "scandinavian kuksa",
+      "correctedValue": "skandynawska kuksa",
+      "reason": "Removes an injected machine-translation artifact that is absent from the source."
+    },
+    {
+      "package": "tag",
+      "languageCode": "pl",
+      "source": "shaman ceremonie",
+      "correctedValue": "ceremonia szamańska",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "pl",
+      "source": "shaman king",
+      "correctedValue": "Shaman King",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "pl",
+      "source": "shamans",
+      "correctedValue": "szamani",
+      "reason": "Removes an injected machine-translation artifact that is absent from the source."
+    },
+    {
+      "package": "tag",
+      "languageCode": "pl",
+      "source": "tent stove with oven",
+      "correctedValue": "piecyk namiotowy z piekarnikiem",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "pl",
+      "source": "terraria wizard hat",
+      "correctedValue": "kapelusz czarodzieja z Terraria",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "pl",
+      "source": "tooled leather belt",
+      "correctedValue": "tłoczony skórzany pas",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "pl",
+      "source": "turkish sword",
+      "correctedValue": "miecz turecki",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "pl",
+      "source": "wizard hat",
+      "correctedValue": "kapelusz czarodzieja",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ro",
+      "source": "archery tag",
+      "correctedValue": "Archery Tag",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ro",
+      "source": "archery tag mask",
+      "correctedValue": "mască Archery Tag",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ro",
+      "source": "archery talk",
+      "correctedValue": "discuții despre tir cu arcul",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ro",
+      "source": "backcountry",
+      "correctedValue": "sălbăticie",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ro",
+      "source": "backpacking",
+      "correctedValue": "drumeție cu rucsacul",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ro",
+      "source": "bungalows",
+      "correctedValue": "bungalouri",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ro",
+      "source": "bushcraft",
+      "correctedValue": "bushcraft",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ro",
+      "source": "bushcraft bag",
+      "correctedValue": "geantă pentru bushcraft",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ro",
+      "source": "bushcraft cup",
+      "correctedValue": "cană bushcraft",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ro",
+      "source": "camping cup",
+      "correctedValue": "cană de camping",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ro",
+      "source": "campingworld",
+      "correctedValue": "campingworld",
+      "reason": "Removes an injected machine-translation artifact that is absent from the source."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ro",
+      "source": "CosplayBelt",
+      "correctedValue": "centură cosplay",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ro",
+      "source": "CosplayCostume",
+      "correctedValue": "costum cosplay",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ro",
+      "source": "custom belt",
+      "correctedValue": "centură personalizată",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ro",
+      "source": "daypack",
+      "correctedValue": "rucsac de o zi",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ro",
+      "source": "elven orcish dwarven",
+      "correctedValue": "elfic, orcesc, pitic",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ro",
+      "source": "elven pauldron",
+      "correctedValue": "umerar elfic",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ro",
+      "source": "ertugrul ladies costume",
+      "correctedValue": "costum de damă Ertuğrul",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ro",
+      "source": "FullGrainLeather",
+      "correctedValue": "piele integrală",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ro",
+      "source": "gander mountain",
+      "correctedValue": "Gander Mountain",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ro",
+      "source": "GenuineLeatherBelt",
+      "correctedValue": "curea din piele naturală",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ro",
+      "source": "handmade shield",
+      "correctedValue": "scut lucrat manual",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ro",
+      "source": "HandmadeLeatherBelt",
+      "correctedValue": "curea din piele lucrată manual",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ro",
+      "source": "headdress",
+      "correctedValue": "acoperământ de cap",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ro",
+      "source": "headdress costume",
+      "correctedValue": "acoperământ de cap pentru costum",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ro",
+      "source": "headdress indian",
+      "correctedValue": "coifură amerindiană",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ro",
+      "source": "headscarf",
+      "correctedValue": "eșarfă de cap",
+      "reason": "Removes an injected machine-translation artifact that is absent from the source."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ro",
+      "source": "hornbow",
+      "correctedValue": "arc din corn",
+      "reason": "Uses the established target-language archery term without changing the discipline or brand."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ro",
+      "source": "horse saddle bag",
+      "correctedValue": "geantă de șa pentru cal",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ro",
+      "source": "hunting archery bow",
+      "correctedValue": "arc de vânătoare",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ro",
+      "source": "King Richard’s Faire",
+      "correctedValue": "King Richard’s Faire",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ro",
+      "source": "kuksa cup",
+      "correctedValue": "cană kuksa",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ro",
+      "source": "larp",
+      "correctedValue": "LARP",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ro",
+      "source": "larp belt",
+      "correctedValue": "centură LARP",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ro",
+      "source": "Larp Gear",
+      "correctedValue": "echipament LARP",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ro",
+      "source": "larp helmet",
+      "correctedValue": "cască LARP",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ro",
+      "source": "larp jerkin",
+      "correctedValue": "vestă LARP",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ro",
+      "source": "larp sword",
+      "correctedValue": "sabie LARP",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ro",
+      "source": "larp warrior armor",
+      "correctedValue": "armură de războinic LARP",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ro",
+      "source": "LARPgear",
+      "correctedValue": "echipament LARP",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ro",
+      "source": "loth lover gift",
+      "correctedValue": "cadou pentru iubitorii Loth",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ro",
+      "source": "lotr",
+      "correctedValue": "LOTR",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ro",
+      "source": "lotr costume",
+      "correctedValue": "costum LOTR",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ro",
+      "source": "lotr fan gift",
+      "correctedValue": "cadou pentru fan LOTR",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ro",
+      "source": "lotr lovers",
+      "correctedValue": "iubitori de LOTR",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ro",
+      "source": "lotr sword",
+      "correctedValue": "sabie LOTR",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ro",
+      "source": "marbling",
+      "correctedValue": "marmorare",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ro",
+      "source": "MedievalLeatherBelt",
+      "correctedValue": "curea medievală din piele",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ro",
+      "source": "middle earth",
+      "correctedValue": "Pământul de Mijloc",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ro",
+      "source": "MongolianBelt",
+      "correctedValue": "centură mongolă",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ro",
+      "source": "MongolianWarrior",
+      "correctedValue": "războinic mongol",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ro",
+      "source": "moroccan kaftan",
+      "correctedValue": "caftan marocan",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ro",
+      "source": "scandinavian",
+      "correctedValue": "scandinav",
+      "reason": "Removes an injected machine-translation artifact that is absent from the source."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ro",
+      "source": "scandinavian kuksa",
+      "correctedValue": "kuksa scandinavă",
+      "reason": "Removes an injected machine-translation artifact that is absent from the source."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ro",
+      "source": "shaman ceremonie",
+      "correctedValue": "ceremonie șamanică",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ro",
+      "source": "shaman headdress",
+      "correctedValue": "acoperământ de cap șamanic",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ro",
+      "source": "shaman king",
+      "correctedValue": "Shaman King",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ro",
+      "source": "shamans",
+      "correctedValue": "șamani",
+      "reason": "Removes an injected machine-translation artifact that is absent from the source."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ro",
+      "source": "small wood burning stove",
+      "correctedValue": "sobă mică pe lemne",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ro",
+      "source": "tent stove with oven",
+      "correctedValue": "sobă de cort cu cuptor",
+      "reason": "Removes machine-generated repetition while preserving the source meaning."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ro",
+      "source": "traditional boot",
+      "correctedValue": "cizmă tradițională",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ro",
+      "source": "turkish woman armor",
+      "correctedValue": "armură turcească pentru femei",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ro",
+      "source": "wooden sconce",
+      "correctedValue": "aplică de perete din lemn",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "archery tag",
+      "correctedValue": "Archery Tag",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "archery tag mask",
+      "correctedValue": "Archery Tag-mask",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "authentic armor",
+      "correctedValue": "autentisk rustning",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "backcountry",
+      "correctedValue": "vildmark",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "backpacking",
+      "correctedValue": "vandring med ryggsäck",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "bracers of armor",
+      "correctedValue": "armsskydd till rustning",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "bushcraft backpack",
+      "correctedValue": "bushcraftryggsäck",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "bushcraft bag",
+      "correctedValue": "bushcraftväska",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "bushcraft cup",
+      "correctedValue": "bushcraftkåsa",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "bushcraft rucksack",
+      "correctedValue": "bushcraftryggsäck",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "camping backpack",
+      "correctedValue": "campingryggsäck",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "camping cup",
+      "correctedValue": "campingkåsa",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "caravan stove",
+      "correctedValue": "husvagnskamin",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "cosplay gear",
+      "correctedValue": "cosplayutrustning",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "CosplayBelt",
+      "correctedValue": "cosplaybälte",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "CosplayCostume",
+      "correctedValue": "cosplaydräkt",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "daypack",
+      "correctedValue": "dagtursryggsäck",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "duffle bag",
+      "correctedValue": "duffelväska",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "elf horse armor",
+      "correctedValue": "alvisk hästrustning",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "elven armor",
+      "correctedValue": "alvrustning",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "elven cloak",
+      "correctedValue": "alvkappa",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "elven orcish dwarven",
+      "correctedValue": "alvisk, orchisk, dvärgisk",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "elven pauldron",
+      "correctedValue": "alviskt axelskydd",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "ertugrul coat",
+      "correctedValue": "Ertuğrul-rock",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "ertugrul hat",
+      "correctedValue": "Ertuğrul-hatt",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "fantasy armour",
+      "correctedValue": "fantasyrustning",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "fez",
+      "correctedValue": "fez",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "folkloric hat",
+      "correctedValue": "folkloristisk hatt",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "frodo cloak",
+      "correctedValue": "Frodo-kappa",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "full armor set",
+      "correctedValue": "komplett rustningsset",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "full grain leather",
+      "correctedValue": "fullnarvsläder",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "FullGrainLeather",
+      "correctedValue": "fullnarvsläder",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "GenuineLeatherBelt",
+      "correctedValue": "bälte i äkta läder",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "geralt armor",
+      "correctedValue": "Geralt-rustning",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "glamping",
+      "correctedValue": "glamping",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "hand carved cup",
+      "correctedValue": "handsnidad kåsa",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "handmade armor",
+      "correctedValue": "handgjord rustning",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "HandmadeLeatherBelt",
+      "correctedValue": "handgjort läderbälte",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "harry potter wizard hat",
+      "correctedValue": "Harry Potter-trollkarlshatt",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "headdress",
+      "correctedValue": "huvudbonad",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "headdress indian",
+      "correctedValue": "indiansk huvudbonad",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "headscarf",
+      "correctedValue": "huvudduk",
+      "reason": "Removes an injected machine-translation artifact that is absent from the source."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "hiking backpack",
+      "correctedValue": "vandringsryggsäck",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "hiking rucksack",
+      "correctedValue": "vandringsryggsäck",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "HistoricalReenactment",
+      "correctedValue": "historiskt återskapande",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "hobbit cloak",
+      "correctedValue": "hobbitkappa",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "Knights Of The Realm @ Nelis' Dutch Village",
+      "correctedValue": "Knights Of The Realm @ Nelis' Dutch Village",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "kuksa cup",
+      "correctedValue": "kuksa",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "kuksa shot glass",
+      "correctedValue": "kuksa-shotglas",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "lagertha costume",
+      "correctedValue": "Lagertha-dräkt",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "larp",
+      "correctedValue": "LARP",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "larp belt",
+      "correctedValue": "LARP-bälte",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "Larp Gear",
+      "correctedValue": "LARP-utrustning",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "larp helmet",
+      "correctedValue": "LARP-hjälm",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "larp jerkin",
+      "correctedValue": "LARP-väst",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "larp sword",
+      "correctedValue": "LARP-svärd",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "larp warrior armor",
+      "correctedValue": "LARP-krigarrustning",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "LARPgear",
+      "correctedValue": "LARP-utrustning",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "leather plates armor",
+      "correctedValue": "rustning av läderplattor",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "lotr",
+      "correctedValue": "LOTR",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "lotr costume",
+      "correctedValue": "LOTR-dräkt",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "lotr fan gift",
+      "correctedValue": "present till LOTR-fan",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "lotr lovers",
+      "correctedValue": "LOTR-älskare",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "lotr sword",
+      "correctedValue": "LOTR-svärd",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "marbling",
+      "correctedValue": "marmorering",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "medieval hat",
+      "correctedValue": "medeltida hatt",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "MedievalLeatherBelt",
+      "correctedValue": "medeltida läderbälte",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "middle earth",
+      "correctedValue": "Midgård",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "mongol armor",
+      "correctedValue": "mongolisk rustning",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "MongolianBelt",
+      "correctedValue": "mongoliskt bälte",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "MongolianWarrior",
+      "correctedValue": "mongolisk krigare",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "moroccan kaftan",
+      "correctedValue": "marockansk kaftan",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "osman ghazi armor",
+      "correctedValue": "Osman Ghazi-rustning",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "professional backpack",
+      "correctedValue": "professionell ryggsäck",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "ranger armor",
+      "correctedValue": "ranger-rustning",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "robe and wizard hat",
+      "correctedValue": "mantel och trollkarlshatt",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "SCA armor",
+      "correctedValue": "SCA-rustning",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "scandinavian",
+      "correctedValue": "skandinavisk",
+      "reason": "Removes an injected machine-translation artifact that is absent from the source."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "scandinavian kuksa",
+      "correctedValue": "skandinavisk kuksa",
+      "reason": "Removes an injected machine-translation artifact that is absent from the source."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "serdar kılıç hat",
+      "correctedValue": "Serdar Kılıç-hatt",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "shaman ceremonie",
+      "correctedValue": "shamanceremoni",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "shaman headdress",
+      "correctedValue": "shamansk huvudbonad",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "shamans",
+      "correctedValue": "shamaner",
+      "reason": "Removes an injected machine-translation artifact that is absent from the source."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "shield maiden",
+      "correctedValue": "sköldmö",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "shield maiden armor",
+      "correctedValue": "sköldmörustning",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "shield maiden costume",
+      "correctedValue": "sköldmödräkt",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "smudge feather",
+      "correctedValue": "smudgefjäder",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "traditional boot",
+      "correctedValue": "traditionell stövel",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "traveler bag",
+      "correctedValue": "resväska",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "trekking bag",
+      "correctedValue": "vandringsväska",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "turban hat costume",
+      "correctedValue": "turbanhatt för kostym",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "turkey feather",
+      "correctedValue": "kalkonfjäder",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "viking belt",
+      "correctedValue": "vikingabälte",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "viking drink cup",
+      "correctedValue": "vikingakåsa",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "viking shield",
+      "correctedValue": "vikingasköld",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "viking tunic",
+      "correctedValue": "vikingatunika",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "vikings boots",
+      "correctedValue": "vikingastövlar",
+      "reason": "Removes untranslated English leakage and uses the natural catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "warrior woman armor",
+      "correctedValue": "kvinnlig krigarrustning",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "woman armor",
+      "correctedValue": "kvinnorustning",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "woman corset armor",
+      "correctedValue": "korsettrustning för kvinnor",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "dk",
+      "source": "qabak arrows",
+      "correctedValue": "qabak-pile",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "pl",
+      "source": "qabak arrows",
+      "correctedValue": "strzały qabak",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    },
+    {
+      "package": "tag",
+      "languageCode": "pl",
+      "source": "katana sword",
+      "correctedValue": "miecz katana",
+      "reason": "Removes an injected machine-translation artifact that is absent from the source."
+    },
+    {
+      "package": "tag",
+      "languageCode": "pl",
+      "source": "turkish silver ring",
+      "correctedValue": "turecki srebrny pierścień",
+      "reason": "Corrects a clear semantic mistranslation or meaningless word order."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ro",
+      "source": "Scarborough Faire",
+      "correctedValue": "Scarborough Faire",
+      "reason": "Preserves the proper name or acronym and translates only the descriptive catalog term."
+    }
+  ]
+}

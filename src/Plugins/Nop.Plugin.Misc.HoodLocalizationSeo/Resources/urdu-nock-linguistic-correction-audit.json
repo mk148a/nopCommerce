@@ -1,0 +1,211 @@
+{
+  "schemaVersion": 1,
+  "status": "PASS",
+  "deployable": true,
+  "policy": "Urdu archery uses the established Pakistan retail loanword Nock. The Urdu word ناک means the anatomical nose and is prohibited for every nock component. Koç is preserved exactly as a brand and is never translated as the animal ram.",
+  "sourceBindings": {
+    "builder": {
+      "file": "build_urdu_nock_linguistic_corrections.py",
+      "sha256": "C1A70F30828B7561B6C9CD429E06A491ECF44C01DC4C8412A85F5FAB0E5E58B6"
+    },
+    "glossary": {
+      "file": "archery-glossary-global.json",
+      "sha256": "19F8C906B318380C568162004FC897B787ACDF1FD875E472D126642ED145BB79"
+    },
+    "semanticReview": {
+      "file": "semantic-review-global-v3.json",
+      "sha256": "5F4D596EAC99F71B2D31A538F3BB2B258E48247A713EA13C3788721EC17526E1"
+    },
+    "baselineProductTagSha256": "1381A00C7167ECEF08D6B8E6A9C9185E629771DB06C96D952204FDE7E4F21B39",
+    "baselineProductAttributeSha256": "99809B140DA6C3E4EFC677D651F497A1CCD801C7C81A8F802629C400A850E801"
+  },
+  "outputBindings": {
+    "productTag": {
+      "file": "product-tag-localization.json",
+      "sha256": "37382D8BB83EA739D54F63BF5917E9C9CC7275664D66715946DDAF111AF9745B"
+    },
+    "productAttribute": {
+      "file": "product-attribute-localization.json",
+      "sha256": "51DCC3AC06BCF3CDE4EB38514BA30E78FBAC67EFF1E8987C1366D4E0537D0B64"
+    },
+    "productTagSql": {
+      "file": "apply-product-tag-localization.sql",
+      "sha256": "CD2850484D27E9FAF4890BA66339E273436AB63351C09E3D69794799FE00C1A6"
+    },
+    "productAttributeSql": {
+      "file": "apply-product-attribute-localization.sql",
+      "sha256": "EC30F042363A6459FA9CDD3F96CF19874B0FC51956F10EB7806F26586326A3DC"
+    }
+  },
+  "summary": {
+    "productTagReviewedRowCount": 8,
+    "productAttributeReviewedRowCount": 250,
+    "totalReviewedRowCount": 258,
+    "productTagCorrectedRowCount": 8,
+    "productAttributeCorrectedRowCount": 250,
+    "urduProductTagNoseResidualCount": 0,
+    "urduProductAttributeNoseResidualCount": 0,
+    "blockingFindingCount": 0
+  },
+  "tagCorrections": [
+    {
+      "source": "archery arrow nock",
+      "oldValue": "تیر اندازی تیر کا ناک",
+      "newValue": "تیر اندازی کے تیر کا Nock",
+      "newSlug": "تیر-اندازی-کے-تیر-کا-nock"
+    },
+    {
+      "source": "archery nock",
+      "oldValue": "تیر اندازی ناک",
+      "newValue": "تیر اندازی کا Nock",
+      "newSlug": "تیر-اندازی-کا-nock"
+    },
+    {
+      "source": "hardwood glue-on nocks",
+      "oldValue": "سخت لکڑی کے چپکنے والے ناک",
+      "newValue": "سخت لکڑی کے چپکنے والے Nocks",
+      "newSlug": "سخت-لکڑی-کے-چپکنے-والے-nocks"
+    },
+    {
+      "source": "koc nock",
+      "oldValue": "Koç ناک",
+      "newValue": "Koç Nock",
+      "newSlug": "koc-nock"
+    },
+    {
+      "source": "wooden arrow nock",
+      "oldValue": "لکڑی کا تیر کا ناک",
+      "newValue": "لکڑی کے تیر کا Nock",
+      "newSlug": "لکڑی-کے-تیر-کا-nock"
+    }
+  ],
+  "attributeCorrections": [
+    {
+      "source": "Batur Nock",
+      "oldValue": "Batur ناک",
+      "newValue": "Batur Nock",
+      "rowCount": 2
+    },
+    {
+      "source": "KOÇ Nock 11/32",
+      "oldValue": "Koç ناک 11/32",
+      "newValue": "Koç Nock 11/32",
+      "rowCount": 1
+    },
+    {
+      "source": "KOÇ Nock 5/16",
+      "oldValue": "Koç ناک 5/16",
+      "newValue": "Koç Nock 5/16",
+      "rowCount": 1
+    },
+    {
+      "source": "Koc Nock",
+      "oldValue": "Koç ناک",
+      "newValue": "Koç Nock",
+      "rowCount": 48
+    },
+    {
+      "source": "Nock Type",
+      "oldValue": "ناک کی قسم",
+      "newValue": "Nock کی قسم",
+      "rowCount": 1
+    },
+    {
+      "source": "Self Nock",
+      "oldValue": "تیر کے ڈنڈے میں تراشا ہوا ناک",
+      "newValue": "تیر کے ڈنڈے میں تراشا ہوا Nock",
+      "rowCount": 47
+    }
+  ],
+  "additionalKocCorrections": [
+    {
+      "languageCode": "ar",
+      "oldAuthorityTerm": "Koç نوك",
+      "authorityTerm": "نوك Koç",
+      "newSlug": "نوك-koc",
+      "productTagRowCount": 1,
+      "productAttributeRowCount": 50,
+      "attributeSources": [
+        {
+          "source": "Koc Nock",
+          "rowCount": 48,
+          "oldValue": "Koç نوك",
+          "newValue": "نوك Koç"
+        },
+        {
+          "source": "KOÇ Nock 11/32",
+          "rowCount": 1,
+          "oldValue": "Koç نوك 11/32",
+          "newValue": "نوك Koç 11/32"
+        },
+        {
+          "source": "KOÇ Nock 5/16",
+          "rowCount": 1,
+          "oldValue": "Koç نوك 5/16",
+          "newValue": "نوك Koç 5/16"
+        }
+      ]
+    },
+    {
+      "languageCode": "my",
+      "oldAuthorityTerm": "Koç nok",
+      "authorityTerm": "Koç Nock",
+      "newSlug": "koc-nock",
+      "productTagRowCount": 1,
+      "productAttributeRowCount": 50,
+      "attributeSources": [
+        {
+          "source": "Koc Nock",
+          "rowCount": 48,
+          "oldValue": "Koç nok",
+          "newValue": "Koç Nock"
+        },
+        {
+          "source": "KOÇ Nock 11/32",
+          "rowCount": 1,
+          "oldValue": "Koç nok 11/32",
+          "newValue": "Koç Nock 11/32"
+        },
+        {
+          "source": "KOÇ Nock 5/16",
+          "rowCount": 1,
+          "oldValue": "Koç nok 5/16",
+          "newValue": "Koç Nock 5/16"
+        }
+      ]
+    },
+    {
+      "languageCode": "ru",
+      "oldAuthorityTerm": "Koç нок",
+      "authorityTerm": "хвостовик Koç",
+      "newSlug": "хвостовик-koc",
+      "productTagRowCount": 1,
+      "productAttributeRowCount": 50,
+      "attributeSources": [
+        {
+          "source": "Koc Nock",
+          "rowCount": 48,
+          "oldValue": "Koç нок",
+          "newValue": "хвостовик Koç"
+        },
+        {
+          "source": "KOÇ Nock 11/32",
+          "rowCount": 1,
+          "oldValue": "Koç нок 11/32",
+          "newValue": "хвостовик Koç 11/32"
+        },
+        {
+          "source": "KOÇ Nock 5/16",
+          "rowCount": 1,
+          "oldValue": "Koç нок 5/16",
+          "newValue": "хвостовик Koç 5/16"
+        }
+      ]
+    }
+  ],
+  "releaseDecision": {
+    "status": "PASS",
+    "deployable": true,
+    "reason": "All 258 reviewed deploy-visible nock labels use the independently reviewed archery terms; Koç remains the brand and no Urdu anatomical nose term remains."
+  }
+}

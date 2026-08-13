@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "artifactSha256": "2A69A22988E3FF0B0D43CF5606BEE13762905CA3771CD956C24B84D1A80C30F0",
+  "languageCount": 19,
+  "categorySourceCount": 5,
+  "turkishBowSourceCount": 16,
+  "uniqueSourceCount": 21,
+  "manualEntryCount": 111,
+  "categoryFieldCheckCount": 95,
+  "targetTurkishBodyCount": 5,
+  "finalTurkishBodyCheckCount": 5,
+  "preOverrideFiyonkSourceCount": 0,
+  "replacementCharacterCount": 0,
+  "errorCount": 0,
+  "errors": []
+}

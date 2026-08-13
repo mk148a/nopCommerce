@@ -1,0 +1,696 @@
+{
+  "schemaVersion": 1,
+  "status": "PASS",
+  "sourcePackage": {
+    "file": "product-prose-koc-corrections.json",
+    "sha256": "D057A6469B3CA0C6307B3A335CEB891E76AC15D3679C0B47649E230C46A1029B"
+  },
+  "authorityPackage": {
+    "file": "product-tag-localization.json",
+    "sha256": "37382D8BB83EA739D54F63BF5917E9C9CC7275664D66715946DDAF111AF9745B",
+    "entityId": 583
+  },
+  "supportingPackageBindings": {
+    "productAttribute": {
+      "file": "product-attribute-localization.json",
+      "sha256": "51DCC3AC06BCF3CDE4EB38514BA30E78FBAC67EFF1E8987C1366D4E0537D0B64"
+    },
+    "urduNockCorrection": {
+      "file": "urdu-nock-linguistic-correction-audit.json",
+      "sha256": "E7E54E9F7E5DD0DEE0354AFF45CFAFDDF0277596823FB1D20DF5628ABA6B9CD2"
+    }
+  },
+  "routeCount": 24,
+  "distinctSentenceCount": 20,
+  "translatedLanguageReviewCount": 19,
+  "sourceEnglishReviewCount": 1,
+  "authorityTermReviewCount": 20,
+  "sentenceReviewCount": 20,
+  "additionalEditCount": 3,
+  "additionalEditRowCount": 2,
+  "errorCount": 0,
+  "deployable": true,
+  "methodology": "Independent exact review of one source-English sentence and 19 translated language sentences. ProductTag 583 was compared with external archery usage rather than accepted as authority by default. Every sentence and authority term preserves exactly one Koç brand token, names an archery nock, states a clear standard alternative, and excludes reviewed animal, anatomical and non-archery senses.",
+  "deployVisibleResidualAudit": {
+    "urduProductProseNewValueAnatomicalNoseCount": 0,
+    "urduProductProseReplacementSpanAnatomicalNoseCount": 0,
+    "urduCanonicalSentenceAnatomicalNoseCount": 0,
+    "urduProductTagNockAnatomicalNoseCount": 0,
+    "urduProductAttributeNockAnatomicalNoseCount": 0,
+    "legacyOldValueAnatomicalNoseCount": 49,
+    "legacyOldValueDisposition": "Expected old-state evidence only; retained for exact old-to-new installation guards and never published as the new value."
+  },
+  "researchSources": [
+    {
+      "url": "https://www.worldarchery.sport/sport/equipment",
+      "scope": [
+        "en"
+      ],
+      "finding": "Defines the nock as the arrow component that clips onto the bowstring."
+    },
+    {
+      "url": "https://www.okculuk.com/kategori/ok-gezi",
+      "scope": [
+        "tr"
+      ],
+      "finding": "Explains ok gezi as the rear of the arrow that seats on the string and lists Koç Gez as a product."
+    },
+    {
+      "url": "https://dictionary.cambridge.org/dictionary/english-urdu/nose",
+      "scope": [
+        "ur"
+      ],
+      "finding": "Confirms that ناک is the Urdu word for the anatomical nose and is not an archery component."
+    },
+    {
+      "url": "https://www.daraz.pk/products/silk-road-traders-archery-arrow-nocks-for-id-62mm-shafts-12-pcs-i137518978.html",
+      "scope": [
+        "ur"
+      ],
+      "finding": "Pakistan retail evidence uses the Latin product term Arrow Nocks/Nock."
+    },
+    {
+      "url": "https://www.justhunters.pk/sanlida-10-target-arrow-nock-12pc-pack-sanlida-10-target-arrow-nock",
+      "scope": [
+        "ur"
+      ],
+      "finding": "Pakistan specialist retail evidence consistently uses Nock for the component."
+    },
+    {
+      "url": "https://extranet.worldarchery.sport/documents/index.php/Federation/Award_Schemes/Beginners_Awards_Programme_ARABIC.pdf",
+      "scope": [
+        "ar"
+      ],
+      "finding": "World Archery Arabic coaching material uses نوك السهم for the arrow nock."
+    },
+    {
+      "url": "https://archerclub.ru/product/hvostovik-dlya-strel-beiter-pinnock/",
+      "scope": [
+        "ru"
+      ],
+      "finding": "Russian specialist archery retail uses хвостовик for an arrow nock."
+    },
+    {
+      "url": "https://snl.no/nokk_-_bueskyting",
+      "scope": [
+        "no"
+      ],
+      "finding": "Norwegian encyclopedia defines nokk as the notch at the rear of an arrow."
+    },
+    {
+      "url": "https://sklepluczniczy.pl/38-nasadki-do-strzal",
+      "scope": [
+        "pl"
+      ],
+      "finding": "Polish specialist archery retail uses nasadka/nasadki for arrow nocks."
+    },
+    {
+      "url": "https://codex.siah.ac/uploads/short-url/nT60Sl6PQnbxfqyW2gmBvBB27TW.pdf",
+      "scope": [
+        "es"
+      ],
+      "finding": "Spanish historical-archery material uses culatín de la flecha."
+    }
+  ],
+  "reviews": [
+    {
+      "reviewKey": "en",
+      "routeCodes": [
+        "au",
+        "ca",
+        "en",
+        "gb",
+        "za"
+      ],
+      "languageName": "English",
+      "authorityTerm": "Koç Nock",
+      "componentTerm": "nock",
+      "canonicalSentence": "Please tell me whether you prefer a Koç Nock or a standard nock.",
+      "canonicalSentenceSha256": "2CC30213716E34B9769DEF13E90C3A20FD104E3EBCD8E2FC2CE5F3D6546B2630",
+      "prohibitedAnimalOrNonArcheryTerms": [
+        "ram",
+        "sheep",
+        "animal",
+        "nose"
+      ],
+      "checks": {
+        "authorityTermIsArcherySpecific": true,
+        "brandKoçPreserved": true,
+        "animalSenseAbsent": true,
+        "nonArcherySenseAbsent": true,
+        "standardAlternativeClear": true,
+        "nativeGrammarNatural": true,
+        "customerInstructionNatural": true,
+        "noUnreviewedEnglishLeak": true
+      },
+      "verdict": "PASS",
+      "rationale": "Nock is the established English archery component name; Koç remains the exact brand and the sentence asks for one clear product choice."
+    },
+    {
+      "reviewKey": "tr",
+      "routeCodes": [
+        "tr"
+      ],
+      "languageName": "Turkish",
+      "authorityTerm": "Koç gez",
+      "componentTerm": "gez",
+      "canonicalSentence": "Lütfen Koç gez mi yoksa standart gez mi tercih ettiğinizi belirtin.",
+      "canonicalSentenceSha256": "BD8D2F6A1D784531671D42EE2EDCA271CCE102BECC11D0A880147B4C4173F41E",
+      "prohibitedAnimalOrNonArcheryTerms": [
+        "koç hayvanı",
+        "koyun",
+        "burun",
+        "ram nock"
+      ],
+      "checks": {
+        "authorityTermIsArcherySpecific": true,
+        "brandKoçPreserved": true,
+        "animalSenseAbsent": true,
+        "nonArcherySenseAbsent": true,
+        "standardAlternativeClear": true,
+        "nativeGrammarNatural": true,
+        "customerInstructionNatural": true,
+        "noUnreviewedEnglishLeak": true
+      },
+      "verdict": "PASS",
+      "rationale": "Gez is the traditional Turkish term for the string-engaging rear of an arrow; Koç is retained as the product brand."
+    },
+    {
+      "reviewKey": "ur",
+      "routeCodes": [
+        "ur"
+      ],
+      "languageName": "Urdu",
+      "authorityTerm": "Koç Nock",
+      "componentTerm": "Nock",
+      "canonicalSentence": "براہِ کرم بتائیں کہ آپ Koç Nock کو ترجیح دیتے ہیں یا معیاری Nock کو۔",
+      "canonicalSentenceSha256": "AFABD3378E7151B70516E2FB424F58061BB68907CE915D747E8CD334E5F7DD1D",
+      "prohibitedAnimalOrNonArcheryTerms": [
+        "رام",
+        "بھیڑ",
+        "ناک",
+        "نوک"
+      ],
+      "checks": {
+        "authorityTermIsArcherySpecific": true,
+        "brandKoçPreserved": true,
+        "animalSenseAbsent": true,
+        "nonArcherySenseAbsent": true,
+        "standardAlternativeClear": true,
+        "nativeGrammarNatural": true,
+        "customerInstructionNatural": true,
+        "noUnreviewedEnglishLeak": true
+      },
+      "verdict": "PASS",
+      "rationale": "Pakistan archery retailers use the Latin technical loanword Nock. ناک means the anatomical nose and نوک denotes a point or tip, so neither is used for the rear string-engaging component.",
+      "allowedTechnicalLoanword": "Nock"
+    },
+    {
+      "reviewKey": "de",
+      "routeCodes": [
+        "de"
+      ],
+      "languageName": "German",
+      "authorityTerm": "Koç-Nocke",
+      "componentTerm": "Nocke",
+      "canonicalSentence": "Bitte teilen Sie mir mit, ob Sie eine Koç-Nocke oder eine Standardnocke bevorzugen.",
+      "canonicalSentenceSha256": "2E512A8C7210BA9C527972C60E6ACDE6259A0680D360133ACA9300331C6360E1",
+      "prohibitedAnimalOrNonArcheryTerms": [
+        "Widder",
+        "Schaf",
+        "Nase"
+      ],
+      "checks": {
+        "authorityTermIsArcherySpecific": true,
+        "brandKoçPreserved": true,
+        "animalSenseAbsent": true,
+        "nonArcherySenseAbsent": true,
+        "standardAlternativeClear": true,
+        "nativeGrammarNatural": true,
+        "customerInstructionNatural": true,
+        "noUnreviewedEnglishLeak": true
+      },
+      "verdict": "PASS",
+      "rationale": "Nocke is standard German archery retail terminology and the compound sentence is natural customer-facing German."
+    },
+    {
+      "reviewKey": "fr",
+      "routeCodes": [
+        "fr"
+      ],
+      "languageName": "French",
+      "authorityTerm": "encoche Koç",
+      "componentTerm": "encoche",
+      "canonicalSentence": "Veuillez m’indiquer si vous préférez une encoche Koç ou une encoche standard.",
+      "canonicalSentenceSha256": "45F22A18567A5675388726E36DE79040E5A7862227C24350A0BC60B6BA9D224B",
+      "prohibitedAnimalOrNonArcheryTerms": [
+        "bélier",
+        "mouton",
+        "nez"
+      ],
+      "checks": {
+        "authorityTermIsArcherySpecific": true,
+        "brandKoçPreserved": true,
+        "animalSenseAbsent": true,
+        "nonArcherySenseAbsent": true,
+        "standardAlternativeClear": true,
+        "nativeGrammarNatural": true,
+        "customerInstructionNatural": true,
+        "noUnreviewedEnglishLeak": true
+      },
+      "verdict": "PASS",
+      "rationale": "Encoche is the established French arrow-nock term; the brand follows the component naturally and is not translated."
+    },
+    {
+      "reviewKey": "it",
+      "routeCodes": [
+        "it"
+      ],
+      "languageName": "Italian",
+      "authorityTerm": "cocca Koç",
+      "componentTerm": "cocca",
+      "canonicalSentence": "Indica se preferisci una cocca Koç o una cocca standard.",
+      "canonicalSentenceSha256": "AEEB7B38B384D160C9DF418AEB4EA790B5DFBAC40425FB06D265F2CD4EB5A398",
+      "prohibitedAnimalOrNonArcheryTerms": [
+        "ariete",
+        "montone",
+        "pecora",
+        "naso"
+      ],
+      "checks": {
+        "authorityTermIsArcherySpecific": true,
+        "brandKoçPreserved": true,
+        "animalSenseAbsent": true,
+        "nonArcherySenseAbsent": true,
+        "standardAlternativeClear": true,
+        "nativeGrammarNatural": true,
+        "customerInstructionNatural": true,
+        "noUnreviewedEnglishLeak": true
+      },
+      "verdict": "PASS",
+      "rationale": "Cocca is the Italian archery component term and both alternatives are stated symmetrically."
+    },
+    {
+      "reviewKey": "dk",
+      "routeCodes": [
+        "dk"
+      ],
+      "languageName": "Danish",
+      "authorityTerm": "Koç-nock",
+      "componentTerm": "nock",
+      "canonicalSentence": "Angiv venligst, om du foretrækker en Koç-nock eller en standardnock.",
+      "canonicalSentenceSha256": "6CDB614C9387C57A93A0BE9D1ED8BF7DF586F6CF512E757B77077E9A0F4DF989",
+      "prohibitedAnimalOrNonArcheryTerms": [
+        "vædder",
+        "får",
+        "næse"
+      ],
+      "checks": {
+        "authorityTermIsArcherySpecific": true,
+        "brandKoçPreserved": true,
+        "animalSenseAbsent": true,
+        "nonArcherySenseAbsent": true,
+        "standardAlternativeClear": true,
+        "nativeGrammarNatural": true,
+        "customerInstructionNatural": true,
+        "noUnreviewedEnglishLeak": true
+      },
+      "verdict": "PASS",
+      "rationale": "Nock is established Danish archery usage; the compound forms and customer request are natural."
+    },
+    {
+      "reviewKey": "nl",
+      "routeCodes": [
+        "nl"
+      ],
+      "languageName": "Dutch",
+      "authorityTerm": "Koç-nok",
+      "componentTerm": "nok",
+      "canonicalSentence": "Geef aan of u een Koç-nok of een standaardnok verkiest.",
+      "canonicalSentenceSha256": "03B63C4B8CE319999ED0C59EF9406477D60C4A2A478FB1779C89E2AC2C031DD3",
+      "prohibitedAnimalOrNonArcheryTerms": [
+        "ram",
+        "schaap",
+        "neus"
+      ],
+      "checks": {
+        "authorityTermIsArcherySpecific": true,
+        "brandKoçPreserved": true,
+        "animalSenseAbsent": true,
+        "nonArcherySenseAbsent": true,
+        "standardAlternativeClear": true,
+        "nativeGrammarNatural": true,
+        "customerInstructionNatural": true,
+        "noUnreviewedEnglishLeak": true
+      },
+      "verdict": "PASS",
+      "rationale": "Nok is the Dutch archery spelling and the sentence clearly contrasts brand and standard variants."
+    },
+    {
+      "reviewKey": "hu",
+      "routeCodes": [
+        "hu"
+      ],
+      "languageName": "Hungarian",
+      "authorityTerm": "Koç nock",
+      "componentTerm": "nock",
+      "canonicalSentence": "Kérjük, jelezze, hogy Koç nockot vagy szabványos nockot szeretne.",
+      "canonicalSentenceSha256": "C9562B9A24F1B8468D60F936D19E762FD5C010341AB97A9F454043EF8927BBB6",
+      "prohibitedAnimalOrNonArcheryTerms": [
+        "kos",
+        "juh",
+        "orr"
+      ],
+      "checks": {
+        "authorityTermIsArcherySpecific": true,
+        "brandKoçPreserved": true,
+        "animalSenseAbsent": true,
+        "nonArcherySenseAbsent": true,
+        "standardAlternativeClear": true,
+        "nativeGrammarNatural": true,
+        "customerInstructionNatural": true,
+        "noUnreviewedEnglishLeak": true
+      },
+      "verdict": "PASS",
+      "rationale": "Hungarian archery retail uses nock as a technical loanword; Hungarian case marking makes the sentence natural.",
+      "allowedTechnicalLoanword": "nock"
+    },
+    {
+      "reviewKey": "no",
+      "routeCodes": [
+        "no"
+      ],
+      "languageName": "Norwegian",
+      "authorityTerm": "Koç-nokk",
+      "componentTerm": "nokk",
+      "canonicalSentence": "Oppgi om du foretrekker en Koç-nokk eller en standardnokk.",
+      "canonicalSentenceSha256": "79837F893FA922BFF0267CD8411A3BC255C38469272F5BBD77403455139FB311",
+      "prohibitedAnimalOrNonArcheryTerms": [
+        "vær",
+        "sau",
+        "nese"
+      ],
+      "checks": {
+        "authorityTermIsArcherySpecific": true,
+        "brandKoçPreserved": true,
+        "animalSenseAbsent": true,
+        "nonArcherySenseAbsent": true,
+        "standardAlternativeClear": true,
+        "nativeGrammarNatural": true,
+        "customerInstructionNatural": true,
+        "noUnreviewedEnglishLeak": true
+      },
+      "verdict": "PASS",
+      "rationale": "Nokk is the Norwegian archery term for the notch at the rear of an arrow; the customer instruction is concise and natural."
+    },
+    {
+      "reviewKey": "pl",
+      "routeCodes": [
+        "pl"
+      ],
+      "languageName": "Polish",
+      "authorityTerm": "nasadka Koç",
+      "componentTerm": "nasadka",
+      "canonicalSentence": "Proszę podać preferowany wariant: nasadka Koç czy nasadka standardowa.",
+      "canonicalSentenceSha256": "AC5E764E9201ADBF09943A81DEDEBD633833071130594F8254A9217007F02AC1",
+      "prohibitedAnimalOrNonArcheryTerms": [
+        "baran",
+        "owca",
+        "nos"
+      ],
+      "checks": {
+        "authorityTermIsArcherySpecific": true,
+        "brandKoçPreserved": true,
+        "animalSenseAbsent": true,
+        "nonArcherySenseAbsent": true,
+        "standardAlternativeClear": true,
+        "nativeGrammarNatural": true,
+        "customerInstructionNatural": true,
+        "noUnreviewedEnglishLeak": true
+      },
+      "verdict": "PASS",
+      "rationale": "Nasadka is established Polish arrow-nock terminology and the sentence uses the correct feminine agreement for standardowa."
+    },
+    {
+      "reviewKey": "pt",
+      "routeCodes": [
+        "pt"
+      ],
+      "languageName": "Portuguese",
+      "authorityTerm": "nock Koç",
+      "componentTerm": "nock",
+      "canonicalSentence": "Indique se prefere um nock Koç ou um nock padrão.",
+      "canonicalSentenceSha256": "2D2E98901493CCE2BA6D28BE47D4DB38CB8E3BE54F470D8EE6C7AAFC36CA69D2",
+      "prohibitedAnimalOrNonArcheryTerms": [
+        "carneiro",
+        "ovelha",
+        "nariz"
+      ],
+      "checks": {
+        "authorityTermIsArcherySpecific": true,
+        "brandKoçPreserved": true,
+        "animalSenseAbsent": true,
+        "nonArcherySenseAbsent": true,
+        "standardAlternativeClear": true,
+        "nativeGrammarNatural": true,
+        "customerInstructionNatural": true,
+        "noUnreviewedEnglishLeak": true
+      },
+      "verdict": "PASS",
+      "rationale": "Portuguese archery usage retains nock as the component term and the alternatives are grammatically parallel.",
+      "allowedTechnicalLoanword": "nock"
+    },
+    {
+      "reviewKey": "ro",
+      "routeCodes": [
+        "ro"
+      ],
+      "languageName": "Romanian",
+      "authorityTerm": "nock Koç",
+      "componentTerm": "nock",
+      "canonicalSentence": "Vă rugăm să precizați dacă preferați un nock Koç sau un nock standard.",
+      "canonicalSentenceSha256": "8EF7C0FFBEEBF0BA29F74620FF20870D2337E3A6F23C825410F0C88A23A427DC",
+      "prohibitedAnimalOrNonArcheryTerms": [
+        "berbec",
+        "oaie",
+        "nas"
+      ],
+      "checks": {
+        "authorityTermIsArcherySpecific": true,
+        "brandKoçPreserved": true,
+        "animalSenseAbsent": true,
+        "nonArcherySenseAbsent": true,
+        "standardAlternativeClear": true,
+        "nativeGrammarNatural": true,
+        "customerInstructionNatural": true,
+        "noUnreviewedEnglishLeak": true
+      },
+      "verdict": "PASS",
+      "rationale": "Romanian archery retail uses nock as a technical term; the polite choice instruction is natural.",
+      "allowedTechnicalLoanword": "nock"
+    },
+    {
+      "reviewKey": "es",
+      "routeCodes": [
+        "es"
+      ],
+      "languageName": "Spanish",
+      "authorityTerm": "culatín Koç",
+      "componentTerm": "culatín",
+      "canonicalSentence": "Indique si prefiere un culatín Koç o un culatín estándar.",
+      "canonicalSentenceSha256": "4C17265CAF4BFC33791E51D9973CD5DA083D56F126B2080CA34ED093BF2990F2",
+      "prohibitedAnimalOrNonArcheryTerms": [
+        "carnero",
+        "oveja",
+        "nariz"
+      ],
+      "checks": {
+        "authorityTermIsArcherySpecific": true,
+        "brandKoçPreserved": true,
+        "animalSenseAbsent": true,
+        "nonArcherySenseAbsent": true,
+        "standardAlternativeClear": true,
+        "nativeGrammarNatural": true,
+        "customerInstructionNatural": true,
+        "noUnreviewedEnglishLeak": true
+      },
+      "verdict": "PASS",
+      "rationale": "Culatín is the established Spanish arrow-nock term and estándar agrees naturally with the component noun."
+    },
+    {
+      "reviewKey": "se",
+      "routeCodes": [
+        "se"
+      ],
+      "languageName": "Swedish",
+      "authorityTerm": "Koç-nock",
+      "componentTerm": "nock",
+      "canonicalSentence": "Ange om du föredrar en Koç-nock eller en standardnock.",
+      "canonicalSentenceSha256": "78750042C7F747F143C758C4A0A95B1597082F9580656E2E5FFAEEBB30B7B25A",
+      "prohibitedAnimalOrNonArcheryTerms": [
+        "bagge",
+        "får",
+        "näsa"
+      ],
+      "checks": {
+        "authorityTermIsArcherySpecific": true,
+        "brandKoçPreserved": true,
+        "animalSenseAbsent": true,
+        "nonArcherySenseAbsent": true,
+        "standardAlternativeClear": true,
+        "nativeGrammarNatural": true,
+        "customerInstructionNatural": true,
+        "noUnreviewedEnglishLeak": true
+      },
+      "verdict": "PASS",
+      "rationale": "Nock is standard Swedish archery usage and the compound alternatives are clear."
+    },
+    {
+      "reviewKey": "gr",
+      "routeCodes": [
+        "gr"
+      ],
+      "languageName": "Greek",
+      "authorityTerm": "Koç νοκ",
+      "componentTerm": "νοκ",
+      "canonicalSentence": "Παρακαλώ δηλώστε αν προτιμάτε ένα Koç νοκ ή ένα τυπικό νοκ.",
+      "canonicalSentenceSha256": "EC77EF735E98CFD566B8A52DA024A9BAEDEDC80C304B30DEED1ED999FA49974C",
+      "prohibitedAnimalOrNonArcheryTerms": [
+        "κριάρι",
+        "πρόβατο",
+        "μύτη"
+      ],
+      "checks": {
+        "authorityTermIsArcherySpecific": true,
+        "brandKoçPreserved": true,
+        "animalSenseAbsent": true,
+        "nonArcherySenseAbsent": true,
+        "standardAlternativeClear": true,
+        "nativeGrammarNatural": true,
+        "customerInstructionNatural": true,
+        "noUnreviewedEnglishLeak": true
+      },
+      "verdict": "PASS",
+      "rationale": "Νοκ is the Greek archery loanword; Koç remains in Latin script as the brand and both choices are natural."
+    },
+    {
+      "reviewKey": "my",
+      "routeCodes": [
+        "my"
+      ],
+      "languageName": "Malay",
+      "authorityTerm": "Koç Nock",
+      "componentTerm": "nock",
+      "canonicalSentence": "Sila nyatakan pilihan anda: Koç Nock atau nock standard.",
+      "canonicalSentenceSha256": "E24BEC71C9A94DDEE9AE25B458BD45D16A80123A4933614EF71274C084ED7D12",
+      "prohibitedAnimalOrNonArcheryTerms": [
+        "biri-biri",
+        "domba",
+        "hidung"
+      ],
+      "checks": {
+        "authorityTermIsArcherySpecific": true,
+        "brandKoçPreserved": true,
+        "animalSenseAbsent": true,
+        "nonArcherySenseAbsent": true,
+        "standardAlternativeClear": true,
+        "nativeGrammarNatural": true,
+        "customerInstructionNatural": true,
+        "noUnreviewedEnglishLeak": true
+      },
+      "verdict": "PASS",
+      "rationale": "Malaysia-facing archery retail commonly retains the English technical product term nock; the Malay instruction is concise and natural.",
+      "allowedTechnicalLoanword": "Nock/nock"
+    },
+    {
+      "reviewKey": "jp",
+      "routeCodes": [
+        "jp"
+      ],
+      "languageName": "Japanese",
+      "authorityTerm": "Koçノック",
+      "componentTerm": "ノック",
+      "canonicalSentence": "Koçノックと標準ノックのどちらをご希望かお知らせください。",
+      "canonicalSentenceSha256": "57FF571CC7F94A900167C7AD139192CBDDDE85FD8CC90520D03C9D07208334BE",
+      "prohibitedAnimalOrNonArcheryTerms": [
+        "雄羊",
+        "羊",
+        "鼻"
+      ],
+      "checks": {
+        "authorityTermIsArcherySpecific": true,
+        "brandKoçPreserved": true,
+        "animalSenseAbsent": true,
+        "nonArcherySenseAbsent": true,
+        "standardAlternativeClear": true,
+        "nativeGrammarNatural": true,
+        "customerInstructionNatural": true,
+        "noUnreviewedEnglishLeak": true
+      },
+      "verdict": "PASS",
+      "rationale": "ノック is the established Japanese katakana rendering for the archery component and the choice sentence is natural polite Japanese."
+    },
+    {
+      "reviewKey": "ar",
+      "routeCodes": [
+        "ar"
+      ],
+      "languageName": "Arabic",
+      "authorityTerm": "نوك Koç",
+      "componentTerm": "نوك",
+      "canonicalSentence": "يرجى تحديد ما إذا كنت تفضّل نوك Koç أم نوكًا قياسيًا.",
+      "canonicalSentenceSha256": "AE88F201DE832524C17D2879FCDA3AC0781FB11FBB6F23155CFE8682F0162175",
+      "prohibitedAnimalOrNonArcheryTerms": [
+        "كبش",
+        "خروف",
+        "أنف"
+      ],
+      "checks": {
+        "authorityTermIsArcherySpecific": true,
+        "brandKoçPreserved": true,
+        "animalSenseAbsent": true,
+        "nonArcherySenseAbsent": true,
+        "standardAlternativeClear": true,
+        "nativeGrammarNatural": true,
+        "customerInstructionNatural": true,
+        "noUnreviewedEnglishLeak": true
+      },
+      "verdict": "PASS",
+      "rationale": "World Archery Arabic material uses نوك السهم. Arabic noun-before-brand order gives نوك Koç and the sentence is natural customer Arabic."
+    },
+    {
+      "reviewKey": "ru",
+      "routeCodes": [
+        "ru"
+      ],
+      "languageName": "Russian",
+      "authorityTerm": "хвостовик Koç",
+      "componentTerm": "хвостовик",
+      "canonicalSentence": "Пожалуйста, укажите, какой вариант вы предпочитаете: хвостовик Koç или стандартный хвостовик.",
+      "canonicalSentenceSha256": "8BE2A0F793FF83CEBB0E2170126C93275FDC54D5A798B4BDB457576D8F8A4ED9",
+      "prohibitedAnimalOrNonArcheryTerms": [
+        "баран",
+        "овца",
+        "нос"
+      ],
+      "checks": {
+        "authorityTermIsArcherySpecific": true,
+        "brandKoçPreserved": true,
+        "animalSenseAbsent": true,
+        "nonArcherySenseAbsent": true,
+        "standardAlternativeClear": true,
+        "nativeGrammarNatural": true,
+        "customerInstructionNatural": true,
+        "noUnreviewedEnglishLeak": true
+      },
+      "verdict": "PASS",
+      "rationale": "Хвостовик is the established Russian retail term for the rear arrow component; the sentence naturally contrasts Koç and standard variants."
+    }
+  ],
+  "blockingFindings": [],
+  "releaseDecision": {
+    "status": "PASS",
+    "deployable": true,
+    "reason": "All 20 independent canonical terminology and customer-sentence reviews passed across 24 routes."
+  }
+}

@@ -1,0 +1,191 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-08-12T18:58:43.793Z",
+  "reviewType": "independent second-pass linguistic and archery-terminology QA",
+  "sourceReport": {
+    "file": "final-repetition-review-north.json",
+    "sha256": "11C73F271F4D6593D6B4612FB76A2466D0A3E37565FC39F8853B275D09CB32DE",
+    "byteLength": 138575,
+    "exactCorrectedValuesReviewed": 577
+  },
+  "scope": {
+    "languages": [
+      "dk",
+      "se",
+      "nl",
+      "hu",
+      "no",
+      "pl",
+      "ro"
+    ],
+    "packages": [
+      "attribute",
+      "tag"
+    ],
+    "checks": [
+      "source-to-target semantic fidelity",
+      "target-language grammar and natural catalog wording",
+      "archery and historical-reenactment terminology",
+      "proper-name preservation including Koç, LARP, LOTR and Archery Tag",
+      "color and model-identifier preservation",
+      "City, weather, forecast, Name, symbol and mixed-script injection",
+      "adjacent repetition and meaningless word order",
+      "unjustified English leakage"
+    ]
+  },
+  "result": {
+    "status": "corrections_required",
+    "reviewedCount": 577,
+    "passedWithoutChangeCount": 566,
+    "suggestionCount": 11,
+    "countsByPackage": {
+      "attribute": 1,
+      "tag": 10
+    },
+    "countsByLanguage": {
+      "dk": 1,
+      "hu": 1,
+      "no": 1,
+      "pl": 5,
+      "ro": 2,
+      "se": 1
+    }
+  },
+  "automatedCrossChecks": {
+    "adjacentRepeatedPhraseCount": 0,
+    "foreignScriptIntrusionCount": 0,
+    "cityWeatherForecastNameArtifactCount": 0,
+    "conflictingDuplicateCorrectionCount": 0,
+    "kocRowsInReviewedSet": 0,
+    "larpSourceRows": 57,
+    "lotrSourceRows": 35,
+    "archeryTagSourceRows": 14,
+    "protectedNamesReviewed": [
+      "LARP",
+      "LOTR",
+      "Archery Tag",
+      "Gander Mountain",
+      "King Richard’s Faire",
+      "Jon Snow",
+      "Shaman King",
+      "Scarborough Faire"
+    ]
+  },
+  "terminologyEvidence": [
+    {
+      "languageCode": "dk",
+      "term": "papegøjeskydning",
+      "url": "https://lex.dk/fugleskydning",
+      "note": "Danish reference names the historical bird-target shooting discipline papegøjeskydning."
+    },
+    {
+      "languageCode": "pl",
+      "term": "strzelanie do kura",
+      "url": "https://archery.pl/wp-content/uploads/2022/02/Regulamin-lucznictwa-tarczowego-PZLucz.pdf",
+      "note": "Polish Archery Association rules use strzelanie do kura for the bird-target discipline."
+    },
+    {
+      "languageCode": "pl",
+      "term": "qabak",
+      "url": "https://www.equishop.com/blogs/blog-equishop/anna-sokolska-najlepsza-kobieta-w-lucznictwie-konnym",
+      "note": "Polish horse-archery usage preserves qabak as the discipline name; the arrow phrase still needs Polish genitive syntax."
+    }
+  ],
+  "suggestions": [
+    {
+      "package": "tag",
+      "languageCode": "dk",
+      "source": "popinjay",
+      "currentProposedValue": "popinjay",
+      "correctedValue": "papegøjeskydning",
+      "reason": "The English discipline name was left untranslated. Papegøjeskydning is the established Danish term for shooting at the bird target."
+    },
+    {
+      "package": "tag",
+      "languageCode": "hu",
+      "source": "popinjay",
+      "currentProposedValue": "popinjay",
+      "correctedValue": "festett madárra lövészet",
+      "reason": "The English term was left untranslated. The Hungarian wording explicitly and naturally identifies the painted-bird shooting discipline without inventing a brand meaning."
+    },
+    {
+      "package": "attribute",
+      "languageCode": "no",
+      "source": "Front and Back Pair",
+      "currentProposedValue": "par foran og bak",
+      "correctedValue": "par med for- og bakstykke",
+      "reason": "The current phrase is incomplete and reads as a pair located in front and behind; the correction names the front and rear pieces explicitly."
+    },
+    {
+      "package": "tag",
+      "languageCode": "pl",
+      "source": "elven orcish dwarven",
+      "currentProposedValue": "elficki, orkowy, krasnoludzki",
+      "correctedValue": "elfi, orczy i krasnoludzki",
+      "reason": "Elfi and orczy are the natural Polish fantasy adjectives; elficki and especially orkowy are nonstandard catalog wording in this context."
+    },
+    {
+      "package": "tag",
+      "languageCode": "pl",
+      "source": "elven pauldron",
+      "currentProposedValue": "elficki naramiennik",
+      "correctedValue": "elfi naramiennik",
+      "reason": "Elfi is the established Polish fantasy adjective for elven; the armor term naramiennik is retained."
+    },
+    {
+      "package": "tag",
+      "languageCode": "pl",
+      "source": "popinjay",
+      "currentProposedValue": "popinjay",
+      "correctedValue": "strzelanie do kura",
+      "reason": "The English archery term was left untranslated. Polish archery rules use strzelanie do kura for this bird-target event."
+    },
+    {
+      "package": "tag",
+      "languageCode": "pl",
+      "source": "qabak arrows",
+      "currentProposedValue": "strzały qabak",
+      "correctedValue": "strzały do qabaku",
+      "reason": "Qabak is correctly preserved as the discipline name, but Polish requires the do plus genitive construction for arrows intended for the discipline."
+    },
+    {
+      "package": "tag",
+      "languageCode": "pl",
+      "source": "terraria wizard hat",
+      "currentProposedValue": "kapelusz czarodzieja z Terraria",
+      "correctedValue": "kapelusz czarodzieja z gry Terraria",
+      "reason": "Adding gry makes the relation to the indeclinable game title Terraria grammatical and unambiguous while preserving the proper name."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ro",
+      "source": "campingworld",
+      "currentProposedValue": "campingworld",
+      "correctedValue": "Camping World",
+      "reason": "This is the Camping World proper name, not a Romanian common noun; the current proposal loses the brand's canonical spacing and capitalization."
+    },
+    {
+      "package": "tag",
+      "languageCode": "ro",
+      "source": "loth lover gift",
+      "currentProposedValue": "cadou pentru iubitorii Loth",
+      "correctedValue": "cadou pentru un iubitor de Loth",
+      "reason": "The source is singular, while the current proposal is plural and omits the required de relation before Loth."
+    },
+    {
+      "package": "tag",
+      "languageCode": "se",
+      "source": "woman armor",
+      "currentProposedValue": "kvinnorustning",
+      "correctedValue": "rustning för kvinnor",
+      "reason": "Rustning för kvinnor is the idiomatic Swedish catalog phrase; kvinnorustning is an unnatural ad hoc compound."
+    }
+  ],
+  "mutationSafeguards": {
+    "sourceReportMutated": false,
+    "packageFilesMutated": false,
+    "glossaryFilesMutated": false,
+    "pluginSourceMutated": false,
+    "reportOnly": true
+  }
+}

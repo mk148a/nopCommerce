@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "slugPolicyVersion": 2,
+  "manifestValueSlugCheckCount": 1120,
+  "productTagValueSlugCheckCount": 19656,
+  "retainedPreviousSlugCount": 7142,
+  "numericOnlySlugCount": 0,
+  "numericLarpCollisionCounterSlugCount": 0,
+  "reviewedLarpSlugCheckCount": 63,
+  "reviewedNockSlugCheckCount": 6,
+  "errorCount": 0,
+  "errors": []
+}

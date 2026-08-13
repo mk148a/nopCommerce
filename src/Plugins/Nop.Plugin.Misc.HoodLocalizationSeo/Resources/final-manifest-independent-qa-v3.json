@@ -1,0 +1,113 @@
+{
+  "schemaVersion": 1,
+  "reportId": "hood-final-manifest-independent-qa-v3",
+  "generatedAtUtc": "2026-08-13T10:25:44.643732+00:00",
+  "status": "PASS",
+  "auditStatus": "PASS",
+  "deployable": true,
+  "auditMode": "Deterministic full-corpus closure: immutable reviewed-title binding, all 357 rejected V1 tuples, all eight Category 33 archery-bow corrections, every current/previous manifest and product-tag slug claim, all 20 rejected V2 foreign-owner aliases, and exact baseline UrlRecord witnesses; no sampling and no mutation.",
+  "immutableInputBinding": {
+    "path": "C:\\inetpub\\hood-localization-audit-20260812-083849\\localization-manifest.json",
+    "sha256": "F8241B4EF839DE2355073F096D471417E889B29FBAD21F8AC5E6FEC9D2D3F26F",
+    "byteLength": 7370758,
+    "lastWriteTimeUtc": "2026-08-13T08:14:37.291870+00:00",
+    "mutationPerformed": false
+  },
+  "immutableInputs": {
+    "productTagPackage": {
+      "path": "C:\\inetpub\\hood-localization-audit-20260812-083849\\product-tag-localization.json",
+      "sha256": "37382D8BB83EA739D54F63BF5917E9C9CC7275664D66715946DDAF111AF9745B",
+      "byteLength": 11283198,
+      "lastWriteTimeUtc": "2026-08-13T10:22:24.473559+00:00",
+      "mutationPerformed": false
+    },
+    "baseline": {
+      "path": "C:\\inetpub\\hood-localization-audit-20260812-083849\\baseline-localization.json",
+      "sha256": "AA4C36454503660C865F2FFEE50A9D30407176EF36BAFCB2488F266C1010A0B3",
+      "byteLength": 3064630,
+      "lastWriteTimeUtc": "2026-08-12T12:44:18.452358+00:00",
+      "mutationPerformed": false
+    },
+    "rejectedV2": {
+      "path": "C:\\inetpub\\hood-localization-audit-20260812-083849\\final-manifest-independent-qa-v2.json",
+      "sha256": "963143A03856347390B4629BD3A1ED70696C2029504736C7ED643D8525F246D1",
+      "byteLength": 16983,
+      "lastWriteTimeUtc": "2026-08-13T05:46:43.796017+00:00",
+      "mutationPerformed": false
+    },
+    "category33Review": {
+      "path": "C:\\inetpub\\hood-localization-audit-20260812-083849\\final-category33-bow-meta-review-v1.json",
+      "sha256": "40C0F90972F7E3805C3597EE0CF7340ABD8E0DFB6404DE32A469DC7CF100C4DD",
+      "byteLength": 3076,
+      "lastWriteTimeUtc": "2026-08-13T05:42:34.350337+00:00",
+      "mutationPerformed": false
+    }
+  },
+  "summary": {
+    "blockingFindingCount": 0,
+    "reviewedManifestEntryCount": 1168,
+    "resolvedOriginalBlockerTupleCount": 357,
+    "correctedCategory33BowMetaCount": 8,
+    "disavowedForeignPreviousSlugCheckCount": 20,
+    "disavowedForeignPreviousSlugMismatchCount": 0,
+    "previousSlugOwnershipConflictCount": 0,
+    "manifestSlugCheckCount": 1120,
+    "retainedPreviousSlugCount": 7142,
+    "publicMetaDescriptionCompletenessCheckCount": 479,
+    "deployable": true
+  },
+  "checks": [
+    {
+      "id": "immutable-v6-binding",
+      "status": "PASS"
+    },
+    {
+      "id": "prior-357-blocker-closure",
+      "status": "PASS"
+    },
+    {
+      "id": "category33-archery-bow-sense",
+      "status": "PASS"
+    },
+    {
+      "id": "manifest-content-and-meta",
+      "status": "PASS"
+    },
+    {
+      "id": "natural-seo",
+      "status": "PASS"
+    },
+    {
+      "id": "slug-lineage-and-history",
+      "status": "PASS"
+    },
+    {
+      "id": "global-package-slug-ownership",
+      "status": "PASS"
+    },
+    {
+      "id": "twenty-foreign-owner-disavowals",
+      "status": "PASS"
+    },
+    {
+      "id": "reviewed-overlay-exact-application",
+      "status": "PASS"
+    }
+  ],
+  "databaseReadbackEvidence": {
+    "database": "HoodArcheryShopV480bugfixLancelotDb",
+    "mode": "read-only",
+    "urlRecordCount": 10023,
+    "sameOwnerWitnessCount": 20,
+    "foreignOwnerWitnessCount": 20,
+    "witnessMismatchCount": 0,
+    "credentialMaterialIncluded": false
+  },
+  "blockingFindings": [],
+  "releaseDecision": {
+    "status": "PASS",
+    "deployable": true,
+    "reason": "All V6 manifest gates passed.",
+    "scope": "Manifest/page/SEO package only; product label QA remains a separate release gate."
+  }
+}

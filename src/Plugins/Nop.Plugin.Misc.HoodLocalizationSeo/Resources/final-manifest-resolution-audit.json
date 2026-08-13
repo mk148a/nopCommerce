@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "status": "PASS",
+  "rejectedQaFile": "final-manifest-independent-qa-v1.json",
+  "rejectedQaSha256": "C308EA832779339D3DB0B87A6B23F7AB94FCEA1561134CBE68BCFC8191945EE7",
+  "rejectedManifestSha256": "1EE644E666E395FD66D7C18A7C0E25BC07D321F8816D533AAE9F5656C01D5CC6",
+  "rebuiltManifestSha256": "F8241B4EF839DE2355073F096D471417E889B29FBAD21F8AC5E6FEC9D2D3F26F",
+  "checkedUniqueTupleCount": 357,
+  "resolvedTupleOccurrencesByFinding": {
+    "FMQA-001": 11,
+    "FMQA-002": 26,
+    "FMQA-003": 40,
+    "FMQA-004": 26,
+    "FMQA-005": 32,
+    "FMQA-006": 9,
+    "FMQA-007": 127,
+    "FMQA-008": 72,
+    "FMQA-009": 24,
+    "FMQA-010": 6
+  },
+  "checkedTupleOccurrencesByFinding": {
+    "FMQA-001": 11,
+    "FMQA-002": 26,
+    "FMQA-003": 40,
+    "FMQA-004": 26,
+    "FMQA-005": 32,
+    "FMQA-006": 9,
+    "FMQA-007": 127,
+    "FMQA-008": 72,
+    "FMQA-009": 24,
+    "FMQA-010": 6
+  },
+  "errorCount": 0,
+  "errors": []
+}

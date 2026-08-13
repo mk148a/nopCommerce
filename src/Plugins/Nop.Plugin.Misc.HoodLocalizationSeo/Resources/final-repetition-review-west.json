@@ -1,0 +1,3497 @@
+{
+  "schemaVersion": 1,
+  "generatedAtUtc": "2026-08-12T18:56:15.937523Z",
+  "reviewType": "final-west-repetition-semantic-and-mixed-language-review",
+  "scope": {
+    "languages": [
+      "tr",
+      "fr",
+      "de",
+      "it",
+      "es",
+      "pt"
+    ],
+    "tagSourceCount": 819,
+    "tagValueCheckCount": 4914,
+    "attributeDistinctSourceCount": 432,
+    "attributeSourceLanguageCheckCount": 2592,
+    "contactUiKeyCountPerLanguage": 15,
+    "contactUiCheckCount": 90
+  },
+  "hashes": {
+    "productTagLocalizationSha256": "F293AE0FCB1851C61DCCB2BD985E415ECBD96900E9B4B5876E8726577458985A",
+    "productAttributeLocalizationSha256": "8AEF7E92C64DBD3D072D404C9EA02E0C2811880C28647BEAA3489000F7C4B28C",
+    "contactUiManualOverridesSha256": "BD89F35AB6A2171D6B756D4BCA5113048E1D5EDD160931505C6971C0BB6E2161"
+  },
+  "coverage": {
+    "tagValuesReviewed": 4914,
+    "attributeUniqueSourceLanguagePairsReviewed": 2592,
+    "contactUiValuesReviewed": 90,
+    "currentValueVerifiedAgainstPackages": true
+  },
+  "safeguards": {
+    "packageFilesMutated": false,
+    "duplicateExactFixKeyCount": 0,
+    "unchangedCorrectionCount": 0,
+    "alreadyCorrectCandidatesOmitted": 0,
+    "protectedBrandRule": "Koç is a brand/model token and must not be translated as an animal.",
+    "protectedTerms": [
+      "Koç Nock",
+      "Koç",
+      "Archery Tag",
+      "LARP",
+      "longbow",
+      "recurve",
+      "nock"
+    ],
+    "kocNockRule": {
+      "tr": "koç gez",
+      "fr": "encoche Koç",
+      "de": "Koç-Nocke",
+      "it": "cocca Koç",
+      "es": "culatín Koç",
+      "pt": "nock Koç"
+    }
+  },
+  "summary": {
+    "totalExactFixCount": 428,
+    "tagExactFixCount": 387,
+    "attributeExactFixCount": 41,
+    "contactExactFixCount": 0,
+    "exactFixCountByLanguage": {
+      "tr": 240,
+      "fr": 41,
+      "de": 33,
+      "it": 45,
+      "es": 42,
+      "pt": 27
+    }
+  },
+  "contactCorrections": [],
+  "exactFixes": [
+    {
+      "package": "attribute",
+      "languageCode": "de",
+      "source": "Express",
+      "currentValue": "Express Express",
+      "correctedValue": "Express",
+      "reason": "definite adjacent repetition, symbol-only output, mixed-English value, or incorrect catalog meaning"
+    },
+    {
+      "package": "attribute",
+      "languageCode": "de",
+      "source": "Front and Back Pair",
+      "currentValue": "Vorder- und Rückpaar",
+      "correctedValue": "Paar für Vorder- und Rückseite",
+      "reason": "definite adjacent repetition, symbol-only output, mixed-English value, or incorrect catalog meaning"
+    },
+    {
+      "package": "attribute",
+      "languageCode": "de",
+      "source": "Leather Covered",
+      "currentValue": "Leder bedeckt",
+      "correctedValue": "lederbezogen",
+      "reason": "definite adjacent repetition, symbol-only output, mixed-English value, or incorrect catalog meaning"
+    },
+    {
+      "package": "attribute",
+      "languageCode": "de",
+      "source": "Set1",
+      "currentValue": "Set1",
+      "correctedValue": "Set 1",
+      "reason": "definite adjacent repetition, symbol-only output, mixed-English value, or incorrect catalog meaning"
+    },
+    {
+      "package": "attribute",
+      "languageCode": "es",
+      "source": "Blue Standard",
+      "currentValue": "Azul Standard",
+      "correctedValue": "Azul estándar",
+      "reason": "definite adjacent repetition, symbol-only output, mixed-English value, or incorrect catalog meaning"
+    },
+    {
+      "package": "attribute",
+      "languageCode": "es",
+      "source": "No Pocket",
+      "currentValue": "No hay bolsillo",
+      "correctedValue": "Sin bolsillo",
+      "reason": "definite adjacent repetition, symbol-only output, mixed-English value, or incorrect catalog meaning"
+    },
+    {
+      "package": "attribute",
+      "languageCode": "es",
+      "source": "Only Sword",
+      "currentValue": "Sólo es una espada",
+      "correctedValue": "Solo espada",
+      "reason": "definite adjacent repetition, symbol-only output, mixed-English value, or incorrect catalog meaning"
+    },
+    {
+      "package": "attribute",
+      "languageCode": "es",
+      "source": "Set1",
+      "currentValue": "Set1",
+      "correctedValue": "Juego 1",
+      "reason": "definite adjacent repetition, symbol-only output, mixed-English value, or incorrect catalog meaning"
+    },
+    {
+      "package": "attribute",
+      "languageCode": "es",
+      "source": "Yes",
+      "currentValue": "Sí.",
+      "correctedValue": "Sí",
+      "reason": "definite adjacent repetition, symbol-only output, mixed-English value, or incorrect catalog meaning"
+    },
+    {
+      "package": "attribute",
+      "languageCode": "fr",
+      "source": "No",
+      "currentValue": "Numéro",
+      "correctedValue": "Non",
+      "reason": "definite adjacent repetition, symbol-only output, mixed-English value, or incorrect catalog meaning"
+    },
+    {
+      "package": "attribute",
+      "languageCode": "fr",
+      "source": "Only Armor",
+      "currentValue": "Uniquement Armor",
+      "correctedValue": "armure uniquement",
+      "reason": "definite adjacent repetition, symbol-only output, mixed-English value, or incorrect catalog meaning"
+    },
+    {
+      "package": "attribute",
+      "languageCode": "fr",
+      "source": "Only Face Mask",
+      "currentValue": "Un seul masque de visage",
+      "correctedValue": "masque facial uniquement",
+      "reason": "definite adjacent repetition, symbol-only output, mixed-English value, or incorrect catalog meaning"
+    },
+    {
+      "package": "attribute",
+      "languageCode": "fr",
+      "source": "Only Sword",
+      "currentValue": "Seul l'épée",
+      "correctedValue": "épée uniquement",
+      "reason": "definite adjacent repetition, symbol-only output, mixed-English value, or incorrect catalog meaning"
+    },
+    {
+      "package": "attribute",
+      "languageCode": "fr",
+      "source": "Woman",
+      "currentValue": "Femmes",
+      "correctedValue": "Femme",
+      "reason": "definite adjacent repetition, symbol-only output, mixed-English value, or incorrect catalog meaning"
+    },
+    {
+      "package": "attribute",
+      "languageCode": "it",
+      "source": "Express",
+      "currentValue": "Express Express",
+      "correctedValue": "Express",
+      "reason": "definite adjacent repetition, symbol-only output, mixed-English value, or incorrect catalog meaning"
+    },
+    {
+      "package": "attribute",
+      "languageCode": "it",
+      "source": "Medium",
+      "currentValue": "Mezzo medio",
+      "correctedValue": "Medio",
+      "reason": "definite adjacent repetition, symbol-only output, mixed-English value, or incorrect catalog meaning"
+    },
+    {
+      "package": "attribute",
+      "languageCode": "it",
+      "source": "No",
+      "currentValue": "No.",
+      "correctedValue": "No",
+      "reason": "definite adjacent repetition, symbol-only output, mixed-English value, or incorrect catalog meaning"
+    },
+    {
+      "package": "attribute",
+      "languageCode": "it",
+      "source": "Only Face Mask",
+      "currentValue": "Maschera di faccia",
+      "correctedValue": "solo maschera facciale",
+      "reason": "definite adjacent repetition, symbol-only output, mixed-English value, or incorrect catalog meaning"
+    },
+    {
+      "package": "attribute",
+      "languageCode": "it",
+      "source": "Set1",
+      "currentValue": "Set1",
+      "correctedValue": "Set 1",
+      "reason": "definite adjacent repetition, symbol-only output, mixed-English value, or incorrect catalog meaning"
+    },
+    {
+      "package": "attribute",
+      "languageCode": "it",
+      "source": "Short",
+      "currentValue": "Breve",
+      "correctedValue": "Corto",
+      "reason": "definite adjacent repetition, symbol-only output, mixed-English value, or incorrect catalog meaning"
+    },
+    {
+      "package": "attribute",
+      "languageCode": "pt",
+      "source": "Set1",
+      "currentValue": "Set1",
+      "correctedValue": "Conjunto 1",
+      "reason": "definite adjacent repetition, symbol-only output, mixed-English value, or incorrect catalog meaning"
+    },
+    {
+      "package": "attribute",
+      "languageCode": "pt",
+      "source": "Yes",
+      "currentValue": "Sim.",
+      "correctedValue": "Sim",
+      "reason": "definite adjacent repetition, symbol-only output, mixed-English value, or incorrect catalog meaning"
+    },
+    {
+      "package": "attribute",
+      "languageCode": "tr",
+      "source": "Black",
+      "currentValue": "Siyah Siyah",
+      "correctedValue": "siyah",
+      "reason": "definite adjacent repetition, symbol-only output, mixed-English value, or incorrect catalog meaning"
+    },
+    {
+      "package": "attribute",
+      "languageCode": "tr",
+      "source": "Blue Standard",
+      "currentValue": "Blue Standard",
+      "correctedValue": "standart mavi",
+      "reason": "definite adjacent repetition, symbol-only output, mixed-English value, or incorrect catalog meaning"
+    },
+    {
+      "package": "attribute",
+      "languageCode": "tr",
+      "source": "Bronze",
+      "currentValue": "Bronz Bronz Bronz",
+      "correctedValue": "bronz",
+      "reason": "definite adjacent repetition, symbol-only output, mixed-English value, or incorrect catalog meaning"
+    },
+    {
+      "package": "attribute",
+      "languageCode": "tr",
+      "source": "Camouflage",
+      "currentValue": "●",
+      "correctedValue": "kamuflaj",
+      "reason": "definite adjacent repetition, symbol-only output, mixed-English value, or incorrect catalog meaning"
+    },
+    {
+      "package": "attribute",
+      "languageCode": "tr",
+      "source": "Front and Back Pair",
+      "currentValue": "Front and Back Pair",
+      "correctedValue": "ön ve arka çift",
+      "reason": "definite adjacent repetition, symbol-only output, mixed-English value, or incorrect catalog meaning"
+    },
+    {
+      "package": "attribute",
+      "languageCode": "tr",
+      "source": "Leather Covered",
+      "currentValue": "Deri Covered",
+      "correctedValue": "deri kaplamalı",
+      "reason": "definite adjacent repetition, symbol-only output, mixed-English value, or incorrect catalog meaning"
+    },
+    {
+      "package": "attribute",
+      "languageCode": "tr",
+      "source": "Long",
+      "currentValue": "Uzun uzun",
+      "correctedValue": "uzun",
+      "reason": "definite adjacent repetition, symbol-only output, mixed-English value, or incorrect catalog meaning"
+    },
+    {
+      "package": "attribute",
+      "languageCode": "tr",
+      "source": "Man",
+      "currentValue": "Adam",
+      "correctedValue": "erkek",
+      "reason": "definite adjacent repetition, symbol-only output, mixed-English value, or incorrect catalog meaning"
+    },
+    {
+      "package": "attribute",
+      "languageCode": "tr",
+      "source": "No Pocket",
+      "currentValue": "Pocket No Pocket",
+      "correctedValue": "cepsiz",
+      "reason": "definite adjacent repetition, symbol-only output, mixed-English value, or incorrect catalog meaning"
+    },
+    {
+      "package": "attribute",
+      "languageCode": "tr",
+      "source": "Only Armor",
+      "currentValue": "Sadece Zırhlı Zırhlı Sadece",
+      "correctedValue": "yalnızca zırh",
+      "reason": "definite adjacent repetition, symbol-only output, mixed-English value, or incorrect catalog meaning"
+    },
+    {
+      "package": "attribute",
+      "languageCode": "tr",
+      "source": "Only Dress",
+      "currentValue": "Sadece sadece elbise",
+      "correctedValue": "yalnızca elbise",
+      "reason": "definite adjacent repetition, symbol-only output, mixed-English value, or incorrect catalog meaning"
+    },
+    {
+      "package": "attribute",
+      "languageCode": "tr",
+      "source": "Only Face Mask",
+      "currentValue": "Sadece Face Maske",
+      "correctedValue": "yalnızca yüz maskesi",
+      "reason": "definite adjacent repetition, symbol-only output, mixed-English value, or incorrect catalog meaning"
+    },
+    {
+      "package": "attribute",
+      "languageCode": "tr",
+      "source": "Only Pants",
+      "currentValue": "Sadece Pantolon Sadece Pantolon",
+      "correctedValue": "yalnızca pantolon",
+      "reason": "definite adjacent repetition, symbol-only output, mixed-English value, or incorrect catalog meaning"
+    },
+    {
+      "package": "attribute",
+      "languageCode": "tr",
+      "source": "Only Shirt",
+      "currentValue": "Sadece Gömlek Sadece Gömlek",
+      "correctedValue": "yalnızca gömlek",
+      "reason": "definite adjacent repetition, symbol-only output, mixed-English value, or incorrect catalog meaning"
+    },
+    {
+      "package": "attribute",
+      "languageCode": "tr",
+      "source": "Only Sword",
+      "currentValue": "Sadece Kılıcı",
+      "correctedValue": "yalnızca kılıç",
+      "reason": "definite adjacent repetition, symbol-only output, mixed-English value, or incorrect catalog meaning"
+    },
+    {
+      "package": "attribute",
+      "languageCode": "tr",
+      "source": "Set1",
+      "currentValue": "Set1",
+      "correctedValue": "Set 1",
+      "reason": "definite adjacent repetition, symbol-only output, mixed-English value, or incorrect catalog meaning"
+    },
+    {
+      "package": "attribute",
+      "languageCode": "tr",
+      "source": "type4",
+      "currentValue": "tip4 tip",
+      "correctedValue": "tip 4",
+      "reason": "definite adjacent repetition, symbol-only output, mixed-English value, or incorrect catalog meaning"
+    },
+    {
+      "package": "attribute",
+      "languageCode": "tr",
+      "source": "White",
+      "currentValue": "Beyaz Beyaz Beyaz Beyaz",
+      "correctedValue": "beyaz",
+      "reason": "definite adjacent repetition, symbol-only output, mixed-English value, or incorrect catalog meaning"
+    },
+    {
+      "package": "attribute",
+      "languageCode": "tr",
+      "source": "Yes",
+      "currentValue": "Evet Evet Evet Evet",
+      "correctedValue": "evet",
+      "reason": "definite adjacent repetition, symbol-only output, mixed-English value, or incorrect catalog meaning"
+    },
+    {
+      "package": "tag",
+      "languageCode": "de",
+      "source": "aragorn ranger vest",
+      "currentValue": "Aragon Ranger Weste",
+      "correctedValue": "Aragorn-Rangerweste",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "de",
+      "source": "backcountry",
+      "currentValue": "Rückland",
+      "correctedValue": "Wildnis",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "de",
+      "source": "birch burl",
+      "currentValue": "Birkenkeule",
+      "correctedValue": "Birkenmaserknolle",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "de",
+      "source": "bushcraft bag",
+      "currentValue": "Buschsack-Taschen",
+      "correctedValue": "Bushcraft-Tasche",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "de",
+      "source": "camping store",
+      "currentValue": "Campinglager",
+      "correctedValue": "Campingladen",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "de",
+      "source": "compound bow bag",
+      "currentValue": "Mischbügelbeutel",
+      "correctedValue": "Compoundbogen-Tasche",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "de",
+      "source": "compound bow case",
+      "currentValue": "Verbundbogengehäuse",
+      "correctedValue": "Compoundbogen-Hülle",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "de",
+      "source": "cosplay gear",
+      "currentValue": "Cosplaygeräte",
+      "correctedValue": "Cosplay-Ausrüstung",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "de",
+      "source": "CosplayBelt",
+      "currentValue": "CosplayBelt",
+      "correctedValue": "Cosplay-Gürtel",
+      "reason": "camel-case source was untranslated, partially translated, or semantically corrupted"
+    },
+    {
+      "package": "tag",
+      "languageCode": "de",
+      "source": "CosplayCostume",
+      "currentValue": "CosplayCostume",
+      "correctedValue": "Cosplay-Kostüm",
+      "reason": "camel-case source was untranslated, partially translated, or semantically corrupted"
+    },
+    {
+      "package": "tag",
+      "languageCode": "de",
+      "source": "craft feathers",
+      "currentValue": "Fahrzeugfedern",
+      "correctedValue": "Bastelfedern",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "de",
+      "source": "FullGrainLeather",
+      "currentValue": "FullGrainLeather",
+      "correctedValue": "Vollnarbenleder",
+      "reason": "camel-case source was untranslated, partially translated, or semantically corrupted"
+    },
+    {
+      "package": "tag",
+      "languageCode": "de",
+      "source": "gander mountain",
+      "currentValue": "Gürtelberg",
+      "correctedValue": "Gander Mountain",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "de",
+      "source": "GenuineLeatherBelt",
+      "currentValue": "OriginalLeatherBelt",
+      "correctedValue": "Gürtel aus echtem Leder",
+      "reason": "camel-case source was untranslated, partially translated, or semantically corrupted"
+    },
+    {
+      "package": "tag",
+      "languageCode": "de",
+      "source": "grey worm helmet",
+      "currentValue": "Grauer Wurmhelm",
+      "correctedValue": "Grey-Worm-Helm",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "de",
+      "source": "HandmadeLeatherBelt",
+      "currentValue": "HandmadeLeatherBelt",
+      "correctedValue": "handgefertigter Ledergürtel",
+      "reason": "camel-case source was untranslated, partially translated, or semantically corrupted"
+    },
+    {
+      "package": "tag",
+      "languageCode": "de",
+      "source": "HistoricalReenactment",
+      "currentValue": "HistorischeWiederinkraftsetzung",
+      "correctedValue": "historische Nachstellung",
+      "reason": "camel-case source was untranslated, partially translated, or semantically corrupted"
+    },
+    {
+      "package": "tag",
+      "languageCode": "de",
+      "source": "jon snow",
+      "currentValue": "Jonas",
+      "correctedValue": "Jon Snow",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "de",
+      "source": "kid archery bow",
+      "currentValue": "Bogenbogen für Kinder",
+      "correctedValue": "Kinderbogen fürs Bogenschießen",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "de",
+      "source": "lannister",
+      "currentValue": "Nasskopf",
+      "correctedValue": "Lannister",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "de",
+      "source": "larp",
+      "currentValue": "Larven LARP",
+      "correctedValue": "LARP",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "de",
+      "source": "larp jerkin",
+      "currentValue": "Larp jerkin CAS-Nr.",
+      "correctedValue": "LARP-Lederwams",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "de",
+      "source": "LARPgear",
+      "currentValue": "SCHWARZKRAFT LARP",
+      "correctedValue": "LARP-Ausrüstung",
+      "reason": "camel-case source was untranslated, partially translated, or semantically corrupted"
+    },
+    {
+      "package": "tag",
+      "languageCode": "de",
+      "source": "MedievalLeatherBelt",
+      "currentValue": "MittelalterLeatherBelt",
+      "correctedValue": "mittelalterlicher Ledergürtel",
+      "reason": "camel-case source was untranslated, partially translated, or semantically corrupted"
+    },
+    {
+      "package": "tag",
+      "languageCode": "de",
+      "source": "MongolianBelt",
+      "currentValue": "Mongolischer Belt",
+      "correctedValue": "mongolischer Gürtel",
+      "reason": "camel-case source was untranslated, partially translated, or semantically corrupted"
+    },
+    {
+      "package": "tag",
+      "languageCode": "de",
+      "source": "outdoor store",
+      "currentValue": "Außenlager",
+      "correctedValue": "Outdoor-Laden",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "de",
+      "source": "scandinavian",
+      "currentValue": "Sardinavian SCA",
+      "correctedValue": "skandinavisch",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "de",
+      "source": "scandinavian kuksa",
+      "currentValue": "Skandinavien-Kuksa SCA",
+      "correctedValue": "skandinavische Kuksa",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "de",
+      "source": "witcher costume",
+      "currentValue": "Hexenkostüm",
+      "correctedValue": "The-Witcher-Kostüm",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "es",
+      "source": "aragorn ranger vest",
+      "currentValue": "chaleco de aragorno",
+      "correctedValue": "chaleco de montaraz de Aragorn",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "es",
+      "source": "archery shop near me",
+      "currentValue": "Arquería cerca de mí",
+      "correctedValue": "tienda de arquería cerca de mí",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "es",
+      "source": "backcountry",
+      "currentValue": "de los países de origen",
+      "correctedValue": "zonas remotas",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "es",
+      "source": "bushcraft rucksack",
+      "currentValue": "rucksack de la nave",
+      "correctedValue": "mochila de bushcraft",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "es",
+      "source": "butane canister",
+      "currentValue": "pero el canister",
+      "correctedValue": "cartucho de butano",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "es",
+      "source": "campingworld",
+      "currentValue": "camping",
+      "correctedValue": "Camping World",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "es",
+      "source": "carnelian arrowhead",
+      "currentValue": "Flecha de carne",
+      "correctedValue": "punta de flecha de cornalina",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "es",
+      "source": "carnelian necklace",
+      "currentValue": "Collar de carne",
+      "correctedValue": "collar de cornalina",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "es",
+      "source": "carnelian pendant",
+      "currentValue": "Colgante de carne",
+      "correctedValue": "colgante de cornalina",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "es",
+      "source": "compound bow bag",
+      "currentValue": "bolsa de proa",
+      "correctedValue": "bolsa para arco compuesto",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "es",
+      "source": "compound bow case",
+      "currentValue": "Caso de proa",
+      "correctedValue": "funda para arco compuesto",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "es",
+      "source": "CosplayBelt",
+      "currentValue": "CosplayBelt",
+      "correctedValue": "cinturón de cosplay",
+      "reason": "camel-case source was untranslated, partially translated, or semantically corrupted"
+    },
+    {
+      "package": "tag",
+      "languageCode": "es",
+      "source": "CosplayCostume",
+      "currentValue": "CosplayCostume",
+      "correctedValue": "disfraz de cosplay",
+      "reason": "camel-case source was untranslated, partially translated, or semantically corrupted"
+    },
+    {
+      "package": "tag",
+      "languageCode": "es",
+      "source": "father days",
+      "currentValue": "♪",
+      "correctedValue": "Día del Padre",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "es",
+      "source": "frodo cosplay",
+      "currentValue": "glúteos",
+      "correctedValue": "cosplay de Frodo",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "es",
+      "source": "FullGrainLeather",
+      "currentValue": "FullGrainLeather",
+      "correctedValue": "cuero de plena flor",
+      "reason": "camel-case source was untranslated, partially translated, or semantically corrupted"
+    },
+    {
+      "package": "tag",
+      "languageCode": "es",
+      "source": "gander mountain",
+      "currentValue": "montaña de la montaña",
+      "correctedValue": "Gander Mountain",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "es",
+      "source": "GenuineLeatherBelt",
+      "currentValue": "GenuineLeatherBelt",
+      "correctedValue": "cinturón de cuero genuino",
+      "reason": "camel-case source was untranslated, partially translated, or semantically corrupted"
+    },
+    {
+      "package": "tag",
+      "languageCode": "es",
+      "source": "grey worm helmet",
+      "currentValue": "casco gris gusano",
+      "correctedValue": "casco de Grey Worm",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "es",
+      "source": "HandmadeLeatherBelt",
+      "currentValue": "Hecha a manoLeatherBelt",
+      "correctedValue": "cinturón de cuero hecho a mano",
+      "reason": "camel-case source was untranslated, partially translated, or semantically corrupted"
+    },
+    {
+      "package": "tag",
+      "languageCode": "es",
+      "source": "headscarf",
+      "currentValue": "headscarf",
+      "correctedValue": "pañuelo para la cabeza",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "es",
+      "source": "HistoricalReenactment",
+      "currentValue": "Reacción histórica",
+      "correctedValue": "recreación histórica",
+      "reason": "camel-case source was untranslated, partially translated, or semantically corrupted"
+    },
+    {
+      "package": "tag",
+      "languageCode": "es",
+      "source": "hobbit cloak",
+      "currentValue": "coágulo de hobbit",
+      "correctedValue": "capa de hobbit",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "es",
+      "source": "kid archery bow",
+      "currentValue": "niño arco arco",
+      "correctedValue": "arco infantil de tiro con arco",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "es",
+      "source": "kuksa shot glass",
+      "currentValue": "kuksa cristal de disparo",
+      "correctedValue": "vaso de chupito kuksa",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "es",
+      "source": "larp jerkin",
+      "currentValue": "larp gilipollas",
+      "correctedValue": "jubón de LARP",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "es",
+      "source": "LARPgear",
+      "currentValue": "LARPgear",
+      "correctedValue": "equipo de LARP",
+      "reason": "camel-case source was untranslated, partially translated, or semantically corrupted"
+    },
+    {
+      "package": "tag",
+      "languageCode": "es",
+      "source": "MedievalLeatherBelt",
+      "currentValue": "MedievalLeatherBelt",
+      "correctedValue": "cinturón medieval de cuero",
+      "reason": "camel-case source was untranslated, partially translated, or semantically corrupted"
+    },
+    {
+      "package": "tag",
+      "languageCode": "es",
+      "source": "MongolianBelt",
+      "currentValue": "MongolianBelt",
+      "correctedValue": "cinturón mongol",
+      "reason": "camel-case source was untranslated, partially translated, or semantically corrupted"
+    },
+    {
+      "package": "tag",
+      "languageCode": "es",
+      "source": "MongolianWarrior",
+      "currentValue": "MongolianWarrior",
+      "correctedValue": "guerrero mongol",
+      "reason": "camel-case source was untranslated, partially translated, or semantically corrupted"
+    },
+    {
+      "package": "tag",
+      "languageCode": "es",
+      "source": "ottoman bork hat",
+      "currentValue": "Lema bork hat",
+      "correctedValue": "gorro börk otomano",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "es",
+      "source": "role play",
+      "currentValue": "función",
+      "correctedValue": "juego de rol",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "es",
+      "source": "shield maiden",
+      "currentValue": "Espesina de la dama",
+      "correctedValue": "doncella escudera",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "es",
+      "source": "spoon carving",
+      "currentValue": "cucharada de talla",
+      "correctedValue": "talla de cucharas",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "es",
+      "source": "warrior pouch",
+      "currentValue": "¡Cuchillo!",
+      "correctedValue": "bolsa de guerrero",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "es",
+      "source": "winterfell",
+      "currentValue": "invierno",
+      "correctedValue": "Winterfell",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "es",
+      "source": "witcher costume",
+      "currentValue": "Traje de brujas",
+      "correctedValue": "disfraz de The Witcher",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "fr",
+      "source": "archery near me",
+      "currentValue": "C'est un tir à l'arc près de moi",
+      "correctedValue": "tir à l’arc près de chez moi",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "fr",
+      "source": "archery shop near me",
+      "currentValue": "épicerie près de moi",
+      "correctedValue": "archerie près de chez moi",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "fr",
+      "source": "camp chef everest 2x",
+      "currentValue": "chef de camp le plus jamais 2x",
+      "correctedValue": "Camp Chef Everest 2X",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "fr",
+      "source": "camping store",
+      "currentValue": "camping-car",
+      "correctedValue": "magasin de camping",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "fr",
+      "source": "coleman 1 burner butane camping stove",
+      "currentValue": "four à feu de coleman 1 four à feu de butane",
+      "correctedValue": "réchaud de camping Coleman à 1 brûleur au butane",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "fr",
+      "source": "compound bow case",
+      "currentValue": "boîte à arc composée",
+      "correctedValue": "housse pour arc à poulies",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "fr",
+      "source": "CosplayBelt",
+      "currentValue": "CosplayBelt",
+      "correctedValue": "ceinture de cosplay",
+      "reason": "camel-case source was untranslated, partially translated, or semantically corrupted"
+    },
+    {
+      "package": "tag",
+      "languageCode": "fr",
+      "source": "CosplayCostume",
+      "currentValue": "CosplayCostume",
+      "correctedValue": "costume de cosplay",
+      "reason": "camel-case source was untranslated, partially translated, or semantically corrupted"
+    },
+    {
+      "package": "tag",
+      "languageCode": "fr",
+      "source": "craft feathers",
+      "currentValue": "plumes d'embarcation",
+      "correctedValue": "plumes pour loisirs créatifs",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "fr",
+      "source": "electric stove top",
+      "currentValue": "haut de poêle électrique",
+      "correctedValue": "plaque de cuisson électrique",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "fr",
+      "source": "elven pauldron",
+      "currentValue": "Elven chaudron",
+      "correctedValue": "épaulière elfique",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "fr",
+      "source": "FullGrainLeather",
+      "currentValue": "Pleine GrainLeather",
+      "correctedValue": "cuir pleine fleur",
+      "reason": "camel-case source was untranslated, partially translated, or semantically corrupted"
+    },
+    {
+      "package": "tag",
+      "languageCode": "fr",
+      "source": "gander mountain",
+      "currentValue": "montagne de la gandre",
+      "correctedValue": "Gander Mountain",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "fr",
+      "source": "GenuineLeatherBelt",
+      "currentValue": "Véritable ceinture",
+      "correctedValue": "ceinture en cuir véritable",
+      "reason": "camel-case source was untranslated, partially translated, or semantically corrupted"
+    },
+    {
+      "package": "tag",
+      "languageCode": "fr",
+      "source": "geralt of rivia",
+      "currentValue": "de la rivia",
+      "correctedValue": "Geralt de Riv",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "fr",
+      "source": "HandmadeLeatherBelt",
+      "currentValue": "Cuir de maison",
+      "correctedValue": "ceinture en cuir faite main",
+      "reason": "camel-case source was untranslated, partially translated, or semantically corrupted"
+    },
+    {
+      "package": "tag",
+      "languageCode": "fr",
+      "source": "HistoricalReenactment",
+      "currentValue": "Réaction historique",
+      "correctedValue": "reconstitution historique",
+      "reason": "camel-case source was untranslated, partially translated, or semantically corrupted"
+    },
+    {
+      "package": "tag",
+      "languageCode": "fr",
+      "source": "jon snow",
+      "currentValue": "neige",
+      "correctedValue": "Jon Snow",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "fr",
+      "source": "kid archery bow",
+      "currentValue": "arc à arc enfant",
+      "correctedValue": "arc de tir à l’arc pour enfant",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "fr",
+      "source": "kuksa shot glass",
+      "currentValue": "verre de tir kuksa",
+      "correctedValue": "verre à shot kuksa",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "fr",
+      "source": "larp",
+      "currentValue": "L'eau est trop épaisse LARP",
+      "correctedValue": "LARP",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "fr",
+      "source": "larp helmet",
+      "currentValue": "casque largué LARP",
+      "correctedValue": "casque de LARP",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "fr",
+      "source": "larp jerkin",
+      "currentValue": "Larp scackin",
+      "correctedValue": "pourpoint de LARP",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "fr",
+      "source": "LARPgear",
+      "currentValue": "LARPgear",
+      "correctedValue": "équipement de LARP",
+      "reason": "camel-case source was untranslated, partially translated, or semantically corrupted"
+    },
+    {
+      "package": "tag",
+      "languageCode": "fr",
+      "source": "legolas costume",
+      "currentValue": "costume de légols",
+      "correctedValue": "costume de Legolas",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "fr",
+      "source": "legolas pauldron",
+      "currentValue": "légolas pauldron",
+      "correctedValue": "épaulière de Legolas",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "fr",
+      "source": "MedievalLeatherBelt",
+      "currentValue": "Bleu-de-la-vie",
+      "correctedValue": "ceinture médiévale en cuir",
+      "reason": "camel-case source was untranslated, partially translated, or semantically corrupted"
+    },
+    {
+      "package": "tag",
+      "languageCode": "fr",
+      "source": "MongolianBelt",
+      "currentValue": "Pays",
+      "correctedValue": "ceinture mongole",
+      "reason": "camel-case source was untranslated, partially translated, or semantically corrupted"
+    },
+    {
+      "package": "tag",
+      "languageCode": "fr",
+      "source": "MongolianWarrior",
+      "currentValue": "Pays de Galles",
+      "correctedValue": "guerrier mongol",
+      "reason": "camel-case source was untranslated, partially translated, or semantically corrupted"
+    },
+    {
+      "package": "tag",
+      "languageCode": "fr",
+      "source": "ottoman bork hat",
+      "currentValue": "Chapeau de ottoman de bord",
+      "correctedValue": "bonnet börk ottoman",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "fr",
+      "source": "pauldron shoulders",
+      "currentValue": "épaules de chaudron",
+      "correctedValue": "épaulières",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "fr",
+      "source": "shaman headdress",
+      "currentValue": "Adresse de chaman",
+      "correctedValue": "coiffe de chaman",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "fr",
+      "source": "spoon carving",
+      "currentValue": "Cuillère",
+      "correctedValue": "sculpture de cuillères",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "fr",
+      "source": "walmart camping stove",
+      "currentValue": "four à bûcher",
+      "correctedValue": "réchaud de camping Walmart",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "fr",
+      "source": "winterfell",
+      "currentValue": "hiver",
+      "correctedValue": "Winterfell",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "fr",
+      "source": "witcher costume",
+      "currentValue": "costume de sorcière",
+      "correctedValue": "costume The Witcher",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "it",
+      "source": "archery near me",
+      "currentValue": "arcobaleno vicino a me",
+      "correctedValue": "tiro con l’arco vicino a me",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "it",
+      "source": "archery talk",
+      "currentValue": "arcobaleno",
+      "correctedValue": "conversazione sul tiro con l’arco",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "it",
+      "source": "arrowhead necklace",
+      "currentValue": "collana di conchiglia",
+      "correctedValue": "collana con punta di freccia",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "it",
+      "source": "butane canister",
+      "currentValue": "macabro",
+      "correctedValue": "bombola di butano",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "it",
+      "source": "camp chef everest 2x",
+      "currentValue": "campeggio chef sempre 2x",
+      "correctedValue": "Camp Chef Everest 2X",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "it",
+      "source": "campingworld",
+      "currentValue": "campeggio mondo del campeggio",
+      "correctedValue": "Camping World",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "it",
+      "source": "carnelian necklace",
+      "currentValue": "collana di conchiglia",
+      "correctedValue": "collana in corniola",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "it",
+      "source": "compound bow bag",
+      "currentValue": "sacchetto di prua composto",
+      "correctedValue": "borsa per arco compound",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "it",
+      "source": "compound bow case",
+      "currentValue": "caso di prua composto",
+      "correctedValue": "custodia per arco compound",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "it",
+      "source": "convention costume",
+      "currentValue": "convenzione costume da bagno",
+      "correctedValue": "costume da convention",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "it",
+      "source": "cooking stove",
+      "currentValue": "fornello cucina cucina",
+      "correctedValue": "fornello da cucina",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "it",
+      "source": "cosplay gear",
+      "currentValue": "Cosplay cambio",
+      "correctedValue": "equipaggiamento cosplay",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "it",
+      "source": "CosplayBelt",
+      "currentValue": "CosplayBelt",
+      "correctedValue": "cintura da cosplay",
+      "reason": "camel-case source was untranslated, partially translated, or semantically corrupted"
+    },
+    {
+      "package": "tag",
+      "languageCode": "it",
+      "source": "CosplayCostume",
+      "currentValue": "CosplayCostume",
+      "correctedValue": "costume da cosplay",
+      "reason": "camel-case source was untranslated, partially translated, or semantically corrupted"
+    },
+    {
+      "package": "tag",
+      "languageCode": "it",
+      "source": "dirilis ertugrul hat",
+      "currentValue": "dirilis ertugrugrul hat",
+      "correctedValue": "cappello Diriliş Ertuğrul",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "it",
+      "source": "frodo cosplay",
+      "currentValue": "Condividi su Facebook",
+      "correctedValue": "cosplay di Frodo",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "it",
+      "source": "FullGrainLeather",
+      "currentValue": "Piena di granella",
+      "correctedValue": "pelle pieno fiore",
+      "reason": "camel-case source was untranslated, partially translated, or semantically corrupted"
+    },
+    {
+      "package": "tag",
+      "languageCode": "it",
+      "source": "GenuineLeatherBelt",
+      "currentValue": "La vera pelle di fragole",
+      "correctedValue": "cintura in vera pelle",
+      "reason": "camel-case source was untranslated, partially translated, or semantically corrupted"
+    },
+    {
+      "package": "tag",
+      "languageCode": "it",
+      "source": "grey worm helmet",
+      "currentValue": "casco grigio verme",
+      "correctedValue": "elmo di Grey Worm",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "it",
+      "source": "HandmadeLeatherBelt",
+      "currentValue": "Mano di legno",
+      "correctedValue": "cintura in pelle fatta a mano",
+      "reason": "camel-case source was untranslated, partially translated, or semantically corrupted"
+    },
+    {
+      "package": "tag",
+      "languageCode": "it",
+      "source": "headscarf",
+      "currentValue": "testa di petto SCA",
+      "correctedValue": "foulard",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "it",
+      "source": "helmet",
+      "currentValue": "casco casco casco",
+      "correctedValue": "elmo",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "it",
+      "source": "jon snow",
+      "currentValue": "jonné neve",
+      "correctedValue": "Jon Snow",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "it",
+      "source": "kid archery bow",
+      "currentValue": "bambino arco tiro",
+      "correctedValue": "arco da tiro per bambini",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "it",
+      "source": "kuksa shot glass",
+      "currentValue": "vetro colpo di kuksa",
+      "correctedValue": "bicchierino kuksa",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "it",
+      "source": "lannister",
+      "currentValue": "Lanistri",
+      "correctedValue": "Lannister",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "it",
+      "source": "larp",
+      "currentValue": "Ladro LARP",
+      "correctedValue": "LARP",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "it",
+      "source": "larp jerkin",
+      "currentValue": "larp masturbazione",
+      "correctedValue": "giustacuore da LARP",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "it",
+      "source": "LARPgear",
+      "currentValue": "LARPG",
+      "correctedValue": "equipaggiamento LARP",
+      "reason": "camel-case source was untranslated, partially translated, or semantically corrupted"
+    },
+    {
+      "package": "tag",
+      "languageCode": "it",
+      "source": "MedievalLeatherBelt",
+      "currentValue": "MedioevaleL'altra",
+      "correctedValue": "cintura medievale in pelle",
+      "reason": "camel-case source was untranslated, partially translated, or semantically corrupted"
+    },
+    {
+      "package": "tag",
+      "languageCode": "it",
+      "source": "MongolianBelt",
+      "currentValue": "MongolianBelt",
+      "correctedValue": "cintura mongola",
+      "reason": "camel-case source was untranslated, partially translated, or semantically corrupted"
+    },
+    {
+      "package": "tag",
+      "languageCode": "it",
+      "source": "MongolianWarrior",
+      "currentValue": "MongolianWarrior",
+      "correctedValue": "guerriero mongolo",
+      "reason": "camel-case source was untranslated, partially translated, or semantically corrupted"
+    },
+    {
+      "package": "tag",
+      "languageCode": "it",
+      "source": "popinjay",
+      "currentValue": "#",
+      "correctedValue": "tiro al pappagallo",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "it",
+      "source": "post apalyptic",
+      "currentValue": "post apalyptic",
+      "correctedValue": "post-apocalittico",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "it",
+      "source": "role play",
+      "currentValue": "ruolo",
+      "correctedValue": "gioco di ruolo",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "it",
+      "source": "shaman headdress",
+      "currentValue": "shaman headdress",
+      "correctedValue": "copricapo da sciamano",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "it",
+      "source": "viking dress",
+      "currentValue": "abito da sera",
+      "correctedValue": "abito vichingo",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "it",
+      "source": "winterfell",
+      "currentValue": "inverno fel",
+      "correctedValue": "Winterfell",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "it",
+      "source": "witcher costume",
+      "currentValue": "costume stregoneria",
+      "correctedValue": "costume The Witcher",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "pt",
+      "source": "backcountry",
+      "currentValue": "País de origem",
+      "correctedValue": "natureza remota",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "pt",
+      "source": "birch burl",
+      "currentValue": "bétula-de-caju",
+      "correctedValue": "nó de bétula",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "pt",
+      "source": "bushcraft bag",
+      "currentValue": "Saco de marisco",
+      "correctedValue": "bolsa de bushcraft",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "pt",
+      "source": "bushcraft rucksack",
+      "currentValue": "mochila de arbustos",
+      "correctedValue": "mochila de bushcraft",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "pt",
+      "source": "butane canister",
+      "currentValue": "butano-de-água",
+      "correctedValue": "cartucho de butano",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "pt",
+      "source": "carnelian arrowhead",
+      "currentValue": "Cabeça de seta de carnelian",
+      "correctedValue": "ponta de flecha de cornalina",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "pt",
+      "source": "carnelian necklace",
+      "currentValue": "colar de cornelian",
+      "correctedValue": "colar de cornalina",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "pt",
+      "source": "carnelian pendant",
+      "currentValue": "pingente de cornelo",
+      "correctedValue": "pingente de cornalina",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "pt",
+      "source": "CosplayBelt",
+      "currentValue": "CosplayBelt",
+      "correctedValue": "cinto de cosplay",
+      "reason": "camel-case source was untranslated, partially translated, or semantically corrupted"
+    },
+    {
+      "package": "tag",
+      "languageCode": "pt",
+      "source": "CosplayCostume",
+      "currentValue": "CosplayCostume",
+      "correctedValue": "traje de cosplay",
+      "reason": "camel-case source was untranslated, partially translated, or semantically corrupted"
+    },
+    {
+      "package": "tag",
+      "languageCode": "pt",
+      "source": "daypack",
+      "currentValue": "diapacote",
+      "correctedValue": "mochila de um dia",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "pt",
+      "source": "FullGrainLeather",
+      "currentValue": "Couro de Grão Cheio",
+      "correctedValue": "couro de flor integral",
+      "reason": "camel-case source was untranslated, partially translated, or semantically corrupted"
+    },
+    {
+      "package": "tag",
+      "languageCode": "pt",
+      "source": "GenuineLeatherBelt",
+      "currentValue": "Camarote Genuíno",
+      "correctedValue": "cinto de couro genuíno",
+      "reason": "camel-case source was untranslated, partially translated, or semantically corrupted"
+    },
+    {
+      "package": "tag",
+      "languageCode": "pt",
+      "source": "grey worm helmet",
+      "currentValue": "capacete de minhoca cinza",
+      "correctedValue": "capacete de Grey Worm",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "pt",
+      "source": "HandmadeLeatherBelt",
+      "currentValue": "Couro de Couro Feito à Mão",
+      "correctedValue": "cinto de couro feito à mão",
+      "reason": "camel-case source was untranslated, partially translated, or semantically corrupted"
+    },
+    {
+      "package": "tag",
+      "languageCode": "pt",
+      "source": "headscarf",
+      "currentValue": "Carcaça de cabeça SCA",
+      "correctedValue": "lenço de cabeça",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "pt",
+      "source": "larp jerkin",
+      "currentValue": "larp kkin",
+      "correctedValue": "gibão de LARP",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "pt",
+      "source": "LARPgear",
+      "currentValue": "LARPgear",
+      "correctedValue": "equipamento de LARP",
+      "reason": "camel-case source was untranslated, partially translated, or semantically corrupted"
+    },
+    {
+      "package": "tag",
+      "languageCode": "pt",
+      "source": "MedievalLeatherBelt",
+      "currentValue": "Couro MedievalBelt",
+      "correctedValue": "cinto medieval de couro",
+      "reason": "camel-case source was untranslated, partially translated, or semantically corrupted"
+    },
+    {
+      "package": "tag",
+      "languageCode": "pt",
+      "source": "MongolianBelt",
+      "currentValue": "MongolBelt",
+      "correctedValue": "cinto mongol",
+      "reason": "camel-case source was untranslated, partially translated, or semantically corrupted"
+    },
+    {
+      "package": "tag",
+      "languageCode": "pt",
+      "source": "MongolianWarrior",
+      "currentValue": "MongolWarrior",
+      "correctedValue": "guerreiro mongol",
+      "reason": "camel-case source was untranslated, partially translated, or semantically corrupted"
+    },
+    {
+      "package": "tag",
+      "languageCode": "pt",
+      "source": "role play",
+      "currentValue": "role play",
+      "correctedValue": "interpretação de papéis",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "pt",
+      "source": "shield maiden",
+      "currentValue": "shield madrinha",
+      "correctedValue": "donzela escudeira",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "pt",
+      "source": "witcher costume",
+      "currentValue": "traje de bruxa",
+      "correctedValue": "traje de The Witcher",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "pt",
+      "source": "wizard of oz",
+      "currentValue": "assistente de oz",
+      "correctedValue": "Mágico de Oz",
+      "reason": "definite truncation, symbol output, untranslated fragment, proper-name corruption, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "ancient greek helmet",
+      "currentValue": "Eski greek kask",
+      "correctedValue": "Antik Yunan miğferi",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "anniversary gift",
+      "currentValue": "yıldönümü hediye hediye hediye hediye",
+      "correctedValue": "yıl dönümü hediyesi",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "aragorn halloween costume",
+      "currentValue": "Aragorn yarıdan kostüm",
+      "correctedValue": "Aragorn Halloween kostümü",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "aragorn ranger vest",
+      "currentValue": "Midgorn ranger vest",
+      "correctedValue": "Aragorn korucu yeleği",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "arrowhead jewelry",
+      "currentValue": "oklü mücevher",
+      "correctedValue": "ok ucu takısı",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "arrowhead necklace",
+      "currentValue": "oklü kolye",
+      "correctedValue": "ok ucu kolyesi",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "arrowhead pendant",
+      "currentValue": "oklüt pendant",
+      "correctedValue": "ok ucu kolye ucu",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "authentic pant",
+      "currentValue": "Gerçek pant",
+      "correctedValue": "otantik pantolon",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "backcountry",
+      "currentValue": "Geri ülke",
+      "correctedValue": "ıssız doğa",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "battle-ready sword",
+      "currentValue": "Savaş-okuy kılıcı",
+      "correctedValue": "savaşa hazır kılıç",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "belt",
+      "currentValue": "kemer kemeri kemer",
+      "correctedValue": "kemer",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "belt buckle",
+      "currentValue": "kemer buckle",
+      "correctedValue": "kemer tokası",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "best halloween costumes",
+      "currentValue": "En iyi yarık kostümleri",
+      "correctedValue": "en iyi Halloween kostümleri",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "birch burl",
+      "currentValue": "kuş otobüsü",
+      "correctedValue": "huş ağacı uru",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "bird feathers",
+      "currentValue": "kuş kuş kuşları",
+      "correctedValue": "kuş tüyleri",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "birthday gift",
+      "currentValue": "doğum günü hediye hediye hediye",
+      "correctedValue": "doğum günü hediyesi",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "bow and arrow for sale",
+      "currentValue": "Reklam için yazı ve ok",
+      "correctedValue": "satılık yay ve ok",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "bracers of armor",
+      "currentValue": "Zırhlıları",
+      "correctedValue": "zırh bilek siperleri",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "burning stove",
+      "currentValue": "Yanmış sola",
+      "correctedValue": "yanmalı soba",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "bushcraft bag",
+      "currentValue": "Bushcraft bag",
+      "correctedValue": "bushcraft çantası",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "bushcraft rucksack",
+      "currentValue": "Bushcraft rucksack",
+      "correctedValue": "bushcraft sırt çantası",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "butane canister",
+      "currentValue": "Amaane Canister",
+      "correctedValue": "bütan kartuşu",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "camp chef everest 2x",
+      "currentValue": "Kamp şefi hiç en iyi 2x",
+      "correctedValue": "Camp Chef Everest 2X",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "camping burner",
+      "currentValue": "Kampa",
+      "correctedValue": "kamp ocağı",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "camping burner stove",
+      "currentValue": "Yanlı sola",
+      "correctedValue": "kamp ocağı",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "camping cup",
+      "currentValue": "Kampa",
+      "correctedValue": "kamp bardağı",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "camping glass",
+      "currentValue": "Kampa cam",
+      "correctedValue": "kamp bardağı",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "camping mug",
+      "currentValue": "kamp mug",
+      "correctedValue": "kamp kupası",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "camping shop",
+      "currentValue": "Kampa alışveriş",
+      "correctedValue": "kamp mağazası",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "camping store",
+      "currentValue": "Kampa",
+      "correctedValue": "kamp mağazası",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "camping stove",
+      "currentValue": "Kampa sola",
+      "correctedValue": "kamp ocağı",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "camping stove coleman",
+      "currentValue": "Kampa sola Coleman",
+      "correctedValue": "Coleman kamp ocağı",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "camping stove fuel",
+      "currentValue": "Kampa soba yakıt",
+      "correctedValue": "kamp ocağı yakıtı",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "camping stove portable",
+      "currentValue": "Kamping so portatif",
+      "correctedValue": "taşınabilir kamp ocağı",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "caravan stove",
+      "currentValue": "Caravan so",
+      "correctedValue": "karavan ocağı",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "carnelian arrowhead",
+      "currentValue": "carnelian okhead",
+      "correctedValue": "karnelyan ok ucu",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "carnelian necklace",
+      "currentValue": "carnelian kolye",
+      "correctedValue": "karnelyan kolye",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "carnelian pendant",
+      "currentValue": "carnelian pendant",
+      "correctedValue": "karnelyan kolye ucu",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "coleman 1 burner butane camping stove",
+      "currentValue": "Coleman 1 yanıcı ama kamp ocağı",
+      "correctedValue": "Coleman tek gözlü bütanlı kamp ocağı",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "coleman 2 burner stove",
+      "currentValue": "Coleman 2 yanıcı soba",
+      "correctedValue": "Coleman çift gözlü ocak",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "coleman camping oven",
+      "currentValue": "Coleman kampa",
+      "correctedValue": "Coleman kamp fırını",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "compound bow bag",
+      "currentValue": "bileşik yay çanta",
+      "correctedValue": "makaralı yay çantası",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "compound bow case",
+      "currentValue": "bileşik kör vaka",
+      "correctedValue": "makaralı yay kılıfı",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "convention costume",
+      "currentValue": "Kongre kostüm kostüm kostümü",
+      "correctedValue": "etkinlik kostümü",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "cooking stove",
+      "currentValue": "Yemek pişirmek için sola",
+      "correctedValue": "pişirme ocağı",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "cosplay gear",
+      "currentValue": "cosplay dişli",
+      "correctedValue": "cosplay ekipmanı",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "cosplay weapon prop",
+      "currentValue": "Cosplay silah prop",
+      "correctedValue": "cosplay silah aksesuarı",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "CosplayBelt",
+      "currentValue": "CosplayBelt",
+      "correctedValue": "cosplay kemeri",
+      "reason": "camel-case source was untranslated, partially translated, or semantically corrupted"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "CosplayCostume",
+      "currentValue": "CosplayCostume",
+      "correctedValue": "cosplay kostümü",
+      "reason": "camel-case source was untranslated, partially translated, or semantically corrupted"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "craft feathers",
+      "currentValue": "Avlu kuş",
+      "correctedValue": "el işi tüyleri",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "custom leather armor",
+      "currentValue": "Özel deri zırh zırhı",
+      "correctedValue": "özel deri zırh",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "daypack",
+      "currentValue": "günpack",
+      "correctedValue": "günlük sırt çantası",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "dirilis ertugrul",
+      "currentValue": "Tartışma:",
+      "correctedValue": "Diriliş Ertuğrul",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "dirilis ertugrul hat",
+      "currentValue": "Tartışma:",
+      "correctedValue": "Diriliş Ertuğrul şapkası",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "easy camping meals",
+      "currentValue": "Kolay kamp yemek yemekleri",
+      "correctedValue": "kolay kamp yemekleri",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "electric stove top",
+      "currentValue": "elektrikli soba top",
+      "correctedValue": "elektrikli ocak",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "elf horse armor",
+      "currentValue": "elf at zırh zırh",
+      "correctedValue": "elf at zırhı",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "elven cloak",
+      "currentValue": "Elven pıhtı",
+      "correctedValue": "elf pelerini",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "elven horse armor",
+      "currentValue": "elven at zırh zırh",
+      "correctedValue": "elf at zırhı",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "elven orcish dwarven",
+      "currentValue": "Elven orcish dwarven",
+      "correctedValue": "elf, ork ve cüce temalı",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "elven pauldron",
+      "currentValue": "Elven pauldron",
+      "correctedValue": "elf omuz zırhı",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "elvish sword",
+      "currentValue": "Elvish Kılı",
+      "correctedValue": "elf kılıcı",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "ertugrul costume for sale",
+      "currentValue": "Satılık kostüm",
+      "correctedValue": "satılık Ertuğrul kostümü",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "father days gift",
+      "currentValue": "Baba gün hediye hediye",
+      "correctedValue": "Babalar Günü hediyesi",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "fluffy feathers",
+      "currentValue": "fluffy tüyler",
+      "correctedValue": "kabarık tüyler",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "frodo cloak",
+      "currentValue": "frodo pıhtı",
+      "correctedValue": "Frodo pelerini",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "full armor set",
+      "currentValue": "Full zırh seti",
+      "correctedValue": "tam zırh seti",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "full grain leather",
+      "currentValue": "tam tahıl deri",
+      "correctedValue": "tam sırçalı deri",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "FullGrainLeather",
+      "currentValue": "FullG constraintLeather",
+      "correctedValue": "tam sırçalı deri",
+      "reason": "camel-case source was untranslated, partially translated, or semantically corrupted"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "game of thrones gift",
+      "currentValue": "taht oyunu",
+      "correctedValue": "Game of Thrones hediyesi",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "gander mountain",
+      "currentValue": "gander dağ",
+      "correctedValue": "Gander Mountain",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "gemstone necklace",
+      "currentValue": "gemstone kolye",
+      "correctedValue": "değerli taş kolye",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "GenuineLeatherBelt",
+      "currentValue": "GerçekLeatherBelt",
+      "correctedValue": "hakiki deri kemer",
+      "reason": "camel-case source was untranslated, partially translated, or semantically corrupted"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "gerald of the rivia",
+      "currentValue": "rivia'nın rivia'sının s.",
+      "correctedValue": "Rivialı Geralt",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "geralt armor",
+      "currentValue": "geralt zırh zırh",
+      "correctedValue": "Geralt zırhı",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "geralt of rivia",
+      "currentValue": "rivia'nın ürperesinin",
+      "correctedValue": "Rivialı Geralt",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "gift for her",
+      "currentValue": "Onun için hediye",
+      "correctedValue": "kadın için hediye",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "gift for him",
+      "currentValue": "Onun için hediye",
+      "correctedValue": "erkek için hediye",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "gladiator helmet",
+      "currentValue": "gladyator",
+      "correctedValue": "gladyatör miğferi",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "glamping",
+      "currentValue": "g",
+      "correctedValue": "glamping",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "greek armor",
+      "currentValue": "greek zırh",
+      "correctedValue": "Yunan zırhı",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "grey worm helmet",
+      "currentValue": "gri böceği",
+      "correctedValue": "Grey Worm miğferi",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "halloween",
+      "currentValue": "Yarısı",
+      "correctedValue": "Halloween",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "halloween costume",
+      "currentValue": "Yarısı kostüm",
+      "correctedValue": "Halloween kostümü",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "halloween costumes",
+      "currentValue": "Yarısı kostümleri",
+      "correctedValue": "Halloween kostümleri",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "hand carved cup",
+      "currentValue": "Elli fincan",
+      "correctedValue": "el oyması bardak",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "hand of saruman",
+      "currentValue": "Elin",
+      "correctedValue": "Saruman’ın Eli",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "hand-forged sword",
+      "currentValue": "El-Yakır kılıç",
+      "correctedValue": "elde dövülmüş kılıç",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "handmade",
+      "currentValue": "el yapımı el yapımı el yapımı",
+      "correctedValue": "el yapımı",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "handmade armor",
+      "currentValue": "El yapımı zırhlı zırh",
+      "correctedValue": "el yapımı zırh",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "handmade belt",
+      "currentValue": "Çıtma kemeri",
+      "correctedValue": "el yapımı kemer",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "handmade shield",
+      "currentValue": "Elli kalkan",
+      "correctedValue": "el yapımı kalkan",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "HandmadeLeatherBelt",
+      "currentValue": "HandmadeLeatherBelt",
+      "correctedValue": "el yapımı deri kemer",
+      "reason": "camel-case source was untranslated, partially translated, or semantically corrupted"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "headdress",
+      "currentValue": "Baş elbise",
+      "correctedValue": "başlık",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "headdress costume",
+      "currentValue": "Baş elbise kostüm kostüm kostüm",
+      "correctedValue": "kostüm başlığı",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "headscarf",
+      "currentValue": "Başlar SCA",
+      "correctedValue": "başörtüsü",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "helmet",
+      "currentValue": "Fısıl",
+      "correctedValue": "miğfer",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "helmet charms",
+      "currentValue": "Kase çekicileri",
+      "correctedValue": "miğfer süsleri",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "helmet shield",
+      "currentValue": "Fırk kalkanı",
+      "correctedValue": "miğfer kalkanı",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "hiking gear",
+      "currentValue": "yürüyüş",
+      "correctedValue": "yürüyüş ekipmanı",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "hiking rucksack",
+      "currentValue": "yürüyüş",
+      "correctedValue": "yürüyüş sırt çantası",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "historical reenactment",
+      "currentValue": "Tarihi yeniden birleşme",
+      "correctedValue": "tarihî canlandırma",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "HistoricalReenactment",
+      "currentValue": "TarihselReenactment",
+      "correctedValue": "tarihî canlandırma",
+      "reason": "camel-case source was untranslated, partially translated, or semantically corrupted"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "hobbit cloak",
+      "currentValue": "hobbit pıhtı",
+      "correctedValue": "Hobbit pelerini",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "hobbit fan gift",
+      "currentValue": "hobbit fan hediye",
+      "correctedValue": "Hobbit hayranı için hediye",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "horse bag",
+      "currentValue": "At çanta",
+      "correctedValue": "at çantası",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "horse breast collar",
+      "currentValue": "At meme yaka",
+      "correctedValue": "at göğüslüğü",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "horse saddle bag",
+      "currentValue": "At saddle bag",
+      "correctedValue": "at heybesi",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "horselover gift",
+      "currentValue": "Atlover hediye hediye",
+      "correctedValue": "atsever hediyesi",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "hot tent camping",
+      "currentValue": "Sıcak çadır kamp",
+      "correctedValue": "sıcak çadır kampçılığı",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "house stark",
+      "currentValue": "Ev yıldızık",
+      "correctedValue": "Stark Hanesi",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "how to make an arrow",
+      "currentValue": "Nasıl bir ok yapmak",
+      "correctedValue": "ok nasıl yapılır",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "hunting arrow",
+      "currentValue": "avlanmak için",
+      "correctedValue": "av oku",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "hunting tent with wood stove",
+      "currentValue": "Ahşap sola çadırı",
+      "correctedValue": "odun sobalı av çadırı",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "islamic helmet",
+      "currentValue": "Islamik Kase",
+      "correctedValue": "İslami miğfer",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "japan samurai sword",
+      "currentValue": "japan samuray kılıcı",
+      "correctedValue": "Japon samuray kılıcı",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "japanese home decor",
+      "currentValue": "Japon ev dekor dekor dekore dekorasyon",
+      "correctedValue": "Japon ev dekorasyonu",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "jon snow",
+      "currentValue": "jon kar",
+      "correctedValue": "Jon Snow",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "knight helmet",
+      "currentValue": "şövalye",
+      "correctedValue": "şövalye miğferi",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "kuksa carving",
+      "currentValue": "kuksa araba",
+      "correctedValue": "kuksa oymacılığı",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "kuksa shot glass",
+      "currentValue": "kuksa atış camı",
+      "correctedValue": "kuksa kadehi",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "kurulus osman",
+      "currentValue": "Osmanlılar",
+      "correctedValue": "Kuruluş Osman",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "kurulus osman armor",
+      "currentValue": "Hiss osman zırhı",
+      "correctedValue": "Kuruluş Osman zırhı",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "larp helmet",
+      "currentValue": "larp",
+      "correctedValue": "LARP miğferi",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "larp jerkin",
+      "currentValue": "larp aniden",
+      "correctedValue": "LARP deri yeleği",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "LARPgear",
+      "currentValue": "LARPgear",
+      "correctedValue": "LARP ekipmanı",
+      "reason": "camel-case source was untranslated, partially translated, or semantically corrupted"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "leather",
+      "currentValue": "Deri deri",
+      "correctedValue": "deri",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "leather bag",
+      "currentValue": "Deri bag",
+      "correctedValue": "deri çanta",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "leather greaves",
+      "currentValue": "Deri greaves",
+      "correctedValue": "deri baldır zırhları",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "leather pant",
+      "currentValue": "Deri pant",
+      "correctedValue": "deri pantolon",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "leather plates armor",
+      "currentValue": "Deri plaka zırh zırh zırh zırhı",
+      "correctedValue": "deri plakalı zırh",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "legolas costume",
+      "currentValue": "legolas kostüm kostüm",
+      "correctedValue": "Legolas kostümü",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "legolas halloween costume",
+      "currentValue": "legolas Halfloween kostüm",
+      "correctedValue": "Legolas Halloween kostümü",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "legolas pauldron",
+      "currentValue": "legolas pauldron",
+      "correctedValue": "Legolas omuz zırhı",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "longbow for kid",
+      "currentValue": "Uzun süredir çocuk için",
+      "correctedValue": "çocuk uzun yayı",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "lord of the rings",
+      "currentValue": "Halkın efendisi",
+      "correctedValue": "Yüzüklerin Efendisi",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "lotr fan gift",
+      "currentValue": "lotr fan hediye hediye",
+      "correctedValue": "LOTR hayranı için hediye",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "marbling",
+      "currentValue": "marbling",
+      "correctedValue": "ebru sanatı",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "medicine bag",
+      "currentValue": "Tıp çanta",
+      "correctedValue": "ilaç çantası",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "medieval cloak",
+      "currentValue": "Ortaçağ",
+      "correctedValue": "Orta Çağ pelerini",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "medieval helmet",
+      "currentValue": "Ortaçağ",
+      "correctedValue": "Orta Çağ miğferi",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "medieval leather hat",
+      "currentValue": "Orta Çağ",
+      "correctedValue": "Orta Çağ deri şapkası",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "MedievalLeatherBelt",
+      "currentValue": "OrtaçağLeatherBelt",
+      "correctedValue": "Orta Çağ deri kemeri",
+      "reason": "camel-case source was untranslated, partially translated, or semantically corrupted"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "mens gift",
+      "currentValue": "Erkekler hediye",
+      "correctedValue": "erkek hediyesi",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "money bag",
+      "currentValue": "para çanta",
+      "correctedValue": "para kesesi",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "mongol armor",
+      "currentValue": "mongol zırh zırh",
+      "correctedValue": "Moğol zırhı",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "mongol helmet",
+      "currentValue": "mongol",
+      "correctedValue": "Moğol miğferi",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "mongolian armor",
+      "currentValue": "mongolian zırh",
+      "correctedValue": "Moğol zırhı",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "mongolian helmet",
+      "currentValue": "mongolian",
+      "correctedValue": "Moğol miğferi",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "MongolianBelt",
+      "currentValue": "MoğolistannBelt",
+      "correctedValue": "Moğol kemeri",
+      "reason": "camel-case source was untranslated, partially translated, or semantically corrupted"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "MongolianWarrior",
+      "currentValue": "MoğolistannWarrior",
+      "correctedValue": "Moğol savaşçı",
+      "reason": "camel-case source was untranslated, partially translated, or semantically corrupted"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "natural glass",
+      "currentValue": "Doğal cam cam",
+      "correctedValue": "doğal malzemeli bardak",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "nomad hunting bow",
+      "currentValue": "Hayırlı avlanmak",
+      "correctedValue": "göçebe av yayı",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "orc helmet",
+      "currentValue": "orc",
+      "correctedValue": "ork miğferi",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "ottoman bork hat",
+      "currentValue": "ottoman bok şapka",
+      "correctedValue": "Osmanlı börkü",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "ottoman woman hat",
+      "currentValue": "ottoman kadını şapka",
+      "correctedValue": "Osmanlı kadın başlığı",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "outdoor sports",
+      "currentValue": "Açık spor spor spor spor açık açık spor spor spor",
+      "correctedValue": "açık hava sporları",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "outdoor store",
+      "currentValue": "Açık açık kapalı mağaza",
+      "correctedValue": "açık hava mağazası",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "paintball",
+      "currentValue": "boya",
+      "correctedValue": "paintball",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "pauldron shoulders",
+      "currentValue": "pauldron omuz omuzları",
+      "correctedValue": "omuz zırhı",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "portable wood stove indoor",
+      "currentValue": "taşınabilir ahşap ocağı içilir",
+      "correctedValue": "iç mekân için taşınabilir odun sobası",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "post apalyptic",
+      "currentValue": "post apalyptic",
+      "correctedValue": "kıyamet sonrası",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "renaissance bag",
+      "currentValue": "Renaissance bag",
+      "correctedValue": "Rönesans çantası",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "renaissance costume",
+      "currentValue": "Yeniden canaissance kostüm",
+      "correctedValue": "Rönesans kostümü",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "renaissance fair",
+      "currentValue": "Renaissance adil",
+      "correctedValue": "Rönesans fuarı",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "renaissance helmet",
+      "currentValue": "Renaissance",
+      "correctedValue": "Rönesans miğferi",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "resurrection armor",
+      "currentValue": "Zırhlı Zırh",
+      "correctedValue": "Diriliş zırhı",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "resurrection cosplay",
+      "currentValue": "Cebrail",
+      "correctedValue": "Diriliş cosplay’i",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "resurrection costume",
+      "currentValue": "kostümü",
+      "correctedValue": "Diriliş kostümü",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "resurrection ertugrul",
+      "currentValue": "Selâm (a.s.",
+      "correctedValue": "Diriliş Ertuğrul",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "robe and wizard hat",
+      "currentValue": "► ve sihirbaz",
+      "correctedValue": "cübbe ve büyücü şapkası",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "robe of winter night",
+      "currentValue": "Kış gecesi",
+      "correctedValue": "kış gecesi kaftanı",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "role play",
+      "currentValue": "rol oyun oyunu",
+      "correctedValue": "rol yapma oyunu",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "scandinavian",
+      "currentValue": "tarama SCA",
+      "correctedValue": "İskandinav",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "scandinavian kuksa",
+      "currentValue": "tarama SCA",
+      "correctedValue": "İskandinav kuksası",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "shaman headdress",
+      "currentValue": "Shaman headdress",
+      "correctedValue": "şaman başlığı",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "shaman healing ceremonie",
+      "currentValue": "Shaman şifalı ceremonie",
+      "correctedValue": "şamanik şifa töreni",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "shamanic healing",
+      "currentValue": "Shamanic şifa",
+      "correctedValue": "şamanik şifa",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "silk robes and kimonos",
+      "currentValue": "ipek robes ve kimonos",
+      "correctedValue": "ipek kaftanlar ve kimonolar",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "sleeping bag",
+      "currentValue": "Uyku çanta",
+      "correctedValue": "uyku tulumu",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "small wood burning stove",
+      "currentValue": "Küçük ahşap soba yakılır",
+      "correctedValue": "küçük odun sobası",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "smudge feather",
+      "currentValue": "smudge",
+      "correctedValue": "tütsüleme tüyü",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "spartan helmet",
+      "currentValue": "spartan",
+      "correctedValue": "Spartalı miğferi",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "spoon carving",
+      "currentValue": "kaşık",
+      "correctedValue": "kaşık oymacılığı",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "stove for camping",
+      "currentValue": "Kamp için sola",
+      "correctedValue": "kamp ocağı",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "templar knight",
+      "currentValue": "Şaşırtıcı şövalye",
+      "correctedValue": "Tapınak Şövalyesi",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "terraria wizard hat",
+      "currentValue": "terraria büyücü",
+      "correctedValue": "Terraria büyücü şapkası",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "tomb raider arrow",
+      "currentValue": "Mezar baskın ok",
+      "correctedValue": "Tomb Raider oku",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "tomb raider cosplay",
+      "currentValue": "Mezar baskınçı cosplay",
+      "correctedValue": "Tomb Raider cosplay’i",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "traditional boot",
+      "currentValue": "Geleneksel boot",
+      "correctedValue": "geleneksel çizme",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "traditional shoes",
+      "currentValue": "Geleneksel ayakkabı ayakkabıları",
+      "correctedValue": "geleneksel ayakkabılar",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "trekking bag",
+      "currentValue": "yürüyüş",
+      "correctedValue": "trekking çantası",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "turk traditional hat",
+      "currentValue": "turk geleneksel şapka",
+      "correctedValue": "geleneksel Türk şapkası",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "unsullied helmet",
+      "currentValue": "Unsullied",
+      "correctedValue": "Unsullied miğferi",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "viking dress",
+      "currentValue": "Ving elbise elbise",
+      "correctedValue": "Viking elbisesi",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "viking drink cup",
+      "currentValue": "Sıcak içki fincanı",
+      "correctedValue": "Viking içki bardağı",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "viking helmet",
+      "currentValue": "viking",
+      "correctedValue": "Viking miğferi",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "viking shield",
+      "currentValue": "Ving kalkanı",
+      "correctedValue": "Viking kalkanı",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "warrior bracelet",
+      "currentValue": "savaşçı",
+      "correctedValue": "savaşçı bilekliği",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "warrior dress",
+      "currentValue": "savaşçı elbise elbise elbise",
+      "correctedValue": "savaşçı elbisesi",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "warrior helmet",
+      "currentValue": "savaşçı",
+      "correctedValue": "savaşçı miğferi",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "warrior pouch",
+      "currentValue": "savaşçı",
+      "correctedValue": "savaşçı kesesi",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "wedding dress",
+      "currentValue": "Düğün elbise elbise",
+      "correctedValue": "gelinlik",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "winterfell",
+      "currentValue": "kış",
+      "correctedValue": "Winterfell",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "witcher 1 cosplay",
+      "currentValue": "cadı 1 cosplay",
+      "correctedValue": "The Witcher 1 cosplay’i",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "witcher 1 costume",
+      "currentValue": "cadı 1 kostüm",
+      "correctedValue": "The Witcher 1 kostümü",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "witcher 2 cosplay",
+      "currentValue": "cadı 2 cosplay",
+      "correctedValue": "The Witcher 2 cosplay’i",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "witcher 2 costume",
+      "currentValue": "cadı 2 kostüm",
+      "correctedValue": "The Witcher 2 kostümü",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "witcher 3 cosplay",
+      "currentValue": "cadı 3 cosplay",
+      "correctedValue": "The Witcher 3 cosplay’i",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "witcher 3 costume",
+      "currentValue": "cadı 3 kostüm",
+      "correctedValue": "The Witcher 3 kostümü",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "witcher costume",
+      "currentValue": "cadı kostümü",
+      "correctedValue": "The Witcher kostümü",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "witcher ursine armor",
+      "currentValue": "cadıcı ursine zırh",
+      "correctedValue": "The Witcher Ursine zırhı",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "wizard of oz",
+      "currentValue": "Sihirbazı",
+      "correctedValue": "Oz Büyücüsü",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "woman corset armor",
+      "currentValue": "kadın çetreat zırhı",
+      "correctedValue": "kadın korse zırhı",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "womens turban",
+      "currentValue": "Kadınlar turban",
+      "correctedValue": "kadın türbanı",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "wood carving tools",
+      "currentValue": "Ahşap arabaving aletleri",
+      "correctedValue": "ahşap oyma aletleri",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "wood marbling",
+      "currentValue": "Ahşap marbling",
+      "correctedValue": "ahşap ebru sanatı",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "wooden arrow decor",
+      "currentValue": "Ahşap ok dekore dekore",
+      "correctedValue": "ahşap ok dekoru",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "wooden arrow wall decor",
+      "currentValue": "Ahşap ok duvarı dekore",
+      "correctedValue": "ahşap ok duvar dekoru",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "wooden glass",
+      "currentValue": "Ahşap cam cam cam",
+      "correctedValue": "ahşap bardak",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    },
+    {
+      "package": "tag",
+      "languageCode": "tr",
+      "source": "wooden mug",
+      "currentValue": "Ahşap mug",
+      "correctedValue": "ahşap kupa",
+      "reason": "definite repetition, truncation, mixed-English output, symbol output, or semantic hallucination"
+    }
+  ]
+}
