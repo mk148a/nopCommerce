@@ -140,6 +140,35 @@ public sealed class LocalizationResourceInstallerGuardTests
             LocalizationResourceInstaller.ValidateProductProseSupplementalPackage(package));
     }
 
+    [Test]
+    public void EmbeddedSupplementalProduct277UsesExactReviewedLiveTransition()
+    {
+        var package = LocalizationResourceInstaller
+            .ReadEmbeddedProductProseSupplementalValidationFixture();
+        var row = package.Rows.Single(item => item.EntityId == 277 &&
+            item.LanguageCode == "ur" && item.Field == "FullDescription");
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(package.SourceDatabase,
+                Is.EqualTo("HoodArcheryShopV480bugfixLancelotDb"));
+            Assert.That(row.OldSha256, Is.EqualTo(
+                "E7F75A63CDE15BF3C8A52811445BA77E959EA2BEC29CF0A2E198D7F0CA880DE5"));
+            Assert.That(row.NewSha256, Is.EqualTo(
+                "9C13FC47E41A1428E1575AE697B865905F8A9F707B827C547AA2415D093130F2"));
+            Assert.That(row.OldValue, Has.Length.EqualTo(56504));
+            Assert.That(row.NewValue, Has.Length.EqualTo(56514));
+        });
+
+        Assert.That(LocalizationResourceInstaller.ResolveSupplementalProductProseCorrectionValue(
+            row.OldValue, row), Is.EqualTo(row.NewValue));
+        Assert.That(LocalizationResourceInstaller.ResolveSupplementalProductProseCorrectionValue(
+            row.NewValue, row), Is.SameAs(row.NewValue));
+        Assert.That(() => LocalizationResourceInstaller.ResolveSupplementalProductProseCorrectionValue(
+                row.OldValue + " merchant drift", row),
+            Throws.TypeOf<InvalidDataException>().With.Message.Contains("drifted"));
+    }
+
     [TestCase("row-count")]
     [TestCase("product-count")]
     [TestCase("language-count")]
@@ -162,6 +191,7 @@ public sealed class LocalizationResourceInstallerGuardTests
     [TestCase("witness-phrase-count")]
     [TestCase("witness-duplicate-phrase")]
     [TestCase("schema-version")]
+    [TestCase("source-database")]
     [TestCase("slug-package-policy")]
     [TestCase("slug-count")]
     [TestCase("slug-target-hash")]
@@ -211,6 +241,7 @@ public sealed class LocalizationResourceInstallerGuardTests
                 package.PreservedWitnesses[1] = package.PreservedWitnesses[0];
                 break;
             case "schema-version": package.SchemaVersion--; break;
+            case "source-database": package.SourceDatabase = "unreviewed-source"; break;
             case "slug-package-policy": package.SlugPolicyVersion++; break;
             case "slug-count": package.SlugCount--; break;
             case "slug-target-hash": package.SlugTargetSetSha256 = new string('A', 64); break;
