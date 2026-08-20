@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewComponents;
 using Nop.Core;
 using Nop.Core.Domain;
-using Nop.Services.Media;
 using Nop.Web.Framework.Components;
 
 namespace Nop.Plugin.Shipping.FixedByWeightByTotal.Components;
@@ -15,17 +14,16 @@ namespace Nop.Plugin.Shipping.FixedByWeightByTotal.Components;
 /// </summary>
 public class HoodOnlineStoreJsonLdViewComponent : NopViewComponent
 {
+    private const string MerchantLogoPath = "/images/hood-merchant-logo-600.png";
+
     private readonly IStoreContext _storeContext;
     private readonly StoreInformationSettings _storeInformationSettings;
-    private readonly IPictureService _pictureService;
 
     public HoodOnlineStoreJsonLdViewComponent(IStoreContext storeContext,
-        StoreInformationSettings storeInformationSettings,
-        IPictureService pictureService)
+        StoreInformationSettings storeInformationSettings)
     {
         _storeContext = storeContext;
         _storeInformationSettings = storeInformationSettings;
-        _pictureService = pictureService;
     }
 
     public async Task<IViewComponentResult> InvokeAsync(string widgetZone, object additionalData = null)
@@ -70,12 +68,9 @@ public class HoodOnlineStoreJsonLdViewComponent : NopViewComponent
             };
         }
 
-        if (_storeInformationSettings.LogoPictureId > 0)
-        {
-            var logoUrl = await _pictureService.GetPictureUrlAsync(_storeInformationSettings.LogoPictureId, showDefaultPicture: false);
-            if (!string.IsNullOrWhiteSpace(logoUrl))
-                onlineStore["logo"] = logoUrl;
-        }
+        // Merchant Center requires the Organization logo to be a square image at least 500 px wide.
+        // The configured store-logo thumbnail is 100x100, so use the verified 600x600 merchant asset.
+        onlineStore["logo"] = $"{storeUrl}{MerchantLogoPath}";
 
         var sameAs = new[]
             {

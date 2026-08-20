@@ -575,16 +575,12 @@ public class JsonLdModelContractTests
         };
         var storeContext = new Mock<IStoreContext>();
         storeContext.Setup(context => context.GetCurrentStoreAsync()).ReturnsAsync(store);
-        var pictureService = new Mock<IPictureService>();
-        pictureService.Setup(service => service.GetPictureUrlAsync(3403, It.IsAny<int>(), false,
-                It.IsAny<string>(), It.IsAny<PictureType>()))
-            .ReturnsAsync("https://hoodarcheryshop.com/images/logo.png");
         var component = new HoodOnlineStoreJsonLdViewComponent(storeContext.Object, new StoreInformationSettings
         {
             LogoPictureId = 3403,
             FacebookLink = "https://www.facebook.com/HoodArchery/",
             YoutubeLink = "https://www.youtube.com/channel/UCch_uO9AyuDygJqqasmS4Rw"
-        }, pictureService.Object)
+        })
         {
             ViewComponentContext = new ViewComponentContext
             {
@@ -608,6 +604,8 @@ public class JsonLdModelContractTests
         graph.Count(node => node["@type"]?.Value<string>() == "OnlineStore").Should().Be(1);
         graph.Single(node => node["@type"]?.Value<string>() == "OnlineStore")["hasMerchantReturnPolicy"]?["merchantReturnLink"]
             ?.Value<string>().Should().Be("https://hoodarcheryshop.com/en/shipping-returns");
+        graph.Single(node => node["@type"]?.Value<string>() == "OnlineStore")["logo"]?.Value<string>()
+            .Should().Be("https://hoodarcheryshop.com/images/hood-merchant-logo-600.png");
     }
 
     private sealed class TestableJsonLdModelFactory : JsonLdModelFactory
