@@ -38,7 +38,15 @@
     if (seoSettings.CanonicalUrlsEnabled)
     {
         var categoryUrl = Url.RouteUrl<Category>(new { SeName = Model.SeName }, webHelper.GetCurrentRequestProtocol()).ToLowerInvariant();
-        NopHtml.AddCanonicalUrlParts(categoryUrl, seoSettings.QueryStringInCanonicalUrlsEnabled);
+        if (int.TryParse(Context.Request.Query["pagenumber"], out var pageNumber) && pageNumber > 1)
+        {
+            categoryUrl = Microsoft.AspNetCore.WebUtilities.QueryHelpers.AddQueryString(categoryUrl, "pagenumber", pageNumber.ToString(System.Globalization.CultureInfo.InvariantCulture));
+            NopHtml.AddCanonicalUrlParts(categoryUrl);
+        }
+        else
+        {
+            NopHtml.AddCanonicalUrlParts(categoryUrl, seoSettings.QueryStringInCanonicalUrlsEnabled);
+        }
     }
 
     var breadcrumbDelimiter = commonSettings.BreadcrumbDelimiter;

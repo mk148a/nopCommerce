@@ -113,6 +113,7 @@ namespace Nop.Plugin.Misc.GoogleMultiLanguageAndCurrency.Components
             var scheme = new Uri(currentUrl).GetComponents(UriComponents.SchemeAndServer,
                         UriFormat.Unescaped);
             var path = new Uri(currentUrl).PathAndQuery;
+            var paginationQueryString = GetPaginationQueryString();
             UrlRecord urlRecord = null;
             if (actionKeys.Count > 0 && actionKeys.Any(x => x.EndsWith("id") && data.Values[x] != null && int.TryParse(data.Values[x].ToString(), out _)))
             {
@@ -168,7 +169,7 @@ namespace Nop.Plugin.Misc.GoogleMultiLanguageAndCurrency.Components
             if (urlRecord != null)
             {
                 var hostName = await GetHttpProtocolAsync() + "://" + HttpContext.Request.Host.Value;
-                AddSeoUrlDefaultLanguageHreflang(model, urlRecord, currentStore, hostName, defaultLang);
+                AddSeoUrlDefaultLanguageHreflang(model, urlRecord, currentStore, hostName, defaultLang, paginationQueryString);
                 foreach (var language in activeLanguages)
                 {
                     var alternateUrl = await GetSeoUrlForLanguage(urlRecord, currentStore, language);
@@ -180,7 +181,7 @@ namespace Nop.Plugin.Misc.GoogleMultiLanguageAndCurrency.Components
                     {
                         Rel = "alternate",
                         Hreflang = hreflang,
-                        Href = $"{hostName}/{language.UniqueSeoCode}/{alternateUrl}"
+                        Href = $"{hostName}/{language.UniqueSeoCode}/{alternateUrl}{paginationQueryString}"
                     });
                 }
             }
@@ -207,7 +208,15 @@ namespace Nop.Plugin.Misc.GoogleMultiLanguageAndCurrency.Components
 
             return alternateUrl;
         }
-        private void AddSeoUrlDefaultLanguageHreflang(GoogleMultiLanguageAndCurrencysModel model, UrlRecord urlRecord, Core.Domain.Stores.Store currentStore, string hostName, Language defaultLang)
+        private string GetPaginationQueryString()
+        {
+            if (!int.TryParse(HttpContext.Request.Query["pagenumber"], out var pageNumber) || pageNumber <= 1)
+                return string.Empty;
+
+            return $"?pagenumber={pageNumber}";
+        }
+
+        private void AddSeoUrlDefaultLanguageHreflang(GoogleMultiLanguageAndCurrencysModel model, UrlRecord urlRecord, Core.Domain.Stores.Store currentStore, string hostName, Language defaultLang, string paginationQueryString)
         {
             bool defaultLanguageHrefIsAdded = model.LinkTags.Any(x => x.Hreflang == "x-default");
             if (!defaultLanguageHrefIsAdded)
@@ -217,7 +226,7 @@ namespace Nop.Plugin.Misc.GoogleMultiLanguageAndCurrency.Components
                 {
                     Rel = "alternate",
                     Hreflang = "x-default",
-                    Href = $"{hostName}/{defaultLang.UniqueSeoCode}/{alternateUrl}"
+                    Href = $"{hostName}/{defaultLang.UniqueSeoCode}/{alternateUrl}{paginationQueryString}"
                 });
             }
         }
