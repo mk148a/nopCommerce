@@ -178,9 +178,6 @@ public partial class SitemapModelFactory : ISitemapModelFactory
             //home page
             await PrepareLocalizedSitemapUrlAsync("Homepage"),
 
-            //search products
-            await PrepareLocalizedSitemapUrlAsync("ProductSearch"),
-
             //contact us
             await PrepareLocalizedSitemapUrlAsync("ContactUs")
         };
