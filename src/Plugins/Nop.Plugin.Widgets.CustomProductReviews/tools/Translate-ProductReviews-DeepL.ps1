@@ -11,6 +11,7 @@
   [switch]$Force,
   [switch]$RepairMojibake,
   [string[]]$TargetLanguageCodes = @(),
+  [string[]]$ReviewIds = @(),
   [ValidateRange(1, 50)]
   [int]$BatchTextCount = 25,
   [ValidateRange(1024, 65536)]
@@ -164,10 +165,26 @@ function Test-Mojibake([string]$value) {
   $c2 = [regex]::Escape([string][char]0x00C2)
   $e2 = [regex]::Escape([string][char]0x00E2)
   $euro = [regex]::Escape([string][char]0x20AC)
+  # Additional UTF-8-as-Windows-1252 lead bytes for Greek, Cyrillic, Arabic
+  # and Japanese.  Requiring a following C1/control byte avoids treating
+  # valid letters such as Danish Ø or Portuguese ã as mojibake.
+  $ce = [regex]::Escape([string][char]0x00CE)
+  $d0 = [regex]::Escape([string][char]0x00D0)
+  $d1 = [regex]::Escape([string][char]0x00D1)
+  $d8 = [regex]::Escape([string][char]0x00D8)
+  $d9 = [regex]::Escape([string][char]0x00D9)
+  $e3 = [regex]::Escape([string][char]0x00E3)
 
   return $value -match "$c3[\u00A0-\u00BF]" -or
     $value -match "$c2[\u0080-\u00BF]" -or
-    $value -match "$e2(?:[\u0080-\u00BF]{2}|$euro[\u0080-\uFFFF])"
+    $value -match "$e2(?:[\u0080-\u00BF]{2}|$euro[\u0080-\uFFFF])" -or
+    $value -match "(?:$ce|$d0|$d1|$d8|$d9|$e3)[\u0080-\u00BF]"
+}
+
+function Normalize-ReviewTextForTranslation([string]$value) {
+  # Stored legacy reviews can contain HTML character references. DeepL should
+  # receive the reader-visible text, not entity syntax such as &#x27;.
+  return [System.Net.WebUtility]::HtmlDecode($value ?? [string]::Empty)
 }
 
 function Get-DeepLTargetLang($row) {
@@ -252,7 +269,13 @@ function Invoke-TranslationBatch($payload, $queue, $language, [string]$cs) {
   Write-Host "LanguageId $($language.LanguageId) / $($language.DeepL): $($payload.Count) fields in one DeepL request" -ForegroundColor Yellow
   if ($DryRun) { return }
 
-  $translated = Translate-DeepL -texts @($payload) -targetLang ([string]$language.DeepL)
+  # ArrayList is enumerated normally for batches, but PowerShell can bind a
+  # single remaining item as the collection itself.  Pass a concrete string
+  # array so the final one-item batch reaches DeepL as the review text.
+  # Wrap the function output explicitly.  A single DeepL result otherwise
+  # arrives as a scalar string and `$translated[0]` would mean its first
+  # character rather than the first translated field.
+  $translated = @(Translate-DeepL -texts ([string[]]$payload.ToArray()) -targetLang ([string]$language.DeepL))
   if ($translated.Count -ne $queue.Count) {
     throw "DeepL returned $($translated.Count) translations for $($queue.Count) requested fields. No writes were made for this batch."
   }
@@ -297,6 +320,20 @@ END
 }
 
 $reviewsTop = if ($Limit -gt 0) { "TOP ($Limit)" } else { "" }
+$reviewIdFilter = ""
+if ($ReviewIds.Count -gt 0) {
+  $validatedReviewIds = [System.Collections.Generic.List[int]]::new()
+  foreach ($rawReviewId in ($ReviewIds | ForEach-Object { $_ -split ',' })) {
+    $parsedReviewId = 0
+    if (![int]::TryParse($rawReviewId.Trim(), [ref]$parsedReviewId) -or $parsedReviewId -le 0) {
+      throw "Invalid review ID '$rawReviewId'. ReviewIds must contain positive numeric IDs only."
+    }
+    if (!$validatedReviewIds.Contains($parsedReviewId)) {
+      $validatedReviewIds.Add($parsedReviewId)
+    }
+  }
+  $reviewIdFilter = "AND pr.Id IN (" + ($validatedReviewIds -join ',') + ")"
+}
 $reviewsSql = @"
 SELECT $reviewsTop
   pr.Id,
@@ -308,6 +345,7 @@ FROM ProductReview pr
 INNER JOIN Product p ON p.Id = pr.ProductId
 WHERE pr.IsApproved = 1
   AND p.Deleted = 0
+  $reviewIdFilter
   AND (
     NULLIF(LTRIM(RTRIM(ISNULL(pr.Title,''))), '') IS NOT NULL
     OR NULLIF(LTRIM(RTRIM(ISNULL(pr.ReviewText,''))), '') IS NOT NULL
@@ -402,7 +440,8 @@ foreach ($l in $targets) {
         continue
       }
 
-      $candidateLength = ([string]$candidate.Value).Length
+      $normalizedValue = Normalize-ReviewTextForTranslation ([string]$candidate.Value)
+      $candidateLength = $normalizedValue.Length
       if ($payload.Count -gt 0 -and (
           $payload.Count -ge $BatchTextCount -or
           ($payloadCharacters + $candidateLength) -gt $BatchCharacterLimit)) {
@@ -412,7 +451,7 @@ foreach ($l in $targets) {
         $payloadCharacters = 0
       }
 
-      [void]$payload.Add([string]$candidate.Value)
+      [void]$payload.Add($normalizedValue)
       [void]$queue.Add([pscustomobject]@{
         ReviewId = $rid
         LanguageId = $lid

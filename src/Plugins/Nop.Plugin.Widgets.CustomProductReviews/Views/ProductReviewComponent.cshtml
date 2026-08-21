@@ -25,6 +25,13 @@
             return original;
         }
     }
+
+    string HoodReviewDisplayText(string value)
+    {
+        // Review text is rendered through HtmlFormatter with allowHtml=false below.
+        // Decode legacy entity references first so they are encoded exactly once at output.
+        return System.Net.WebUtility.HtmlDecode(value ?? string.Empty);
+    }
 }
 
 @{
@@ -190,9 +197,9 @@
                     var ratingPercent = review.Rating * 20;
                     var reviewId = review.Helpfulness?.ProductReviewId ?? review.Id;
                     var languageId = workingLanguage?.Id ?? 0;
-                    var localizedTitle = await HoodReviewLocalizedAsync(localizedEntityService, languageId, reviewId, "Title", review.Title);
-                    var localizedText = await HoodReviewLocalizedAsync(localizedEntityService, languageId, reviewId, "ReviewText", review.ReviewText);
-                    var localizedReply = await HoodReviewLocalizedAsync(localizedEntityService, languageId, reviewId, "ReplyText", review.ReplyText);
+                    var localizedTitle = HoodReviewDisplayText(await HoodReviewLocalizedAsync(localizedEntityService, languageId, reviewId, "Title", review.Title));
+                    var localizedText = HoodReviewDisplayText(await HoodReviewLocalizedAsync(localizedEntityService, languageId, reviewId, "ReviewText", review.ReviewText));
+                    var localizedReply = HoodReviewDisplayText(await HoodReviewLocalizedAsync(localizedEntityService, languageId, reviewId, "ReplyText", review.ReplyText));
                     <div class="product-review-item">
                         <div class="review-item-head">
 
