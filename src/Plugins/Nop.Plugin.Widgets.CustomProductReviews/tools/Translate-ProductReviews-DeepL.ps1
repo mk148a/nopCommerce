@@ -9,11 +9,22 @@
   [int]$Limit = 0,
   [int]$DelayMs = 300,
   [switch]$Force,
+  [switch]$RepairMojibake,
+  [string[]]$TargetLanguageCodes = @(),
+  [ValidateRange(1, 50)]
+  [int]$BatchTextCount = 25,
+  [ValidateRange(1024, 65536)]
+  [int]$BatchCharacterLimit = 40000,
   [switch]$DryRun,
   [switch]$OnlyMissing = $true
 )
 
 $ErrorActionPreference = "Stop"
+
+# Windows PowerShell does not load System.Net.Http by default; PowerShell 7 already has it.
+if ($null -eq ("System.Net.Http.HttpClient" -as [type])) {
+  Add-Type -AssemblyName System.Net.Http
+}
 
 if ([string]::IsNullOrWhiteSpace($DeepLAuthKey)) {
   $DeepLAuthKey = $env:HOOD_DEEPL_AUTH_KEY
@@ -83,7 +94,8 @@ function Invoke-Query([string]$cs, [string]$sql) {
   try {
     $reader = $cmd.ExecuteReader()
     $dt.Load($reader)
-    return $dt
+    # Keep DataTable intact; PowerShell otherwise enumerates its DataRows.
+    return ,$dt
   } finally {
     $conn.Close()
   }
@@ -143,6 +155,21 @@ function Get-ColumnValue($row, [string]$name) {
   return ""
 }
 
+function Test-Mojibake([string]$value) {
+  if ([string]::IsNullOrWhiteSpace($value)) { return $false }
+
+  # Do not flag valid language characters such as Portuguese \"Ã\".  Match only
+  # byte-decoding sequences that arise when UTF-8 text is read as Windows-1252.
+  $c3 = [regex]::Escape([string][char]0x00C3)
+  $c2 = [regex]::Escape([string][char]0x00C2)
+  $e2 = [regex]::Escape([string][char]0x00E2)
+  $euro = [regex]::Escape([string][char]0x20AC)
+
+  return $value -match "$c3[\u00A0-\u00BF]" -or
+    $value -match "$c2[\u0080-\u00BF]" -or
+    $value -match "$e2(?:[\u0080-\u00BF]{2}|$euro[\u0080-\uFFFF])"
+}
+
 function Get-DeepLTargetLang($row) {
   $seo = (Get-ColumnValue $row "UniqueSeoCode").Trim().ToLowerInvariant()
   $culture = (Get-ColumnValue $row "LanguageCulture").Trim().ToLowerInvariant()
@@ -162,6 +189,8 @@ function Get-DeepLTargetLang($row) {
   if ($source -match '(^|\s|-)ar($|\s|-)|arab') { return "AR" }
   if ($source -match '(^|\s|-)pt($|\s|-)|portugu') { return "PT-PT" }
   if ($source -match '(^|\s|-)pl($|\s|-)|polish|polski') { return "PL" }
+  if ($source -match '(^|\s|-)ms($|\s|-)|malay|melayu') { return "MS" }
+  if ($source -match '(^|\s|-)ur($|\s|-)|urdu') { return "UR" }
   if ($source -match '(^|\s|-)zh($|\s|-)|chinese|中文') { return "ZH" }
   if ($source -match '(^|\s|-)ja($|\s|-)|japanese|日本') { return "JA" }
   if ($source -match '(^|\s|-)ko($|\s|-)|korean|한국') { return "KO" }
@@ -217,6 +246,31 @@ function Translate-DeepL([string[]]$texts, [string]$targetLang) {
   }
 }
 
+function Invoke-TranslationBatch($payload, $queue, $language, [string]$cs) {
+  if ($payload.Count -eq 0) { return }
+
+  Write-Host "LanguageId $($language.LanguageId) / $($language.DeepL): $($payload.Count) fields in one DeepL request" -ForegroundColor Yellow
+  if ($DryRun) { return }
+
+  $translated = Translate-DeepL -texts @($payload) -targetLang ([string]$language.DeepL)
+  if ($translated.Count -ne $queue.Count) {
+    throw "DeepL returned $($translated.Count) translations for $($queue.Count) requested fields. No writes were made for this batch."
+  }
+
+  $script:totalApiCalls++
+  for ($i = 0; $i -lt $queue.Count; $i++) {
+    $value = [string]$translated[$i]
+    if ([string]::IsNullOrWhiteSpace($value)) { continue }
+
+    $entry = $queue[$i]
+    [void](Upsert-LocalizedProperty $cs $entry.ReviewId $entry.LanguageId $entry.LocaleKey $value)
+    $exists["$($entry.ReviewId)|$($entry.LanguageId)|$($entry.LocaleKey)"] = $value
+    $script:totalWrites++
+  }
+
+  Start-Sleep -Milliseconds $DelayMs
+}
+
 if (!$ConnectionString) { $ConnectionString = Get-NopConnectionString $SiteRoot }
 if (!$ConnectionString) { throw "SQL connection string not found. Use -ConnectionString manually." }
 
@@ -226,6 +280,21 @@ FROM [Language]
 WHERE Published = 1
 ORDER BY Id
 "@
+
+$backupTable = ""
+if (!$DryRun) {
+  $backupTable = "HoodProductReviewTranslationBackup_" + (Get-Date).ToUniversalTime().ToString("yyyyMMddHHmmss")
+  [void](Invoke-Query $ConnectionString @"
+IF OBJECT_ID(N'$backupTable', N'U') IS NULL
+BEGIN
+  SELECT SYSUTCDATETIME() AS BackupCreatedOnUtc, *
+  INTO [$backupTable]
+  FROM LocalizedProperty
+  WHERE LocaleKeyGroup = N'ProductReview'
+    AND LocaleKey IN (N'Title', N'ReviewText', N'ReplyText');
+END
+"@)
+}
 
 $reviewsTop = if ($Limit -gt 0) { "TOP ($Limit)" } else { "" }
 $reviewsSql = @"
@@ -251,13 +320,13 @@ $reviews = Invoke-Query $ConnectionString $reviewsSql
 Write-Host "Languages: $($langs.Rows.Count), reviews: $($reviews.Rows.Count)" -ForegroundColor Cyan
 
 $langTargets = @()
-foreach ($l in $langs.Rows) {
-  $target = Get-DeepLTargetLang $l
+foreach ($languageRow in $langs.Rows) {
+  $target = Get-DeepLTargetLang $languageRow
   $row = [pscustomobject]@{
-    LanguageId = [int]$l["Id"]
-    Name = Get-ColumnValue $l "Name"
-    Culture = Get-ColumnValue $l "LanguageCulture"
-    Seo = Get-ColumnValue $l "UniqueSeoCode"
+    LanguageId = [int]$languageRow.Item("Id")
+    Name = Get-ColumnValue $languageRow "Name"
+    Culture = Get-ColumnValue $languageRow "LanguageCulture"
+    Seo = Get-ColumnValue $languageRow "UniqueSeoCode"
     DeepL = $target
   }
   $langTargets += $row
@@ -267,12 +336,19 @@ Write-Host "Language target map:" -ForegroundColor Cyan
 $langTargets | Format-Table -AutoSize | Out-String | Write-Host
 
 $targets = $langTargets | Where-Object { $_.DeepL -and $_.DeepL -ne "EN" }
+if ($TargetLanguageCodes.Count -gt 0) {
+  $requestedCodes = @($TargetLanguageCodes |
+    ForEach-Object { $_ -split ',' } |
+    ForEach-Object { $_.Trim().ToLowerInvariant() } |
+    Where-Object { $_ })
+  $targets = @($targets | Where-Object { $requestedCodes -contains $_.Seo.ToLowerInvariant() })
+}
 if ($targets.Count -eq 0) {
   throw "No non-English DeepL target languages detected. Check Language.UniqueSeoCode / LanguageCulture / Name values."
 }
 
 $existing = Invoke-Query $ConnectionString @"
-SELECT EntityId, LanguageId, LocaleKey
+SELECT EntityId, LanguageId, LocaleKey, LocaleValue
 FROM LocalizedProperty
 WHERE LocaleKeyGroup = N'ProductReview'
   AND LocaleKey IN (N'Title', N'ReviewText')
@@ -280,86 +356,82 @@ WHERE LocaleKeyGroup = N'ProductReview'
 
 $exists = @{}
 foreach ($e in $existing.Rows) {
-  $exists["$($e["EntityId"])|$($e["LanguageId"])|$($e["LocaleKey"])"] = $true
+  $exists["$($e["EntityId"])|$($e["LanguageId"])|$($e["LocaleKey"])"] = Get-ColumnValue $e "LocaleValue"
 }
 
-$totalWrites = 0
-$totalApiCalls = 0
-$totalSkippedExisting = 0
-$totalSkippedEmpty = 0
-$totalSkippedUnsupported = 0
+$script:totalWrites = 0
+$script:totalApiCalls = 0
+$script:totalSkippedExisting = 0
+$script:totalSkippedEmpty = 0
+$script:totalSkippedUnsupported = 0
 
-foreach ($r in $reviews.Rows) {
-  $rid = [int]$r["Id"]
-  $title = [string]$r["Title"]
-  $text = [string]$r["ReviewText"]
+foreach ($l in $targets) {
+  $payload = [System.Collections.ArrayList]::new()
+  $queue = [System.Collections.ArrayList]::new()
+  $payloadCharacters = 0
 
-  foreach ($l in $targets) {
+  foreach ($r in $reviews.Rows) {
+    $rid = [int]$r["Id"]
+    $title = [string]$r["Title"]
+    $text = [string]$r["ReviewText"]
     $lid = [int]$l.LanguageId
     $target = [string]$l.DeepL
 
     if ([string]::IsNullOrWhiteSpace($target)) {
-      $totalSkippedUnsupported++
+      $script:totalSkippedUnsupported++
       continue
     }
 
-    $needTitle = $Force -or (-not $exists.ContainsKey("$rid|$lid|Title"))
-    $needText  = $Force -or (-not $exists.ContainsKey("$rid|$lid|ReviewText"))
+    $titleKey = "$rid|$lid|Title"
+    $textKey = "$rid|$lid|ReviewText"
+    $needTitle = $Force -or (-not $exists.ContainsKey($titleKey)) -or ($RepairMojibake -and (Test-Mojibake $exists[$titleKey]))
+    $needText  = $Force -or (-not $exists.ContainsKey($textKey)) -or ($RepairMojibake -and (Test-Mojibake $exists[$textKey]))
 
     if (!$needTitle -and !$needText) {
-      $totalSkippedExisting += 2
+      $script:totalSkippedExisting += 2
       continue
     }
 
-    $payload = @()
-    $index = @()
+    foreach ($candidate in @(
+      [pscustomobject]@{ LocaleKey = "Title"; Value = $title; Needed = $needTitle },
+      [pscustomobject]@{ LocaleKey = "ReviewText"; Value = $text; Needed = $needText }
+    )) {
+      if (!$candidate.Needed) { continue }
+      if ([string]::IsNullOrWhiteSpace([string]$candidate.Value)) {
+        $script:totalSkippedEmpty++
+        continue
+      }
 
-    if ($needTitle -and ![string]::IsNullOrWhiteSpace($title)) {
-      $payload += $title
-      $index += "Title"
-    } elseif ($needTitle) {
-      $totalSkippedEmpty++
+      $candidateLength = ([string]$candidate.Value).Length
+      if ($payload.Count -gt 0 -and (
+          $payload.Count -ge $BatchTextCount -or
+          ($payloadCharacters + $candidateLength) -gt $BatchCharacterLimit)) {
+        Invoke-TranslationBatch $payload $queue $l $ConnectionString
+        $payload = [System.Collections.ArrayList]::new()
+        $queue = [System.Collections.ArrayList]::new()
+        $payloadCharacters = 0
+      }
+
+      [void]$payload.Add([string]$candidate.Value)
+      [void]$queue.Add([pscustomobject]@{
+        ReviewId = $rid
+        LanguageId = $lid
+        LocaleKey = [string]$candidate.LocaleKey
+      })
+      $payloadCharacters += $candidateLength
     }
-
-    if ($needText -and ![string]::IsNullOrWhiteSpace($text)) {
-      $payload += $text
-      $index += "ReviewText"
-    } elseif ($needText) {
-      $totalSkippedEmpty++
-    }
-
-    if ($payload.Count -eq 0) {
-      continue
-    }
-
-    Write-Host "Review #$rid -> LanguageId $lid / $target / fields: $($index -join ', ')" -ForegroundColor Yellow
-
-    if ($DryRun) {
-      continue
-    }
-
-    $translated = Translate-DeepL -texts $payload -targetLang $target
-    $totalApiCalls++
-
-    for ($i = 0; $i -lt $index.Count; $i++) {
-      $value = if ($i -lt $translated.Count) { [string]$translated[$i] } else { "" }
-      if ([string]::IsNullOrWhiteSpace($value)) { continue }
-
-      [void](Upsert-LocalizedProperty $ConnectionString $rid $lid $index[$i] $value)
-      $exists["$rid|$lid|$($index[$i])"] = $true
-      $totalWrites++
-    }
-
-    Start-Sleep -Milliseconds $DelayMs
   }
+
+  Invoke-TranslationBatch $payload $queue $l $ConnectionString
 }
 
 Write-Host ""
 Write-Host "Done." -ForegroundColor Green
-Write-Host "DeepL API calls: $totalApiCalls" -ForegroundColor Green
-Write-Host "LocalizedProperty rows inserted/updated: $totalWrites" -ForegroundColor Green
-Write-Host "Skipped existing fields: $totalSkippedExisting" -ForegroundColor DarkGray
-Write-Host "Skipped empty fields: $totalSkippedEmpty" -ForegroundColor DarkGray
-Write-Host "Skipped unsupported languages: $totalSkippedUnsupported" -ForegroundColor DarkGray
+if ($backupTable) { Write-Host "LocalizedProperty backup table: $backupTable" -ForegroundColor Cyan }
+Write-Host "DeepL API calls: $script:totalApiCalls" -ForegroundColor Green
+Write-Host "LocalizedProperty rows inserted/updated: $script:totalWrites" -ForegroundColor Green
+Write-Host "Skipped existing fields: $script:totalSkippedExisting" -ForegroundColor DarkGray
+Write-Host "Skipped empty fields: $script:totalSkippedEmpty" -ForegroundColor DarkGray
+Write-Host "Skipped unsupported languages: $script:totalSkippedUnsupported" -ForegroundColor DarkGray
 Write-Host ""
 Write-Host "Now recycle App Pool, clear nopCommerce cache and CDN cache." -ForegroundColor Cyan
