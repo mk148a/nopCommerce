@@ -66,6 +66,21 @@ public sealed class SitemapXmlGuardTests
     }
 
     [Test]
+    public async Task StageConfiguredPortUsesTheApprovedPublicOriginForHreflangTransformation()
+    {
+        const string source = "<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\" xmlns:xhtml=\"http://www.w3.org/1999/xhtml\"><url><loc>https://hoodarcheryshop.com/en/longbow</loc><xhtml:link rel=\"alternate\" hreflang=\"en\" href=\"https://hoodarcheryshop.com/en/longbow\" /></url></urlset>";
+        var factory = FactoryForRoot(GetExpectedPath(0), () => File.WriteAllText(GetExpectedPath(0), source));
+        var controller = CreateController(factory.Object,
+            storeUrl: "https://hoodarcheryshop.com:47176/",
+            activeStoreLocation: "https://hoodarcheryshop.com/");
+
+        var result = await controller.SitemapXml();
+
+        Assert.That(await ReadFileResultAsync(result), Does.Contain("hreflang=\"en-US\" href=\"https://hoodarcheryshop.com/en/longbow\""));
+        factory.Verify(item => item.PrepareSitemapXmlModelAsync(0), Times.Once);
+    }
+
+    [Test]
     public async Task UrlSetStalePartReturnsFetchableCanonicalAliasWithoutTrustingRequestHost()
     {
         await WriteRootAsync(ValidUrlSet);
@@ -498,7 +513,8 @@ public sealed class SitemapXmlGuardTests
     private HoodLocalizationController CreateController(ISitemapModelFactory factory,
         string expectedPathOverride = null,
         bool sitemapXmlEnabled = true,
-        string storeUrl = "https://hoodarcheryshop.com/")
+        string storeUrl = "https://hoodarcheryshop.com/",
+        string activeStoreLocation = null)
     {
         var fileProvider = new Mock<INopFileProvider>();
         fileProvider.Setup(provider => provider.GetAbsolutePath(It.IsAny<string[]>()))
@@ -525,6 +541,8 @@ public sealed class SitemapXmlGuardTests
                     Id = LanguageId, UniqueSeoCode = "tr", LanguageCulture = "tr-TR", Published = true
                 }
             });
+        var webHelper = new Mock<IWebHelper>();
+        webHelper.Setup(helper => helper.GetStoreLocation(null)).Returns(activeStoreLocation ?? storeUrl);
 
         return new HoodLocalizationController(
             new BlogSettings(),
@@ -544,7 +562,7 @@ public sealed class SitemapXmlGuardTests
             storeContext.Object,
             Mock.Of<ITopicService>(),
             Mock.Of<IUrlRecordService>(),
-            Mock.Of<IWebHelper>(),
+            webHelper.Object,
             workContext.Object)
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }

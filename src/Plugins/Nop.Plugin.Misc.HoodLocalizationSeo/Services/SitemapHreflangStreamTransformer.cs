@@ -122,8 +122,12 @@ internal sealed class SitemapHreflangStreamTransformer : ISitemapHreflangStreamT
 
         var urlDepth = -1;
         var suppressedElementDepth = -1;
+        var locationDepth = -1;
+        string locationHref = null;
         string defaultHref = null;
         string firstAlternateHref = null;
+        var alternateHrefs = new HashSet<string>(StringComparer.Ordinal);
+        var alternateHreflangs = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         var allAlternatesAreHalloweenLandings = true;
         while (await reader.ReadAsync())
         {
@@ -148,9 +152,22 @@ internal sealed class SitemapHreflangStreamTransformer : ISitemapHreflangStreamT
                     if (isUrl)
                     {
                         urlDepth = reader.Depth;
+                        locationDepth = -1;
+                        locationHref = null;
                         defaultHref = null;
                         firstAlternateHref = null;
+                        alternateHrefs.Clear();
+                        alternateHreflangs.Clear();
                         allAlternatesAreHalloweenLandings = true;
+                    }
+
+                    var isUrlLocation = urlDepth >= 0 && reader.Depth == urlDepth + 1 &&
+                                        reader.NamespaceURI.Equals(SitemapNamespace, StringComparison.Ordinal) &&
+                                        reader.LocalName.Equals("loc", StringComparison.Ordinal);
+                    if (isUrlLocation)
+                    {
+                        locationDepth = reader.Depth;
+                        locationHref = string.Empty;
                     }
 
                     var isAlternateLink = urlDepth >= 0 &&
@@ -180,6 +197,11 @@ internal sealed class SitemapHreflangStreamTransformer : ISitemapHreflangStreamT
                             }
 
                             SetAttribute(attributes, "hreflang", language.LanguageCulture);
+                            if (!alternateHrefs.Add(href) || !alternateHreflangs.Add(language.LanguageCulture))
+                            {
+                                throw new SitemapHreflangTransformException(
+                                    $"Duplicate alternate sitemap URL or culture '{href}'/'{language.LanguageCulture}' was encountered.");
+                            }
                             firstAlternateHref ??= href;
                             allAlternatesAreHalloweenLandings &= IsHalloweenLandingUrl(href);
                             if (language.Id == defaultLanguageId)
@@ -194,14 +216,43 @@ internal sealed class SitemapHreflangStreamTransformer : ISitemapHreflangStreamT
                     }
 
                     if (reader.IsEmptyElement)
+                    {
                         await writer.WriteEndElementAsync();
+                        if (isUrlLocation)
+                            locationDepth = -1;
+                    }
                     break;
                 }
                 case XmlNodeType.EndElement:
+                    if (locationDepth >= 0 && reader.Depth == locationDepth &&
+                        reader.NamespaceURI.Equals(SitemapNamespace, StringComparison.Ordinal) &&
+                        reader.LocalName.Equals("loc", StringComparison.Ordinal))
+                    {
+                        locationDepth = -1;
+                    }
                     if (urlDepth >= 0 && reader.Depth == urlDepth &&
                         reader.NamespaceURI.Equals(SitemapNamespace, StringComparison.Ordinal) &&
                         reader.LocalName.Equals("url", StringComparison.Ordinal))
                     {
+                        var normalizedLocationHref = locationHref?.Trim();
+                        if (TryResolveLanguage(normalizedLocationHref, canonicalStoreOrigin, languageByCode,
+                                out var locationLanguage))
+                        {
+                            // Core sitemaps may omit the alternate that represents the URL
+                            // being described. Add it only when neither the culture nor the
+                            // URL already occurs in the cluster, preserving authored subsets
+                            // such as the five-localized Halloween landing.
+                            if (!alternateHrefs.Contains(normalizedLocationHref) &&
+                                !alternateHreflangs.Contains(locationLanguage.LanguageCulture))
+                            {
+                                await WriteAlternateAsync(writer, locationLanguage.LanguageCulture, normalizedLocationHref);
+                                alternateHrefs.Add(normalizedLocationHref);
+                                alternateHreflangs.Add(locationLanguage.LanguageCulture);
+                            }
+
+                            if (locationLanguage.Id == defaultLanguageId)
+                                defaultHref ??= normalizedLocationHref;
+                        }
                         if (string.IsNullOrWhiteSpace(defaultHref) &&
                             allAlternatesAreHalloweenLandings)
                         {
@@ -213,14 +264,19 @@ internal sealed class SitemapHreflangStreamTransformer : ISitemapHreflangStreamT
                         if (!string.IsNullOrWhiteSpace(defaultHref))
                             await WriteXDefaultAsync(writer, defaultHref);
                         urlDepth = -1;
+                        locationHref = null;
                         defaultHref = null;
                     }
                     await writer.WriteFullEndElementAsync();
                     break;
                 case XmlNodeType.Text:
+                    if (locationDepth >= 0)
+                        locationHref += reader.Value;
                     await writer.WriteStringAsync(reader.Value);
                     break;
                 case XmlNodeType.CDATA:
+                    if (locationDepth >= 0)
+                        locationHref += reader.Value;
                     await writer.WriteCDataAsync(reader.Value);
                     break;
                 case XmlNodeType.Whitespace:
@@ -284,9 +340,14 @@ internal sealed class SitemapHreflangStreamTransformer : ISitemapHreflangStreamT
 
     private static async Task WriteXDefaultAsync(XmlWriter writer, string href)
     {
+        await WriteAlternateAsync(writer, "x-default", href);
+    }
+
+    private static async Task WriteAlternateAsync(XmlWriter writer, string hreflang, string href)
+    {
         await writer.WriteStartElementAsync("xhtml", "link", XhtmlNamespace);
         await writer.WriteAttributeStringAsync(null, "rel", null, "alternate");
-        await writer.WriteAttributeStringAsync(null, "hreflang", null, "x-default");
+        await writer.WriteAttributeStringAsync(null, "hreflang", null, hreflang);
         await writer.WriteAttributeStringAsync(null, "href", null, href);
         await writer.WriteEndElementAsync();
     }

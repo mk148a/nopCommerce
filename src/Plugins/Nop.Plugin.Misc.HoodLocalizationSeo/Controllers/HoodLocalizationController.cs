@@ -13,6 +13,7 @@ using Nop.Core.Domain.Localization;
 using Nop.Core.Domain.Stores;
 using Nop.Core.Infrastructure;
 using Nop.Core.Rss;
+using Nop.Plugin.Misc.HoodLocalizationSeo.Infrastructure;
 using Nop.Plugin.Misc.HoodLocalizationSeo.Services;
 using Nop.Services.Blogs;
 using Nop.Services.Localization;
@@ -109,7 +110,11 @@ public sealed class HoodLocalizationController : BasePublicController
         var language = await _workContext.GetWorkingLanguageAsync();
         var expectedPath = GetExpectedSitemapPath(store.Id, language.Id, id);
         var rootPath = GetExpectedSitemapPath(store.Id, language.Id, 0);
-        var hasCanonicalRoot = TryGetCanonicalSitemapUri(store.Url, out var canonicalRoot);
+        Uri canonicalRoot = null;
+        var hasCanonicalOrigin = SitemapCanonicalOrigin.TryCreate(store.Url,
+            _webHelper.GetStoreLocation(), out var canonicalOrigin);
+        var hasCanonicalRoot = hasCanonicalOrigin && Uri.TryCreate(canonicalOrigin,
+            SitemapFallbackPath.TrimStart('/'), out canonicalRoot);
 
         // Never serve a cached/LKG artifact or synthesize an alias when the
         // configured store URL cannot establish a trusted HTTP(S) origin.
@@ -259,7 +264,8 @@ public sealed class HoodLocalizationController : BasePublicController
 
         await using var source = artifact.DetachStream();
         var languages = await _languageService.GetAllLanguagesAsync(storeId: store.Id);
-        var canonicalStoreOrigin = new Uri(new Uri(store.Url).GetLeftPart(UriPartial.Path).TrimEnd('/') + "/");
+        if (!SitemapCanonicalOrigin.TryCreate(store.Url, _webHelper.GetStoreLocation(), out var canonicalStoreOrigin))
+            return RetryableServiceUnavailable();
         try
         {
             var responseStream = await _sitemapHreflangStreamTransformer.TransformToTemporaryFileAsync(
@@ -654,26 +660,6 @@ public sealed class HoodLocalizationController : BasePublicController
         Response.Headers["Retry-After"] = Math.Max(1, _sitemapXmlSettings.SitemapBuildOperationDelay)
             .ToString(CultureInfo.InvariantCulture);
         return StatusCode(StatusCodes.Status503ServiceUnavailable);
-    }
-
-    private static bool TryGetCanonicalSitemapUri(string storeUrl, out Uri canonicalRoot)
-    {
-        canonicalRoot = null;
-        if (!Uri.TryCreate(storeUrl, UriKind.Absolute, out var storeUri) ||
-            !IsHttpScheme(storeUri.Scheme) ||
-            string.IsNullOrWhiteSpace(storeUri.Host) ||
-            !string.IsNullOrEmpty(storeUri.UserInfo) ||
-            !string.IsNullOrEmpty(storeUri.Query) ||
-            !string.IsNullOrEmpty(storeUri.Fragment))
-        {
-            return false;
-        }
-
-        var origin = storeUri.GetComponents(UriComponents.SchemeAndServer, UriFormat.UriEscaped);
-        var pathBase = storeUri.AbsolutePath.TrimEnd('/');
-        var sitemapPath = $"{pathBase}{SitemapFallbackPath}";
-        return Uri.TryCreate($"{origin.TrimEnd('/')}{sitemapPath}",
-            UriKind.Absolute, out canonicalRoot);
     }
 
     private static bool IsSameOrigin(Uri left, Uri right)

@@ -32,6 +32,7 @@ public sealed class HalloweenLandingController : BasePublicController
     private readonly IProductService _productService;
     private readonly IStoreContext _storeContext;
     private readonly IUrlRecordService _urlRecordService;
+    private readonly IWebHelper _webHelper;
 
     public HalloweenLandingController(ICategoryService categoryService,
         ILanguageService languageService,
@@ -39,7 +40,8 @@ public sealed class HalloweenLandingController : BasePublicController
         IProductModelFactory productModelFactory,
         IProductService productService,
         IStoreContext storeContext,
-        IUrlRecordService urlRecordService)
+        IUrlRecordService urlRecordService,
+        IWebHelper webHelper)
     {
         _categoryService = categoryService;
         _languageService = languageService;
@@ -48,6 +50,7 @@ public sealed class HalloweenLandingController : BasePublicController
         _productService = productService;
         _storeContext = storeContext;
         _urlRecordService = urlRecordService;
+        _webHelper = webHelper;
     }
 
     [HttpGet]
@@ -55,7 +58,7 @@ public sealed class HalloweenLandingController : BasePublicController
     public async Task<IActionResult> HalloweenLanding(string language)
     {
         var store = await _storeContext.GetCurrentStoreAsync();
-        if (!TryGetCanonicalStoreOrigin(store.Url, out var canonicalOrigin))
+        if (!SitemapCanonicalOrigin.TryCreate(store.Url, _webHelper.GetStoreLocation(), out var canonicalOrigin))
             return NotFound();
 
         var languages = await _languageService.GetAllLanguagesAsync(storeId: store.Id);
@@ -121,23 +124,6 @@ public sealed class HalloweenLandingController : BasePublicController
     {
         var pathBase = canonicalOrigin.AbsolutePath.TrimEnd('/');
         return $"{pathBase}/{Uri.EscapeDataString(languageCode)}/{Uri.EscapeDataString(slug)}";
-    }
-
-    private static bool TryGetCanonicalStoreOrigin(string storeUrl, out Uri canonicalOrigin)
-    {
-        canonicalOrigin = null;
-        if (!Uri.TryCreate(storeUrl, UriKind.Absolute, out var storeUri) ||
-            (storeUri.Scheme != Uri.UriSchemeHttp && storeUri.Scheme != Uri.UriSchemeHttps) ||
-            string.IsNullOrWhiteSpace(storeUri.Host) ||
-            !string.IsNullOrEmpty(storeUri.UserInfo) ||
-            !string.IsNullOrEmpty(storeUri.Query) ||
-            !string.IsNullOrEmpty(storeUri.Fragment))
-        {
-            return false;
-        }
-
-        return Uri.TryCreate(storeUri.GetLeftPart(UriPartial.Path).TrimEnd('/') + "/",
-            UriKind.Absolute, out canonicalOrigin);
     }
 
     private sealed record HalloweenLandingText(string Title, string MetaDescription, string Introduction,

@@ -137,10 +137,30 @@ public sealed class SitemapCreatedEventConsumerTests
         });
     }
 
-    private static SitemapCreatedEventConsumer CreateConsumer(IList<Language> languages,
-        Topic contactTopic = null, IReadOnlyDictionary<int, string> contactSlugs = null)
+    [Test]
+    public async Task HalloweenUsesTheApprovedPublicOriginWhenTheConfiguredStagePortDiffers()
     {
-        var store = new Store { Id = 3, DefaultLanguageId = 1, Url = StoreLocation };
+        var urls = new List<SitemapUrlModel>();
+        await CreateConsumer(new[]
+        {
+            new Language { Id = 1, UniqueSeoCode = "en", LanguageCulture = "en-US", Published = true },
+            new Language { Id = 2, UniqueSeoCode = "de", LanguageCulture = "de-DE", Published = true }
+        }, storeUrl: "https://hoodarcheryshop.com:47176/",
+            activeStoreLocation: "https://hoodarcheryshop.com/")
+            .HandleEventAsync(new SitemapCreatedEvent(urls));
+
+        Assert.That(urls.Single().AlternateLocations, Is.EqualTo(new[]
+        {
+            "https://hoodarcheryshop.com/en/halloween-archery-and-costume-guide",
+            "https://hoodarcheryshop.com/de/halloween-archery-and-costume-guide"
+        }));
+    }
+
+    private static SitemapCreatedEventConsumer CreateConsumer(IList<Language> languages,
+        Topic contactTopic = null, IReadOnlyDictionary<int, string> contactSlugs = null,
+        string storeUrl = null, string activeStoreLocation = null)
+    {
+        var store = new Store { Id = 3, DefaultLanguageId = 1, Url = storeUrl ?? StoreLocation };
         var storeContext = new Mock<IStoreContext>();
         storeContext.Setup(context => context.GetCurrentStoreAsync()).ReturnsAsync(store);
         var languageService = new Mock<ILanguageService>();
@@ -163,7 +183,7 @@ public sealed class SitemapCreatedEventConsumerTests
                     contactSlugs?.GetValueOrDefault(languageId ?? 0) ?? string.Empty);
         }
         var webHelper = new Mock<IWebHelper>();
-        webHelper.Setup(helper => helper.GetStoreLocation(null)).Returns($"{StoreLocation}/");
+        webHelper.Setup(helper => helper.GetStoreLocation(null)).Returns($"{activeStoreLocation ?? StoreLocation}/");
 
         return new SitemapCreatedEventConsumer(Mock.Of<IBlogLocalizationService>(), blogService.Object,
             languageService.Object, storeContext.Object, topicService.Object, urlRecordService.Object,

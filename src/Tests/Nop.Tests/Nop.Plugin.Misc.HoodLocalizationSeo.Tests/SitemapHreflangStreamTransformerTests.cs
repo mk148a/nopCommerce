@@ -50,6 +50,98 @@ public sealed class SitemapHreflangStreamTransformerTests
     }
 
     [Test]
+    public async Task AddsTheMissingSelfAlternateFromTheLocalizedLocationWithoutDuplicatingHalloweenLocales()
+    {
+        var landing = "halloween-archery-and-costume-guide";
+        var sourceXml = $"<urlset xmlns=\"{SitemapNamespace}\" xmlns:xhtml=\"{XhtmlNamespace}\">" +
+            "<url><loc>https://hoodarcheryshop.com/en/longbow</loc>" +
+            "<xhtml:link rel=\"alternate\" hreflang=\"gb\" href=\"https://hoodarcheryshop.com/gb/longbow\" />" +
+            "</url>" +
+            "<url><loc> https://hoodarcheryshop.com/de/longbow </loc>" +
+            "<xhtml:link rel=\"alternate\" hreflang=\"en\" href=\"https://hoodarcheryshop.com/en/longbow\" />" +
+            "</url>" +
+            $"<url><loc>https://hoodarcheryshop.com/en/{landing}</loc>" +
+            $"<xhtml:link rel=\"alternate\" hreflang=\"en\" href=\"https://hoodarcheryshop.com/en/{landing}\" />" +
+            $"<xhtml:link rel=\"alternate\" hreflang=\"de\" href=\"https://hoodarcheryshop.com/de/{landing}\" />" +
+            "</url></urlset>";
+        await using var source = new MemoryStream(Encoding.UTF8.GetBytes(sourceXml));
+
+        await using var result = await new SitemapHreflangStreamTransformer()
+            .TransformToTemporaryFileAsync(source, new Uri("https://hoodarcheryshop.com/"),
+                Languages(), defaultLanguageId: 1, maximumOutputBytes: 1024 * 1024);
+        var document = await XDocument.LoadAsync(result, LoadOptions.None, CancellationToken.None);
+        XNamespace sitemap = SitemapNamespace;
+        XNamespace xhtml = XhtmlNamespace;
+        var urlNodes = document.Descendants(sitemap + "url").ToArray();
+
+        Assert.Multiple(() =>
+        {
+            var longbowLinks = urlNodes[0].Elements(xhtml + "link").ToArray();
+            Assert.That(longbowLinks.Select(link => (link.Attribute("hreflang")?.Value, link.Attribute("href")?.Value)),
+                Is.EqualTo(new[]
+                {
+                    ("en-GB", "https://hoodarcheryshop.com/gb/longbow"),
+                    ("en-US", "https://hoodarcheryshop.com/en/longbow"),
+                    ("x-default", "https://hoodarcheryshop.com/en/longbow")
+                }));
+
+            var germanLongbowLinks = urlNodes[1].Elements(xhtml + "link").ToArray();
+            Assert.That(germanLongbowLinks.Select(link => (link.Attribute("hreflang")?.Value, link.Attribute("href")?.Value)),
+                Is.EqualTo(new[]
+                {
+                    ("en-US", "https://hoodarcheryshop.com/en/longbow"),
+                    ("de-DE", "https://hoodarcheryshop.com/de/longbow"),
+                    ("x-default", "https://hoodarcheryshop.com/en/longbow")
+                }));
+
+            var halloweenLinks = urlNodes[2].Elements(xhtml + "link").ToArray();
+            Assert.That(halloweenLinks.Count(link => link.Attribute("hreflang")?.Value == "en-US"), Is.EqualTo(1));
+            Assert.That(halloweenLinks.Count(link => link.Attribute("hreflang")?.Value == "de-DE"), Is.EqualTo(1));
+            Assert.That(halloweenLinks.Count(link => link.Attribute("hreflang")?.Value == "x-default"), Is.EqualTo(1));
+        });
+    }
+
+    [Test]
+    public async Task AddsTheLocalizedSelfAlternateWhenLocationIsCData()
+    {
+        var sourceXml = $"<urlset xmlns=\"{SitemapNamespace}\" xmlns:xhtml=\"{XhtmlNamespace}\">" +
+            "<url><loc><![CDATA[ https://hoodarcheryshop.com/de/longbow ]]></loc>" +
+            "<xhtml:link rel=\"alternate\" hreflang=\"en\" href=\"https://hoodarcheryshop.com/en/longbow\" />" +
+            "</url></urlset>";
+        await using var source = new MemoryStream(Encoding.UTF8.GetBytes(sourceXml));
+
+        await using var result = await new SitemapHreflangStreamTransformer()
+            .TransformToTemporaryFileAsync(source, new Uri("https://hoodarcheryshop.com/"),
+                Languages(), defaultLanguageId: 1, maximumOutputBytes: 1024 * 1024);
+        var document = await XDocument.LoadAsync(result, LoadOptions.None, CancellationToken.None);
+        XNamespace xhtml = XhtmlNamespace;
+
+        Assert.That(document.Descendants(xhtml + "link")
+                .Select(link => (link.Attribute("hreflang")?.Value, link.Attribute("href")?.Value)),
+            Is.EqualTo(new[]
+            {
+                ("en-US", "https://hoodarcheryshop.com/en/longbow"),
+                ("de-DE", "https://hoodarcheryshop.com/de/longbow"),
+                ("x-default", "https://hoodarcheryshop.com/en/longbow")
+            }));
+    }
+
+    [Test]
+    public void DuplicateAlternateCultureFailsClosed()
+    {
+        var sourceXml = $"<urlset xmlns=\"{SitemapNamespace}\" xmlns:xhtml=\"{XhtmlNamespace}\">" +
+            "<url><loc>https://hoodarcheryshop.com/en/longbow</loc>" +
+            "<xhtml:link rel=\"alternate\" hreflang=\"en\" href=\"https://hoodarcheryshop.com/en/longbow\" />" +
+            "<xhtml:link rel=\"alternate\" hreflang=\"en\" href=\"https://hoodarcheryshop.com/en/another-longbow\" />" +
+            "</url></urlset>";
+        using var source = new MemoryStream(Encoding.UTF8.GetBytes(sourceXml));
+
+        Assert.ThrowsAsync<SitemapHreflangTransformException>(async () =>
+            await new SitemapHreflangStreamTransformer().TransformToTemporaryFileAsync(source,
+                new Uri("https://hoodarcheryshop.com/"), Languages(), 1, 1024 * 1024));
+    }
+
+    [Test]
     public void UnknownOrForeignAlternateFailsClosed()
     {
         var sourceXml = $"<urlset xmlns=\"{SitemapNamespace}\" xmlns:xhtml=\"{XhtmlNamespace}\">" +
@@ -144,6 +236,10 @@ public sealed class SitemapHreflangStreamTransformerTests
         new Language
         {
             Id = 2, UniqueSeoCode = "gb", LanguageCulture = "en-GB", Published = true
+        },
+        new Language
+        {
+            Id = 3, UniqueSeoCode = "de", LanguageCulture = "de-DE", Published = true
         }
     ];
 }

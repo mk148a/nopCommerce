@@ -103,7 +103,7 @@ public sealed class SitemapCreatedEventConsumer : IConsumer<SitemapCreatedEvent>
             }
         }
 
-        if (TryGetCanonicalStoreOrigin(store.Url, out var canonicalOrigin))
+        if (SitemapCanonicalOrigin.TryCreate(store.Url, storeLocation, out var canonicalOrigin))
         {
             var halloweenTargets = HalloweenLandingRoute.BuildTargets(canonicalOrigin,
                 languages, store.DefaultLanguageId);
@@ -157,23 +157,6 @@ public sealed class SitemapCreatedEventConsumer : IConsumer<SitemapCreatedEvent>
         {
             return false;
         }
-    }
-
-    private static bool TryGetCanonicalStoreOrigin(string storeUrl, out Uri canonicalOrigin)
-    {
-        canonicalOrigin = null;
-        if (!Uri.TryCreate(storeUrl, UriKind.Absolute, out var storeUri) ||
-            (storeUri.Scheme != Uri.UriSchemeHttp && storeUri.Scheme != Uri.UriSchemeHttps) ||
-            string.IsNullOrWhiteSpace(storeUri.Host) ||
-            !string.IsNullOrEmpty(storeUri.UserInfo) ||
-            !string.IsNullOrEmpty(storeUri.Query) ||
-            !string.IsNullOrEmpty(storeUri.Fragment))
-        {
-            return false;
-        }
-
-        return Uri.TryCreate(storeUri.GetLeftPart(UriPartial.Path).TrimEnd('/') + "/",
-            UriKind.Absolute, out canonicalOrigin);
     }
 
     private static bool UrlMatchesAnySlug(SitemapUrlModel item, ISet<string> slugs)
