@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Nop.Plugin.Misc.HoodLocalizationSeo.Infrastructure;
+using Nop.Web.Framework.Infrastructure;
 using NUnit.Framework;
 
 namespace Nop.Plugin.Misc.HoodLocalizationSeo.Tests;
@@ -7,6 +8,19 @@ namespace Nop.Plugin.Misc.HoodLocalizationSeo.Tests;
 [TestFixture]
 public sealed class HoodNopStartupTests
 {
+    [Test]
+    public void CanonicalRedirectMiddlewareIsOrderedWithoutChangingMainPluginStartupOrder()
+    {
+        var middlewareOrder = new HalloweenCanonicalRedirectNopStartup().Order;
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(middlewareOrder, Is.GreaterThan(new NopRoutingStartup().Order));
+            Assert.That(middlewareOrder, Is.LessThan(new NopEndpoints().Order));
+            Assert.That(new HoodNopStartup().Order, Is.EqualTo(3000));
+        });
+    }
+
     [TestCase(ServiceLifetime.Scoped)]
     [TestCase(ServiceLifetime.Singleton)]
     [TestCase(ServiceLifetime.Transient)]
