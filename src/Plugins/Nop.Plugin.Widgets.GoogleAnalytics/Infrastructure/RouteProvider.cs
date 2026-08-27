@@ -20,6 +20,9 @@ public class RouteProvider : BaseRouteProvider, IRouteProvider
         endpointRouteBuilder.MapControllerRoute(name: GoogleAnalyticsDefaults.ConfigurationRouteName,
             pattern: "Admin/WidgetsGoogleAnalytics/Configure",
             defaults: new { controller = "WidgetsGoogleAnalytics", action = "Configure", area = AreaNames.ADMIN });
+        endpointRouteBuilder.MapControllerRoute(name: GoogleAnalyticsDefaults.PurchaseDispatchConfirmationRouteName,
+            pattern: "google-analytics/purchase-dispatch/confirm",
+            defaults: new { controller = "GoogleAnalyticsPurchaseDispatch", action = "Confirm" });
     }
 
     /// <summary>

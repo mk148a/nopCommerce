@@ -7,8 +7,11 @@ using Nop.Core.Domain.Logging;
 using Nop.Core.Domain.Orders;
 using Nop.Core.Domain.Payments;
 using Nop.Plugin.Widgets.GoogleAnalytics.Models;
+using Nop.Plugin.Widgets.GoogleAnalytics.Services;
 using Nop.Services.Catalog;
 using Nop.Services.Customers;
+using Nop.Services.Discounts;
+using Nop.Services.Directory;
 using Nop.Services.Logging;
 using Nop.Services.Orders;
 using Nop.Web.Framework.Components;
@@ -23,9 +26,13 @@ public class WidgetsGoogleAnalyticsViewComponent : NopViewComponent
 
     protected readonly GoogleAnalyticsSettings _googleAnalyticsSettings;
     protected readonly ICustomerService _customerService;
+    protected readonly ICurrencyService _currencyService;
+    protected readonly IDiscountService _discountService;
     protected readonly ILogger _logger;
     protected readonly IOrderService _orderService;
     protected readonly IProductService _productService;
+    protected readonly IGoogleAnalyticsPurchaseDispatchConfirmationFactory _purchaseDispatchConfirmationFactory;
+    protected readonly IGoogleAnalyticsPurchaseDispatchService _purchaseDispatchService;
     protected readonly IWorkContext _workContext;
 
     #endregion
@@ -35,16 +42,24 @@ public class WidgetsGoogleAnalyticsViewComponent : NopViewComponent
     public WidgetsGoogleAnalyticsViewComponent(
         GoogleAnalyticsSettings googleAnalyticsSettings,
         ICustomerService customerService,
+        ICurrencyService currencyService,
+        IDiscountService discountService,
         ILogger logger,
         IOrderService orderService,
         IProductService productService,
+        IGoogleAnalyticsPurchaseDispatchConfirmationFactory purchaseDispatchConfirmationFactory,
+        IGoogleAnalyticsPurchaseDispatchService purchaseDispatchService,
         IWorkContext workContext)
     {
         _googleAnalyticsSettings = googleAnalyticsSettings;
         _customerService = customerService;
+        _currencyService = currencyService;
+        _discountService = discountService;
         _logger = logger;
         _orderService = orderService;
         _productService = productService;
+        _purchaseDispatchConfirmationFactory = purchaseDispatchConfirmationFactory;
+        _purchaseDispatchService = purchaseDispatchService;
         _workContext = workContext;
     }
 
@@ -57,6 +72,12 @@ public class WidgetsGoogleAnalyticsViewComponent : NopViewComponent
     {
         try
         {
+            // This plugin can be configured as a paid-order dataLayer producer
+            // behind an existing GTM container. Never render a second gtag
+            // bootstrap/page-view path for an empty or malformed ID/script.
+            if (!HasValidMeasurementId() || string.IsNullOrWhiteSpace(_googleAnalyticsSettings.TrackingScript))
+                return string.Empty;
+
             var analyticsTrackingScript = _googleAnalyticsSettings.TrackingScript + "\n";
             analyticsTrackingScript = analyticsTrackingScript.Replace("{GOOGLEID}", _googleAnalyticsSettings.GoogleId);
             //remove {ECOMMERCE} (used in previous versions of the plugin)
@@ -89,19 +110,63 @@ public class WidgetsGoogleAnalyticsViewComponent : NopViewComponent
     /// </summary>
     protected async Task<string> GetPurchaseScriptAsync(CheckoutCompletedModel completedModel)
     {
+        // The checkout dataLayer event is intentionally configuration-gated.
+        // Keeping this false leaves GTM as the lifecycle-only integration; a
+        // valid GA4 ID makes this the single paid-purchase owner without any
+        // Measurement Protocol/API-secret dependency.
+        if (!_googleAnalyticsSettings.EnableEcommerce || !HasValidMeasurementId())
+            return string.Empty;
+
         var order = await _orderService.GetOrderByIdAsync(completedModel.OrderId);
         var customer = await _workContext.GetCurrentCustomerAsync();
 
         // A conversion represents a successfully captured/paid transaction.
         // Authorized orders may still be cancelled or fail capture, so they
         // must not emit the purchase data layer event.
-        if (order == null || order.Deleted || order.CustomerId != customer.Id ||
-            order.OrderStatus == OrderStatus.Cancelled || order.PaymentStatus != PaymentStatus.Paid)
+        if (order == null || order.CustomerId != customer.Id ||
+            !GoogleAnalyticsPurchaseEligibility.CanEmit(order))
+            return string.Empty;
+
+        // Order monetary values are stored in the primary store currency.  A
+        // non-positive historical rate cannot be converted reliably, so fail
+        // closed instead of labelling an unconverted amount as customer
+        // currency in GA4 or Google Ads.
+        if (order.CurrencyRate <= decimal.Zero)
+            return string.Empty;
+
+        // Generate this before claiming the database lease. A routing or CSRF
+        // failure must not consume an order whose completed page cannot confirm.
+        GoogleAnalyticsPurchaseDispatchConfirmation confirmation;
+        try
+        {
+            confirmation = _purchaseDispatchConfirmationFactory.Create();
+        }
+        catch (Exception ex)
+        {
+            await _logger.InsertLogAsync(LogLevel.Error, "Unable to create Google Analytics purchase dispatch confirmation", ex.ToString());
+            return string.Empty;
+        }
+
+        // The database lease is acquired only after all ownership and paid-state
+        // checks pass. Its unique OrderId contract suppresses concurrent tabs,
+        // sessions and devices. This is at-least-once recovery until browser
+        // confirmation; canonical transaction_id is the downstream idempotency
+        // boundary if a response is rendered but its confirmation is lost.
+        var lease = await _purchaseDispatchService.TryReserveAsync(order);
+        if (lease == null)
             return string.Empty;
 
         var currency = string.IsNullOrWhiteSpace(order.CustomerCurrencyCode)
             ? "USD"
             : order.CustomerCurrencyCode.Trim().ToUpperInvariant();
+        var currencyRate = order.CurrencyRate;
+        var transactionId = !string.IsNullOrWhiteSpace(order.CustomOrderNumber)
+            ? order.CustomOrderNumber.Trim()
+            : !string.IsNullOrWhiteSpace(completedModel.CustomOrderNumber)
+                ? completedModel.CustomOrderNumber.Trim()
+                : order.Id.ToString(CultureInfo.InvariantCulture);
+        var paymentTracking = ResolvePaymentTracking(order.PaymentMethodSystemName);
+        var coupon = await GetCouponCodesAsync(order.Id);
 
         var items = new List<object>();
         foreach (var orderItem in await _orderService.GetOrderItemsAsync(order.Id))
@@ -118,18 +183,21 @@ public class WidgetsGoogleAnalyticsViewComponent : NopViewComponent
             {
                 item_id = sku,
                 item_name = product.Name,
-                price = orderItem.UnitPriceExclTax,
+                price = _currencyService.ConvertCurrency(orderItem.UnitPriceExclTax, currencyRate),
                 quantity = orderItem.Quantity
             });
         }
 
         var purchase = new
         {
-            transaction_id = completedModel.CustomOrderNumber,
-            value = order.OrderTotal,
+            transaction_id = transactionId,
+            value = _currencyService.ConvertCurrency(order.OrderTotal, currencyRate),
             currency,
-            tax = order.OrderTax,
-            shipping = order.OrderShippingExclTax,
+            tax = _currencyService.ConvertCurrency(order.OrderTax, currencyRate),
+            shipping = _currencyService.ConvertCurrency(order.OrderShippingExclTax, currencyRate),
+            coupon,
+            payment_provider = paymentTracking.PaymentProvider,
+            payment_type = paymentTracking.PaymentType,
             items
         };
 
@@ -143,6 +211,9 @@ public class WidgetsGoogleAnalyticsViewComponent : NopViewComponent
             currency = purchase.currency,
             tax = purchase.tax,
             shipping = purchase.shipping,
+            coupon = purchase.coupon,
+            payment_provider = purchase.payment_provider,
+            payment_type = purchase.payment_type,
             items = purchase.items,
             ecommerce = purchase
         };
@@ -153,7 +224,81 @@ public class WidgetsGoogleAnalyticsViewComponent : NopViewComponent
             PropertyNamingPolicy = null
         });
 
-        return $"<script>(function(p){{try{{var k='hood_ga4_purchase_'+p.transaction_id;if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,'1');window.dataLayer=window.dataLayer||[];window.dataLayer.push(p)}}catch(e){{window.dataLayer=window.dataLayer||[];window.dataLayer.push(p)}}}})({json});</script>";
+        var confirmationJson = JsonSerializer.Serialize(new
+        {
+            orderId = order.Id,
+            token = lease.Token,
+            requestVerificationToken = confirmation.RequestVerificationToken,
+            requestVerificationFieldName = confirmation.RequestVerificationFieldName
+        }, new JsonSerializerOptions
+        {
+            Encoder = JavaScriptEncoder.Default
+        });
+        var confirmUrlJson = JsonSerializer.Serialize(confirmation.Url, new JsonSerializerOptions
+        {
+            Encoder = JavaScriptEncoder.Default
+        });
+
+        // The acknowledgement follows dataLayer delivery (or its bounded GTM
+        // timeout). The POST body carries both lease capability and antiforgery
+        // token; neither appears in URLs, logs, referrers, or browser history.
+        return $"<script>(function(p,u,d){{var done=false;function confirm(){{if(done)return;done=true;try{{var b=new URLSearchParams();b.set('orderId',String(d.orderId));b.set('token',d.token);b.set(d.requestVerificationFieldName,d.requestVerificationToken);if(navigator.sendBeacon&&navigator.sendBeacon(u,b))return;if(window.fetch)window.fetch(u,{{method:'POST',credentials:'same-origin',keepalive:true,headers:{{'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8'}},body:b.toString()}});}}catch(e){{}}}}p.eventCallback=confirm;p.eventTimeout=2000;window.dataLayer=window.dataLayer||[];window.dataLayer.push({{ecommerce:null}});window.dataLayer.push(p);window.setTimeout(confirm,2500);}})({json},{confirmUrlJson},{confirmationJson});</script>";
+    }
+
+    /// <summary>
+    /// Determines whether a configured Google Analytics 4 Measurement ID is
+    /// safe to use. The dataLayer purchase path does not load gtag itself,
+    /// but it must not activate from a blank placeholder or a legacy ID.
+    /// </summary>
+    protected virtual bool HasValidMeasurementId()
+    {
+        var measurementId = _googleAnalyticsSettings.GoogleId?.Trim();
+        return !string.IsNullOrWhiteSpace(measurementId) &&
+               measurementId.StartsWith("G-", StringComparison.OrdinalIgnoreCase) &&
+               measurementId.Length > 2 &&
+               measurementId[2..].All(char.IsLetterOrDigit);
+    }
+
+    /// <summary>
+    /// Maps nopCommerce payment system names to stable analytics dimensions.
+    /// Unknown payment methods intentionally remain identifiable without being
+    /// attributed to Stripe.
+    /// </summary>
+    protected virtual (string PaymentProvider, string PaymentType) ResolvePaymentTracking(string paymentMethodSystemName)
+    {
+        return paymentMethodSystemName switch
+        {
+            "Payments.Stripe" => ("stripe", "card"),
+            "Payments.StripeApplePay" => ("stripe", "wallet"),
+            "Payments.StripeKlarna" => ("stripe", "klarna"),
+            "Payments.StripeAffirm" => ("stripe", "affirm"),
+            "Payments.StripeAfterpay" => ("stripe", "afterpay_clearpay"),
+            "Payments.StripeZip" => ("stripe", "zip"),
+            _ => ("other", string.IsNullOrWhiteSpace(paymentMethodSystemName)
+                ? "unknown"
+                : paymentMethodSystemName.Trim().ToLowerInvariant())
+        };
+    }
+
+    /// <summary>
+    /// Gets customer-entered coupon codes associated with the completed order.
+    /// Automatic discounts intentionally don't masquerade as coupon codes.
+    /// </summary>
+    protected virtual async Task<string> GetCouponCodesAsync(int orderId)
+    {
+        var usageHistory = await _discountService.GetAllDiscountUsageHistoryAsync(orderId: orderId);
+        if (usageHistory == null || usageHistory.Count == 0)
+            return string.Empty;
+
+        var couponCodes = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var usage in usageHistory)
+        {
+            var discount = await _discountService.GetDiscountByIdAsync(usage.DiscountId);
+            if (discount?.RequiresCouponCode == true && !string.IsNullOrWhiteSpace(discount.CouponCode))
+                couponCodes.Add(discount.CouponCode.Trim());
+        }
+
+        return string.Join(",", couponCodes.OrderBy(code => code, StringComparer.OrdinalIgnoreCase));
     }
 
     #endregion

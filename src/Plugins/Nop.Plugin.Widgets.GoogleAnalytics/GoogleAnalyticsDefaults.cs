@@ -16,6 +16,11 @@ public static class GoogleAnalyticsDefaults
     public static string ConfigurationRouteName => "Plugin.Widgets.GoogleAnalytics.Configure";
 
     /// <summary>
+    /// Gets the browser acknowledgement route for a leased purchase dispatch.
+    /// </summary>
+    public static string PurchaseDispatchConfirmationRouteName => "Plugin.Widgets.GoogleAnalytics.PurchaseDispatchConfirm";
+
+    /// <summary>
     /// Gets a URL to send data using the Measurement Protocol on Google account
     /// </summary>
     public static string EndPointUrl => "https://www.google-analytics.com/mp/collect";
