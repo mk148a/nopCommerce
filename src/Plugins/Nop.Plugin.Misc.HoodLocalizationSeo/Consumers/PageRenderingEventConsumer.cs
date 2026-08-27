@@ -60,12 +60,19 @@ public sealed class PageRenderingEventConsumer : IConsumer<PageRenderingEvent>
         var isContactUs = IsContactUsAction(controller, action);
         var isProductsByTag = controller?.Equals("Catalog", StringComparison.OrdinalIgnoreCase) == true &&
                               action?.Equals("ProductsByTag", StringComparison.OrdinalIgnoreCase) == true;
+        var isNewProducts = controller?.Equals("Catalog", StringComparison.OrdinalIgnoreCase) == true &&
+                            action?.Equals("NewProducts", StringComparison.OrdinalIgnoreCase) == true;
+        var isUtilityAll = controller?.Equals("Catalog", StringComparison.OrdinalIgnoreCase) == true &&
+                           (action?.Equals("ProductTagsAll", StringComparison.OrdinalIgnoreCase) == true ||
+                            action?.Equals("ManufacturerAll", StringComparison.OrdinalIgnoreCase) == true);
         var isHalloweenLanding = routeName.Equals("HoodHalloweenLanding", StringComparison.OrdinalIgnoreCase) ||
                                   controller?.Equals("HalloweenLanding", StringComparison.OrdinalIgnoreCase) == true &&
                                   action?.Equals("HalloweenLanding", StringComparison.OrdinalIgnoreCase) == true;
 
         if (_seoSettings.CanonicalUrlsEnabled &&
-            (CanonicalRoutes.Contains(routeName) || isHalloweenLanding || IsCanonicalPublicAction(controller, action)))
+            (CanonicalRoutes.Contains(routeName) || isHalloweenLanding ||
+             isNewProducts && !context.Request.QueryString.HasValue ||
+             IsCanonicalPublicAction(controller, action)))
         {
             var request = context.Request;
             var canonical = $"{request.Scheme}://{request.Host}{request.PathBase}{request.Path}".ToLowerInvariant();
@@ -76,7 +83,8 @@ public sealed class PageRenderingEventConsumer : IConsumer<PageRenderingEvent>
         if (isContactUs)
             await AddLocalizedContactMetadataAsync(eventMessage);
 
-        if (isBlogByTag || isProductsByTag)
+        if (isBlogByTag || isProductsByTag || isUtilityAll ||
+            isNewProducts && context.Request.QueryString.HasValue)
             eventMessage.Helper.AddHeadCustomParts("<meta name=\"robots\" content=\"noindex,follow\" />");
 
         if (isBlogByTag)

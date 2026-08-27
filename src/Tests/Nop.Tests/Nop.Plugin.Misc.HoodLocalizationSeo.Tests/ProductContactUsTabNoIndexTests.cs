@@ -17,7 +17,9 @@ public sealed class ProductContactUsTabNoIndexTests
     [TestCase("HEAD", "/ProductTab/ProductContactUsTab/190", ProductContactUsTabNoIndex.ProductContactUsTabHeaderValue)]
     [TestCase("GET", "/EN/producttab/productcontactustab/190/", ProductContactUsTabNoIndex.ProductContactUsTabHeaderValue)]
     [TestCase("GET", "/en/filterSearch", ProductContactUsTabNoIndex.UtilityEndpointHeaderValue)]
-    [TestCase("HEAD", "/pt-BR/filterSearch/", ProductContactUsTabNoIndex.UtilityEndpointHeaderValue)]
+    [TestCase("HEAD", "/fr/filterSearch/", ProductContactUsTabNoIndex.UtilityEndpointHeaderValue)]
+    [TestCase("GET", "/filterSearch/", ProductContactUsTabNoIndex.UtilityEndpointHeaderValue)]
+    [TestCase("GET", "/recentlyviewedproducts", ProductContactUsTabNoIndex.UtilityEndpointHeaderValue)]
     [TestCase("GET", "/en/recentlyviewedproducts", ProductContactUsTabNoIndex.UtilityEndpointHeaderValue)]
     [TestCase("HEAD", "/fr/compareproducts", ProductContactUsTabNoIndex.UtilityEndpointHeaderValue)]
     public async Task EligibleRouteAddsNoIndexHeaderAndPreservesEndpointResponse(string method, string path,
@@ -51,6 +53,8 @@ public sealed class ProductContactUsTabNoIndexTests
     [TestCase("GET", "/en/producttag/12")]
     [TestCase("GET", "/en/manufacturer/12")]
     [TestCase("GET", "/en/newproducts")]
+    [TestCase("GET", "/pt-BR/filterSearch")]
+    [TestCase("GET", "/en-US/filterSearch")]
     public async Task OtherMethodsAndRoutesDoNotReceiveNoIndexHeader(string method, string path)
     {
         var context = CreateContext(method, path);
@@ -79,6 +83,36 @@ public sealed class ProductContactUsTabNoIndexTests
         {
             Assert.That(applied, Is.False);
             Assert.That(context.Response.Headers.ContainsKey(ProductContactUsTabNoIndex.HeaderName), Is.False);
+        });
+    }
+
+    [Test]
+    public async Task EligibleRouteHeaderWinsOverDownstreamOverwrite()
+    {
+        var context = CreateContext(HttpMethods.Get, "/en/newproducts");
+        context.Request.QueryString = new QueryString("?pagenumber=2");
+        var application = new ApplicationBuilder(new ServiceCollection().BuildServiceProvider());
+        new ProductContactUsTabNoIndexNopStartup().Configure(application);
+        application.Run(nextContext =>
+        {
+            nextContext.Response.Headers[ProductContactUsTabNoIndex.HeaderName] = "index, follow, noarchive";
+            nextContext.Response.StatusCode = StatusCodes.Status200OK;
+            return Task.CompletedTask;
+        });
+
+        await application.Build()(context);
+
+        Assert.That(context.Response.Headers[ProductContactUsTabNoIndex.HeaderName].ToString(),
+            Is.EqualTo("noarchive, noindex, follow"));
+    }
+
+    [Test]
+    public void LocaleLessAllRoutesAreEligible()
+    {
+        Assert.Multiple(() =>
+        {
+            Assert.That(ProductContactUsTabNoIndex.TryGetHeaderValue(CreateContext(HttpMethods.Get, "/producttag/all").Request, out _), Is.True);
+            Assert.That(ProductContactUsTabNoIndex.TryGetHeaderValue(CreateContext(HttpMethods.Get, "/manufacturer/all/").Request, out _), Is.True);
         });
     }
 

@@ -35,11 +35,36 @@ public sealed class BlogTagHreflangWidgetModelFactory : IWidgetModelFactory
     {
         var models = await _inner.PrepareRenderWidgetModelAsync(widgetZone, additionalData, useCache);
         if (!widgetZone.Equals(PublicWidgetZones.HeadHtmlTag, StringComparison.OrdinalIgnoreCase) ||
-            !IsBlogByTagRequest(_httpContextAccessor.HttpContext))
+            !IsSuppressedRequest(_httpContextAccessor.HttpContext))
             return models;
 
         return models.Where(model => !IsGenericGoogleLanguageWidget(model.WidgetViewComponent)).ToList();
     }
+
+    private static bool IsSuppressedRequest(HttpContext context) =>
+        IsBlogByTagRequest(context) || IsUtilityRequest(context);
+
+    private static bool IsUtilityRequest(HttpContext context)
+    {
+        var controller = context?.GetRouteValue(NopRoutingDefaults.RouteValue.Controller)?.ToString();
+        var action = context?.GetRouteValue(NopRoutingDefaults.RouteValue.Action)?.ToString();
+        if (controller?.Equals("Catalog", StringComparison.OrdinalIgnoreCase) == true &&
+            (action?.Equals("ProductTagsAll", StringComparison.OrdinalIgnoreCase) == true ||
+             action?.Equals("ManufacturerAll", StringComparison.OrdinalIgnoreCase) == true ||
+             action?.Equals("NewProducts", StringComparison.OrdinalIgnoreCase) == true &&
+             context.Request.QueryString.HasValue))
+            return true;
+
+        var segments = (context?.Request.Path.Value ?? string.Empty).Trim('/').Split('/', StringSplitOptions.RemoveEmptyEntries);
+        var offset = segments.Length > 0 && IsAsciiCulture(segments[0]) ? 1 : 0;
+        return segments.Length == offset + 1 &&
+               (segments[offset].Equals("filterSearch", StringComparison.OrdinalIgnoreCase) ||
+                segments[offset].Equals("recentlyviewedproducts", StringComparison.OrdinalIgnoreCase) ||
+                segments[offset].Equals("compareproducts", StringComparison.OrdinalIgnoreCase));
+    }
+
+    private static bool IsAsciiCulture(string value) =>
+        value.Length == 2 && value.All(character => character is >= 'A' and <= 'Z' or >= 'a' and <= 'z');
 
     private static bool IsBlogByTagRequest(HttpContext context)
     {
