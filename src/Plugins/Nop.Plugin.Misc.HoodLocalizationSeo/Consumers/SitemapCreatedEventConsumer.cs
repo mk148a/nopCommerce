@@ -2,6 +2,7 @@ using Nop.Core;
 using Nop.Core.Domain.Blogs;
 using Nop.Core.Events;
 using System.Text;
+using Nop.Plugin.Misc.HoodLocalizationSeo.Infrastructure;
 using Nop.Plugin.Misc.HoodLocalizationSeo.Services;
 using Nop.Services.Blogs;
 using Nop.Services.Events;
@@ -102,7 +103,77 @@ public sealed class SitemapCreatedEventConsumer : IConsumer<SitemapCreatedEvent>
             }
         }
 
+        if (TryGetCanonicalStoreOrigin(store.Url, out var canonicalOrigin))
+        {
+            var halloweenTargets = HalloweenLandingRoute.BuildTargets(canonicalOrigin,
+                languages, store.DefaultLanguageId);
+            var halloweenLocations = halloweenTargets.Select(target => target.Url).ToList();
+            foreach (var existing in eventMessage.SitemapUrls
+                         .Where(item => EnumerateLocations(item).Any(location =>
+                             IsHalloweenLandingLocation(location, canonicalOrigin))).ToList())
+            {
+                eventMessage.SitemapUrls.Remove(existing);
+            }
+
+            if (halloweenLocations.Count > 0)
+            {
+                eventMessage.SitemapUrls.Add(new SitemapUrlModel(halloweenLocations[0], halloweenLocations,
+                    UpdateFrequency.Monthly, DateTime.UtcNow));
+            }
+        }
+
         NormalizeAndDeduplicate(eventMessage.SitemapUrls);
+    }
+
+    private static bool IsHalloweenLandingLocation(string location, Uri canonicalOrigin)
+    {
+        if (!Uri.TryCreate(location, UriKind.Absolute, out var candidate) ||
+            !candidate.Scheme.Equals(canonicalOrigin.Scheme, StringComparison.OrdinalIgnoreCase) ||
+            !candidate.IdnHost.Equals(canonicalOrigin.IdnHost, StringComparison.OrdinalIgnoreCase) ||
+            candidate.Port != canonicalOrigin.Port)
+        {
+            return false;
+        }
+
+        var basePath = canonicalOrigin.AbsolutePath.Trim('/');
+        var candidatePath = candidate.AbsolutePath.Trim('/');
+        if (!string.IsNullOrEmpty(basePath))
+        {
+            if (!candidatePath.StartsWith(basePath + "/", StringComparison.OrdinalIgnoreCase))
+                return false;
+            candidatePath = candidatePath[(basePath.Length + 1)..];
+        }
+
+        var segments = candidatePath.Split('/', StringSplitOptions.RemoveEmptyEntries);
+        if (segments.Length != 2)
+            return false;
+
+        try
+        {
+            return Uri.UnescapeDataString(segments[1]).Equals(HalloweenLandingRoute.Slug,
+                StringComparison.OrdinalIgnoreCase);
+        }
+        catch (UriFormatException)
+        {
+            return false;
+        }
+    }
+
+    private static bool TryGetCanonicalStoreOrigin(string storeUrl, out Uri canonicalOrigin)
+    {
+        canonicalOrigin = null;
+        if (!Uri.TryCreate(storeUrl, UriKind.Absolute, out var storeUri) ||
+            (storeUri.Scheme != Uri.UriSchemeHttp && storeUri.Scheme != Uri.UriSchemeHttps) ||
+            string.IsNullOrWhiteSpace(storeUri.Host) ||
+            !string.IsNullOrEmpty(storeUri.UserInfo) ||
+            !string.IsNullOrEmpty(storeUri.Query) ||
+            !string.IsNullOrEmpty(storeUri.Fragment))
+        {
+            return false;
+        }
+
+        return Uri.TryCreate(storeUri.GetLeftPart(UriPartial.Path).TrimEnd('/') + "/",
+            UriKind.Absolute, out canonicalOrigin);
     }
 
     private static bool UrlMatchesAnySlug(SitemapUrlModel item, ISet<string> slugs)

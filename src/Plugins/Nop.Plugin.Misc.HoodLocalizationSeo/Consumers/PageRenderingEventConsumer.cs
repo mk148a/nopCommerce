@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Nop.Core;
 using Nop.Core.Domain.Seo;
+using Nop.Plugin.Misc.HoodLocalizationSeo.Infrastructure;
 using Nop.Plugin.Misc.HoodLocalizationSeo.Services;
 using Nop.Services.Events;
 using Nop.Services.Localization;
@@ -21,6 +22,7 @@ public sealed class PageRenderingEventConsumer : IConsumer<PageRenderingEvent>
 
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IBlogTagHreflangService _blogTagHreflangService;
+    private readonly ILanguageService _languageService;
     private readonly ILocalizationService _localizationService;
     private readonly SeoSettings _seoSettings;
     private readonly IStoreContext _storeContext;
@@ -29,6 +31,7 @@ public sealed class PageRenderingEventConsumer : IConsumer<PageRenderingEvent>
 
     public PageRenderingEventConsumer(IHttpContextAccessor httpContextAccessor,
         IBlogTagHreflangService blogTagHreflangService,
+        ILanguageService languageService,
         ILocalizationService localizationService,
         SeoSettings seoSettings,
         IStoreContext storeContext,
@@ -37,6 +40,7 @@ public sealed class PageRenderingEventConsumer : IConsumer<PageRenderingEvent>
     {
         _httpContextAccessor = httpContextAccessor;
         _blogTagHreflangService = blogTagHreflangService;
+        _languageService = languageService;
         _localizationService = localizationService;
         _seoSettings = seoSettings;
         _storeContext = storeContext;
@@ -57,9 +61,14 @@ public sealed class PageRenderingEventConsumer : IConsumer<PageRenderingEvent>
                           controller?.Equals("Blog", StringComparison.OrdinalIgnoreCase) == true &&
                           action?.Equals("BlogByTag", StringComparison.OrdinalIgnoreCase) == true;
         var isContactUs = IsContactUsAction(controller, action);
+        var isProductsByTag = controller?.Equals("Catalog", StringComparison.OrdinalIgnoreCase) == true &&
+                              action?.Equals("ProductsByTag", StringComparison.OrdinalIgnoreCase) == true;
+        var isHalloweenLanding = routeName.Equals("HoodHalloweenLanding", StringComparison.OrdinalIgnoreCase) ||
+                                  controller?.Equals("HalloweenLanding", StringComparison.OrdinalIgnoreCase) == true &&
+                                  action?.Equals("HalloweenLanding", StringComparison.OrdinalIgnoreCase) == true;
 
         if (_seoSettings.CanonicalUrlsEnabled &&
-            (CanonicalRoutes.Contains(routeName) || IsCanonicalPublicAction(controller, action)))
+            (CanonicalRoutes.Contains(routeName) || isHalloweenLanding || IsCanonicalPublicAction(controller, action)))
         {
             var request = context.Request;
             var canonical = $"{request.Scheme}://{request.Host}{request.PathBase}{request.Path}".ToLowerInvariant();
@@ -70,9 +79,14 @@ public sealed class PageRenderingEventConsumer : IConsumer<PageRenderingEvent>
         if (isContactUs)
             await AddLocalizedContactMetadataAsync(eventMessage);
 
+        if (isHalloweenLanding)
+            await AddHalloweenLandingHreflangAsync(eventMessage);
+
+        if (isBlogByTag || isProductsByTag)
+            eventMessage.Helper.AddHeadCustomParts("<meta name=\"robots\" content=\"noindex,follow\" />");
+
         if (isBlogByTag)
         {
-            eventMessage.Helper.AddHeadCustomParts("<meta name=\"robots\" content=\"noindex,follow\" />");
             await AddLocalizedBlogTagHreflangAsync(eventMessage, context);
         }
     }
@@ -112,6 +126,25 @@ public sealed class PageRenderingEventConsumer : IConsumer<PageRenderingEvent>
             AddHreflang(eventMessage, context.Request, target.LanguageCulture, target);
     }
 
+    private async Task AddHalloweenLandingHreflangAsync(PageRenderingEvent eventMessage)
+    {
+        var store = await _storeContext.GetCurrentStoreAsync();
+        if (!TryGetCanonicalStoreOrigin(store.Url, out var canonicalOrigin))
+            return;
+
+        var languages = (await _languageService.GetAllLanguagesAsync(storeId: store.Id))
+            .ToList();
+        var targets = HalloweenLandingRoute.BuildTargets(canonicalOrigin, languages,
+            store.DefaultLanguageId);
+        var defaultTarget = targets.SingleOrDefault(target => target.IsDefault);
+        if (defaultTarget is null)
+            return;
+
+        AddHreflang(eventMessage, "x-default", defaultTarget.Url);
+        foreach (var target in targets)
+            AddHreflang(eventMessage, target.LanguageCulture, target.Url);
+    }
+
     private static void AddHreflang(PageRenderingEvent eventMessage,
         HttpRequest request,
         string hreflang,
@@ -120,6 +153,13 @@ public sealed class PageRenderingEventConsumer : IConsumer<PageRenderingEvent>
         var pathBase = request.PathBase.HasValue ? request.PathBase.Value.TrimEnd('/') : string.Empty;
         var path = $"{pathBase}/{Uri.EscapeDataString(target.LanguageCode)}/blog/tag/{Uri.EscapeDataString(target.Tag)}";
         var href = $"{request.Scheme}://{request.Host}{path}{request.QueryString}";
+        AddHreflang(eventMessage, hreflang, href);
+    }
+
+    private static void AddHreflang(PageRenderingEvent eventMessage,
+        string hreflang,
+        string href)
+    {
         eventMessage.Helper.AddHeadCustomParts(
             $"<link rel=\"alternate\" hreflang=\"{HtmlEncoder.Default.Encode(hreflang)}\" href=\"{HtmlEncoder.Default.Encode(href)}\" />");
     }
@@ -136,4 +176,19 @@ public sealed class PageRenderingEventConsumer : IConsumer<PageRenderingEvent>
     private static bool IsContactUsAction(string controller, string action) =>
         controller?.Equals("Common", StringComparison.OrdinalIgnoreCase) == true &&
         action?.Equals("ContactUs", StringComparison.OrdinalIgnoreCase) == true;
+
+    private static bool TryGetCanonicalStoreOrigin(string storeUrl, out Uri canonicalOrigin)
+    {
+        canonicalOrigin = null;
+        if (!Uri.TryCreate(storeUrl, UriKind.Absolute, out var storeUri) ||
+            (storeUri.Scheme != Uri.UriSchemeHttp && storeUri.Scheme != Uri.UriSchemeHttps) ||
+            string.IsNullOrWhiteSpace(storeUri.Host) ||
+            !string.IsNullOrEmpty(storeUri.UserInfo) ||
+            !string.IsNullOrEmpty(storeUri.Query) ||
+            !string.IsNullOrEmpty(storeUri.Fragment))
+            return false;
+
+        return Uri.TryCreate(storeUri.GetLeftPart(UriPartial.Path).TrimEnd('/') + "/",
+            UriKind.Absolute, out canonicalOrigin);
+    }
 }

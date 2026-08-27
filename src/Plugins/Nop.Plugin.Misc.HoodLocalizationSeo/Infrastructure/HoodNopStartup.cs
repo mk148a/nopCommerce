@@ -20,6 +20,7 @@ public sealed class HoodNopStartup : INopStartup
         services.AddScoped<IBlogTagHreflangService, BlogTagHreflangService>();
         services.AddScoped<ILocalizationResourceInstaller, LocalizationResourceInstaller>();
         services.AddScoped<ISitemapArtifactInvalidator, SitemapArtifactInvalidator>();
+        services.AddScoped<ISitemapHreflangStreamTransformer, SitemapHreflangStreamTransformer>();
         services.AddScoped<LocalizedBlogRedirectFilter>();
 
         Decorate<IBlogModelFactory, LocalizedBlogModelFactory>(services);

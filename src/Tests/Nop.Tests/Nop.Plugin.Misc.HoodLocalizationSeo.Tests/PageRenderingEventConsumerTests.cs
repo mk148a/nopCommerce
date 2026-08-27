@@ -37,12 +37,40 @@ public sealed class PageRenderingEventConsumerTests
         var workContext = new Mock<IWorkContext>(MockBehavior.Strict);
         var consumer = new PageRenderingEventConsumer(
             new HttpContextAccessor { HttpContext = httpContext }, Mock.Of<IBlogTagHreflangService>(),
+            Mock.Of<ILanguageService>(),
             Mock.Of<ILocalizationService>(), new SeoSettings(), Mock.Of<IStoreContext>(),
             Mock.Of<ITopicService>(), workContext.Object);
 
         await consumer.HandleEventAsync(new PageRenderingEvent(helper.Object));
 
         helper.Verify(item => item.AddHeadCustomParts(It.IsAny<string>()), Times.Never);
+        workContext.Verify(context => context.GetWorkingLanguageAsync(), Times.Never);
+    }
+
+    [Test]
+    public async Task ProductsByTagEmitsNoIndexFollowWithoutTagHreflangWork()
+    {
+        var httpContext = new DefaultHttpContext();
+        httpContext.Request.RouteValues = new RouteValueDictionary
+        {
+            ["controller"] = "Catalog",
+            ["action"] = "ProductsByTag",
+            ["productTagId"] = 322
+        };
+        var headParts = new List<string>();
+        var helper = new Mock<INopHtmlHelper>();
+        helper.Setup(item => item.GetRouteName(true)).Returns("GenericUrl");
+        helper.Setup(item => item.AddHeadCustomParts(It.IsAny<string>()))
+            .Callback<string>(headParts.Add);
+        var workContext = new Mock<IWorkContext>(MockBehavior.Strict);
+        var consumer = new PageRenderingEventConsumer(
+            new HttpContextAccessor { HttpContext = httpContext }, Mock.Of<IBlogTagHreflangService>(),
+            Mock.Of<ILanguageService>(), Mock.Of<ILocalizationService>(), new SeoSettings(),
+            Mock.Of<IStoreContext>(), Mock.Of<ITopicService>(), workContext.Object);
+
+        await consumer.HandleEventAsync(new PageRenderingEvent(helper.Object));
+
+        Assert.That(headParts, Is.EqualTo(new[] { "<meta name=\"robots\" content=\"noindex,follow\" />" }));
         workContext.Verify(context => context.GetWorkingLanguageAsync(), Times.Never);
     }
 
@@ -82,6 +110,7 @@ public sealed class PageRenderingEventConsumerTests
             .Callback<string>(headParts.Add);
         var consumer = new PageRenderingEventConsumer(
             new HttpContextAccessor { HttpContext = httpContext }, hreflangService.Object,
+            Mock.Of<ILanguageService>(),
             Mock.Of<ILocalizationService>(), new SeoSettings(), storeContext.Object,
             Mock.Of<ITopicService>(), workContext.Object);
 
@@ -132,6 +161,7 @@ public sealed class PageRenderingEventConsumerTests
             .ReturnsAsync(new Language { LanguageCulture = "de-DE" });
         var consumer = new PageRenderingEventConsumer(
             new HttpContextAccessor { HttpContext = httpContext }, Mock.Of<IBlogTagHreflangService>(),
+            Mock.Of<ILanguageService>(),
             localization.Object, new SeoSettings { CanonicalUrlsEnabled = true }, storeContext.Object,
             topics.Object, workContext.Object);
 
@@ -141,5 +171,53 @@ public sealed class PageRenderingEventConsumerTests
             Times.Once);
         helper.Verify(item => item.AddMetaDescriptionParts("Lokalisierte Beschreibung"), Times.Once);
         helper.Verify(item => item.AddMetaKeywordParts("bogensport, kontakt"), Times.Once);
+    }
+
+    [Test]
+    public async Task HalloweenLandingHeadUsesTheSameLanguageUrlsAsTheSitemapHelper()
+    {
+        var httpContext = new DefaultHttpContext();
+        httpContext.Request.Scheme = "https";
+        httpContext.Request.Host = new HostString("hoodarcheryshop.com");
+        httpContext.Request.Path = "/de/halloween-archery-and-costume-guide";
+        httpContext.Request.RouteValues = new RouteValueDictionary
+        {
+            ["controller"] = "HalloweenLanding",
+            ["action"] = "HalloweenLanding",
+            ["language"] = "de"
+        };
+        var store = new Store { Id = 1, DefaultLanguageId = 1, Url = "https://hoodarcheryshop.com/" };
+        var languages = new List<Language>
+        {
+            new() { Id = 1, UniqueSeoCode = "en", LanguageCulture = "en-US", Published = true },
+            new() { Id = 2, UniqueSeoCode = "de", LanguageCulture = "de-DE", Published = true },
+            new() { Id = 3, UniqueSeoCode = "tr", LanguageCulture = "tr-TR", Published = false },
+            new() { Id = 4, UniqueSeoCode = "gb", LanguageCulture = "en-GB", Published = true }
+        };
+        var languageService = new Mock<ILanguageService>();
+        languageService.Setup(service => service.GetAllLanguagesAsync(false, 1))
+            .ReturnsAsync(languages);
+        var storeContext = new Mock<IStoreContext>();
+        storeContext.Setup(context => context.GetCurrentStoreAsync()).ReturnsAsync(store);
+        var headParts = new List<string>();
+        var helper = new Mock<INopHtmlHelper>();
+        helper.Setup(item => item.GetRouteName(true)).Returns("HoodHalloweenLanding");
+        helper.Setup(item => item.AddHeadCustomParts(It.IsAny<string>())).Callback<string>(headParts.Add);
+        var consumer = new PageRenderingEventConsumer(
+            new HttpContextAccessor { HttpContext = httpContext }, Mock.Of<IBlogTagHreflangService>(),
+            languageService.Object, Mock.Of<ILocalizationService>(),
+            new SeoSettings { CanonicalUrlsEnabled = true }, storeContext.Object,
+            Mock.Of<ITopicService>(), Mock.Of<IWorkContext>());
+
+        await consumer.HandleEventAsync(new PageRenderingEvent(helper.Object));
+
+        Assert.That(headParts, Is.EqualTo(new[]
+        {
+            "<link rel=\"alternate\" hreflang=\"x-default\" href=\"https://hoodarcheryshop.com/en/halloween-archery-and-costume-guide\" />",
+            "<link rel=\"alternate\" hreflang=\"en-US\" href=\"https://hoodarcheryshop.com/en/halloween-archery-and-costume-guide\" />",
+            "<link rel=\"alternate\" hreflang=\"de-DE\" href=\"https://hoodarcheryshop.com/de/halloween-archery-and-costume-guide\" />"
+        }));
+        helper.Verify(item => item.AddCanonicalUrlParts(
+            "https://hoodarcheryshop.com/de/halloween-archery-and-costume-guide", false), Times.Once);
     }
 }

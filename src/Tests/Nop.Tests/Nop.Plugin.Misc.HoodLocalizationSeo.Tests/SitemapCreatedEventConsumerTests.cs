@@ -95,10 +95,52 @@ public sealed class SitemapCreatedEventConsumerTests
         });
     }
 
+    [Test]
+    public async Task EmitsExactlyOneHalloweenClusterForLocalesWithRealTranslatedCopy()
+    {
+        var languages = new[]
+        {
+            new Language
+            {
+                Id = 1, UniqueSeoCode = "en", LanguageCulture = "en-US", Published = true
+            },
+            new Language
+            {
+                Id = 2, UniqueSeoCode = "de", LanguageCulture = "de-DE", Published = true
+            },
+            new Language
+            {
+                Id = 3, UniqueSeoCode = "gb", LanguageCulture = "en-GB", Published = true
+            },
+            new Language
+            {
+                Id = 4, UniqueSeoCode = "tr", LanguageCulture = "tr-TR", Published = false
+            }
+        };
+        var staleUnsupported = CreateUrl(
+            $"{StoreLocation}/gb/halloween-archery-and-costume-guide");
+        var urls = new List<SitemapUrlModel> { staleUnsupported };
+
+        await CreateConsumer(languages).HandleEventAsync(new SitemapCreatedEvent(urls));
+
+        Assert.That(urls, Has.Count.EqualTo(1));
+        Assert.Multiple(() =>
+        {
+            Assert.That(urls[0].Location, Is.EqualTo(
+                $"{StoreLocation}/en/halloween-archery-and-costume-guide"));
+            Assert.That(urls[0].AlternateLocations, Is.EqualTo(new[]
+            {
+                $"{StoreLocation}/en/halloween-archery-and-costume-guide",
+                $"{StoreLocation}/de/halloween-archery-and-costume-guide"
+            }));
+            Assert.That(urls, Does.Not.Contain(staleUnsupported));
+        });
+    }
+
     private static SitemapCreatedEventConsumer CreateConsumer(IList<Language> languages,
         Topic contactTopic = null, IReadOnlyDictionary<int, string> contactSlugs = null)
     {
-        var store = new Store { Id = 3, DefaultLanguageId = 1 };
+        var store = new Store { Id = 3, DefaultLanguageId = 1, Url = StoreLocation };
         var storeContext = new Mock<IStoreContext>();
         storeContext.Setup(context => context.GetCurrentStoreAsync()).ReturnsAsync(store);
         var languageService = new Mock<ILanguageService>();

@@ -10,7 +10,11 @@
   <ItemGroup>
     <None Remove="plugin.json" />
     <None Remove="Resources\**\*.json" />
+    <None Remove="Views\**\*.cshtml" />
     <Content Include="plugin.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Views\**\*.cshtml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <EmbeddedResource Include="Resources\**\*.json" />
