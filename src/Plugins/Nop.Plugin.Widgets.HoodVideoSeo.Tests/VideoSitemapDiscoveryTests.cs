@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Nop.Core;
+using Nop.Plugin.Widgets.HoodVideoSeo.Controllers;
 using Nop.Plugin.Widgets.HoodVideoSeo.Infrastructure;
 using NUnit.Framework;
 
@@ -31,6 +32,18 @@ public sealed class VideoSitemapDiscoveryTests
             .Select(endpoint => endpoint.RoutePattern.RawText)
             .ToList();
         Assert.That(patterns, Does.Contain("video-sitemap.xml"));
+    }
+
+    [Test]
+    public void CanonicalRootXmlActionExplicitlyAcceptsGetAndHead()
+    {
+        var action = typeof(VideoWatchController).GetMethod(nameof(VideoWatchController.ProductVideos));
+        var verbs = action?.GetCustomAttributes(typeof(AcceptVerbsAttribute), inherit: true)
+            .Cast<AcceptVerbsAttribute>()
+            .Single()
+            .HttpMethods;
+
+        Assert.That(verbs, Is.EquivalentTo(new[] { HttpMethods.Get, HttpMethods.Head }));
     }
 
     [Test]

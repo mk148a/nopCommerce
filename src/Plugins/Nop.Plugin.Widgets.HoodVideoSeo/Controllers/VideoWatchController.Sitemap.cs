@@ -1,6 +1,7 @@
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Nop.Plugin.Widgets.HoodVideoSeo.Services;
 using Nop.Web.Framework.Mvc.Filters;
@@ -17,13 +18,22 @@ public sealed partial class VideoWatchController
     /// Publication dates come only from the reviewed public-YouTube registry; an
     /// unknown date is omitted rather than inferred from product data.
     /// </summary>
-    [HttpGet]
+    [AcceptVerbs("GET", "HEAD")]
     [CheckAccessClosedStore(ignore: true)]
     [CheckAccessPublicStore(ignore: true)]
     [CheckLanguageSeoCode(ignore: true)]
     [ResponseCache(Duration = 3600, Location = ResponseCacheLocation.Any)]
     public async Task<IActionResult> ProductVideos()
     {
+        // HEAD must have the same canonical route and success semantics as GET,
+        // but it must not enumerate products, consult YouTube caches, build XML,
+        // or write a response body.
+        if (HttpMethods.IsHead(Request.Method))
+        {
+            Response.ContentType = "application/xml; charset=utf-8";
+            return new StatusCodeResult(StatusCodes.Status200OK);
+        }
+
         var languages = await _languageService.GetAllLanguagesAsync();
         var language = languages.FirstOrDefault(item => item.Published &&
                            string.Equals(item.UniqueSeoCode, "en", StringComparison.OrdinalIgnoreCase))
