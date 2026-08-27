@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Nop.Plugin.Misc.HoodLocalizationSeo.Infrastructure;
@@ -11,24 +12,30 @@ namespace Nop.Plugin.Misc.HoodLocalizationSeo.Tests;
 [TestFixture]
 public sealed class ProductContactUsTabNoIndexTests
 {
-    [TestCase("GET", "/en/ProductTab/ProductContactUsTab/190", ProductContactUsTabNoIndex.ProductContactUsTabHeaderValue)]
-    [TestCase("HEAD", "/en/ProductTab/ProductContactUsTab/190", ProductContactUsTabNoIndex.ProductContactUsTabHeaderValue)]
-    [TestCase("HEAD", "/ProductTab/ProductContactUsTab/190", ProductContactUsTabNoIndex.ProductContactUsTabHeaderValue)]
-    [TestCase("GET", "/EN/producttab/productcontactustab/190/", ProductContactUsTabNoIndex.ProductContactUsTabHeaderValue)]
-    [TestCase("GET", "/en/filterSearch", ProductContactUsTabNoIndex.UtilityEndpointHeaderValue)]
-    [TestCase("HEAD", "/fr/filterSearch/", ProductContactUsTabNoIndex.UtilityEndpointHeaderValue)]
-    [TestCase("GET", "/filterSearch/", ProductContactUsTabNoIndex.UtilityEndpointHeaderValue)]
-    [TestCase("GET", "/filterSearch", ProductContactUsTabNoIndex.UtilityEndpointHeaderValue)]
-    [TestCase("GET", "/recentlyviewedproducts", ProductContactUsTabNoIndex.UtilityEndpointHeaderValue)]
-    [TestCase("GET", "/en/recentlyviewedproducts", ProductContactUsTabNoIndex.UtilityEndpointHeaderValue)]
-    [TestCase("HEAD", "/fr/compareproducts", ProductContactUsTabNoIndex.UtilityEndpointHeaderValue)]
-    public async Task EligibleRouteAddsNoIndexHeaderAndPreservesEndpointResponse(string method, string path,
+    [TestCase("GET", "/en/ProductTab/ProductContactUsTab/190", "ProductTab", "ProductContactUsTab", ProductContactUsTabNoIndex.ProductContactUsTabHeaderValue)]
+    [TestCase("HEAD", "/en/ProductTab/ProductContactUsTab/190", "ProductTab", "ProductContactUsTab", ProductContactUsTabNoIndex.ProductContactUsTabHeaderValue)]
+    [TestCase("HEAD", "/ProductTab/ProductContactUsTab/190", "ProductTab", "ProductContactUsTab", ProductContactUsTabNoIndex.ProductContactUsTabHeaderValue)]
+    [TestCase("GET", "/EN/producttab/productcontactustab/190/", "ProductTab", "ProductContactUsTab", ProductContactUsTabNoIndex.ProductContactUsTabHeaderValue)]
+    [TestCase("GET", "/en/filterSearch", "Catalog7Spikes", "AjaxFiltersSearch", ProductContactUsTabNoIndex.UtilityEndpointHeaderValue)]
+    [TestCase("HEAD", "/fr/filterSearch/", "Catalog7Spikes", "AjaxFiltersSearch", ProductContactUsTabNoIndex.UtilityEndpointHeaderValue)]
+    [TestCase("GET", "/en/recentlyviewedproducts", "Product", "RecentlyViewedProducts", ProductContactUsTabNoIndex.UtilityEndpointHeaderValue)]
+    [TestCase("HEAD", "/fr/compareproducts", "Product", "CompareProducts", ProductContactUsTabNoIndex.UtilityEndpointHeaderValue)]
+    [TestCase("GET", "/filterSearch", "Common", "GenericUrl", ProductContactUsTabNoIndex.UtilityEndpointHeaderValue)]
+    [TestCase("HEAD", "/recentlyviewedproducts/", "Common", "GenericUrl", ProductContactUsTabNoIndex.UtilityEndpointHeaderValue)]
+    [TestCase("GET", "/compareproducts", "Common", "GenericUrl", ProductContactUsTabNoIndex.UtilityEndpointHeaderValue)]
+    [TestCase("GET", "/recentlyviewedproducts", "Product", "RecentlyViewedProducts", ProductContactUsTabNoIndex.UtilityEndpointHeaderValue)]
+    public async Task RoutedEligibleEndpointAddsNoIndexHeaderAndPreservesResponse(
+        string method,
+        string path,
+        string controller,
+        string action,
         string expectedHeaderValue)
     {
-        var context = CreateContext(method, path);
+        var context = CreateContext(method, path, controller, action);
         context.Request.QueryString = new QueryString("?utm_source=google&tab=contact");
 
         await BuildPipeline()(context);
+        await GetResponseFeature(context).FireOnStartingAsync();
 
         Assert.Multiple(() =>
         {
@@ -39,27 +46,34 @@ public sealed class ProductContactUsTabNoIndexTests
         });
     }
 
-    [TestCase("POST", "/en/ProductTab/ProductContactUsTab/190")]
-    [TestCase("GET", "/en/ProductTab/ProductContactUsTab/not-a-number")]
-    [TestCase("GET", "/en/ProductTab/ProductContactUsTab/190/extra")]
-    [TestCase("GET", "/en/ProductTab/ProductReviewsTab/190")]
-    [TestCase("GET", "/en/wooden-ottoman-hunting-arrows")]
-    [TestCase("GET", "/Admin/ProductTab/ProductContactUsTab/190")]
-    [TestCase("GET", "/en/filterSearch/extra")]
-    [TestCase("GET", "/en/filterSearchResults")]
-    [TestCase("GET", "/en/recentlyviewedproducts/190")]
-    [TestCase("GET", "/en/compareproducts/190")]
-    [TestCase("GET", "/en/producttag/12")]
-    [TestCase("GET", "/en/manufacturer/12")]
-    [TestCase("GET", "/en/newproducts")]
-    [TestCase("GET", "/pt-BR/filterSearch")]
-    [TestCase("GET", "/en-US/filterSearch")]
-    [TestCase("GET", "/pt-BR/ProductTab/ProductContactUsTab/190")]
-    public async Task OtherMethodsAndRoutesDoNotReceiveNoIndexHeader(string method, string path)
+    [TestCase("POST", "/en/ProductTab/ProductContactUsTab/190", "ProductTab", "ProductContactUsTab")]
+    [TestCase("GET", "/en/ProductTab/ProductContactUsTab/not-a-number", "ProductTab", "ProductContactUsTab")]
+    [TestCase("GET", "/en/ProductTab/ProductContactUsTab/190/extra", "ProductTab", "ProductContactUsTab")]
+    [TestCase("GET", "/en/ProductTab/ProductReviewsTab/190", "ProductTab", "ProductContactUsTab")]
+    [TestCase("GET", "/en/wooden-ottoman-hunting-arrows", "Catalog7Spikes", "AjaxFiltersSearch")]
+    [TestCase("GET", "/Admin/ProductTab/ProductContactUsTab/190", "ProductTab", "ProductContactUsTab")]
+    [TestCase("GET", "/en/filterSearch/extra", "Catalog7Spikes", "AjaxFiltersSearch")]
+    [TestCase("GET", "/en/filterSearchResults", "Catalog7Spikes", "AjaxFiltersSearch")]
+    [TestCase("GET", "/en/recentlyviewedproducts/190", "Product", "RecentlyViewedProducts")]
+    [TestCase("GET", "/en/compareproducts/190", "Product", "CompareProducts")]
+    [TestCase("GET", "/en/filterSearch", "Common", "GenericUrl")]
+    [TestCase("GET", "/en/recentlyviewedproducts", "Catalog7Spikes", "AjaxFiltersSearch")]
+    [TestCase("GET", "/en/compareproducts", "Product", "RecentlyViewedProducts")]
+    [TestCase("GET", "/pt-BR/ProductTab/ProductContactUsTab/190", "ProductTab", "ProductContactUsTab")]
+    [TestCase("GET", "/pt-BR/filterSearch", "Catalog7Spikes", "AjaxFiltersSearch")]
+    [TestCase("GET", "/pt-BR/recentlyviewedproducts", "Product", "RecentlyViewedProducts")]
+    [TestCase("GET", "/pt-BR/compareproducts", "Product", "CompareProducts")]
+    [TestCase("GET", "/en-US/filterSearch", "Catalog7Spikes", "AjaxFiltersSearch")]
+    public async Task NonMatchingPathsMethodsOrEndpointsDoNotReceiveNoIndexHeader(
+        string method,
+        string path,
+        string controller,
+        string action)
     {
-        var context = CreateContext(method, path);
+        var context = CreateContext(method, path, controller, action);
 
         await BuildPipeline()(context);
+        await GetResponseFeature(context).FireOnStartingAsync();
 
         Assert.Multiple(() =>
         {
@@ -71,7 +85,8 @@ public sealed class ProductContactUsTabNoIndexTests
     [Test]
     public void StartedResponseIsNeverModified()
     {
-        var context = CreateContext(HttpMethods.Get, "/en/ProductTab/ProductContactUsTab/190");
+        var context = CreateContext(HttpMethods.Get, "/en/ProductTab/ProductContactUsTab/190",
+            "ProductTab", "ProductContactUsTab");
         var responseFeature = new Mock<IHttpResponseFeature>(MockBehavior.Strict);
         responseFeature.SetupGet(item => item.HasStarted).Returns(true);
         responseFeature.SetupGet(item => item.Headers).Returns(new HeaderDictionary());
@@ -87,10 +102,9 @@ public sealed class ProductContactUsTabNoIndexTests
     }
 
     [Test]
-    public async Task EligibleRouteHeaderWinsOverDownstreamOverwrite()
+    public async Task OnStartingMergeWinsOverDownstreamOverwrite()
     {
-        var context = CreateContext(HttpMethods.Get, "/en/newproducts");
-        context.Request.QueryString = new QueryString("?pagenumber=2");
+        var context = CreateContext(HttpMethods.Get, "/en/filterSearch", "Catalog7Spikes", "AjaxFiltersSearch");
         var application = new ApplicationBuilder(new ServiceCollection().BuildServiceProvider());
         new ProductContactUsTabNoIndexNopStartup().Configure(application);
         application.Run(nextContext =>
@@ -101,6 +115,7 @@ public sealed class ProductContactUsTabNoIndexTests
         });
 
         await application.Build()(context);
+        await GetResponseFeature(context).FireOnStartingAsync();
 
         Assert.That(context.Response.Headers[ProductContactUsTabNoIndex.HeaderName].ToString(),
             Is.EqualTo("noarchive, noindex, follow"));
@@ -109,18 +124,18 @@ public sealed class ProductContactUsTabNoIndexTests
     [Test]
     public async Task OnStartingRemovesConflictingNoneDirectiveAndPreservesNeutralTokens()
     {
-        var context = CreateContext(HttpMethods.Get, "/en/filterSearch");
-        var feature = new StartingResponseFeature();
-        context.Features.Set<IHttpResponseFeature>(feature);
+        var context = CreateContext(HttpMethods.Get, "/en/filterSearch", "Catalog7Spikes", "AjaxFiltersSearch");
 
         Assert.That(ProductContactUsTabNoIndex.TryApply(context), Is.True);
         context.Response.Headers[ProductContactUsTabNoIndex.HeaderName] = "none, noarchive";
+        await GetResponseFeature(context).FireOnStartingAsync();
 
-        await feature.FireOnStartingAsync();
-
-        Assert.That(context.Response.Headers[ProductContactUsTabNoIndex.HeaderName].ToString(),
-            Is.EqualTo("noarchive, noindex, follow"));
-        Assert.That(feature.HasStarted, Is.True);
+        Assert.Multiple(() =>
+        {
+            Assert.That(context.Response.Headers[ProductContactUsTabNoIndex.HeaderName].ToString(),
+                Is.EqualTo("noarchive, noindex, follow"));
+            Assert.That(GetResponseFeature(context).HasStarted, Is.True);
+        });
     }
 
     [Test]
@@ -128,16 +143,42 @@ public sealed class ProductContactUsTabNoIndexTests
     {
         Assert.Multiple(() =>
         {
-            Assert.That(ProductContactUsTabNoIndex.TryGetHeaderValue(CreateContext(HttpMethods.Get, "/producttag/all").Request, out _), Is.True);
-            Assert.That(ProductContactUsTabNoIndex.TryGetHeaderValue(CreateContext(HttpMethods.Get, "/manufacturer/all/").Request, out _), Is.True);
+            Assert.That(ProductContactUsTabNoIndex.TryGetHeaderValue(
+                CreateContext(HttpMethods.Get, "/producttag/all", "Catalog", "ProductTagsAll").Request, out _), Is.True);
+            Assert.That(ProductContactUsTabNoIndex.TryGetHeaderValue(
+                CreateContext(HttpMethods.Get, "/manufacturer/all/", "Catalog", "ManufacturerAll").Request, out _), Is.True);
         });
     }
 
-    private static DefaultHttpContext CreateContext(string method, string path)
+    [Test]
+    public async Task LocalizedNewProductsQueryMergesItsDirectiveOnStarting()
+    {
+        var context = CreateContext(HttpMethods.Get, "/en/newproducts", "Catalog", "NewProducts");
+        context.Request.QueryString = new QueryString("?pagenumber=2");
+        context.Response.Headers[ProductContactUsTabNoIndex.HeaderName] = "index, noarchive";
+
+        await BuildPipeline()(context);
+        await GetResponseFeature(context).FireOnStartingAsync();
+
+        Assert.That(context.Response.Headers[ProductContactUsTabNoIndex.HeaderName].ToString(),
+            Is.EqualTo("noarchive, noindex, follow"));
+    }
+
+    private static DefaultHttpContext CreateContext(string method, string path, string controller = null, string action = null)
     {
         var context = new DefaultHttpContext();
+        context.Features.Set<IHttpResponseFeature>(new DeferredResponseFeature());
         context.Request.Method = method;
         context.Request.Path = path;
+        if (!string.IsNullOrWhiteSpace(controller) && !string.IsNullOrWhiteSpace(action))
+        {
+            context.Request.RouteValues = new RouteValueDictionary
+            {
+                ["controller"] = controller,
+                ["action"] = action
+            };
+        }
+
         return context;
     }
 
@@ -153,18 +194,21 @@ public sealed class ProductContactUsTabNoIndexTests
         return application.Build();
     }
 
-    private sealed class StartingResponseFeature : IHttpResponseFeature
+    private static DeferredResponseFeature GetResponseFeature(DefaultHttpContext context) =>
+        (DeferredResponseFeature)context.Features.Get<IHttpResponseFeature>();
+
+    private sealed class DeferredResponseFeature : IHttpResponseFeature
     {
-        private readonly Stack<(Func<object, Task> Callback, object State)> _callbacks = new();
+        private readonly List<(Func<object, Task> Callback, object State)> _onStarting = [];
 
         public int StatusCode { get; set; } = StatusCodes.Status200OK;
         public string ReasonPhrase { get; set; }
         public IHeaderDictionary Headers { get; set; } = new HeaderDictionary();
-        public Stream Body { get; set; } = Stream.Null;
+        public Stream Body { get; set; } = new MemoryStream();
         public bool HasStarted { get; private set; }
 
         public void OnStarting(Func<object, Task> callback, object state) =>
-            _callbacks.Push((callback, state));
+            _onStarting.Add((callback, state));
 
         public void OnCompleted(Func<object, Task> callback, object state)
         {
@@ -172,8 +216,8 @@ public sealed class ProductContactUsTabNoIndexTests
 
         public async Task FireOnStartingAsync()
         {
-            while (_callbacks.TryPop(out var callback))
-                await callback.Callback(callback.State);
+            for (var index = _onStarting.Count - 1; index >= 0; index--)
+                await _onStarting[index].Callback(_onStarting[index].State);
 
             HasStarted = true;
         }

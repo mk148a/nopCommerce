@@ -19,10 +19,8 @@ public sealed class ProductContactUsTabNoIndexNopStartup : INopStartup
     {
         application.Use(async (context, next) =>
         {
-            var applies = ProductContactUsTabNoIndex.TryApply(context);
+            ProductContactUsTabNoIndex.TryApply(context);
             await next();
-            if (applies)
-                ProductContactUsTabNoIndex.TryFinalize(context);
         });
     }
 

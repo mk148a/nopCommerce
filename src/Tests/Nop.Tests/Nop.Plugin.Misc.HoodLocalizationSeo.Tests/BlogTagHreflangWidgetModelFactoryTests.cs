@@ -58,13 +58,33 @@ public sealed class BlogTagHreflangWidgetModelFactoryTests
         result.Select(model => model.WidgetViewComponent).Should().Equal(GoogleLanguageComponent);
     }
 
+    [TestCase("/filterSearch", "Common", "GenericUrl")]
+    [TestCase("/recentlyviewedproducts", "Common", "GenericUrl")]
+    [TestCase("/compareproducts", "Common", "GenericUrl")]
+    [TestCase("/en/filterSearch", "Catalog7Spikes", "AjaxFiltersSearch")]
+    [TestCase("/en/recentlyviewedproducts", "Product", "RecentlyViewedProducts")]
+    [TestCase("/en/compareproducts", "Product", "CompareProducts")]
+    public async Task RemovesGenericGoogleLanguageWidgetOnlyForActualUtilityEndpoint(
+        string path,
+        string controller,
+        string action)
+    {
+        var otherComponent = typeof(BlogTagHreflangWidgetModelFactoryTests);
+        var inner = new StubWidgetModelFactory(GoogleLanguageComponent, otherComponent);
+        var context = CreateContext(controller, action);
+        context.Request.Path = path;
+        var factory = new BlogTagHreflangWidgetModelFactory(inner,
+            new HttpContextAccessor { HttpContext = context });
+
+        var result = await factory.PrepareRenderWidgetModelAsync(PublicWidgetZones.HeadHtmlTag);
+
+        result.Select(model => model.WidgetViewComponent).Should().Equal(otherComponent);
+    }
+
     [TestCase("Catalog", "ProductTagsAll", "/en/producttag/all", "")]
     [TestCase("Catalog", "ManufacturerAll", "/manufacturer/all", "")]
     [TestCase("Catalog", "NewProducts", "/en/newproducts", "?pagenumber=2")]
-    [TestCase("Catalog7Spikes", "AjaxFiltersSearch", "/filterSearch/", "?price=10-20")]
-    [TestCase("Product", "RecentlyViewedProducts", "/en/recentlyviewedproducts", "")]
-    [TestCase("Product", "CompareProducts", "/compareproducts", "")]
-    public async Task RemovesGenericGoogleLanguageWidgetFromNoIndexUtilityPages(
+    public async Task RemovesGenericGoogleLanguageWidgetFromExistingNoIndexUtilityPages(
         string controller,
         string action,
         string path,
@@ -98,6 +118,22 @@ public sealed class BlogTagHreflangWidgetModelFactoryTests
         var context = CreateContext(controller, action);
         context.Request.Path = path;
         context.Request.QueryString = new QueryString(query);
+        var factory = new BlogTagHreflangWidgetModelFactory(inner,
+            new HttpContextAccessor { HttpContext = context });
+
+        var result = await factory.PrepareRenderWidgetModelAsync(PublicWidgetZones.HeadHtmlTag);
+
+        result.Select(model => model.WidgetViewComponent)
+            .Should().Equal(GoogleLanguageComponent, otherComponent);
+    }
+
+    [Test]
+    public async Task DoesNotTreatRegionalCulturePrefixAsCoreLanguageRoute()
+    {
+        var otherComponent = typeof(BlogTagHreflangWidgetModelFactoryTests);
+        var inner = new StubWidgetModelFactory(GoogleLanguageComponent, otherComponent);
+        var context = CreateContext("Catalog7Spikes", "AjaxFiltersSearch");
+        context.Request.Path = "/pt-BR/filterSearch";
         var factory = new BlogTagHreflangWidgetModelFactory(inner,
             new HttpContextAccessor { HttpContext = context });
 

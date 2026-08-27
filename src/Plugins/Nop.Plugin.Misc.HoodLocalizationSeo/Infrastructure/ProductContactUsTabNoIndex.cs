@@ -41,25 +41,6 @@ internal static class ProductContactUsTabNoIndex
                 httpContext.Response.Headers[HeaderName].ToString(), value);
             return Task.CompletedTask;
         }, (context, headerValue));
-        context.Response.Headers[HeaderName] = MergeDirective(
-            context.Response.Headers[HeaderName].ToString(), headerValue);
-        return true;
-    }
-
-    /// <summary>
-    /// Re-applies the required directive after downstream middleware when the
-    /// response has not started yet. The OnStarting callback remains the
-    /// authority for responses that start inside the endpoint.
-    /// </summary>
-    internal static bool TryFinalize(HttpContext context)
-    {
-        ArgumentNullException.ThrowIfNull(context);
-
-        if (context.Response.HasStarted || !TryGetHeaderValue(context.Request, out var headerValue))
-            return false;
-
-        context.Response.Headers[HeaderName] = MergeDirective(
-            context.Response.Headers[HeaderName].ToString(), headerValue);
         return true;
     }
 
@@ -71,21 +52,19 @@ internal static class ProductContactUsTabNoIndex
         if (!HttpMethods.IsGet(request.Method) && !HttpMethods.IsHead(request.Method))
             return false;
 
-        var path = request.Path.Value ?? string.Empty;
-        if (IsProductContactUsTabPath(path))
+        if (IsProductContactUsTabRequest(request))
         {
             headerValue = ProductContactUsTabHeaderValue;
             return true;
         }
 
-        if (IsUtilityPath(path, "filterSearch") ||
-            IsUtilityPath(path, "recentlyviewedproducts") ||
-            IsUtilityPath(path, "compareproducts"))
+        if (IsUtilityRequest(request))
         {
             headerValue = UtilityEndpointHeaderValue;
             return true;
         }
 
+        var path = request.Path.Value ?? string.Empty;
         if (IsLocalizedAllPath(path, "producttag") || IsLocalizedAllPath(path, "manufacturer") ||
             IsLocalizedQueryPath(path, "newproducts") && request.QueryString.HasValue)
         {
@@ -96,8 +75,25 @@ internal static class ProductContactUsTabNoIndex
         return false;
     }
 
-    private static bool IsProductContactUsTabPath(string path)
+    /// <summary>
+    /// Identifies the three public, non-canonical utility endpoints after routing.
+    /// Localized requests must have reached their actual controller/action.  The
+    /// locale-less variants deliberately accept the GenericUrl redirect endpoint:
+    /// nopCommerce sends those historical forms to the current language URL.
+    /// </summary>
+    internal static bool IsUtilityRequest(HttpRequest request)
     {
+        ArgumentNullException.ThrowIfNull(request);
+
+        if (!TryGetUtilityRoute(request.Path.Value ?? string.Empty, out var route, out var isLocaleLess))
+            return false;
+
+        return IsExpectedEndpoint(request, route, isLocaleLess);
+    }
+
+    private static bool IsProductContactUsTabRequest(HttpRequest request)
+    {
+        var path = request.Path.Value ?? string.Empty;
         if (string.IsNullOrEmpty(path) || path[0] != '/')
             return false;
 
@@ -116,11 +112,15 @@ internal static class ProductContactUsTabNoIndex
         return segments.Length == offset + 3 &&
                segments[offset].Equals("ProductTab", StringComparison.OrdinalIgnoreCase) &&
                segments[offset + 1].Equals("ProductContactUsTab", StringComparison.OrdinalIgnoreCase) &&
-               IsAsciiDigits(segments[offset + 2]);
+               IsAsciiDigits(segments[offset + 2]) &&
+               IsEndpoint(request, "ProductTab", "ProductContactUsTab");
     }
 
-    private static bool IsUtilityPath(string path, string endpoint)
+    private static bool TryGetUtilityRoute(string path, out UtilityRoute route, out bool isLocaleLess)
     {
+        route = default;
+        isLocaleLess = false;
+
         if (string.IsNullOrEmpty(path) || path[0] != '/')
             return false;
 
@@ -128,10 +128,60 @@ internal static class ProductContactUsTabNoIndex
             path = path[..^1];
 
         var segments = path[1..].Split('/', StringSplitOptions.None);
-        return (segments.Length == 1 && segments[0].Equals(endpoint, StringComparison.OrdinalIgnoreCase)) ||
-               (segments.Length == 2 && IsCultureSegment(segments[0]) &&
-                segments[1].Equals(endpoint, StringComparison.OrdinalIgnoreCase));
+        if (segments.Length == 1)
+        {
+            isLocaleLess = true;
+            return TryParseUtilityEndpoint(segments[0], out route);
+        }
+
+        return segments.Length == 2 &&
+               IsCultureSegment(segments[0]) &&
+               TryParseUtilityEndpoint(segments[1], out route);
     }
+
+    private static bool TryParseUtilityEndpoint(string endpoint, out UtilityRoute route)
+    {
+        if (endpoint.Equals("filterSearch", StringComparison.OrdinalIgnoreCase))
+        {
+            route = UtilityRoute.FilterSearch;
+            return true;
+        }
+
+        if (endpoint.Equals("recentlyviewedproducts", StringComparison.OrdinalIgnoreCase))
+        {
+            route = UtilityRoute.RecentlyViewedProducts;
+            return true;
+        }
+
+        if (endpoint.Equals("compareproducts", StringComparison.OrdinalIgnoreCase))
+        {
+            route = UtilityRoute.CompareProducts;
+            return true;
+        }
+
+        route = default;
+        return false;
+    }
+
+    private static bool IsExpectedEndpoint(HttpRequest request, UtilityRoute route, bool isLocaleLess)
+    {
+        if (isLocaleLess && IsEndpoint(request, "Common", "GenericUrl"))
+            return true;
+
+        return route switch
+        {
+            UtilityRoute.FilterSearch => IsEndpoint(request, "Catalog7Spikes", "AjaxFiltersSearch"),
+            UtilityRoute.RecentlyViewedProducts => IsEndpoint(request, "Product", "RecentlyViewedProducts"),
+            UtilityRoute.CompareProducts => IsEndpoint(request, "Product", "CompareProducts"),
+            _ => false
+        };
+    }
+
+    private static bool IsEndpoint(HttpRequest request, string controller, string action) =>
+        request.RouteValues.TryGetValue("controller", out var controllerValue) &&
+        request.RouteValues.TryGetValue("action", out var actionValue) &&
+        controllerValue?.ToString()?.Equals(controller, StringComparison.OrdinalIgnoreCase) == true &&
+        actionValue?.ToString()?.Equals(action, StringComparison.OrdinalIgnoreCase) == true;
 
     private static string MergeDirective(string existing, string required)
     {
@@ -183,5 +233,12 @@ internal static class ProductContactUsTabNoIndex
         }
 
         return true;
+    }
+
+    private enum UtilityRoute
+    {
+        FilterSearch,
+        RecentlyViewedProducts,
+        CompareProducts
     }
 }

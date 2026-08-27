@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
+using Nop.Plugin.Misc.HoodLocalizationSeo.Infrastructure;
 using Nop.Web.Framework.Factories;
 using Nop.Web.Framework.Infrastructure;
 using Nop.Web.Framework.Models.Cms;
@@ -55,16 +56,8 @@ public sealed class BlogTagHreflangWidgetModelFactory : IWidgetModelFactory
              context.Request.QueryString.HasValue))
             return true;
 
-        var segments = (context?.Request.Path.Value ?? string.Empty).Trim('/').Split('/', StringSplitOptions.RemoveEmptyEntries);
-        var offset = segments.Length > 0 && IsAsciiCulture(segments[0]) ? 1 : 0;
-        return segments.Length == offset + 1 &&
-               (segments[offset].Equals("filterSearch", StringComparison.OrdinalIgnoreCase) ||
-                segments[offset].Equals("recentlyviewedproducts", StringComparison.OrdinalIgnoreCase) ||
-                segments[offset].Equals("compareproducts", StringComparison.OrdinalIgnoreCase));
+        return context is not null && ProductContactUsTabNoIndex.IsUtilityRequest(context.Request);
     }
-
-    private static bool IsAsciiCulture(string value) =>
-        value.Length == 2 && value.All(character => character is >= 'A' and <= 'Z' or >= 'a' and <= 'z');
 
     private static bool IsBlogByTagRequest(HttpContext context)
     {
