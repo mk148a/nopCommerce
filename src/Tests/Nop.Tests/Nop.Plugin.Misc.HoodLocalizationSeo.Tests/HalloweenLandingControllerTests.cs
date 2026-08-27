@@ -1,4 +1,6 @@
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Routing;
 using Moq;
 using Nop.Core;
 using Nop.Core.Domain.Localization;
@@ -15,6 +17,54 @@ namespace Nop.Plugin.Misc.HoodLocalizationSeo.Tests;
 [TestFixture]
 public sealed class HalloweenLandingControllerTests
 {
+    [Test]
+    public void HalloweenLandingActionAcceptsGetAndHead()
+    {
+        var action = typeof(HalloweenLandingController).GetMethod(
+            nameof(HalloweenLandingController.HalloweenLanding));
+        var verbs = action?.GetCustomAttributes(typeof(AcceptVerbsAttribute), inherit: true)
+            .OfType<AcceptVerbsAttribute>()
+            .Single()
+            .HttpMethods;
+
+        Assert.That(verbs, Is.EquivalentTo(new[] { HttpMethods.Get, HttpMethods.Head }));
+    }
+
+    [Test]
+    public async Task CanonicalHalloweenHeadReturnsHeadersWithoutCatalogQueries()
+    {
+        var store = new Store { Id = 3, DefaultLanguageId = 1, Url = "https://hoodarcheryshop.com/" };
+        var storeContext = new Mock<IStoreContext>();
+        storeContext.Setup(context => context.GetCurrentStoreAsync()).ReturnsAsync(store);
+        var languageService = new Mock<ILanguageService>();
+        languageService.Setup(service => service.GetAllLanguagesAsync(false, store.Id)).ReturnsAsync(new[]
+        {
+            new Language { Id = 1, UniqueSeoCode = "en", LanguageCulture = "en-US", Published = true }
+        });
+        var categories = new Mock<ICategoryService>(MockBehavior.Strict);
+        var webHelper = new Mock<IWebHelper>();
+        webHelper.Setup(helper => helper.GetStoreLocation(null)).Returns(store.Url);
+        var controller = new HalloweenLandingController(categories.Object,
+            languageService.Object, Mock.Of<ILocalizationService>(), Mock.Of<IProductModelFactory>(),
+            Mock.Of<IProductService>(), storeContext.Object, Mock.Of<IUrlRecordService>(), webHelper.Object)
+        {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+        };
+        controller.Request.Method = HttpMethods.Head;
+
+        var result = await controller.HalloweenLanding("en");
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(result, Is.TypeOf<EmptyResult>());
+            Assert.That(controller.Response.StatusCode, Is.EqualTo(StatusCodes.Status200OK));
+            Assert.That(controller.Response.ContentType, Is.EqualTo("text/html; charset=utf-8"));
+            Assert.That(controller.Response.Headers.Link.ToString(), Is.EqualTo(
+                "<https://hoodarcheryshop.com/en/halloween-archery-and-costume-guide>; rel=\"canonical\""));
+        });
+        categories.VerifyNoOtherCalls();
+    }
+
     [TestCase("zz")]
     [TestCase("gb")]
     [TestCase("EN")]

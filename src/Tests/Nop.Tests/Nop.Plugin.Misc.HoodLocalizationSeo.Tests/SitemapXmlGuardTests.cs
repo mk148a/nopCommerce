@@ -444,11 +444,138 @@ public sealed class SitemapXmlGuardTests
             Assert.That(endpoints.Select(endpoint => endpoint.Metadata
                     .GetMetadata<ControllerActionDescriptor>()?.ActionName),
                 Is.All.EqualTo("SitemapXml"));
+            Assert.That(endpoints.Select(endpoint => endpoint.Metadata
+                    .GetMetadata<IHttpMethodMetadata>()?.HttpMethods),
+                Is.All.EquivalentTo(new[] { HttpMethods.Get, HttpMethods.Head }));
             Assert.That(endpoints.Single(endpoint => endpoint.Metadata
                     .GetMetadata<IRouteNameMetadata>()?.RouteName == "HoodSitemapXml")
                     .RoutePattern.Defaults["id"],
                 Is.EqualTo(0));
         });
+    }
+
+    [TestCase(0)]
+    [TestCase(5)]
+    public async Task SitemapHeadReturnsRetryable503WhenCanonicalRootIsAbsentWithoutCallingTheFactory(int id)
+    {
+        var factory = new Mock<ISitemapModelFactory>(MockBehavior.Strict);
+        var controller = CreateController(factory.Object);
+        controller.Request.Method = HttpMethods.Head;
+
+        var result = await controller.SitemapXml(id);
+
+        AssertRetryable503(result, controller);
+        factory.VerifyNoOtherCalls();
+    }
+
+    [TestCase(0)]
+    [TestCase(5)]
+    public async Task SitemapHeadReturnsRetryable503WhenCanonicalRootIsEmptyWithoutCallingTheFactory(int id)
+    {
+        await File.WriteAllBytesAsync(GetExpectedPath(0), Array.Empty<byte>());
+        var factory = new Mock<ISitemapModelFactory>(MockBehavior.Strict);
+        var controller = CreateController(factory.Object);
+        controller.Request.Method = HttpMethods.Head;
+
+        var result = await controller.SitemapXml(id);
+
+        AssertRetryable503(result, controller);
+        factory.VerifyNoOtherCalls();
+    }
+
+    [TestCase(0)]
+    [TestCase(5)]
+    public async Task SitemapHeadReturnsXmlHeadersForPresentCanonicalRootWithoutCallingTheFactory(int id)
+    {
+        await WriteRootAsync(ValidUrlSet);
+        var factory = new Mock<ISitemapModelFactory>(MockBehavior.Strict);
+        var controller = CreateController(factory.Object);
+        controller.Request.Method = HttpMethods.Head;
+
+        var result = await controller.SitemapXml(id);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(result, Is.TypeOf<EmptyResult>());
+            Assert.That(controller.Response.StatusCode, Is.EqualTo(StatusCodes.Status200OK));
+            Assert.That(controller.Response.ContentType, Is.EqualTo(MimeTypes.ApplicationXml));
+            Assert.That(controller.Response.Headers.Link.ToString(), Is.Empty);
+        });
+        factory.VerifyNoOtherCalls();
+    }
+
+    [Test]
+    public async Task SitemapHeadUrlSetAliasReturns200WithoutCallingTheFactory()
+    {
+        await WriteRootAsync(ValidUrlSet);
+        var factory = new Mock<ISitemapModelFactory>(MockBehavior.Strict);
+        var controller = CreateController(factory.Object);
+        controller.Request.Method = HttpMethods.Head;
+
+        var result = await controller.SitemapXml(5);
+
+        Assert.That(result, Is.TypeOf<EmptyResult>());
+        Assert.That(controller.Response.StatusCode, Is.EqualTo(StatusCodes.Status200OK));
+        factory.VerifyNoOtherCalls();
+    }
+
+    [Test]
+    public async Task SitemapHeadSitemapIndexUnlistedPartReturns200WithoutCallingTheFactory()
+    {
+        await WriteRootAsync(SitemapIndex("https://hoodarcheryshop.com/sitemap-2.xml"));
+        var factory = new Mock<ISitemapModelFactory>(MockBehavior.Strict);
+        var controller = CreateController(factory.Object);
+        controller.Request.Method = HttpMethods.Head;
+
+        var result = await controller.SitemapXml(5);
+
+        Assert.That(result, Is.TypeOf<EmptyResult>());
+        Assert.That(controller.Response.StatusCode, Is.EqualTo(StatusCodes.Status200OK));
+        factory.VerifyNoOtherCalls();
+    }
+
+    [TestCase("missing")]
+    [TestCase("empty")]
+    [TestCase("oversized")]
+    public async Task SitemapHeadListedPartReturnsRetryable503WithoutCallingTheFactory(string partState)
+    {
+        await WriteRootAsync(SitemapIndex("https://hoodarcheryshop.com/sitemap-2.xml"));
+        var partPath = GetExpectedPath(2);
+        switch (partState)
+        {
+            case "empty":
+                await File.WriteAllBytesAsync(partPath, Array.Empty<byte>());
+                break;
+            case "oversized":
+                await using (var stream = new FileStream(partPath, FileMode.CreateNew, FileAccess.Write))
+                    stream.SetLength(50L * 1024 * 1024 + 1);
+                break;
+        }
+
+        var factory = new Mock<ISitemapModelFactory>(MockBehavior.Strict);
+        var controller = CreateController(factory.Object);
+        controller.Request.Method = HttpMethods.Head;
+
+        var result = await controller.SitemapXml(2);
+
+        AssertRetryable503(result, controller);
+        factory.VerifyNoOtherCalls();
+    }
+
+    [Test]
+    public async Task SitemapHeadPresentListedPartReturns200WithoutCallingTheFactory()
+    {
+        await WriteRootAsync(SitemapIndex("https://hoodarcheryshop.com/sitemap-2.xml"));
+        await File.WriteAllTextAsync(GetExpectedPath(2), ValidUrlSet);
+        var factory = new Mock<ISitemapModelFactory>(MockBehavior.Strict);
+        var controller = CreateController(factory.Object);
+        controller.Request.Method = HttpMethods.Head;
+
+        var result = await controller.SitemapXml(2);
+
+        Assert.That(result, Is.TypeOf<EmptyResult>());
+        Assert.That(controller.Response.StatusCode, Is.EqualTo(StatusCodes.Status200OK));
+        factory.VerifyNoOtherCalls();
     }
 
     private sealed class TestEndpointRouteBuilder(IServiceProvider serviceProvider) : IEndpointRouteBuilder

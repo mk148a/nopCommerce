@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Nop.Core;
 using Nop.Core.Domain.Catalog;
@@ -53,7 +54,7 @@ public sealed class HalloweenLandingController : BasePublicController
         _webHelper = webHelper;
     }
 
-    [HttpGet]
+    [AcceptVerbs("GET", "HEAD")]
     [CheckLanguageSeoCode(ignore: true)]
     public async Task<IActionResult> HalloweenLanding(string language)
     {
@@ -75,6 +76,12 @@ public sealed class HalloweenLandingController : BasePublicController
         {
             return RedirectPermanent((requestedTarget ?? defaultTarget).Url);
         }
+
+        // Keep HEAD parity with the canonical GET route without querying the
+        // catalog or rendering a page body. This also prevents monitoring
+        // probes from doing work that is only needed for a full HTML response.
+        if (HttpMethods.IsHead(HttpContext.Request.Method))
+            return HeadSuccess(requestedTarget.Url);
 
         var requestedLanguage = requestedTarget.Language;
         var categories = (await _categoryService.GetAllCategoriesAsync(store.Id))
@@ -124,6 +131,14 @@ public sealed class HalloweenLandingController : BasePublicController
     {
         var pathBase = canonicalOrigin.AbsolutePath.TrimEnd('/');
         return $"{pathBase}/{Uri.EscapeDataString(languageCode)}/{Uri.EscapeDataString(slug)}";
+    }
+
+    private IActionResult HeadSuccess(string canonicalUrl)
+    {
+        Response.StatusCode = StatusCodes.Status200OK;
+        Response.ContentType = "text/html; charset=utf-8";
+        Response.Headers.Link = $"<{canonicalUrl}>; rel=\"canonical\"";
+        return new EmptyResult();
     }
 
     private sealed record HalloweenLandingText(string Title, string MetaDescription, string Introduction,

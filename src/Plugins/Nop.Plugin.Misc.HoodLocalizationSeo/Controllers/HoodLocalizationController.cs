@@ -94,7 +94,7 @@ public sealed class HoodLocalizationController : BasePublicController
     // The plugin owns both root and numbered sitemap routes. Core still builds
     // and caches the source artifact; this action validates it and rewrites
     // hreflang only in a bounded delete-on-close response stream.
-    [HttpGet]
+    [AcceptVerbs("GET", "HEAD")]
     [CheckAccessClosedStore(ignore: true)]
     [CheckAccessPublicStore(ignore: true)]
     [CheckLanguageSeoCode(ignore: true)]
@@ -122,6 +122,12 @@ public sealed class HoodLocalizationController : BasePublicController
         // path), otherwise an invalid Store.Url could still produce a 200.
         if (!hasCanonicalRoot)
             return RetryableServiceUnavailable();
+
+        // A HEAD probe must use the plugin route too, but must never trigger
+        // core generation, stream a large sitemap, or update a cache artifact.
+        // It only acknowledges an existing, bounded canonical-root artifact.
+        if (HttpMethods.IsHead(HttpContext.Request.Method))
+            return await TryCreateSitemapHeadResultAsync(rootPath, expectedPath, id, canonicalRoot);
 
         if (id == 0)
             return await ServeCanonicalRootAsync(store, rootPath, canonicalRoot);
@@ -660,6 +666,45 @@ public sealed class HoodLocalizationController : BasePublicController
         Response.Headers["Retry-After"] = Math.Max(1, _sitemapXmlSettings.SitemapBuildOperationDelay)
             .ToString(CultureInfo.InvariantCulture);
         return StatusCode(StatusCodes.Status503ServiceUnavailable);
+    }
+
+    private async Task<IActionResult> TryCreateSitemapHeadResultAsync(string rootPath,
+        string expectedPath,
+        int id,
+        Uri canonicalRoot)
+    {
+        var rootArtifact = await TryOpenValidatedSitemapAsync(rootPath, rootPath, canonicalRoot);
+        if (rootArtifact is null)
+            return RetryableServiceUnavailable();
+
+        try
+        {
+            // A urlset root services id=0 and id=1 directly, and stale
+            // numbered URLs as a valid canonical-index alias. A sitemapindex
+            // does likewise for unlisted ids, but a listed id is only healthy
+            // when its bounded, validated urlset file is still available.
+            if (rootArtifact.Catalog.Kind == SitemapCatalogKind.SitemapIndex &&
+                rootArtifact.Catalog.PartIds.Contains(id))
+            {
+                var partArtifact = await TryOpenValidatedSitemapAsync(expectedPath, expectedPath,
+                    canonicalRoot, SitemapCatalogKind.UrlSet);
+                if (partArtifact is null)
+                    return RetryableServiceUnavailable();
+
+                partArtifact.Dispose();
+            }
+
+            if (rootArtifact.Catalog.Kind is not (SitemapCatalogKind.UrlSet or SitemapCatalogKind.SitemapIndex))
+                return RetryableServiceUnavailable();
+        }
+        finally
+        {
+            rootArtifact.Dispose();
+        }
+
+        Response.StatusCode = StatusCodes.Status200OK;
+        Response.ContentType = MimeTypes.ApplicationXml;
+        return new EmptyResult();
     }
 
     private static bool IsSameOrigin(Uri left, Uri right)
