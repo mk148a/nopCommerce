@@ -142,7 +142,9 @@ internal static class ProductContactUsTabNoIndex
         var requiredTokens = required.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
         values.RemoveAll(value => value.Equals("index", StringComparison.OrdinalIgnoreCase) ||
                                   value.Equals("follow", StringComparison.OrdinalIgnoreCase) ||
-                                  value.Equals("nofollow", StringComparison.OrdinalIgnoreCase));
+                                  value.Equals("nofollow", StringComparison.OrdinalIgnoreCase) ||
+                                  value.Equals("all", StringComparison.OrdinalIgnoreCase) ||
+                                  value.Equals("none", StringComparison.OrdinalIgnoreCase));
         foreach (var token in requiredTokens)
             if (!values.Any(value => value.Equals(token, StringComparison.OrdinalIgnoreCase)))
                 values.Add(token);

@@ -107,6 +107,23 @@ public sealed class ProductContactUsTabNoIndexTests
     }
 
     [Test]
+    public async Task OnStartingRemovesConflictingNoneDirectiveAndPreservesNeutralTokens()
+    {
+        var context = CreateContext(HttpMethods.Get, "/en/filterSearch");
+        var feature = new StartingResponseFeature();
+        context.Features.Set<IHttpResponseFeature>(feature);
+
+        Assert.That(ProductContactUsTabNoIndex.TryApply(context), Is.True);
+        context.Response.Headers[ProductContactUsTabNoIndex.HeaderName] = "none, noarchive";
+
+        await feature.FireOnStartingAsync();
+
+        Assert.That(context.Response.Headers[ProductContactUsTabNoIndex.HeaderName].ToString(),
+            Is.EqualTo("noarchive, noindex, follow"));
+        Assert.That(feature.HasStarted, Is.True);
+    }
+
+    [Test]
     public void LocaleLessAllRoutesAreEligible()
     {
         Assert.Multiple(() =>
@@ -134,5 +151,31 @@ public sealed class ProductContactUsTabNoIndexTests
             return Task.CompletedTask;
         });
         return application.Build();
+    }
+
+    private sealed class StartingResponseFeature : IHttpResponseFeature
+    {
+        private readonly Stack<(Func<object, Task> Callback, object State)> _callbacks = new();
+
+        public int StatusCode { get; set; } = StatusCodes.Status200OK;
+        public string ReasonPhrase { get; set; }
+        public IHeaderDictionary Headers { get; set; } = new HeaderDictionary();
+        public Stream Body { get; set; } = Stream.Null;
+        public bool HasStarted { get; private set; }
+
+        public void OnStarting(Func<object, Task> callback, object state) =>
+            _callbacks.Push((callback, state));
+
+        public void OnCompleted(Func<object, Task> callback, object state)
+        {
+        }
+
+        public async Task FireOnStartingAsync()
+        {
+            while (_callbacks.TryPop(out var callback))
+                await callback.Callback(callback.State);
+
+            HasStarted = true;
+        }
     }
 }
