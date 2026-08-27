@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>NopStation.Plugin.Widgets.GoogleTagManager</AssemblyName>
+    <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+  <PropertyGroup>
+    <LangVersion>12.0</LangVersion>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup />
+  <ItemGroup />
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Content\**\*" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="Views\**\*" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Nop.Services" HintPath="D:\hood-localization-live-20260821-0900-bnpl-stripe-country-fix\Nop.Services.dll" Private="false" />
+    <Reference Include="NopStation.Plugin.Misc.Actions" HintPath="D:\hood-localization-live-20260821-0900-bnpl-stripe-country-fix\Plugins\NopStation.Core\NopStation.Plugin.Misc.Actions.dll" Private="false" />
+    <Reference Include="Nop.Web.Framework" HintPath="D:\hood-localization-live-20260821-0900-bnpl-stripe-country-fix\Nop.Web.Framework.dll" Private="false" />
+    <Reference Include="Nop.Core" HintPath="D:\hood-localization-live-20260821-0900-bnpl-stripe-country-fix\Nop.Core.dll" Private="false" />
+    <Reference Include="Nop.Web" HintPath="D:\hood-localization-live-20260821-0900-bnpl-stripe-country-fix\Nop.Web.dll" Private="false" />
+    <Reference Include="NopStation.Plugin.Misc.Core" HintPath="D:\hood-localization-live-20260821-0900-bnpl-stripe-country-fix\Plugins\NopStation.Core\NopStation.Plugin.Misc.Core.dll" Private="false" />
+    <Reference Include="FluentValidation" HintPath="D:\hood-localization-live-20260821-0900-bnpl-stripe-country-fix\FluentValidation.dll" Private="false" />
+  </ItemGroup>
+</Project>
