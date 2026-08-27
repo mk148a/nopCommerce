@@ -71,6 +71,28 @@ public sealed class PublicStorefrontCanonicalRedirectTests
             "https://hoodarcheryshop.com/en/search?q=horse%20bow&page=2&orderby=10&utm_source=google&returnUrl=%2Fen%2Fcart"));
     }
 
+    [TestCase("/en/ottoman-horse-bow")]
+    [TestCase("/en/archery")]
+    [TestCase("/en/shippinginfo")]
+    [TestCase("/en/search/")]
+    [TestCase("/en/halloween-archery-and-costume-guide")]
+    public async Task PublicProductCategoryTopicSearchAndHalloweenRoutesRemainRedirectEligible(string path)
+    {
+        var stores = OneStore("https://hoodarcheryshop.com/");
+        var storeService = CreateStoreService(stores);
+        using var provider = CreateProvider(storeService.Object);
+        var context = CreateContext(provider, HttpMethods.Get, path, "www.hoodarcheryshop.com");
+
+        await BuildPipeline(provider)(context);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(context.Response.StatusCode, Is.EqualTo(StatusCodes.Status301MovedPermanently));
+            Assert.That(context.Response.Headers.Location.ToString(), Is.EqualTo(
+                $"https://hoodarcheryshop.com{path}"));
+        });
+    }
+
     [Test]
     public async Task CanonicalApexPassesThroughWithoutStoreLookup()
     {
@@ -136,6 +158,14 @@ public sealed class PublicStorefrontCanonicalRedirectTests
     [TestCase("/healthz")]
     [TestCase("/images/product.jpg")]
     [TestCase("/en/themes/hood/site.css")]
+    [TestCase("/en/cart/")]
+    [TestCase("/tr/wishlist/80fdb65a-3793-47d4-ad1e-e71d5a88b4bb")]
+    [TestCase("/de/compareproducts/")]
+    [TestCase("/shoppingcart/checkoutattributechange/true")]
+    [TestCase("/download/getdownload/80fdb65a-3793-47d4-ad1e-e71d5a88b4bb")]
+    [TestCase("/en/productemailafriend/190")]
+    [TestCase("/fr/emailwishlist")]
+    [TestCase("/de/backinstocksubscriptions/manage/1")]
     public async Task SensitiveAndStaticRoutesAreExcluded(string path)
     {
         var storeService = new Mock<IStoreService>(MockBehavior.Strict);
@@ -145,6 +175,33 @@ public sealed class PublicStorefrontCanonicalRedirectTests
         await BuildPipeline(provider)(context);
 
         Assert.That(context.Response.StatusCode, Is.EqualTo(StatusCodes.Status204NoContent));
+        storeService.VerifyNoOtherCalls();
+    }
+
+    [TestCase("/en/changecurrency/1")]
+    [TestCase("/tr/changelanguage/2")]
+    [TestCase("/de/changetaxtype/1")]
+    [TestCase("/en/setstoretheme/Hood/%2Fen")]
+    [TestCase("/en/recentlyviewedproducts/")]
+    [TestCase("/en/multi-factor-verification/")]
+    [TestCase("/en/registerresult/1")]
+    [TestCase("/en/privatemessages/inbox")]
+    [TestCase("/newsletter/subscriptionactivation/80fdb65a-3793-47d4-ad1e-e71d5a88b4bb/true")]
+    [TestCase("/Omnisend/AbandonedCheckout/80fdb65a-3793-47d4-ad1e-e71d5a88b4bb")]
+    [TestCase("/en/amazon-pay/confirm")]
+    public async Task CurrentSessionMutationAndOneTimeLinkFamiliesStayOnTheOriginalHost(string path)
+    {
+        var storeService = new Mock<IStoreService>(MockBehavior.Strict);
+        using var provider = CreateProvider(storeService.Object);
+        var context = CreateContext(provider, HttpMethods.Head, path, "www.hoodarcheryshop.com");
+
+        await BuildPipeline(provider)(context);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(context.Response.StatusCode, Is.EqualTo(StatusCodes.Status204NoContent));
+            Assert.That(context.Response.Headers.Location, Is.Empty);
+        });
         storeService.VerifyNoOtherCalls();
     }
 

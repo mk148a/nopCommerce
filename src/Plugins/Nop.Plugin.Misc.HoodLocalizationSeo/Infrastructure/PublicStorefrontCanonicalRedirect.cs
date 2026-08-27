@@ -11,34 +11,75 @@ namespace Nop.Plugin.Misc.HoodLocalizationSeo.Infrastructure;
 /// </summary>
 internal static class PublicStorefrontCanonicalRedirect
 {
+    // These are exact nopCommerce 4.80 and installed-plugin route families
+    // that either depend on the current customer/cart cookie, mutate
+    // per-customer state, carry a one-time token, deliver a protected file,
+    // or complete auth/payment.
+    // Redirecting them across host-only cookie boundaries could silently lose
+    // state, so canonicalization is intentionally limited to public content.
     private static readonly string[] SensitivePathPrefixes =
     [
         "/.well-known",
+        "/addproducttocart",
         "/admin",
+        "/amazon-pay",
         "/api",
+        "/backinstocksubscribe",
+        "/backinstocksubscribesend",
+        "/backinstocksubscriptions",
+        "/boards/forumsubscriptions",
+        "/boards/forumwatch",
+        "/boards/topicwatch",
         "/callback",
+        "/cart",
+        "/changecurrency",
+        "/changelanguage",
+        "/changetaxtype",
         "/checkout",
+        "/clearcomparelist",
+        "/compareproducts",
         "/customer",
+        "/deletepm",
+        "/download",
+        "/download-tax-exemption-certificate",
+        "/emailwishlist",
         "/externalauthentication",
         "/health",
         "/healthz",
+        "/inboxupdate",
         "/live",
         "/liveness",
         "/login",
         "/logout",
         "/metrics",
+        "/multi-factor-verification",
+        "/newsletter/subscriptionactivation",
+        "/omnisend/abandonedcheckout",
         "/onepagecheckout",
         "/order",
         "/orderdetails",
         "/passwordrecovery",
         "/payment",
         "/paypal",
+        "/privatemessages",
+        "/product/estimateshipping",
+        "/productemailafriend",
         "/ready",
         "/readiness",
+        "/recentlyviewedproducts",
         "/register",
+        "/registerresult",
+        "/reorder",
         "/returnrequest",
+        "/sendpm",
+        "/sentupdate",
+        "/setstoretheme",
+        "/shoppingcart",
         "/stripe",
-        "/webhook"
+        "/subscribenewsletter",
+        "/viewpm",
+        "/webhook",
+        "/wishlist"
     ];
 
     private static readonly string[] StaticPathPrefixes =
