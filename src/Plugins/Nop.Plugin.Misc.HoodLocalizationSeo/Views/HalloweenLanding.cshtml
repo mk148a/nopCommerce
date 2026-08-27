@@ -46,7 +46,7 @@
                     {
                         <div class="item-box">
                             <div class="product-item">
-                                <h2 class="product-title"><a href="@Url.RouteUrl<Product>(new { SeName = product.SeName })">@product.Name</a></h2>
+                                <h2 class="product-title"><a href="@(Url.RouteUrl<Nop.Core.Domain.Catalog.Product>(new { SeName = product.SeName }))">@product.Name</a></h2>
                                 @if (!string.IsNullOrWhiteSpace(product.ShortDescription))
                                 {
                                     <div class="description">@Html.Raw(product.ShortDescription)</div>

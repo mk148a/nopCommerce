@@ -22,7 +22,6 @@ public sealed class PageRenderingEventConsumer : IConsumer<PageRenderingEvent>
 
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IBlogTagHreflangService _blogTagHreflangService;
-    private readonly ILanguageService _languageService;
     private readonly ILocalizationService _localizationService;
     private readonly SeoSettings _seoSettings;
     private readonly IStoreContext _storeContext;
@@ -31,7 +30,6 @@ public sealed class PageRenderingEventConsumer : IConsumer<PageRenderingEvent>
 
     public PageRenderingEventConsumer(IHttpContextAccessor httpContextAccessor,
         IBlogTagHreflangService blogTagHreflangService,
-        ILanguageService languageService,
         ILocalizationService localizationService,
         SeoSettings seoSettings,
         IStoreContext storeContext,
@@ -40,7 +38,6 @@ public sealed class PageRenderingEventConsumer : IConsumer<PageRenderingEvent>
     {
         _httpContextAccessor = httpContextAccessor;
         _blogTagHreflangService = blogTagHreflangService;
-        _languageService = languageService;
         _localizationService = localizationService;
         _seoSettings = seoSettings;
         _storeContext = storeContext;
@@ -78,9 +75,6 @@ public sealed class PageRenderingEventConsumer : IConsumer<PageRenderingEvent>
 
         if (isContactUs)
             await AddLocalizedContactMetadataAsync(eventMessage);
-
-        if (isHalloweenLanding)
-            await AddHalloweenLandingHreflangAsync(eventMessage);
 
         if (isBlogByTag || isProductsByTag)
             eventMessage.Helper.AddHeadCustomParts("<meta name=\"robots\" content=\"noindex,follow\" />");
@@ -124,25 +118,6 @@ public sealed class PageRenderingEventConsumer : IConsumer<PageRenderingEvent>
         AddHreflang(eventMessage, context.Request, "x-default", defaultTarget);
         foreach (var target in targets)
             AddHreflang(eventMessage, context.Request, target.LanguageCulture, target);
-    }
-
-    private async Task AddHalloweenLandingHreflangAsync(PageRenderingEvent eventMessage)
-    {
-        var store = await _storeContext.GetCurrentStoreAsync();
-        if (!TryGetCanonicalStoreOrigin(store.Url, out var canonicalOrigin))
-            return;
-
-        var languages = (await _languageService.GetAllLanguagesAsync(storeId: store.Id))
-            .ToList();
-        var targets = HalloweenLandingRoute.BuildTargets(canonicalOrigin, languages,
-            store.DefaultLanguageId);
-        var defaultTarget = targets.SingleOrDefault(target => target.IsDefault);
-        if (defaultTarget is null)
-            return;
-
-        AddHreflang(eventMessage, "x-default", defaultTarget.Url);
-        foreach (var target in targets)
-            AddHreflang(eventMessage, target.LanguageCulture, target.Url);
     }
 
     private static void AddHreflang(PageRenderingEvent eventMessage,
