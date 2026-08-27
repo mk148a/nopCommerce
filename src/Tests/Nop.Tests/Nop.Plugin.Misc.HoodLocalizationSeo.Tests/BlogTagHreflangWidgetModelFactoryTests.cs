@@ -64,6 +64,11 @@ public sealed class BlogTagHreflangWidgetModelFactoryTests
     [TestCase("/en/filterSearch", "Catalog7Spikes", "AjaxFiltersSearch")]
     [TestCase("/en/recentlyviewedproducts", "Product", "RecentlyViewedProducts")]
     [TestCase("/en/compareproducts", "Product", "CompareProducts")]
+    [TestCase("/no/profile/1423974", "Profile", "Index")]
+    [TestCase("/no/profile/1423974/page/2", "Profile", "Index")]
+    [TestCase("/profile/1423974", "Common", "GenericUrl")]
+    [TestCase("/au/customer/checkgiftcardbalance", "Customer", "CheckGiftCardBalance")]
+    [TestCase("/customer/checkgiftcardbalance", "Common", "GenericUrl")]
     public async Task RemovesGenericGoogleLanguageWidgetOnlyForActualUtilityEndpoint(
         string path,
         string controller,
@@ -101,6 +106,22 @@ public sealed class BlogTagHreflangWidgetModelFactoryTests
         var result = await factory.PrepareRenderWidgetModelAsync(PublicWidgetZones.HeadHtmlTag);
 
         result.Select(model => model.WidgetViewComponent).Should().Equal(otherComponent);
+    }
+
+    [Test]
+    public async Task KeepsGenericGoogleLanguageWidgetOnNearMatchProfileRoute()
+    {
+        var otherComponent = typeof(BlogTagHreflangWidgetModelFactoryTests);
+        var inner = new StubWidgetModelFactory(GoogleLanguageComponent, otherComponent);
+        var context = CreateContext("Profile", "Index");
+        context.Request.Path = "/no/profile/1423974/page/not-a-number";
+        var factory = new BlogTagHreflangWidgetModelFactory(inner,
+            new HttpContextAccessor { HttpContext = context });
+
+        var result = await factory.PrepareRenderWidgetModelAsync(PublicWidgetZones.HeadHtmlTag);
+
+        result.Select(model => model.WidgetViewComponent)
+            .Should().Equal(GoogleLanguageComponent, otherComponent);
     }
 
     [TestCase("Catalog", "NewProducts", "/en/newproducts", "")]

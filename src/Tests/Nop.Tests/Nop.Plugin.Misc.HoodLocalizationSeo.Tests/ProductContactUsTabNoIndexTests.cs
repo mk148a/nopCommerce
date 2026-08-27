@@ -24,6 +24,11 @@ public sealed class ProductContactUsTabNoIndexTests
     [TestCase("HEAD", "/recentlyviewedproducts/", "Common", "GenericUrl", ProductContactUsTabNoIndex.UtilityEndpointHeaderValue)]
     [TestCase("GET", "/compareproducts", "Common", "GenericUrl", ProductContactUsTabNoIndex.UtilityEndpointHeaderValue)]
     [TestCase("GET", "/recentlyviewedproducts", "Product", "RecentlyViewedProducts", ProductContactUsTabNoIndex.UtilityEndpointHeaderValue)]
+    [TestCase("GET", "/no/profile/1423974", "Profile", "Index", ProductContactUsTabNoIndex.UtilityEndpointHeaderValue)]
+    [TestCase("HEAD", "/profile/0/", "Profile", "Index", ProductContactUsTabNoIndex.UtilityEndpointHeaderValue)]
+    [TestCase("GET", "/no/profile/1423974/page/2/", "Profile", "Index", ProductContactUsTabNoIndex.UtilityEndpointHeaderValue)]
+    [TestCase("GET", "/au/customer/checkgiftcardbalance", "Customer", "CheckGiftCardBalance", ProductContactUsTabNoIndex.ProductContactUsTabHeaderValue)]
+    [TestCase("HEAD", "/customer/checkgiftcardbalance", "Common", "GenericUrl", ProductContactUsTabNoIndex.ProductContactUsTabHeaderValue)]
     public async Task RoutedEligibleEndpointAddsNoIndexHeaderAndPreservesResponse(
         string method,
         string path,
@@ -64,6 +69,14 @@ public sealed class ProductContactUsTabNoIndexTests
     [TestCase("GET", "/pt-BR/recentlyviewedproducts", "Product", "RecentlyViewedProducts")]
     [TestCase("GET", "/pt-BR/compareproducts", "Product", "CompareProducts")]
     [TestCase("GET", "/en-US/filterSearch", "Catalog7Spikes", "AjaxFiltersSearch")]
+    [TestCase("POST", "/no/profile/1423974", "Profile", "Index")]
+    [TestCase("GET", "/no/profile/not-a-number", "Profile", "Index")]
+    [TestCase("GET", "/no/profile/1423974/page/not-a-number", "Profile", "Index")]
+    [TestCase("GET", "/no/profile/-1", "Profile", "Index")]
+    [TestCase("GET", "/no/profile/1423974/page/2/extra", "Profile", "Index")]
+    [TestCase("GET", "/no/profile/1423974", "Customer", "Index")]
+    [TestCase("GET", "/au/customer/checkgiftcardbalance/extra", "Customer", "CheckGiftCardBalance")]
+    [TestCase("POST", "/au/customer/checkgiftcardbalance", "Customer", "CheckGiftCardBalance")]
     public async Task NonMatchingPathsMethodsOrEndpointsDoNotReceiveNoIndexHeader(
         string method,
         string path,

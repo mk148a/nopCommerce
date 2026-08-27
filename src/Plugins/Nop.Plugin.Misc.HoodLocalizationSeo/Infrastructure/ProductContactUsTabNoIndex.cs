@@ -60,7 +60,9 @@ internal static class ProductContactUsTabNoIndex
 
         if (IsUtilityRequest(request))
         {
-            headerValue = UtilityEndpointHeaderValue;
+            headerValue = IsGiftCardBalanceRequest(request)
+                ? ProductContactUsTabHeaderValue
+                : UtilityEndpointHeaderValue;
             return true;
         }
 
@@ -85,10 +87,64 @@ internal static class ProductContactUsTabNoIndex
     {
         ArgumentNullException.ThrowIfNull(request);
 
+        if (IsProfileRequest(request) || IsGiftCardBalanceRequest(request))
+            return true;
+
         if (!TryGetUtilityRoute(request.Path.Value ?? string.Empty, out var route, out var isLocaleLess))
             return false;
 
         return IsExpectedEndpoint(request, route, isLocaleLess);
+    }
+
+    private static bool IsProfileRequest(HttpRequest request) =>
+        TryGetSpecialRoute(request.Path.Value ?? string.Empty, SpecialRoute.Profile, out var isLocaleLess) &&
+        IsExpectedSpecialEndpoint(request, SpecialRoute.Profile, isLocaleLess);
+
+    private static bool IsGiftCardBalanceRequest(HttpRequest request) =>
+        TryGetSpecialRoute(request.Path.Value ?? string.Empty, SpecialRoute.GiftCardBalance, out var isLocaleLess) &&
+        IsExpectedSpecialEndpoint(request, SpecialRoute.GiftCardBalance, isLocaleLess);
+
+    private static bool TryGetSpecialRoute(string path, SpecialRoute expected, out bool isLocaleLess)
+    {
+        isLocaleLess = false;
+        if (string.IsNullOrEmpty(path) || path[0] != '/')
+            return false;
+        if (path.Length > 1 && path[^1] == '/')
+            path = path[..^1];
+        var segments = path[1..].Split('/', StringSplitOptions.None);
+        var offset = 0;
+        if (segments.Length > 0 && IsCultureSegment(segments[0]))
+            offset = 1;
+        else
+            isLocaleLess = true;
+
+        if (expected == SpecialRoute.Profile)
+        {
+            if (segments.Length == offset + 2)
+                return segments[offset].Equals("profile", StringComparison.OrdinalIgnoreCase) &&
+                       IsAsciiDigits(segments[offset + 1]);
+
+            return segments.Length == offset + 4 &&
+                   segments[offset].Equals("profile", StringComparison.OrdinalIgnoreCase) &&
+                   IsAsciiDigits(segments[offset + 1]) &&
+                   segments[offset + 2].Equals("page", StringComparison.OrdinalIgnoreCase) &&
+                   IsAsciiDigits(segments[offset + 3]);
+        }
+
+        return segments.Length == offset + 2 &&
+               segments[offset].Equals("customer", StringComparison.OrdinalIgnoreCase) &&
+               segments[offset + 1].Equals("checkgiftcardbalance", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool IsExpectedSpecialEndpoint(HttpRequest request, SpecialRoute route, bool isLocaleLess)
+    {
+        var endpointMatch = route switch
+        {
+            SpecialRoute.Profile => IsEndpoint(request, "Profile", "Index"),
+            SpecialRoute.GiftCardBalance => IsEndpoint(request, "Customer", "CheckGiftCardBalance"),
+            _ => false
+        };
+        return endpointMatch || isLocaleLess && IsEndpoint(request, "Common", "GenericUrl");
     }
 
     private static bool IsProductContactUsTabRequest(HttpRequest request)
@@ -240,5 +296,11 @@ internal static class ProductContactUsTabNoIndex
         FilterSearch,
         RecentlyViewedProducts,
         CompareProducts
+    }
+
+    private enum SpecialRoute
+    {
+        Profile,
+        GiftCardBalance
     }
 }
