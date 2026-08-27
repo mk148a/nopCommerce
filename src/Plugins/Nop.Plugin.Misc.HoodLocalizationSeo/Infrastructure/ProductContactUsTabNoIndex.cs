@@ -28,10 +28,21 @@ internal static class ProductContactUsTabNoIndex
     {
         ArgumentNullException.ThrowIfNull(context);
 
-        if (context.Response.HasStarted || !TryGetHeaderValue(context.Request, out var headerValue))
+        if (!TryGetHeaderValue(context.Request, out var headerValue))
             return false;
 
-        context.Response.Headers[HeaderName] = headerValue;
+        if (context.Response.HasStarted)
+            return false;
+
+        context.Response.OnStarting(static state =>
+        {
+            var (httpContext, value) = ((HttpContext, string))state;
+            httpContext.Response.Headers[HeaderName] = MergeDirective(
+                httpContext.Response.Headers[HeaderName].ToString(), value);
+            return Task.CompletedTask;
+        }, (context, headerValue));
+        context.Response.Headers[HeaderName] = MergeDirective(
+            context.Response.Headers[HeaderName].ToString(), headerValue);
         return true;
     }
 
@@ -50,9 +61,16 @@ internal static class ProductContactUsTabNoIndex
             return true;
         }
 
-        if (IsLocalizedUtilityPath(path, "filterSearch") ||
-            IsLocalizedUtilityPath(path, "recentlyviewedproducts") ||
-            IsLocalizedUtilityPath(path, "compareproducts"))
+        if (IsUtilityPath(path, "filterSearch") ||
+            IsUtilityPath(path, "recentlyviewedproducts") ||
+            IsUtilityPath(path, "compareproducts"))
+        {
+            headerValue = UtilityEndpointHeaderValue;
+            return true;
+        }
+
+        if (IsLocalizedAllPath(path, "producttag") || IsLocalizedAllPath(path, "manufacturer") ||
+            IsLocalizedQueryPath(path, "newproducts") && request.QueryString.HasValue)
         {
             headerValue = UtilityEndpointHeaderValue;
             return true;
@@ -84,7 +102,7 @@ internal static class ProductContactUsTabNoIndex
                IsAsciiDigits(segments[offset + 2]);
     }
 
-    private static bool IsLocalizedUtilityPath(string path, string endpoint)
+    private static bool IsUtilityPath(string path, string endpoint)
     {
         if (string.IsNullOrEmpty(path) || path[0] != '/')
             return false;
@@ -93,15 +111,46 @@ internal static class ProductContactUsTabNoIndex
             path = path[..^1];
 
         var segments = path[1..].Split('/', StringSplitOptions.None);
-        return segments.Length == 2 &&
-               IsCultureSegment(segments[0]) &&
-               segments[1].Equals(endpoint, StringComparison.OrdinalIgnoreCase);
+        return (segments.Length == 1 && segments[0].Equals(endpoint, StringComparison.OrdinalIgnoreCase)) ||
+               (segments.Length == 2 && IsCultureSegment(segments[0]) &&
+                segments[1].Equals(endpoint, StringComparison.OrdinalIgnoreCase));
+    }
+
+    private static string MergeDirective(string existing, string required)
+    {
+        if (string.IsNullOrWhiteSpace(existing))
+            return required;
+        var values = existing.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .ToList();
+        var requiredTokens = required.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        values.RemoveAll(value => value.Equals("index", StringComparison.OrdinalIgnoreCase) ||
+                                  value.Equals("follow", StringComparison.OrdinalIgnoreCase) ||
+                                  value.Equals("nofollow", StringComparison.OrdinalIgnoreCase));
+        foreach (var token in requiredTokens)
+            if (!values.Any(value => value.Equals(token, StringComparison.OrdinalIgnoreCase)))
+                values.Add(token);
+        return string.Join(", ", values);
+    }
+
+    private static bool IsLocalizedAllPath(string path, string endpoint)
+    {
+        var segments = path.Trim('/').Split('/', StringSplitOptions.RemoveEmptyEntries);
+        var offset = segments.Length > 0 && IsCultureSegment(segments[0]) ? 1 : 0;
+        return segments.Length == offset + 2 && (offset == 0 || IsCultureSegment(segments[0])) &&
+               segments[offset].Equals(endpoint, StringComparison.OrdinalIgnoreCase) &&
+               segments[offset + 1].Equals("all", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool IsLocalizedQueryPath(string path, string endpoint)
+    {
+        var segments = path.Trim('/').Split('/', StringSplitOptions.RemoveEmptyEntries);
+        var offset = segments.Length > 0 && IsCultureSegment(segments[0]) ? 1 : 0;
+        return segments.Length == offset + 1 &&
+               segments[offset].Equals(endpoint, StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool IsCultureSegment(string segment) =>
-        segment.Length == 2 && char.IsLetter(segment[0]) && char.IsLetter(segment[1]) ||
-        segment.Length == 5 && char.IsLetter(segment[0]) && char.IsLetter(segment[1]) &&
-        segment[2] == '-' && char.IsLetter(segment[3]) && char.IsLetter(segment[4]);
+        segment.Length == 2 && segment.All(character => character is >= 'A' and <= 'Z' or >= 'a' and <= 'z');
 
     private static bool IsAsciiDigits(string value)
     {
