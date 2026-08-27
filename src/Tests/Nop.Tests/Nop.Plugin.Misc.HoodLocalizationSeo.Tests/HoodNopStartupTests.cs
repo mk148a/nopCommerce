@@ -11,7 +11,7 @@ public sealed class HoodNopStartupTests
     [Test]
     public void CanonicalRedirectMiddlewareIsOrderedWithoutChangingMainPluginStartupOrder()
     {
-        var middlewareOrder = new HalloweenCanonicalRedirectNopStartup().Order;
+        var middlewareOrder = new PublicStorefrontCanonicalRedirectNopStartup().Order;
 
         Assert.Multiple(() =>
         {

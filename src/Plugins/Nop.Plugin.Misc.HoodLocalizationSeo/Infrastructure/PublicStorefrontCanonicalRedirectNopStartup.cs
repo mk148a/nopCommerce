@@ -8,10 +8,11 @@ using Nop.Services.Stores;
 namespace Nop.Plugin.Misc.HoodLocalizationSeo.Infrastructure;
 
 /// <summary>
-/// Places the route-specific www canonical redirect before endpoint execution
-/// without changing the registration order of the main plugin startup.
+/// Runs before nopCommerce host fallback and endpoint execution so the
+/// registered www storefront alias has one canonical origin for HTML,
+/// sitemap and video-watch discovery.
 /// </summary>
-public sealed class HalloweenCanonicalRedirectNopStartup : INopStartup
+public sealed class PublicStorefrontCanonicalRedirectNopStartup : INopStartup
 {
     public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
     {
@@ -19,13 +20,10 @@ public sealed class HalloweenCanonicalRedirectNopStartup : INopStartup
 
     public void Configure(IApplicationBuilder application)
     {
-        // This must run before endpoint execution and before nopCommerce's
-        // store-host fallback. The latter turns an unregistered www alias
-        // into /page-not-found before the route controller can run.
         application.Use(async (context, next) =>
         {
-            if (!HalloweenLandingCanonicalRedirect.IsLandingGetOrHead(context.Request.Path,
-                    context.Request.Method, out var language))
+            if (!PublicStorefrontCanonicalRedirect.IsEligibleRequest(context.Request) ||
+                !PublicStorefrontCanonicalRedirect.IsPotentialWwwAlias(context.Request.Host))
             {
                 await next();
                 return;
@@ -33,8 +31,8 @@ public sealed class HalloweenCanonicalRedirectNopStartup : INopStartup
 
             var storeService = context.RequestServices.GetRequiredService<IStoreService>();
             var stores = await storeService.GetAllStoresAsync();
-            if (!HalloweenLandingCanonicalRedirect.TryGetCanonicalStoreForHost(storeService, stores,
-                    context.Request.Host, out var canonicalOrigin, out var hostKind))
+            if (!PublicStorefrontCanonicalRedirect.TryGetCanonicalStoreForWwwAlias(storeService, stores,
+                    context.Request.Host, out var canonicalBase, out var hostKind))
             {
                 context.Response.StatusCode = StatusCodes.Status400BadRequest;
                 return;
@@ -49,14 +47,13 @@ public sealed class HalloweenCanonicalRedirectNopStartup : INopStartup
             if (hostKind == CanonicalHostKind.WwwAlias)
             {
                 context.Response.StatusCode = StatusCodes.Status301MovedPermanently;
-                context.Response.Headers.Location = HalloweenLandingCanonicalRedirect.AppendAllowedTrackingQuery(
-                    HalloweenLandingCanonicalRedirect.BuildCanonicalUrl(canonicalOrigin, language),
-                    context.Request.Query);
+                context.Response.Headers.Location = PublicStorefrontCanonicalRedirect.BuildCanonicalUrl(
+                    canonicalBase, context.Request.Path, context.Request.QueryString);
                 return;
             }
 
-            // A registered but non-www alias belongs to this store, but this
-            // narrow repair must not choose a canonicalization rule for it.
+            // A registered host that is not the configured origin's explicit
+            // www alias is ambiguous for this policy and must not be guessed.
             context.Response.StatusCode = StatusCodes.Status400BadRequest;
         });
     }
