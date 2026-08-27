@@ -58,6 +58,55 @@ public sealed class BlogTagHreflangWidgetModelFactoryTests
         result.Select(model => model.WidgetViewComponent).Should().Equal(GoogleLanguageComponent);
     }
 
+    [TestCase("Catalog", "ProductTagsAll", "/en/producttag/all", "")]
+    [TestCase("Catalog", "ManufacturerAll", "/manufacturer/all", "")]
+    [TestCase("Catalog", "NewProducts", "/en/newproducts", "?pagenumber=2")]
+    [TestCase("Catalog7Spikes", "AjaxFiltersSearch", "/filterSearch/", "?price=10-20")]
+    [TestCase("Product", "RecentlyViewedProducts", "/en/recentlyviewedproducts", "")]
+    [TestCase("Product", "CompareProducts", "/compareproducts", "")]
+    public async Task RemovesGenericGoogleLanguageWidgetFromNoIndexUtilityPages(
+        string controller,
+        string action,
+        string path,
+        string query)
+    {
+        var otherComponent = typeof(BlogTagHreflangWidgetModelFactoryTests);
+        var inner = new StubWidgetModelFactory(GoogleLanguageComponent, otherComponent);
+        var context = CreateContext(controller, action);
+        context.Request.Path = path;
+        context.Request.QueryString = new QueryString(query);
+        var factory = new BlogTagHreflangWidgetModelFactory(inner,
+            new HttpContextAccessor { HttpContext = context });
+
+        var result = await factory.PrepareRenderWidgetModelAsync(PublicWidgetZones.HeadHtmlTag);
+
+        result.Select(model => model.WidgetViewComponent).Should().Equal(otherComponent);
+    }
+
+    [TestCase("Catalog", "NewProducts", "/en/newproducts", "")]
+    [TestCase("Catalog", "Category", "/en/wooden-arrows-2", "")]
+    [TestCase("Catalog", "Search", "/en/search", "?q=bow")]
+    [TestCase("Product", "ProductDetails", "/en/wooden-ottoman-hunting-arrows", "")]
+    public async Task KeepsGenericGoogleLanguageWidgetOnIndexablePublicPages(
+        string controller,
+        string action,
+        string path,
+        string query)
+    {
+        var otherComponent = typeof(BlogTagHreflangWidgetModelFactoryTests);
+        var inner = new StubWidgetModelFactory(GoogleLanguageComponent, otherComponent);
+        var context = CreateContext(controller, action);
+        context.Request.Path = path;
+        context.Request.QueryString = new QueryString(query);
+        var factory = new BlogTagHreflangWidgetModelFactory(inner,
+            new HttpContextAccessor { HttpContext = context });
+
+        var result = await factory.PrepareRenderWidgetModelAsync(PublicWidgetZones.HeadHtmlTag);
+
+        result.Select(model => model.WidgetViewComponent)
+            .Should().Equal(GoogleLanguageComponent, otherComponent);
+    }
+
     private static DefaultHttpContext CreateContext(string controller, string action)
     {
         var context = new DefaultHttpContext();

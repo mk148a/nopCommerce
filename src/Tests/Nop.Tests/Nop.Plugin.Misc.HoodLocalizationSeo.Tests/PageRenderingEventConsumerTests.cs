@@ -19,6 +19,80 @@ namespace Nop.Plugin.Misc.HoodLocalizationSeo.Tests;
 [TestFixture]
 public sealed class PageRenderingEventConsumerTests
 {
+    [TestCase("", true, false)]
+    [TestCase("?pagenumber=2", false, true)]
+    [TestCase("?orderby=5", false, true)]
+    public async Task NewProductsUsesCanonicalOnlyForTheQuerylessIndexPage(
+        string query,
+        bool expectCanonical,
+        bool expectNoIndex)
+    {
+        var httpContext = new DefaultHttpContext();
+        httpContext.Request.Scheme = "https";
+        httpContext.Request.Host = new HostString("hoodarcheryshop.com");
+        httpContext.Request.Path = "/en/newproducts";
+        httpContext.Request.QueryString = new QueryString(query);
+        httpContext.Request.RouteValues = new RouteValueDictionary
+        {
+            ["controller"] = "Catalog",
+            ["action"] = "NewProducts",
+            ["language"] = "en"
+        };
+        var headParts = new List<string>();
+        var helper = new Mock<INopHtmlHelper>();
+        helper.Setup(item => item.GetRouteName(true)).Returns("NewProducts");
+        helper.Setup(item => item.AddHeadCustomParts(It.IsAny<string>()))
+            .Callback<string>(headParts.Add);
+        var consumer = new PageRenderingEventConsumer(
+            new HttpContextAccessor { HttpContext = httpContext }, Mock.Of<IBlogTagHreflangService>(),
+            Mock.Of<ILocalizationService>(), new SeoSettings { CanonicalUrlsEnabled = true },
+            Mock.Of<IStoreContext>(), Mock.Of<ITopicService>(), Mock.Of<IWorkContext>());
+
+        await consumer.HandleEventAsync(new PageRenderingEvent(helper.Object));
+
+        helper.Verify(item => item.AddCanonicalUrlParts(
+                "https://hoodarcheryshop.com/en/newproducts", false),
+            expectCanonical ? Times.Once() : Times.Never());
+        Assert.That(headParts.Contains("<meta name=\"robots\" content=\"noindex,follow\" />"),
+            Is.EqualTo(expectNoIndex));
+    }
+
+    [TestCase("ProductTagsAll")]
+    [TestCase("ManufacturerAll")]
+    public async Task UtilityAllPagesAreNoIndexWithoutCanonical(string action)
+    {
+        var httpContext = new DefaultHttpContext();
+        httpContext.Request.Scheme = "https";
+        httpContext.Request.Host = new HostString("hoodarcheryshop.com");
+        httpContext.Request.Path = action == "ProductTagsAll"
+            ? "/en/producttag/all"
+            : "/en/manufacturer/all";
+        httpContext.Request.RouteValues = new RouteValueDictionary
+        {
+            ["controller"] = "Catalog",
+            ["action"] = action,
+            ["language"] = "en"
+        };
+        var headParts = new List<string>();
+        var helper = new Mock<INopHtmlHelper>();
+        helper.Setup(item => item.GetRouteName(true)).Returns(action);
+        helper.Setup(item => item.AddHeadCustomParts(It.IsAny<string>()))
+            .Callback<string>(headParts.Add);
+        var consumer = new PageRenderingEventConsumer(
+            new HttpContextAccessor { HttpContext = httpContext }, Mock.Of<IBlogTagHreflangService>(),
+            Mock.Of<ILocalizationService>(), new SeoSettings { CanonicalUrlsEnabled = true },
+            Mock.Of<IStoreContext>(), Mock.Of<ITopicService>(), Mock.Of<IWorkContext>());
+
+        await consumer.HandleEventAsync(new PageRenderingEvent(helper.Object));
+
+        Assert.That(headParts, Is.EqualTo(new[]
+        {
+            "<meta name=\"robots\" content=\"noindex,follow\" />"
+        }));
+        helper.Verify(item => item.AddCanonicalUrlParts(It.IsAny<string>(), It.IsAny<bool>()),
+            Times.Never);
+    }
+
     [Test]
     public async Task GenericLocalizedPageDoesNotEmitDuplicateSelfHreflang()
     {

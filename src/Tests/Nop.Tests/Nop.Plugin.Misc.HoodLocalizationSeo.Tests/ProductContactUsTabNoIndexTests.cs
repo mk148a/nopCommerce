@@ -13,12 +13,12 @@ public sealed class ProductContactUsTabNoIndexTests
 {
     [TestCase("GET", "/en/ProductTab/ProductContactUsTab/190", ProductContactUsTabNoIndex.ProductContactUsTabHeaderValue)]
     [TestCase("HEAD", "/en/ProductTab/ProductContactUsTab/190", ProductContactUsTabNoIndex.ProductContactUsTabHeaderValue)]
-    [TestCase("GET", "/pt-BR/ProductTab/ProductContactUsTab/190", ProductContactUsTabNoIndex.ProductContactUsTabHeaderValue)]
     [TestCase("HEAD", "/ProductTab/ProductContactUsTab/190", ProductContactUsTabNoIndex.ProductContactUsTabHeaderValue)]
     [TestCase("GET", "/EN/producttab/productcontactustab/190/", ProductContactUsTabNoIndex.ProductContactUsTabHeaderValue)]
     [TestCase("GET", "/en/filterSearch", ProductContactUsTabNoIndex.UtilityEndpointHeaderValue)]
     [TestCase("HEAD", "/fr/filterSearch/", ProductContactUsTabNoIndex.UtilityEndpointHeaderValue)]
     [TestCase("GET", "/filterSearch/", ProductContactUsTabNoIndex.UtilityEndpointHeaderValue)]
+    [TestCase("GET", "/filterSearch", ProductContactUsTabNoIndex.UtilityEndpointHeaderValue)]
     [TestCase("GET", "/recentlyviewedproducts", ProductContactUsTabNoIndex.UtilityEndpointHeaderValue)]
     [TestCase("GET", "/en/recentlyviewedproducts", ProductContactUsTabNoIndex.UtilityEndpointHeaderValue)]
     [TestCase("HEAD", "/fr/compareproducts", ProductContactUsTabNoIndex.UtilityEndpointHeaderValue)]
@@ -45,7 +45,6 @@ public sealed class ProductContactUsTabNoIndexTests
     [TestCase("GET", "/en/ProductTab/ProductReviewsTab/190")]
     [TestCase("GET", "/en/wooden-ottoman-hunting-arrows")]
     [TestCase("GET", "/Admin/ProductTab/ProductContactUsTab/190")]
-    [TestCase("GET", "/filterSearch")]
     [TestCase("GET", "/en/filterSearch/extra")]
     [TestCase("GET", "/en/filterSearchResults")]
     [TestCase("GET", "/en/recentlyviewedproducts/190")]
@@ -55,6 +54,7 @@ public sealed class ProductContactUsTabNoIndexTests
     [TestCase("GET", "/en/newproducts")]
     [TestCase("GET", "/pt-BR/filterSearch")]
     [TestCase("GET", "/en-US/filterSearch")]
+    [TestCase("GET", "/pt-BR/ProductTab/ProductContactUsTab/190")]
     public async Task OtherMethodsAndRoutesDoNotReceiveNoIndexHeader(string method, string path)
     {
         var context = CreateContext(method, path);

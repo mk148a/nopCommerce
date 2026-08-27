@@ -46,6 +46,23 @@ internal static class ProductContactUsTabNoIndex
         return true;
     }
 
+    /// <summary>
+    /// Re-applies the required directive after downstream middleware when the
+    /// response has not started yet. The OnStarting callback remains the
+    /// authority for responses that start inside the endpoint.
+    /// </summary>
+    internal static bool TryFinalize(HttpContext context)
+    {
+        ArgumentNullException.ThrowIfNull(context);
+
+        if (context.Response.HasStarted || !TryGetHeaderValue(context.Request, out var headerValue))
+            return false;
+
+        context.Response.Headers[HeaderName] = MergeDirective(
+            context.Response.Headers[HeaderName].ToString(), headerValue);
+        return true;
+    }
+
     internal static bool TryGetHeaderValue(HttpRequest request, out string headerValue)
     {
         ArgumentNullException.ThrowIfNull(request);
