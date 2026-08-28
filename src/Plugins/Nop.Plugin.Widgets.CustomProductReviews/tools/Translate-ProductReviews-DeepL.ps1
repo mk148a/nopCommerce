@@ -10,6 +10,7 @@
   [int]$DelayMs = 300,
   [switch]$Force,
   [switch]$RepairMojibake,
+  [switch]$RepairTruncated,
   [string[]]$TargetLanguageCodes = @(),
   [string[]]$ReviewIds = @(),
   [ValidateRange(1, 50)]
@@ -102,10 +103,11 @@ function Invoke-Query([string]$cs, [string]$sql) {
   }
 }
 
-function Upsert-LocalizedProperty([string]$cs, [int]$entityId, [int]$languageId, [string]$localeKey, [string]$localeValue) {
-  if ($null -eq $localeValue) { $localeValue = "" }
+function Write-LocalizedPropertiesAtomically([string]$cs, $writes) {
+  if ($null -eq $writes -or $writes.Count -eq 0) { return 0 }
 
   $conn = New-Connection $cs
+  $transaction = $null
   $cmd = $conn.CreateCommand()
   $cmd.CommandTimeout = 300
   $cmd.CommandText = @"
@@ -133,16 +135,32 @@ WHEN NOT MATCHED THEN
   [void]$cmd.Parameters.Add("@LocaleKey", [System.Data.SqlDbType]::NVarChar, 400)
   [void]$cmd.Parameters.Add("@LocaleValue", [System.Data.SqlDbType]::NVarChar, -1)
 
-  $cmd.Parameters["@EntityId"].Value = $entityId
-  $cmd.Parameters["@LanguageId"].Value = $languageId
-  $cmd.Parameters["@LocaleKey"].Value = $localeKey
-  $cmd.Parameters["@LocaleValue"].Value = $localeValue
-
   $conn.Open()
   try {
-    return $cmd.ExecuteNonQuery()
+    $transaction = $conn.BeginTransaction()
+    $cmd.Transaction = $transaction
+    $written = 0
+    foreach ($write in $writes) {
+      $cmd.Parameters["@EntityId"].Value = [int]$write.ReviewId
+      $cmd.Parameters["@LanguageId"].Value = [int]$write.LanguageId
+      $cmd.Parameters["@LocaleKey"].Value = [string]$write.LocaleKey
+      $cmd.Parameters["@LocaleValue"].Value = [string]$write.LocaleValue
+      $affected = $cmd.ExecuteNonQuery()
+      if ($affected -ne 1) {
+        throw "Atomic localized-property write affected $affected rows; expected exactly one."
+      }
+      $written++
+    }
+    $transaction.Commit()
+    return $written
+  } catch {
+    if ($transaction) { $transaction.Rollback() }
+    throw
   } finally {
+    if ($transaction) { $transaction.Dispose() }
+    $cmd.Dispose()
     $conn.Close()
+    $conn.Dispose()
   }
 }
 
@@ -267,6 +285,8 @@ function Invoke-TranslationBatch($payload, $queue, $language, [string]$cs) {
   if ($payload.Count -eq 0) { return }
 
   Write-Host "LanguageId $($language.LanguageId) / $($language.DeepL): $($payload.Count) fields in one DeepL request" -ForegroundColor Yellow
+  $script:totalQueued += $queue.Count
+  $script:totalQueuedTruncated += @($queue | Where-Object { $_.RepairTruncated }).Count
   if ($DryRun) { return }
 
   # ArrayList is enumerated normally for batches, but PowerShell can bind a
@@ -282,13 +302,24 @@ function Invoke-TranslationBatch($payload, $queue, $language, [string]$cs) {
 
   $script:totalApiCalls++
   for ($i = 0; $i -lt $queue.Count; $i++) {
-    $value = [string]$translated[$i]
+    # With tag_handling=html DeepL can return character references such as
+    # C&#x27;est. Store the reader-visible Unicode text; Razor will perform the
+    # output encoding when the review is rendered.
+    $value = [System.Net.WebUtility]::HtmlDecode([string]$translated[$i])
     if ([string]::IsNullOrWhiteSpace($value)) { continue }
 
     $entry = $queue[$i]
-    [void](Upsert-LocalizedProperty $cs $entry.ReviewId $entry.LanguageId $entry.LocaleKey $value)
+    if ($entry.RepairTruncated -and $value.Trim().Length -le 1) {
+      throw "DeepL returned another truncated ReviewText. No localized-property writes were made."
+    }
+    $script:pendingWrites.Add([pscustomobject]@{
+      ReviewId = [int]$entry.ReviewId
+      LanguageId = [int]$entry.LanguageId
+      LocaleKey = [string]$entry.LocaleKey
+      LocaleValue = $value
+      RepairTruncated = [bool]$entry.RepairTruncated
+    })
     $exists["$($entry.ReviewId)|$($entry.LanguageId)|$($entry.LocaleKey)"] = $value
-    $script:totalWrites++
   }
 
   Start-Sleep -Milliseconds $DelayMs
@@ -399,9 +430,12 @@ foreach ($e in $existing.Rows) {
 
 $script:totalWrites = 0
 $script:totalApiCalls = 0
+$script:totalQueued = 0
+$script:totalQueuedTruncated = 0
 $script:totalSkippedExisting = 0
 $script:totalSkippedEmpty = 0
 $script:totalSkippedUnsupported = 0
+$script:pendingWrites = [System.Collections.Generic.List[object]]::new()
 
 foreach ($l in $targets) {
   $payload = [System.Collections.ArrayList]::new()
@@ -422,8 +456,28 @@ foreach ($l in $targets) {
 
     $titleKey = "$rid|$lid|Title"
     $textKey = "$rid|$lid|ReviewText"
-    $needTitle = $Force -or (-not $exists.ContainsKey($titleKey)) -or ($RepairMojibake -and (Test-Mojibake $exists[$titleKey]))
-    $needText  = $Force -or (-not $exists.ContainsKey($textKey)) -or ($RepairMojibake -and (Test-Mojibake $exists[$textKey]))
+    $existingText = if ($exists.ContainsKey($textKey)) { [string]$exists[$textKey] } else { [string]::Empty }
+    # A one-character body cannot be a valid translation for a substantive
+    # source review. Restrict this repair to ReviewText; titles can be valid
+    # one-character strings in languages such as Japanese.
+    $repairTruncatedText = $RepairTruncated -and
+      $exists.ContainsKey($textKey) -and
+      $text.Trim().Length -ge 8 -and
+      $existingText.Trim().Length -eq 1
+    if ($RepairTruncated) {
+      # This is an intentionally narrow repair mode. Do not combine the
+      # regular missing/force/mojibake selection with a data correction run.
+      $needTitle = $false
+      $needText = $repairTruncatedText
+    } elseif ($RepairMojibake) {
+      # Repair mode must never fill unrelated missing translations. Only
+      # rewrite an existing value that matches the mojibake detector.
+      $needTitle = $exists.ContainsKey($titleKey) -and (Test-Mojibake $exists[$titleKey])
+      $needText = $exists.ContainsKey($textKey) -and (Test-Mojibake $exists[$textKey])
+    } else {
+      $needTitle = $Force -or (-not $exists.ContainsKey($titleKey))
+      $needText  = $Force -or (-not $exists.ContainsKey($textKey))
+    }
 
     if (!$needTitle -and !$needText) {
       $script:totalSkippedExisting += 2
@@ -432,7 +486,7 @@ foreach ($l in $targets) {
 
     foreach ($candidate in @(
       [pscustomobject]@{ LocaleKey = "Title"; Value = $title; Needed = $needTitle },
-      [pscustomobject]@{ LocaleKey = "ReviewText"; Value = $text; Needed = $needText }
+      [pscustomobject]@{ LocaleKey = "ReviewText"; Value = $text; Needed = $needText; RepairTruncated = $repairTruncatedText }
     )) {
       if (!$candidate.Needed) { continue }
       if ([string]::IsNullOrWhiteSpace([string]$candidate.Value)) {
@@ -456,6 +510,7 @@ foreach ($l in $targets) {
         ReviewId = $rid
         LanguageId = $lid
         LocaleKey = [string]$candidate.LocaleKey
+        RepairTruncated = [bool]$candidate.RepairTruncated
       })
       $payloadCharacters += $candidateLength
     }
@@ -464,13 +519,25 @@ foreach ($l in $targets) {
   Invoke-TranslationBatch $payload $queue $l $ConnectionString
 }
 
+if (!$DryRun) {
+  # No localized row is changed until every DeepL batch has completed. The
+  # final database write is one transaction, so a SQL failure cannot leave a
+  # partially repaired language/review matrix behind.
+  $script:totalWrites = Write-LocalizedPropertiesAtomically $ConnectionString $script:pendingWrites
+}
+
 Write-Host ""
 Write-Host "Done." -ForegroundColor Green
 if ($backupTable) { Write-Host "LocalizedProperty backup table: $backupTable" -ForegroundColor Cyan }
+Write-Host "Queued translation fields: $script:totalQueued" -ForegroundColor Green
+Write-Host "Queued truncated ReviewText repairs: $script:totalQueuedTruncated" -ForegroundColor Green
 Write-Host "DeepL API calls: $script:totalApiCalls" -ForegroundColor Green
 Write-Host "LocalizedProperty rows inserted/updated: $script:totalWrites" -ForegroundColor Green
 Write-Host "Skipped existing fields: $script:totalSkippedExisting" -ForegroundColor DarkGray
 Write-Host "Skipped empty fields: $script:totalSkippedEmpty" -ForegroundColor DarkGray
 Write-Host "Skipped unsupported languages: $script:totalSkippedUnsupported" -ForegroundColor DarkGray
+if ($DryRun) {
+  Write-Host "Dry run: no DeepL API calls or database writes were made." -ForegroundColor Cyan
+}
 Write-Host ""
 Write-Host "Now recycle App Pool, clear nopCommerce cache and CDN cache." -ForegroundColor Cyan

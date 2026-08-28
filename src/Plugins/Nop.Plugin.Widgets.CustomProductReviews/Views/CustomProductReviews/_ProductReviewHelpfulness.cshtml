@@ -40,7 +40,8 @@
                     $('#helpfulness-vote-result-@(Model.ProductReviewId)').fadeIn("slow").delay(1000).fadeOut("slow");
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
-                    alert('Failed to vote. Please refresh the page and try one more time.');
+                    alert(@Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+                        T("Plugins.Widgets.CustomProductReviews.Review.VoteError").Text)));
                 }  
             });
         }

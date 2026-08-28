@@ -17,7 +17,19 @@
         {
             var localized = await localizedEntityService.GetLocalizedValueAsync(languageId, reviewId,
                 "ProductReview", localeKey);
-            return string.IsNullOrWhiteSpace(localized) ? original : localized;
+            if (string.IsNullOrWhiteSpace(localized))
+                return original;
+
+            // A historical one-item translation batch stored only the first
+            // character of four review bodies. Never display that known
+            // corruption shape, but keep legitimate one-character titles
+            // (for example the Japanese title "弓") untouched.
+            if (string.Equals(localeKey, "ReviewText", StringComparison.OrdinalIgnoreCase) &&
+                (original ?? string.Empty).Trim().Length >= 8 &&
+                localized.Trim().Length <= 1)
+                return original;
+
+            return localized;
         }
         catch
         {
@@ -315,7 +327,8 @@
         e.stopImmediatePropagation();
         if (!uploadButton || !readURLFileUpload()) return false;
         uploadButton.disabled = true;
-        uploadButton.value = 'Submitting...';
+        uploadButton.value = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+            T("Plugins.Widgets.CustomProductReviews.Review.Submitting").Text));
         var formData = new FormData(this);
         formData.append("productId", @Model.ProductId);
         var t = $("input[name='__RequestVerificationToken']").val();
@@ -363,7 +376,8 @@
                
             },
             error: function (xhr, resp, text) {
-                $("#message-error-review-form").text("An error occurred while submitting the review. Please try again.");
+                $("#message-error-review-form").text(@Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+                    T("Plugins.Widgets.CustomProductReviews.Review.SubmitError").Text)));
             },
             complete: function () {
                 document.getElementById("ajax-loader").style.display = "none";
