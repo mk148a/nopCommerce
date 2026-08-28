@@ -13,5 +13,7 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Models
         public string Title { get; set; }
 
         public string AlternateText { get; set; }
+
+        public string MimeType { get; set; }
     }
 }

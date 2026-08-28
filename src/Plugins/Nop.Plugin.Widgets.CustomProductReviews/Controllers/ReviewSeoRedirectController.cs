@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Nop.Core.Domain.Catalog;
+using Nop.Data;
 using Nop.Services.Catalog;
 using Nop.Services.Localization;
 using Nop.Services.Seo;
@@ -19,29 +20,71 @@ public sealed class ReviewSeoRedirectController : BasePublicController
 {
     private readonly ILanguageService _languageService;
     private readonly IProductService _productService;
+    private readonly IRepository<ProductReview> _productReviewRepository;
+    private readonly IRepository<EtsyReview> _etsyReviewRepository;
     private readonly IUrlRecordService _urlRecordService;
 
     public ReviewSeoRedirectController(
         ILanguageService languageService,
         IProductService productService,
+        IRepository<ProductReview> productReviewRepository,
+        IRepository<EtsyReview> etsyReviewRepository,
         IUrlRecordService urlRecordService)
     {
         _languageService = languageService;
         _productService = productService;
+        _productReviewRepository = productReviewRepository;
+        _etsyReviewRepository = etsyReviewRepository;
         _urlRecordService = urlRecordService;
     }
 
     /// <summary>
     /// Permanently redirects /{language}/productreviews/{reviewId} to the
-    /// localized product page and its review section.
+    /// localized product page and its review section. Older Hood URLs used
+    /// the product ID here, while newer URLs used the review ID; support both
+    /// forms without generating a standalone, thin review page.
     /// </summary>
     public async Task<IActionResult> ProductReview(int reviewId, string language)
     {
         var review = await _productService.GetProductReviewByIdAsync(reviewId);
-        if (review is null || !review.IsApproved)
-            return InvokeHttp404();
+        Product product = null;
+        var includeReviewFragment = false;
 
-        var product = await _productService.GetProductByIdAsync(review.ProductId);
+        if (review is not null)
+        {
+            if (!review.IsApproved)
+                return InvokeHttp404();
+
+            product = await _productService.GetProductByIdAsync(review.ProductId);
+            includeReviewFragment = true;
+        }
+        else
+        {
+            // The pre-plugin route encoded Product.Id.  Do not redirect a
+            // made-up review URL: require at least one visible review first.
+            var productByLegacyId = await _productService.GetProductByIdAsync(reviewId);
+            var approvedReviews = productByLegacyId is null
+                ? []
+                : await _productReviewRepository.GetAllAsync(query => query.Where(item =>
+                    item.ProductId == productByLegacyId.Id && item.IsApproved));
+
+            if (productByLegacyId is not null && approvedReviews.Count > 0)
+            {
+                product = productByLegacyId;
+                includeReviewFragment = true;
+            }
+            else
+            {
+                // Earlier public review pages were keyed by EtsyReview.Id.
+                // Those marketplace reviews are deliberately not injected into
+                // first-party Review JSON-LD, but their historic public URLs
+                // should resolve to the matching product rather than 404.
+                var etsyReview = await _etsyReviewRepository.GetByIdAsync(reviewId);
+                if (!string.IsNullOrWhiteSpace(etsyReview?.Sku))
+                    product = await _productService.GetProductBySkuAsync(etsyReview.Sku);
+            }
+        }
+
         if (product is null || product.Deleted || !product.Published)
             return InvokeHttp404();
 
@@ -57,6 +100,7 @@ public sealed class ReviewSeoRedirectController : BasePublicController
         if (string.IsNullOrWhiteSpace(slug))
             return InvokeHttp404();
 
-        return LocalRedirectPermanent($"/{targetLanguage.UniqueSeoCode}/{slug}#productreviews");
+        var target = $"/{targetLanguage.UniqueSeoCode}/{slug}";
+        return LocalRedirectPermanent(includeReviewFragment ? $"{target}#productreviews" : target);
     }
 }

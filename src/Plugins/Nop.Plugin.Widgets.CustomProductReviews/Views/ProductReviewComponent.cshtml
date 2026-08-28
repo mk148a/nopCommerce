@@ -109,9 +109,15 @@
                                 <span asp-validation-for="AddProductReview.ReviewText"></span>
                             </div>
                             <div class="inputs">
-                                <label>Attach files</label>
-                                <input type="file" id="photos" name="photos" multiple="multiple" accept="image/jpeg,image/png,image/webp,video/mp4,video/quicktime,video/webm" onchange="readURLFileUpload()"/>
-                                Max file in upload: 5
+                                <label for="photos">@T("Plugins.Widgets.CustomProductReviews.Media.Heading")</label>
+                                <p id="review-media-guidance" class="review-media-guidance">@T("Plugins.Widgets.CustomProductReviews.Media.Guidance")</p>
+                                <input type="file" id="photos" name="photos" multiple="multiple"
+                                       accept="image/jpeg,image/png,image/webp,video/mp4,video/quicktime,video/webm"
+                                       aria-describedby="review-media-guidance review-media-requirements review-media-selected"
+                                       data-max-files="@setting.MaximumFile" data-max-bytes="@setting.MaximumSize" data-max-video-bytes="@setting.MaximumVideoSizeBytes"
+                                       onchange="readURLFileUpload()" />
+                                <p id="review-media-requirements" class="review-media-requirements">@T("Plugins.Widgets.CustomProductReviews.Media.Requirements", setting.MaximumFile, Math.Max(1, (int)Math.Ceiling(setting.MaximumSize / 1024d / 1024d)), Math.Max(1, (int)Math.Ceiling(setting.MaximumVideoSizeBytes / 1024d / 1024d)))</p>
+                                <p id="review-media-selected" class="review-media-selected" aria-live="polite"></p>
                             </div>
                             <div class="review-rating">
                                 <label asp-for="AddProductReview.Rating" asp-postfix=":"></label>
@@ -415,12 +421,17 @@
         if (!fileSelect || !fileSelect.files) return true;
 
         var files = fileSelect.files;
+        var selectedOutput = document.getElementById('review-media-selected');
+        var maxFiles = parseInt(fileSelect.getAttribute('data-max-files') || '0', 10);
+        var maxBytes = parseInt(fileSelect.getAttribute('data-max-bytes') || '0', 10);
+        var maxVideoBytes = parseInt(fileSelect.getAttribute('data-max-video-bytes') || '0', 10);
         var allowedMimeTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'video/mp4', 'video/quicktime', 'video/webm'];
         var allowedExtensions = ['jpg', 'jpeg', 'png', 'webp', 'mp4', 'mov', 'webm'];
 
-        if (files.length > @setting.MaximumFile) {
-            alert('You can upload up to @setting.MaximumFile files.');
+        if (maxFiles > 0 && files.length > maxFiles) {
+            alert(@Html.Raw(System.Text.Json.JsonSerializer.Serialize(T("Plugins.Widgets.CustomProductReviews.Media.TooMany").Text)));
             $("#photos").val("");
+            if (selectedOutput) selectedOutput.textContent = '';
             return false;
         }
 
@@ -431,18 +442,25 @@
             var extension = fileName.indexOf('.') >= 0 ? fileName.split('.').pop() : '';
 
             if (allowedMimeTypes.indexOf(mimeType) === -1 && allowedExtensions.indexOf(extension) === -1) {
-                alert('File type is not allowed. Supported formats: JPG, PNG, WEBP, MP4, MOV and WEBM.');
+                alert(@Html.Raw(System.Text.Json.JsonSerializer.Serialize(T("Plugins.Widgets.CustomProductReviews.Media.InvalidType").Text)));
 
                 $("#photos").val("");
+                if (selectedOutput) selectedOutput.textContent = '';
                 return false;
             }
 
-            if (myfile.size > @setting.MaximumSize) {
-                alert('File upload exceeds the allowed size Your file sizes:' + myfile.size+'bytes / Maximum file size:'+@setting.MaximumSize+'bytes' );
-                //alert('@T("Nop.Plugin.Widgets.CustomProductReviews.MaximumUploadedFileSize")');
+            var isVideo = mimeType.indexOf('video/') === 0 || ['mp4', 'mov', 'webm'].indexOf(extension) !== -1;
+            var applicableMaxBytes = isVideo && maxVideoBytes > 0 ? maxVideoBytes : maxBytes;
+            if (applicableMaxBytes > 0 && myfile.size > applicableMaxBytes) {
+                alert(@Html.Raw(System.Text.Json.JsonSerializer.Serialize(T("Plugins.Widgets.CustomProductReviews.Media.TooLarge").Text)));
                 $("#photos").val("");
+                if (selectedOutput) selectedOutput.textContent = '';
                 return false;
             }
+        }
+        if (selectedOutput) {
+            var names = Array.prototype.map.call(files, function (file) { return file.name; });
+            selectedOutput.textContent = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(T("Plugins.Widgets.CustomProductReviews.Media.SelectedFiles").Text)) + ': ' + names.join(', ');
         }
         return true;
     }

@@ -123,10 +123,8 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Components
 
             if (string.IsNullOrEmpty(_customProductReviewsSettings.data))
             {
-
-
-                await _pluginService.UninstallPluginsAsync();
-            await _pluginService.DeletePluginsAsync();
+                // A missing legacy setting must only disable this widget.  It must never
+                // uninstall or delete unrelated plugins during a storefront request.
             return View("~/Plugins/Widgets.CustomProductReviews/Views/Denied.html");
 
 

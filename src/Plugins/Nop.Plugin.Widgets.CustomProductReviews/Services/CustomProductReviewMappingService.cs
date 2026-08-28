@@ -68,7 +68,7 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Services
             {
                 ProductReviewId = productReviewId,
                 PictureId = pictureId,
-                VideoId = videoIdId
+                ProductReviewVideoId = videoIdId
             };
 
             await _customProductReviewMappingRepository.InsertAsync(customProductReviewMapping);
@@ -93,7 +93,7 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Services
 
 
             customProductReviewMapping.PictureId = pictureId;
-            customProductReviewMapping.VideoId = videoIdId;
+            customProductReviewMapping.ProductReviewVideoId = videoIdId;
             customProductReviewMapping.ProductReviewId = productReviewId;
 
             await _customProductReviewMappingRepository.UpdateAsync(customProductReviewMapping);
@@ -164,25 +164,31 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Services
             if (productReviewId == 0)
                 return new  List<CustomProductReviewMapping>();
 
-            // Production installations may predate the optional video mapping column.
-            // Read the review picture mapping through an explicit legacy-safe projection;
-            // the video widget treats the missing value as null and the review page stays
-            // renderable until the optional schema migration is applied.
             var query = from p in _customProductReviewMappingRepository.Table
                 where p.ProductReviewId == productReviewId
-                select new CustomProductReviewMapping
-                {
-                    Id = p.Id,
-                    DisplayOrder = p.DisplayOrder,
-                    ProductReviewId = p.ProductReviewId,
-                    PictureId = p.PictureId,
-                    VideoId = null
-                };
+                orderby p.DisplayOrder, p.Id
+                select p;
 
             var mappings = await query.ToListAsync();
 
             return mappings;
         }
+
+        public virtual async Task<IPagedList<CustomProductReviewMapping>> GetCustomProductReviewMappingsAsync(
+            int productReviewId = 0, int pageIndex = 0, int pageSize = 100)
+        {
+            var query = _customProductReviewMappingRepository.Table;
+            if (productReviewId > 0)
+                query = query.Where(mapping => mapping.ProductReviewId == productReviewId);
+
+            return await query.OrderByDescending(mapping => mapping.Id).ToPagedListAsync(pageIndex, pageSize);
+        }
+
+        public virtual Task<int> GetPictureUsageCountAsync(int pictureId) =>
+            _customProductReviewMappingRepository.Table.CountAsync(mapping => mapping.PictureId == pictureId);
+
+        public virtual Task<int> GetVideoUsageCountAsync(int videoId) =>
+            _customProductReviewMappingRepository.Table.CountAsync(mapping => mapping.ProductReviewVideoId == videoId);
 
 
 

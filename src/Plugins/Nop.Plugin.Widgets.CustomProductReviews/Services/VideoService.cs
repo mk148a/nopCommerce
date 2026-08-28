@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -18,11 +19,10 @@ using Nop.Plugin.Widgets.CustomProductReviews.Domains;
 using Video = Nop.Plugin.Widgets.CustomProductReviews.Domains.Video;
 using Nop.Services.Catalog;
 using Nop.Services.Configuration;
+using Nop.Services.Logging;
 using Nop.Services.Media;
 using Nop.Services.Seo;
-using NReco.VideoConverter;
 using SkiaSharp;
-using static System.Net.WebRequestMethods;
 using File = System.IO.File;
 
 namespace Nop.Plugin.Widgets.CustomProductReviews.Services
@@ -45,6 +45,8 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Services
         private readonly IUrlRecordService _urlRecordService;
         private readonly IWebHelper _webHelper;
         private readonly MediaSettings _mediaSettings;
+        private readonly CustomProductReviewsSettings _customProductReviewsSettings;
+        private readonly ILogger _logger;
 
         #endregion
 
@@ -60,7 +62,9 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Services
             ISettingService settingService,
             IUrlRecordService urlRecordService,
             IWebHelper webHelper,
-            MediaSettings mediaSettings)
+            MediaSettings mediaSettings,
+            CustomProductReviewsSettings customProductReviewsSettings,
+            ILogger logger)
         {
             _downloadService = downloadService;
             _httpContextAccessor = httpContextAccessor;
@@ -73,6 +77,8 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Services
             _urlRecordService = urlRecordService;
             _webHelper = webHelper;
             _mediaSettings = mediaSettings;
+            _customProductReviewsSettings = customProductReviewsSettings;
+            _logger = logger;
         }
 
         #endregion
@@ -770,16 +776,11 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Services
             mimeType = CommonHelper.EnsureMaximumLength(mimeType, 20);
 
             seoFilename = CommonHelper.EnsureMaximumLength(seoFilename, 100);
-            var data = new UploadDataBinary();
-            if (validateBinary)
-                data = await ValidateVideoAsync(videoBinary, mimeType);
-
-            //Todo:Video thumb olayını çöz
-            //var ffmpeg = new FFMpegConverter();
-            //string ffpath = Directory.GetCurrentDirectory();
-            //ffmpeg.FFMpegToolPath = ffpath;
-
-            //ffmpeg.GetVideoThumbnail("output.mp4", "video_thumbnail.jpg");
+            var data = validateBinary
+                ? await ValidateVideoAsync(videoBinary, mimeType)
+                : new UploadDataBinary { BinaryData = videoBinary, Extentions = mimeType };
+            if (data.BinaryData == null || data.BinaryData.Length == 0 || string.IsNullOrWhiteSpace(data.Extentions))
+                throw new InvalidOperationException("Review video validation did not produce a usable media file.");
 
             var video = new Video
             {
@@ -811,7 +812,9 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Services
         /// </returns>
         public virtual async Task<Video> InsertVideoAsync(byte[] formFile, string defaultFileName , string contentType, string virtualPath = "")
         {
-
+            contentType = contentType?.Trim().ToLowerInvariant();
+            if (string.IsNullOrWhiteSpace(contentType))
+                throw new ArgumentException("A review-video MIME type is required.", nameof(contentType));
             switch (contentType)
             {
                 case var ext when contentType.Contains("mp4"):
@@ -869,36 +872,28 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Services
             mimeType = CommonHelper.EnsureMaximumLength(mimeType, 20);
 
             seoFilename = CommonHelper.EnsureMaximumLength(seoFilename, 100);
-            var data = new UploadDataBinary();
-            if (validateBinary)
-                data = await ValidateVideoAsync(videoBinary, mimeType);
+            var data = validateBinary
+                ? await ValidateVideoAsync(videoBinary, mimeType)
+                : new UploadDataBinary { BinaryData = videoBinary, Extentions = mimeType };
+            if (data.BinaryData == null || data.BinaryData.Length == 0 || string.IsNullOrWhiteSpace(data.Extentions))
+                throw new InvalidOperationException("Review video validation did not produce a usable media file.");
 
             var video = await GetVideoByIdAsync(videoId);
-            var binaryData = await GetVideoBinaryByVideoIdAsync(videoId);
             if (video == null)
                 return null;
 
             //delete old thumbs if a video has been changed
             if (seoFilename != video.SeoFilename)
                 await DeleteVideoThumbsAsync(video);
-            if (video.IsNew)
-            {  
-                video.MimeType = video.MimeType;
+            video.MimeType = data.Extentions;
             video.SeoFilename = seoFilename;
             video.AltAttribute = altAttribute;
             video.TitleAttribute = titleAttribute;
             video.IsNew = isNew;
             await _videoRepository.UpdateAsync(video);
-            await UpdateVideoBinaryAsync(video, await IsStoreInDbAsync() ? binaryData.BinaryData : Array.Empty<byte>());
+            await UpdateVideoBinaryAsync(video, await IsStoreInDbAsync() ? data.BinaryData : Array.Empty<byte>());
             if (!await IsStoreInDbAsync())
-                await SaveVideoInFileAsync(video.Id, binaryData.BinaryData, video.MimeType);
-            }
-                
-              
-
-            
-
-            
+                await SaveVideoInFileAsync(video.Id, data.BinaryData, data.Extentions);
 
             return video;
         }
@@ -917,19 +912,19 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Services
                 return null;
 
             var seoFilename = CommonHelper.EnsureMaximumLength(video.SeoFilename, 100);
+            var stored = await GetVideoByIdAsync(video.Id);
+            if (stored == null)
+                return null;
 
-            //delete old thumbs if exists
-            await DeleteVideoThumbsAsync(video);
+            // Metadata edits must not rewrite or reload large video binaries.
+            if (!string.Equals(stored.SeoFilename, seoFilename, StringComparison.Ordinal))
+                await DeleteVideoThumbsAsync(stored);
 
-            video.SeoFilename = seoFilename;
-
-            await _videoRepository.UpdateAsync(video);
-            await UpdateVideoBinaryAsync(video, await IsStoreInDbAsync() ? (await GetVideoBinaryByVideoIdAsync(video.Id)).BinaryData : Array.Empty<byte>());
-
-            if (!await IsStoreInDbAsync())
-                await SaveVideoInFileAsync(video.Id, (await GetVideoBinaryByVideoIdAsync(video.Id)).BinaryData, video.MimeType);
-
-            return video;
+            stored.SeoFilename = seoFilename;
+            stored.AltAttribute = CommonHelper.EnsureMaximumLength(video.AltAttribute, 400);
+            stored.TitleAttribute = CommonHelper.EnsureMaximumLength(video.TitleAttribute, 400);
+            await _videoRepository.UpdateAsync(stored);
+            return stored;
         }
 
         /// <summary>
@@ -1000,115 +995,205 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Services
         }
 
         /// <summary>
-        /// Validates input video dimensions
+        /// Probes and normalizes customer supplied video to a broadly playable MP4
+        /// (H.264 video, AAC audio, yuv420p and faststart).  We deliberately run a
+        /// configured system FFmpeg/ffprobe rather than a package-managed binary.
+        /// A missing tool or any invalid result is an explicit upload failure, never
+        /// an empty successful media record.
         /// </summary>
-        /// <param name="videoBinary">Video binary</param>
-        /// <param name="mimeType">MIME type</param>
-        /// <returns>
-        /// A task that represents the asynchronous operation
-        /// The task result contains the video binary or throws an exception
-        /// </returns>
-        public virtual Task<UploadDataBinary> ValidateVideoAsync(byte[] videoBinary, string mimeType)
+        public virtual async Task<UploadDataBinary> ValidateVideoAsync(byte[] videoBinary, string mimeType)
         {
-            UploadDataBinary data=new UploadDataBinary();
+            if (videoBinary == null || videoBinary.Length == 0)
+                throw new ArgumentException("The uploaded review video is empty.", nameof(videoBinary));
+
+            if (!IsSupportedInputMimeType(mimeType))
+                throw new ArgumentException("Only MP4, MOV and WebM review videos are supported.", nameof(mimeType));
+
+            if (!_customProductReviewsSettings.EnableReviewVideoTranscoding)
+                throw new InvalidOperationException("Review video uploads are disabled until a trusted FFmpeg and ffprobe path is configured in Review media manager.");
+
+            var ffmpegPath = GetTrustedToolPath(_customProductReviewsSettings.FfmpegExecutablePath, "FFmpeg");
+            var ffprobePath = GetTrustedToolPath(
+                string.IsNullOrWhiteSpace(_customProductReviewsSettings.FfprobeExecutablePath)
+                    ? Path.Combine(Path.GetDirectoryName(ffmpegPath)!, "ffprobe.exe")
+                    : _customProductReviewsSettings.FfprobeExecutablePath,
+                "ffprobe");
+
+            var maxFileSize = Clamp(_customProductReviewsSettings.MaximumVideoSizeBytes,
+                5 * 1024 * 1024, 250 * 1024 * 1024, 100 * 1024 * 1024);
+            if (maxFileSize > 0 && videoBinary.LongLength > maxFileSize)
+                throw new InvalidOperationException("The uploaded review video exceeds the configured file-size limit.");
+
+            var tempDirectory = Path.Combine(Path.GetTempPath(), "hood-product-review-media", Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(tempDirectory);
+            var sourcePath = Path.Combine(tempDirectory, "source" + GetExtensionForMimeType(mimeType));
+            var outputPath = Path.Combine(tempDirectory, "normalized.mp4");
+
             try
             {
-                switch (mimeType)
+                await File.WriteAllBytesAsync(sourcePath, videoBinary);
+                var sourceMetadata = await ProbeVideoAsync(ffprobePath, sourcePath);
+                ValidateVideoMetadata(sourceMetadata);
+
+                var maxWidth = Clamp(_customProductReviewsSettings.NormalizedVideoMaxWidth, 320, 1920, 1280);
+                var crf = Clamp(_customProductReviewsSettings.VideoCrf, 18, 30, 23);
+                var timeout = Clamp(_customProductReviewsSettings.VideoTranscodeTimeoutSeconds, 30, 900, 180);
+                var filter = $"scale='min({maxWidth},iw)':-2:force_original_aspect_ratio=decrease,format=yuv420p";
+                var arguments = new[]
                 {
-                    case "video/mp4":
-                        mimeType = ".mp4";
-                        break;
-                    case "video/mov":
-                        mimeType = ".mov";
-                        break;
-                    case "video/webm":
-                        mimeType = ".webm";
-                        break;
-                    default:
-                        break;
-                }
-                Stopwatch sw = new Stopwatch();
-                var ffmpeg = new FFMpegConverter();
-                //string ffpath= Directory.GetCurrentDirectory();
-                //ffmpeg.FFMpegToolPath = ffpath;
-                ffmpeg.LogReceived += Ffmpeg_LogReceived;
-                string fileName = "tempUpload" + DateTime.UtcNow.ToFileTime()+mimeType;
-                using var writer = new BinaryWriter(File.OpenWrite(fileName));
-                writer.Write(videoBinary);
-                writer.Close();
+                    "-hide_banner", "-loglevel", "error", "-y", "-i", sourcePath,
+                    "-map", "0:v:0", "-map", "0:a?", "-c:v", "libx264", "-preset", "medium",
+                    "-crf", crf.ToString(System.Globalization.CultureInfo.InvariantCulture), "-vf", filter,
+                    "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "128k", "-ac", "2",
+                    "-movflags", "+faststart", outputPath
+                };
 
-                string ouFilename = "tempUpload" + DateTime.UtcNow.ToFileTime();
-                string outFiletype = ouFilename + ".mp4";
-                string outFilename= ouFilename + ".mp4";
-                sw.Start();
-                var convertSettings = new ConvertSettings();
-                convertSettings.CustomInputArgs = "-y";
-                      convertSettings.CustomOutputArgs = "-c:v libx264  -vf scale=640:-2 -pix_fmt yuv420p -preset veryslow -b:v 1800k -c:a aac -b:a 64k -pass 1 -an ";
-                ffmpeg.ConvertMedia(fileName, null, "null", "null", convertSettings);
+                var result = await RunProcessAsync(ffmpegPath, arguments, timeout);
+                if (result.ExitCode != 0 || !File.Exists(outputPath) || new FileInfo(outputPath).Length == 0)
+                    throw new InvalidOperationException($"FFmpeg could not normalize the review video. {TrimDiagnostic(result.StandardError)}");
 
-                convertSettings.CustomInputArgs = "";
-                convertSettings.CustomOutputArgs = "-c:v libx264  -b:v 1800k -vf scale=640:-2 -preset veryslow -pix_fmt yuv420p -pass 2 -c:a aac -b:a 64k ";
-                ffmpeg.ConvertMedia(fileName, null, outFilename, null, convertSettings);
-                
-                sw.Stop();
-                Console.WriteLine("Elapsed Video Encode={0}", sw.Elapsed);
+                var normalizedMetadata = await ProbeVideoAsync(ffprobePath, outputPath);
+                ValidateVideoMetadata(normalizedMetadata);
+                if (!string.Equals(normalizedMetadata.VideoCodec, "h264", StringComparison.OrdinalIgnoreCase) ||
+                    (!string.IsNullOrWhiteSpace(normalizedMetadata.AudioCodec) && !string.Equals(normalizedMetadata.AudioCodec, "aac", StringComparison.OrdinalIgnoreCase)))
+                    throw new InvalidOperationException("FFmpeg output is not the required H.264/AAC MP4 format.");
 
-                sw.Start();
-               
-                switch (outFiletype)
-                {
-                    case var ext when outFiletype.Contains("mp4"):
-                        outFiletype = Data.MimeTypes.VideoMp4;
-                        break;
-                    case var ext when outFiletype.Contains("mpeg4"):
-                        outFiletype = Data.MimeTypes.VideoMp4;
-                        break;
-                    case var ext when outFiletype.Contains("mov"):
-                        outFiletype = Data.MimeTypes.VideoMov;
-                        break;
-                    case var ext when outFiletype.Contains("quicktime"):
-                        outFiletype = Data.MimeTypes.VideoMov;
-                        break;
-                    case var ext when outFiletype.Contains("Web Video"):
-                        outFiletype = Data.MimeTypes.VideoWebm;
-                        break;
-                    case var ext when outFiletype.Contains("webm"):
-                        outFiletype = Data.MimeTypes.VideoWebm;
-                        break;
-                    default:
-                        break;
-                }
-                
-                sw.Stop();
-                Console.WriteLine("Elapsed video format validate process={0}", sw.Elapsed);
+                var normalizedBinary = await File.ReadAllBytesAsync(outputPath);
+                if (maxFileSize > 0 && normalizedBinary.LongLength > maxFileSize)
+                    throw new InvalidOperationException("The normalized review video exceeds the configured file-size limit.");
 
-                System.IO.File.AppendAllText(@"VideoProcessPerformace.log", String.Format("Elapsed Video Encode={0}", sw.Elapsed) + Environment.NewLine);
-                videoBinary = File.ReadAllBytes(outFilename);
-                data.BinaryData = videoBinary;
-                data.Extentions = outFiletype;
+                return new UploadDataBinary { BinaryData = normalizedBinary, Extentions = Data.MimeTypes.VideoMp4 };
+            }
+            catch (Exception exception)
+            {
+                await _logger.ErrorAsync("Custom Product Reviews video normalization failed.", exception);
+                throw;
+            }
+            finally
+            {
                 try
                 {
-                    File.Delete(outFilename);
-                    File.Delete(fileName);
+                    if (Directory.Exists(tempDirectory))
+                        Directory.Delete(tempDirectory, true);
                 }
-                catch (Exception e)
+                catch (Exception cleanupException)
                 {
-                    File.AppendAllText(@"customProductReview.log", e.InnerException + Environment.NewLine);
-
+                    await _logger.ErrorAsync("Custom Product Reviews could not remove a temporary video directory.", cleanupException);
                 }
-
-                return Task.FromResult(data);
-            }
-            catch
-            {
-                return Task.FromResult(data);
             }
         }
 
-        private void Ffmpeg_LogReceived(object sender, FFMpegLogEventArgs e)
+        private static bool IsSupportedInputMimeType(string mimeType) =>
+            string.Equals(mimeType, Data.MimeTypes.VideoMp4, StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(mimeType, Data.MimeTypes.VideoMov, StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(mimeType, Data.MimeTypes.VideoWebm, StringComparison.OrdinalIgnoreCase);
+
+        private static string GetExtensionForMimeType(string mimeType) =>
+            string.Equals(mimeType, Data.MimeTypes.VideoMov, StringComparison.OrdinalIgnoreCase) ? ".mov" :
+            string.Equals(mimeType, Data.MimeTypes.VideoWebm, StringComparison.OrdinalIgnoreCase) ? ".webm" : ".mp4";
+
+        private static int Clamp(int value, int min, int max, int fallback) => value < min || value > max ? fallback : value;
+
+        private static string GetTrustedToolPath(string configuredPath, string toolName)
         {
-            File.AppendAllText("logffmpeg.txt", e.Data + Environment.NewLine);
+            if (string.IsNullOrWhiteSpace(configuredPath))
+                throw new InvalidOperationException($"{toolName} executable path has not been configured for review-video uploads.");
+
+            var fullPath = Path.GetFullPath(configuredPath.Trim());
+            if (!Path.IsPathFullyQualified(fullPath) || !File.Exists(fullPath))
+                throw new InvalidOperationException($"Configured {toolName} executable does not exist: {fullPath}");
+
+            return fullPath;
         }
+
+        private async Task<VideoMetadata> ProbeVideoAsync(string ffprobePath, string inputPath)
+        {
+            var result = await RunProcessAsync(ffprobePath, new[]
+            {
+                "-v", "error", "-show_entries", "format=duration:stream=codec_type,codec_name,width,height",
+                "-of", "json", inputPath
+            }, 30);
+            if (result.ExitCode != 0)
+                throw new InvalidOperationException($"ffprobe could not read the review video. {TrimDiagnostic(result.StandardError)}");
+
+            try
+            {
+                using var json = JsonDocument.Parse(result.StandardOutput);
+                var streams = json.RootElement.TryGetProperty("streams", out var streamArray) ? streamArray : default;
+                var video = streams.EnumerateArray().FirstOrDefault(stream => stream.TryGetProperty("codec_type", out var type) && type.GetString() == "video");
+                if (video.ValueKind == JsonValueKind.Undefined)
+                    throw new InvalidOperationException("The uploaded file has no video stream.");
+                var audio = streams.EnumerateArray().FirstOrDefault(stream => stream.TryGetProperty("codec_type", out var type) && type.GetString() == "audio");
+                var durationText = json.RootElement.TryGetProperty("format", out var format) && format.TryGetProperty("duration", out var durationValue)
+                    ? durationValue.GetString()
+                    : null;
+                if (!double.TryParse(durationText, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var duration))
+                    throw new InvalidOperationException("The video duration could not be determined.");
+
+                return new VideoMetadata(
+                    duration,
+                    video.TryGetProperty("width", out var width) ? width.GetInt32() : 0,
+                    video.TryGetProperty("height", out var height) ? height.GetInt32() : 0,
+                    video.TryGetProperty("codec_name", out var videoCodec) ? videoCodec.GetString() : null,
+                    audio.ValueKind != JsonValueKind.Undefined && audio.TryGetProperty("codec_name", out var audioCodec) ? audioCodec.GetString() : null);
+            }
+            catch (JsonException exception)
+            {
+                throw new InvalidOperationException("ffprobe returned an invalid video metadata response.", exception);
+            }
+        }
+
+        private void ValidateVideoMetadata(VideoMetadata metadata)
+        {
+            var maxDuration = Clamp(_customProductReviewsSettings.MaximumVideoDurationSeconds, 5, 600, 120);
+            var maxWidth = Clamp(_customProductReviewsSettings.MaximumVideoWidth, 320, 7680, 3840);
+            var maxHeight = Clamp(_customProductReviewsSettings.MaximumVideoHeight, 320, 7680, 3840);
+            if (metadata.Duration <= 0 || metadata.Duration > maxDuration)
+                throw new InvalidOperationException($"Review videos must be between 1 second and {maxDuration} seconds.");
+            if (metadata.Width <= 0 || metadata.Height <= 0 || metadata.Width > maxWidth || metadata.Height > maxHeight)
+                throw new InvalidOperationException($"Review videos may not exceed {maxWidth}×{maxHeight} pixels.");
+        }
+
+        private static async Task<ProcessResult> RunProcessAsync(string executablePath, IEnumerable<string> arguments, int timeoutSeconds)
+        {
+            using var process = new Process
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = executablePath,
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    CreateNoWindow = true
+                }
+            };
+            foreach (var argument in arguments)
+                process.StartInfo.ArgumentList.Add(argument);
+
+            process.Start();
+            var standardOutput = process.StandardOutput.ReadToEndAsync();
+            var standardError = process.StandardError.ReadToEndAsync();
+            using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(timeoutSeconds));
+            try
+            {
+                await process.WaitForExitAsync(timeout.Token);
+            }
+            catch (OperationCanceledException)
+            {
+                if (!process.HasExited)
+                    process.Kill(true);
+                throw new TimeoutException("Review-video processing exceeded its configured time limit.");
+            }
+
+            return new ProcessResult(process.ExitCode, await standardOutput, await standardError);
+        }
+
+        private static string TrimDiagnostic(string message) => string.IsNullOrWhiteSpace(message)
+            ? "No FFmpeg diagnostic was returned."
+            : message.Length <= 400 ? message.Trim() : message[..400].Trim();
+
+        private sealed record VideoMetadata(double Duration, int Width, int Height, string VideoCodec, string AudioCodec);
+        private sealed record ProcessResult(int ExitCode, string StandardOutput, string StandardError);
 
         /// <summary>
         /// Get product video (for shopping cart and order details pages)
