@@ -10,6 +10,7 @@ using Nop.Core.Caching;
 using Nop.Core.Domain.Customers;
 using Nop.Core.Domain.Directory;
 using Nop.Core.Domain.Orders;
+using Nop.Core.Domain.Payments;
 using Nop.Core.Http.Extensions;
 using Nop.Data;
 using Nop.Plugin.Widgets.FacebookPixel.Domain;
@@ -718,6 +719,13 @@ public class FacebookPixelService
         var customer = await _workContext.GetCurrentCustomerAsync();
         if (order.CustomerId != customer.Id)
             throw new NopException("Purchase was not initiated by customer");
+
+        //Only report completed payments as Purchase. OrderPlaced can also be
+        //raised for pending/failed payment methods; sending those would make
+        //Facebook attribute non-revenue orders as conversions.
+        if (order.PaymentStatusId != (int)PaymentStatus.Paid ||
+            order.OrderStatusId == (int)OrderStatus.Cancelled)
+            throw new NopException("Purchase is not a completed payment");
 
         //prepare event object
         var currency = await _currencyService.GetCurrencyByIdAsync(_currencySettings.PrimaryStoreCurrencyId);

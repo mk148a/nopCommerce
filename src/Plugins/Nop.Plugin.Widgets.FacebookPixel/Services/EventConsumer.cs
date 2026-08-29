@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.AspNetCore.WebUtilities;
 using Nop.Core.Domain.Customers;
 using Nop.Core.Domain.Messages;
 using Nop.Core.Domain.Orders;
@@ -29,16 +30,19 @@ public class EventConsumer :
 
     protected readonly FacebookPixelService _facebookPixelService;
     protected readonly IHttpContextAccessor _httpContextAccessor;
+    protected readonly Nop.Services.Common.IGenericAttributeService _genericAttributeService;
 
     #endregion
 
     #region Ctor
 
     public EventConsumer(FacebookPixelService facebookPixelService,
-        IHttpContextAccessor httpContextAccessor)
+        IHttpContextAccessor httpContextAccessor,
+        Nop.Services.Common.IGenericAttributeService genericAttributeService)
     {
         _facebookPixelService = facebookPixelService;
         _httpContextAccessor = httpContextAccessor;
+        _genericAttributeService = genericAttributeService;
     }
 
     #endregion
@@ -64,7 +68,10 @@ public class EventConsumer :
     public async Task HandleEventAsync(OrderPlacedEvent eventMessage)
     {
         if (eventMessage?.Order != null)
+        {
+            await PersistAttributionAsync(eventMessage.Order);
             await _facebookPixelService.SendPurchaseEventAsync(eventMessage.Order);
+        }
     }
 
     /// <summary>
@@ -85,12 +92,58 @@ public class EventConsumer :
     /// <returns>A task that represents the asynchronous operation</returns>
     public async Task HandleEventAsync(PageRenderingEvent eventMessage)
     {
+        CaptureAttribution();
         var routeName = eventMessage.GetRouteName() ?? string.Empty;
         if (routeName == FacebookPixelDefaults.CheckoutRouteName || routeName == FacebookPixelDefaults.CheckoutOnePageRouteName)
             await _facebookPixelService.SendInitiateCheckoutEventAsync();
 
         if (_httpContextAccessor.HttpContext.GetRouteValue("area") is not string area || area != AreaNames.ADMIN)
             await _facebookPixelService.SendPageViewEventAsync();
+    }
+
+    private void CaptureAttribution()
+    {
+        var context = _httpContextAccessor.HttpContext;
+        if (context == null || context.Request.Path.StartsWithSegments("/admin"))
+            return;
+
+        var keys = new[] { "fbclid", "utm_source", "utm_campaign", "utm_content" };
+        var values = keys.Select(key => (key, value: context.Request.Query[key].ToString().Trim()))
+            .Where(item => !string.IsNullOrWhiteSpace(item.value))
+            .ToList();
+        if (!values.Any())
+            return;
+
+        var payload = string.Join("&", values.Select(item => $"{item.key}={Uri.EscapeDataString(item.value[..Math.Min(item.value.Length, 512)])}"));
+        context.Response.Cookies.Append(FacebookPixelDefaults.AttributionCookieName, payload, new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = context.Request.IsHttps,
+            SameSite = SameSiteMode.Lax,
+            MaxAge = TimeSpan.FromDays(90),
+            IsEssential = true
+        });
+    }
+
+    private async Task PersistAttributionAsync(Order order)
+    {
+        var context = _httpContextAccessor.HttpContext;
+        if (context == null || !context.Request.Cookies.TryGetValue(FacebookPixelDefaults.AttributionCookieName, out var raw))
+            return;
+
+        var values = QueryHelpers.ParseQuery("?" + raw);
+        async Task Save(string key, string attribute)
+        {
+            var value = values[key].ToString();
+            if (!string.IsNullOrWhiteSpace(value))
+                await _genericAttributeService.SaveAttributeAsync(order, attribute, value[..Math.Min(value.Length, 512)]);
+        }
+
+        await Save("fbclid", FacebookPixelDefaults.OrderFbclidAttribute);
+        await Save("utm_source", FacebookPixelDefaults.OrderUtmSourceAttribute);
+        await Save("utm_campaign", FacebookPixelDefaults.OrderUtmCampaignAttribute);
+        await Save("utm_content", FacebookPixelDefaults.OrderUtmContentAttribute);
+        await _genericAttributeService.SaveAttributeAsync(order, FacebookPixelDefaults.OrderLandingPathAttribute, context.Request.Path.Value ?? string.Empty);
     }
 
     /// <summary>

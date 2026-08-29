@@ -7,6 +7,12 @@ namespace Nop.Plugin.Widgets.FacebookPixel;
 /// </summary>
 public class FacebookPixelDefaults
 {
+    public static string AttributionCookieName => "nop.fb.attribution";
+    public static string OrderFbclidAttribute => "FacebookPixel.Fbclid";
+    public static string OrderUtmSourceAttribute => "FacebookPixel.UtmSource";
+    public static string OrderUtmCampaignAttribute => "FacebookPixel.UtmCampaign";
+    public static string OrderUtmContentAttribute => "FacebookPixel.UtmContent";
+    public static string OrderLandingPathAttribute => "FacebookPixel.LandingPath";
     /// <summary>
     /// Gets the plugin system name
     /// </summary>
