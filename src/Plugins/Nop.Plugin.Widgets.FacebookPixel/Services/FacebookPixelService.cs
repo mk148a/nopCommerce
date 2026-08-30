@@ -575,6 +575,10 @@ public class FacebookPixelService
 
         var model = await prepareModel();
 
+        // TEST83033 is restricted to the staging HTTPS binding; production never receives test events.
+        if (_httpContextAccessor.HttpContext?.Request.Host.Port == 47176)
+            model.TestEventCode = "TEST83033";
+
         if (pixelConfigurations.Any())
             await PrepareEventScriptAsync(model);
 
