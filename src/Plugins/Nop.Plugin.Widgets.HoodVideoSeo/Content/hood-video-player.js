@@ -41,8 +41,13 @@
         frame.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
         frame.allowFullscreen = true;
         const parameters = new URLSearchParams({
-            autoplay: '1',
+            // Do not force autoplay: YouTube may classify an immediately
+            // playing cross-origin embed as automated traffic and show its
+            // sign-in/bot interstitial. Playback remains available through
+            // the native player controls after the user explicitly clicks.
+            autoplay: '0',
             enablejsapi: '1',
+            rel: '0',
             playsinline: '1',
             origin: window.location.origin,
             widget_referrer: window.location.href
