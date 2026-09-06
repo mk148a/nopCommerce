@@ -1,0 +1,13 @@
+{
+  "Group": "Genius Software",
+  "FriendlyName": "Stripe BNPL Core",
+  "SystemName": "Misc.StripeBnplCore",
+  "Version": "1.02",
+  "SupportedVersions": [
+    "4.80"
+  ],
+  "Author": "Genius Software",
+  "DisplayOrder": 1,
+  "FileName": "Nop.Plugin.Misc.StripeBnplCore.dll",
+  "Description": "Shared Stripe Checkout, eligibility, webhook and reporting services for fail-closed BNPL payment plugins."
+}

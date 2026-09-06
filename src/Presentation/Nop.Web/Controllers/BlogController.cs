@@ -34,6 +34,7 @@ public partial class BlogController : BasePublicController
     protected readonly ICustomerActivityService _customerActivityService;
     protected readonly ICustomerService _customerService;
     protected readonly IEventPublisher _eventPublisher;
+    protected readonly ILanguageService _languageService;
     protected readonly ILocalizationService _localizationService;
     protected readonly INopUrlHelper _nopUrlHelper;
     protected readonly IPermissionService _permissionService;
@@ -56,6 +57,7 @@ public partial class BlogController : BasePublicController
         ICustomerActivityService customerActivityService,
         ICustomerService customerService,
         IEventPublisher eventPublisher,
+        ILanguageService languageService,
         ILocalizationService localizationService,
         INopUrlHelper nopUrlHelper,
         IPermissionService permissionService,
@@ -74,6 +76,7 @@ public partial class BlogController : BasePublicController
         _customerActivityService = customerActivityService;
         _customerService = customerService;
         _eventPublisher = eventPublisher;
+        _languageService = languageService;
         _localizationService = localizationService;
         _nopUrlHelper = nopUrlHelper;
         _permissionService = permissionService;
@@ -121,9 +124,13 @@ public partial class BlogController : BasePublicController
     public virtual async Task<IActionResult> ListRss(int languageId)
     {
         var store = await _storeContext.GetCurrentStoreAsync();
+        var language = await _languageService.GetLanguageByIdAsync(languageId);
+        if (language == null || !language.Published)
+            language = await _workContext.GetWorkingLanguageAsync();
+
         var feed = new RssFeed(
-            $"{await _localizationService.GetLocalizedAsync(store, x => x.Name)}: Blog",
-            "Blog",
+            $"{await _localizationService.GetLocalizedAsync(store, x => x.Name, language.Id)}: {await _localizationService.GetResourceAsync("Blog", language.Id)}",
+            await _localizationService.GetResourceAsync("Blog", language.Id),
             new Uri(_webHelper.GetStoreLocation()),
             DateTime.UtcNow);
 
@@ -131,12 +138,18 @@ public partial class BlogController : BasePublicController
             return new RssActionResult(feed, _webHelper.GetThisPageUrl(false));
 
         var items = new List<RssItem>();
-        var blogPosts = await _blogService.GetAllBlogPostsAsync(store.Id, languageId);
+        var blogPosts = await _blogService.GetAllBlogPostsAsync(store.Id, store.DefaultLanguageId);
         foreach (var blogPost in blogPosts)
         {
-            var seName = await _urlRecordService.GetSeNameAsync(blogPost, blogPost.LanguageId, ensureTwoPublishedLanguages: false);
+            var seName = await _urlRecordService.GetSeNameAsync(blogPost, language.Id, ensureTwoPublishedLanguages: false);
             var blogPostUrl = await _nopUrlHelper.RouteGenericUrlAsync<BlogPost>(new { SeName = seName }, _webHelper.GetCurrentRequestProtocol());
-            items.Add(new RssItem(blogPost.Title, blogPost.Body, new Uri(blogPostUrl), $"urn:store:{store.Id}:blog:post:{blogPost.Id}", blogPost.CreatedOnUtc));
+            var localizedPath = new Uri(blogPostUrl).PathAndQuery
+                .RemoveLanguageSeoCodeFromUrl(Request.PathBase, true)
+                .AddLanguageSeoCodeToUrl(Request.PathBase, true, language);
+            blogPostUrl = new Uri(new Uri(_webHelper.GetStoreLocation()), localizedPath).ToString();
+            var title = await _localizationService.GetLocalizedAsync(blogPost, post => post.Title, language.Id, ensureTwoPublishedLanguages: false);
+            var body = await _localizationService.GetLocalizedAsync(blogPost, post => post.Body, language.Id, ensureTwoPublishedLanguages: false);
+            items.Add(new RssItem(title, body, new Uri(blogPostUrl), $"urn:store:{store.Id}:blog:post:{blogPost.Id}", blogPost.CreatedOnUtc));
         }
         feed.Items = items;
         return new RssActionResult(feed, _webHelper.GetThisPageUrl(false));

@@ -1,9 +1,18 @@
 ﻿@model SitemapModel
+@using Nop.Core
+@using Nop.Core.Domain.Seo
+@inject IWebHelper webHelper
+@inject SeoSettings seoSettings
 @{
     Layout = "_ColumnsOne";
 
     //title
     NopHtml.AddTitleParts(T("PageTitle.Sitemap").Text);
+    if (seoSettings.CanonicalUrlsEnabled)
+    {
+        var sitemapUrl = Url.RouteUrl("Sitemap", null, webHelper.GetCurrentRequestProtocol()).ToLowerInvariant();
+        NopHtml.AddCanonicalUrlParts(sitemapUrl, seoSettings.QueryStringInCanonicalUrlsEnabled);
+    }
     //page class
     NopHtml.AppendPageCssClassParts("html-sitemap-page");
 }

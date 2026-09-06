@@ -51,6 +51,12 @@ public partial class TopicController : BasePublicController
         if (topic == null)
             return InvokeHttp404();
 
+        //The ContactUs topic supplies the localized content block for the
+        //dedicated contact form. Keep its legacy generic URL as one permanent
+        //route to the form instead of exposing duplicate indexable content.
+        if (topic.SystemName.Equals("ContactUs", StringComparison.InvariantCultureIgnoreCase))
+            return RedirectToRoutePermanent("ContactUs");
+
         var notAvailable = !topic.Published ||
                            //ACL (access control list)
                            !await _aclService.AuthorizeAsync(topic) ||

@@ -1,0 +1,245 @@
+@model BnplEligibilityMatrixModel
+@{
+    Layout = "_AdminLayout";
+    ViewBag.PageTitle = "BNPL product eligibility";
+}
+
+<section class="content-header clearfix">
+    <h1 class="float-left">BNPL product eligibility</h1>
+    <div class="float-right">
+        <a asp-action="Configure" class="btn btn-outline-secondary">Configuration</a>
+        <a asp-controller="StripeBnplCostReport" asp-action="Index" class="btn btn-outline-secondary">Cost report</a>
+        <a asp-action="ExportCsv"
+           asp-route-providerId="@Model.ProviderId"
+           asp-route-categoryId="@Model.CategoryId"
+           asp-route-eligibilityStateId="@Model.EligibilityStateId"
+           asp-route-searchProductName="@Model.SearchProductName"
+           class="btn btn-primary">Export Stripe inventory CSV</a>
+    </div>
+</section>
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="alert alert-warning">
+            Default is <strong>Unknown</strong>. A provider is shown only when every cart product is explicitly Allowed.
+            Catalog scanning can block or require approval; it never marks a product Allowed automatically.
+        </div>
+
+        <div class="card card-default">
+            <div class="card-header"><h3 class="card-title">Filter</h3></div>
+            <div class="card-body">
+                <form asp-action="Matrix" method="get">
+                    <div class="row">
+                        <div class="col-md-3 form-group">
+                            <label for="ProviderId">Provider</label>
+                            <select id="ProviderId" name="ProviderId" class="form-control">
+                                @foreach (var provider in Enum.GetValues<BnplProvider>())
+                                {
+                                    if ((int)provider == Model.ProviderId)
+                                    {
+                                        <option value="@((int)provider)" selected>@provider</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@((int)provider)">@provider</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-3 form-group">
+                            <label for="CategoryId">Category</label>
+                            <select id="CategoryId" name="CategoryId" class="form-control">
+                                <option value="0">All categories</option>
+                                @foreach (var category in Model.Categories)
+                                {
+                                    if (category.Id == Model.CategoryId)
+                                    {
+                                        <option value="@category.Id" selected>@category.Name</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@category.Id">@category.Name</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-2 form-group">
+                            <label for="EligibilityStateId">State</label>
+                            <select id="EligibilityStateId" name="EligibilityStateId" class="form-control">
+                                <option value="">All states</option>
+                                @foreach (var state in Enum.GetValues<BnplEligibilityState>())
+                                {
+                                    if ((int)state == Model.EligibilityStateId)
+                                    {
+                                        <option value="@((int)state)" selected>@state</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@((int)state)">@state</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-3 form-group">
+                            <label for="SearchProductName">Product / SKU</label>
+                            <input id="SearchProductName" name="SearchProductName" value="@Model.SearchProductName" class="form-control" />
+                        </div>
+                        <div class="col-md-1 form-group d-flex align-items-end">
+                            <button type="submit" class="btn btn-secondary">Filter</button>
+                        </div>
+                    </div>
+                    <input type="hidden" name="PageSize" value="@Model.PageSize" />
+                </form>
+            </div>
+        </div>
+
+        <div class="card card-default">
+            <div class="card-header"><h3 class="card-title">Category bulk operation</h3></div>
+            <div class="card-body">
+                <form asp-action="BulkUpdateCategory" method="post">
+                    <div class="row">
+                        <div class="col-md-2 form-group">
+                            <label>Category</label>
+                            <select name="CategoryId" class="form-control" required>
+                                <option value="">Select</option>
+                                @foreach (var category in Model.Categories)
+                                {
+                                    <option value="@category.Id">@category.Name</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-2 form-group">
+                            <label>Provider</label>
+                            <select name="ProviderId" class="form-control">
+                                @foreach (var provider in Enum.GetValues<BnplProvider>())
+                                {
+                                    if ((int)provider == Model.ProviderId)
+                                    {
+                                        <option value="@((int)provider)" selected>@provider</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@((int)provider)">@provider</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-2 form-group">
+                            <label>New state</label>
+                            <select name="EligibilityStateId" class="form-control">
+                                @foreach (var state in Enum.GetValues<BnplEligibilityState>())
+                                {
+                                    <option value="@((int)state)">@state</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-2 form-group"><label>Fulfillment days</label><input name="FulfillmentDays" type="number" min="0" class="form-control" /></div>
+                        <div class="col-md-2 form-group"><label>Approval reference</label><input name="ApprovalReference" class="form-control" /></div>
+                        <div class="col-md-2 form-group d-flex align-items-end"><button type="submit" class="btn btn-warning">Apply to category</button></div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 form-group"><label>Reason</label><input name="Reason" class="form-control" /></div>
+                        <div class="col-md-6 form-group"><label>Policy version / date</label><input name="PolicyVersion" class="form-control" /></div>
+                    </div>
+                    <small class="text-muted">The operation validates every product before writing. Restricted items cannot become Allowed without a written reference.</small>
+                </form>
+            </div>
+        </div>
+
+        <div class="card card-default">
+            <div class="card-header">
+                <h3 class="card-title">Products (@Model.TotalCount)</h3>
+            </div>
+            <div class="card-body table-responsive p-0">
+                <table class="table table-bordered table-striped">
+                    <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th style="min-width:150px">State</th>
+                        <th style="min-width:210px">Reason</th>
+                        <th style="min-width:110px">Days</th>
+                        <th style="min-width:190px">Approval reference</th>
+                        <th style="min-width:150px">Policy version</th>
+                        <th>Catalog risk</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @if (Model.Rows.Count == 0)
+                    {
+                        <tr><td colspan="8" class="text-center p-4">No products match this filter.</td></tr>
+                    }
+                    @foreach (var row in Model.Rows)
+                    {
+                        var formId = $"eligibility-{row.ProductId}";
+                        <tr>
+                            <td><strong>@row.ProductName</strong><br /><small>SKU: @(string.IsNullOrWhiteSpace(row.Sku) ? "—" : row.Sku) · ID @row.ProductId</small></td>
+                            <td>
+                                <select name="EligibilityStateId" form="@formId" class="form-control">
+                                    @foreach (var state in Enum.GetValues<BnplEligibilityState>())
+                                    {
+                                        if ((int)state == row.EligibilityStateId)
+                                        {
+                                            <option value="@((int)state)" selected>@state</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@((int)state)">@state</option>
+                                        }
+                                    }
+                                </select>
+                            </td>
+                            <td><input name="Reason" form="@formId" value="@row.Reason" class="form-control" /></td>
+                            <td><input name="FulfillmentDays" form="@formId" value="@row.FulfillmentDays" type="number" min="0" class="form-control" /></td>
+                            <td><input name="ApprovalReference" form="@formId" value="@row.ApprovalReference" class="form-control" /></td>
+                            <td><input name="PolicyVersion" form="@formId" value="@row.PolicyVersion" class="form-control" /></td>
+                            <td>
+                                @if (string.IsNullOrWhiteSpace(row.RestrictedTerm))
+                                {
+                                    <span class="badge badge-success">No scanned term</span>
+                                }
+                                else
+                                {
+                                    <span class="badge badge-danger">@row.RestrictedTerm</span>
+                                }
+                            </td>
+                            <td>
+                                <form id="@formId" asp-action="UpdateEligibility" method="post">
+                                    <input type="hidden" name="ProductId" value="@row.ProductId" />
+                                    <input type="hidden" name="ProviderId" value="@Model.ProviderId" />
+                                    <input type="hidden" name="SearchProductName" value="@Model.SearchProductName" />
+                                    <input type="hidden" name="EligibilityStateFilterId" value="@Model.EligibilityStateId" />
+                                    <input type="hidden" name="CategoryId" value="@Model.CategoryId" />
+                                    <input type="hidden" name="PageNumber" value="@Model.PageNumber" />
+                                    <input type="hidden" name="PageSize" value="@Model.PageSize" />
+                                    <button type="submit" class="btn btn-sm btn-primary">Save</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+            @if (Model.TotalPages > 1)
+            {
+                <div class="card-footer d-flex justify-content-between align-items-center">
+                    <span>Page @Model.PageNumber of @Model.TotalPages</span>
+                    <div>
+                        @if (Model.PageNumber > 1)
+                        {
+                            <a asp-action="Matrix" asp-route-providerId="@Model.ProviderId" asp-route-categoryId="@Model.CategoryId"
+                               asp-route-eligibilityStateId="@Model.EligibilityStateId" asp-route-searchProductName="@Model.SearchProductName"
+                               asp-route-pageNumber="@(Model.PageNumber - 1)" asp-route-pageSize="@Model.PageSize" class="btn btn-outline-secondary">Previous</a>
+                        }
+                        @if (Model.PageNumber < Model.TotalPages)
+                        {
+                            <a asp-action="Matrix" asp-route-providerId="@Model.ProviderId" asp-route-categoryId="@Model.CategoryId"
+                               asp-route-eligibilityStateId="@Model.EligibilityStateId" asp-route-searchProductName="@Model.SearchProductName"
+                               asp-route-pageNumber="@(Model.PageNumber + 1)" asp-route-pageSize="@Model.PageSize" class="btn btn-outline-secondary">Next</a>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</section>

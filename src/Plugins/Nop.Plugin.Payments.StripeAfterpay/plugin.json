@@ -1,0 +1,14 @@
+{
+  "Group": "Payment methods",
+  "FriendlyName": "Afterpay / Clearpay",
+  "SystemName": "Payments.StripeAfterpay",
+  "Version": "1.0.0",
+  "SupportedVersions": [ "4.80" ],
+  "Author": "Genius Software",
+  "DisplayOrder": 12,
+  "FileName": "Nop.Plugin.Payments.StripeAfterpay.dll",
+  "Description": "Installment payments with Afterpay or Clearpay through Stripe Checkout.",
+  "LimitedToStores": [],
+  "LimitedToCustomerRoles": [],
+  "DependsOnSystemNames": [ "Misc.StripeBnplCore" ]
+}

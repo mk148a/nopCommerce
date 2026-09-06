@@ -16,14 +16,16 @@ using Nop.Services.Events;
 using Nop.Services.Logging;
 using Nop.Services.Orders;
 using Nop.Services.Stores;
+using System.Text.RegularExpressions;
 
 namespace Nop.Plugin.Widgets.GoogleAnalytics;
 
 public class EventConsumer :
     IConsumer<OrderPlacedEvent>,
-    IConsumer<OrderPaidEvent>,
     IConsumer<OrderRefundedEvent>
 {
+    private static readonly Regex MeasurementIdPattern = new("^G-[A-Za-z0-9]+$", RegexOptions.CultureInvariant);
+
     protected readonly CurrencySettings _currencySettings;
     protected readonly GoogleAnalyticsHttpClient _googleAnalyticsHttpClient;
     protected readonly ICategoryService _categoryService;
@@ -72,6 +74,18 @@ public class EventConsumer :
     protected async Task<bool> IsPluginEnabledAsync()
     {
         return await _widgetPluginManager.IsPluginActiveAsync(GoogleAnalyticsDefaults.SystemName);
+    }
+
+    /// <summary>
+    /// Determines whether server-side Measurement Protocol delivery is configured safely.
+    /// Browser checkout dataLayer delivery deliberately does not require an API secret.
+    /// </summary>
+    public static bool CanSendMeasurementProtocol(GoogleAnalyticsSettings settings)
+    {
+        return settings != null
+            && !string.IsNullOrWhiteSpace(settings.ApiSecret)
+            && !string.IsNullOrWhiteSpace(settings.GoogleId)
+            && MeasurementIdPattern.IsMatch(settings.GoogleId);
     }
 
     protected async Task SaveCookiesAsync(Order order, GoogleAnalyticsSettings googleAnalyticsSettings, Store store)
@@ -182,8 +196,8 @@ public class EventConsumer :
         var store = await _storeService.GetStoreByIdAsync(order.StoreId) ?? await _storeContext.GetCurrentStoreAsync();
         var googleAnalyticsSettings = await _settingService.LoadSettingAsync<GoogleAnalyticsSettings>(store.Id);
 
-        //ecommerce is disabled
-        if (!googleAnalyticsSettings.EnableEcommerce)
+        // Refunds use Measurement Protocol and must fail closed without both valid credentials.
+        if (!googleAnalyticsSettings.EnableEcommerce || !CanSendMeasurementProtocol(googleAnalyticsSettings))
             return;
 
         //if we use HTTP requests to notify GA about new orders (only when they are paid), then we should notify GA about deleted AND paid orders
@@ -191,31 +205,6 @@ public class EventConsumer :
 
         if (sendRequest)
             await ProcessOrderEventAsync(order, googleAnalyticsSettings, GoogleAnalyticsDefaults.OrderRefundedEventName);
-    }
-
-    /// <summary>
-    /// Handles the event
-    /// </summary>
-    /// <param name="eventMessage">The event message</param>
-    /// <returns>A task that represents the asynchronous operation</returns>
-    public async Task HandleEventAsync(OrderPaidEvent eventMessage)
-    {
-        //ensure the plugin is installed and active
-        if (!await IsPluginEnabledAsync())
-            return;
-
-        var order = eventMessage.Order;
-
-        //settings per store
-        var store = await _storeService.GetStoreByIdAsync(order.StoreId) ?? await _storeContext.GetCurrentStoreAsync();
-        var googleAnalyticsSettings = await _settingService.LoadSettingAsync<GoogleAnalyticsSettings>(store.Id);
-
-        //ecommerce is disabled
-        if (!googleAnalyticsSettings.EnableEcommerce)
-            return;
-
-        //we use HTTP requests to notify GA about new orders (only when they are paid)
-        await ProcessOrderEventAsync(order, googleAnalyticsSettings, GoogleAnalyticsDefaults.OrderPaidEventName);
     }
 
     /// <summary>
@@ -235,8 +224,8 @@ public class EventConsumer :
         var store = await _storeService.GetStoreByIdAsync(order.StoreId) ?? await _storeContext.GetCurrentStoreAsync();
         var googleAnalyticsSettings = await _settingService.LoadSettingAsync<GoogleAnalyticsSettings>(store.Id);
 
-        //ecommerce is disabled
-        if (!googleAnalyticsSettings.EnableEcommerce)
+        // Only capture cookies when a later refund can legitimately use Measurement Protocol.
+        if (!googleAnalyticsSettings.EnableEcommerce || !CanSendMeasurementProtocol(googleAnalyticsSettings))
             return;
 
         await SaveCookiesAsync(order, googleAnalyticsSettings, store);

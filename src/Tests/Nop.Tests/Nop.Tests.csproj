@@ -25,7 +25,15 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Presentation\Nop.Web\Nop.Web.csproj" />
+    <ProjectReference Include="..\..\Plugins\Nop.Plugin.Misc.StripeBnplCore\Nop.Plugin.Misc.StripeBnplCore.csproj" />
+    <ProjectReference Include="..\..\Plugins\Nop.Plugin.Payments.Stripe\Nop.Plugin.Payments.Stripe.csproj" />
+    <ProjectReference Include="..\..\Plugins\Nop.Plugin.Payments.StripeApplePay\Nop.Plugin.Payments.StripeApplePay.csproj" />
+    <ProjectReference Include="..\..\Plugins\Nop.Plugin.Payments.StripeKlarna\Nop.Plugin.Payments.StripeKlarna.csproj" />
+    <ProjectReference Include="..\..\Plugins\Nop.Plugin.Payments.StripeAffirm\Nop.Plugin.Payments.StripeAffirm.csproj" />
+    <ProjectReference Include="..\..\Plugins\Nop.Plugin.Payments.StripeAfterpay\Nop.Plugin.Payments.StripeAfterpay.csproj" />
+    <ProjectReference Include="..\..\Plugins\Nop.Plugin.Payments.StripeZip\Nop.Plugin.Payments.StripeZip.csproj" />
     <ProjectReference Include="..\..\Plugins\Nop.Plugin.Shipping.FixedByWeightByTotal\Nop.Plugin.Shipping.FixedByWeightByTotal.csproj" />
+    <ProjectReference Include="..\..\Plugins\Nop.Plugin.Widgets.GoogleAnalytics\Nop.Plugin.Widgets.GoogleAnalytics.csproj" />
   </ItemGroup>
 
   <ItemGroup>

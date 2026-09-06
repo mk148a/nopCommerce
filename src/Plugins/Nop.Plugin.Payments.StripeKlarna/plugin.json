@@ -1,0 +1,14 @@
+{
+  "Group": "Payment methods",
+  "FriendlyName": "Klarna",
+  "SystemName": "Payments.StripeKlarna",
+  "Version": "1.0.0",
+  "SupportedVersions": [ "4.80" ],
+  "Author": "Genius Software",
+  "DisplayOrder": 10,
+  "FileName": "Nop.Plugin.Payments.StripeKlarna.dll",
+  "Description": "Pay now or over time with Klarna through Stripe Checkout.",
+  "LimitedToStores": [],
+  "LimitedToCustomerRoles": [],
+  "DependsOnSystemNames": [ "Misc.StripeBnplCore" ]
+}

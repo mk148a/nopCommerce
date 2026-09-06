@@ -1,0 +1,68 @@
+@using System.Text.Json
+@model Nop.Plugin.Misc.StripeBnplCore.Models.StripeBnplPendingModel
+@{
+    Layout = "_ColumnsOne";
+    NopHtml.AddTitleParts("Confirming payment");
+}
+
+<div class="page checkout-page stripe-bnpl-pending-page">
+    <div class="page-title"><h1>Confirming your payment</h1></div>
+    <div class="page-body">
+        <p id="stripe-bnpl-status">Please wait while we securely confirm your payment. Do not close this page.</p>
+        <noscript>
+            <p>JavaScript is required to finish automatic confirmation. You can review your order below.</p>
+            <p><a href="@Model.OrderDetailsUrl">View order</a></p>
+        </noscript>
+    </div>
+</div>
+
+<script asp-location="Footer">
+(function () {
+    'use strict';
+    var endpoint = @Html.Raw(JsonSerializer.Serialize(Model.StatusUrl ?? string.Empty));
+    var sessionId = @Html.Raw(JsonSerializer.Serialize(Model.SessionId ?? string.Empty));
+    var orderGuid = @Html.Raw(JsonSerializer.Serialize(Model.OrderGuid.ToString("D")));
+    var fallback = @Html.Raw(JsonSerializer.Serialize(Model.OrderDetailsUrl ?? "/"));
+    var attempts = 0;
+    var maximumAttempts = 60;
+    var statusElement = document.getElementById('stripe-bnpl-status');
+
+    if (window.history && window.history.replaceState)
+        window.history.replaceState({}, document.title, window.location.pathname);
+
+    async function check() {
+        attempts++;
+        try {
+            var url = endpoint + '?session_id=' + encodeURIComponent(sessionId) +
+                '&order_guid=' + encodeURIComponent(orderGuid);
+            var response = await fetch(url, { credentials: 'same-origin', cache: 'no-store' });
+            if (response.ok) {
+                var result = await response.json();
+                if (result.status === 'paid' && result.redirect_url) {
+                    window.location.replace(result.redirect_url);
+                    return;
+                }
+                if (result.status === 'failed') {
+                    statusElement.textContent = 'The payment was not completed. Redirecting to your order…';
+                    window.setTimeout(function () { window.location.replace(result.redirect_url || fallback); }, 1200);
+                    return;
+                }
+            }
+        } catch (_) {
+            // A transient network failure is retried within the bounded window.
+        }
+
+        if (attempts >= maximumAttempts) {
+            statusElement.textContent = 'Confirmation is taking longer than expected. You can review your order status now.';
+            var link = document.createElement('a');
+            link.href = fallback;
+            link.textContent = ' View order';
+            statusElement.appendChild(link);
+            return;
+        }
+        window.setTimeout(check, 2000);
+    }
+
+    window.setTimeout(check, 1000);
+}());
+</script>

@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Nop.Core.Infrastructure;
 using Nop.Plugin.Widgets.GoogleAnalytics.Api;
+using Nop.Plugin.Widgets.GoogleAnalytics.Services;
 using Nop.Web.Framework.Infrastructure.Extensions;
 
 namespace Nop.Plugin.Widgets.GoogleAnalytics.Infrastructure;
@@ -20,6 +21,9 @@ public class NopStartup : INopStartup
     public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
     {
         services.AddHttpClient<GoogleAnalyticsHttpClient>().WithProxy();
+        services.AddScoped<IGoogleAnalyticsPurchaseDispatchStore, GoogleAnalyticsPurchaseDispatchStore>();
+        services.AddScoped<IGoogleAnalyticsPurchaseDispatchService, GoogleAnalyticsPurchaseDispatchService>();
+        services.AddScoped<IGoogleAnalyticsPurchaseDispatchConfirmationFactory, GoogleAnalyticsPurchaseDispatchConfirmationFactory>();
     }
 
     /// <summary>

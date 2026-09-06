@@ -324,7 +324,8 @@ public partial class SitemapModelFactory : ISitemapModelFactory
     {
         var store = await _storeContext.GetCurrentStoreAsync();
 
-        return await (await _topicService.GetAllTopicsAsync(store.Id)).Where(t => t.IncludeInSitemap)
+        return await (await _topicService.GetAllTopicsAsync(store.Id)).Where(t => t.IncludeInSitemap &&
+                !t.SystemName.Equals("ContactUs", StringComparison.InvariantCultureIgnoreCase))
             .SelectAwait(async topic => await PrepareLocalizedSitemapUrlAsync("Topic", GetSeoRouteParamsAwait(topic))).ToListAsync();
     }
 
@@ -336,32 +337,8 @@ public partial class SitemapModelFactory : ISitemapModelFactory
     /// <returns>A task that represents the asynchronous operation</returns>
     protected virtual async Task<SitemapUrlModel> PrepareLocalizedBlogPostUrlModelAsync(BlogPost post, UpdateFrequency updateFreq = UpdateFrequency.Weekly)
     {
-        //url for current language
-        var url = await _nopUrlHelper.RouteGenericUrlAsync<BlogPost>(new
-        {
-            SeName = await _urlRecordService.GetSeNameAsync(post, null,
-                ensureTwoPublishedLanguages: false)
-        }, await GetHttpProtocolAsync());
-
-        var updatedOn = post.CreatedOnUtc;
-
-        if (!_localizationSettings.SeoFriendlyUrlsForLanguagesEnabled)
-            return new SitemapUrlModel(url, new List<string>(), updateFreq, updatedOn);
-
-        var lang = await _languageService.GetLanguageByIdAsync(post.LanguageId);
-
-        if (lang == null || !lang.Published)
-            return new SitemapUrlModel(url, new List<string>(), updateFreq, updatedOn);
-
-        url = await _nopUrlHelper.RouteGenericUrlAsync<BlogPost>(new
-        {
-            SeName = await _urlRecordService.GetSeNameAsync(post, post.LanguageId,
-                ensureTwoPublishedLanguages: false)
-        }, await GetHttpProtocolAsync());
-
-        url = GetLocalizedUrl(url, lang);
-
-        return new SitemapUrlModel(url, new List<string>(), updateFreq, updatedOn);
+        return await PrepareLocalizedSitemapUrlAsync(nameof(BlogPost), GetSeoRouteParamsAwait(post),
+            post.CreatedOnUtc, updateFreq);
     }
 
     /// <summary>
@@ -719,7 +696,8 @@ public partial class SitemapModelFactory : ISitemapModelFactory
             if (_sitemapSettings.SitemapIncludeTopics)
             {
                 var topics = (await _topicService.GetAllTopicsAsync(storeId: store.Id))
-                    .Where(topic => topic.IncludeInSitemap);
+                    .Where(topic => topic.IncludeInSitemap &&
+                        !topic.SystemName.Equals("ContactUs", StringComparison.InvariantCultureIgnoreCase));
 
                 model.Items.AddRange(await topics.SelectAwait(async topic => new SitemapModel.SitemapItemModel
                 {
@@ -733,15 +711,15 @@ public partial class SitemapModelFactory : ISitemapModelFactory
             if (_sitemapSettings.SitemapIncludeBlogPosts && _blogSettings.Enabled)
             {
                 var blogPostsGroupTitle = await _localizationService.GetResourceAsync("Sitemap.BlogPosts");
-                var blogPosts = (await _blogService.GetAllBlogPostsAsync(storeId: store.Id))
+                var blogPosts = (await _blogService.GetAllBlogPostsAsync(store.Id, store.DefaultLanguageId))
                     .Where(p => p.IncludeInSitemap);
 
                 model.Items.AddRange(await blogPosts.SelectAwait(async post => new SitemapModel.SitemapItemModel
                 {
                     GroupTitle = blogPostsGroupTitle,
-                    Name = post.Title,
+                    Name = await _localizationService.GetLocalizedAsync(post, x => x.Title, language.Id),
                     Url = await _nopUrlHelper
-                        .RouteGenericUrlAsync<BlogPost>(new { SeName = await _urlRecordService.GetSeNameAsync(post, post.LanguageId, ensureTwoPublishedLanguages: false) })
+                        .RouteGenericUrlAsync<BlogPost>(new { SeName = await _urlRecordService.GetSeNameAsync(post, language.Id, ensureTwoPublishedLanguages: false) })
                 }).ToListAsync());
             }
 

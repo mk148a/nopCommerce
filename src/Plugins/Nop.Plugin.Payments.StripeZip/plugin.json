@@ -1,0 +1,14 @@
+{
+  "Group": "Payment methods",
+  "FriendlyName": "Zip",
+  "SystemName": "Payments.StripeZip",
+  "Version": "1.0.0",
+  "SupportedVersions": [ "4.80" ],
+  "Author": "Genius Software",
+  "DisplayOrder": 13,
+  "FileName": "Nop.Plugin.Payments.StripeZip.dll",
+  "Description": "Pay in 4 with Zip through Stripe Checkout.",
+  "LimitedToStores": [],
+  "LimitedToCustomerRoles": [],
+  "DependsOnSystemNames": [ "Misc.StripeBnplCore" ]
+}

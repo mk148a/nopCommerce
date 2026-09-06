@@ -1,0 +1,215 @@
+@model StripeBnplConfigurationModel
+@{
+    Layout = "_ConfigurePlugin";
+    var statusClass = Model.EnvironmentIsSafe ? "alert-success" : "alert-danger";
+}
+
+<form asp-controller="StripeBnpl" asp-action="Configure" method="post" autocomplete="off">
+    <div class="cards-group">
+        <div class="card card-default">
+            <div class="card-header d-flex align-items-center justify-content-between">
+                <h3 class="card-title">Stripe BNPL Core</h3>
+                <div>
+                    <a asp-controller="StripeBnplCostReport" asp-action="Index" class="btn btn-outline-secondary">
+                        Cost report
+                    </a>
+                    <a asp-controller="StripeBnpl" asp-action="Matrix" class="btn btn-outline-primary">
+                        Product eligibility matrix
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="alert @statusClass">
+                    <strong>Environment guard:</strong> @Model.EnvironmentStatus
+                </div>
+                <div class="alert alert-warning">
+                    Live BNPL is always blocked until a provider-specific written approval reference, a live restricted key,
+                    a provider-only live Payment Method Configuration, and the configured live database identity are all present.
+                    This safety gate cannot be disabled here.
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-3"><label asp-for="UseSandbox">Stripe mode</label></div>
+                    <div class="col-md-9">
+                        <div class="form-check">
+                            <input asp-for="UseSandbox" class="form-check-input" />
+                            <label asp-for="UseSandbox" class="form-check-label">Use Stripe test mode</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-3"><label asp-for="StripeAccountCountryIso2">Stripe account country</label></div>
+                    <div class="col-md-9"><input asp-for="StripeAccountCountryIso2" maxlength="2" class="form-control" /></div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-3"><label>Customer BNPL surcharge</label></div>
+                    <div class="col-md-9">
+                        <input value="0 (immutable)" class="form-control" readonly />
+                        <small class="form-text text-muted">Provider and Stripe fees are reporting-only and never change the order total.</small>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-3"><label>Webhook URL</label></div>
+                    <div class="col-md-9"><input value="@Model.WebhookUrl" class="form-control" readonly /></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card card-default">
+            <div class="card-header"><h3 class="card-title">Database identity allowlists</h3></div>
+            <div class="card-body">
+                <p class="text-muted">Both database name and server must match the active nopCommerce connection before a method can appear.</p>
+                <div class="form-group row">
+                    <div class="col-md-3"><label asp-for="SandboxDatabaseName">Test database name</label></div>
+                    <div class="col-md-9"><input asp-for="SandboxDatabaseName" class="form-control" /></div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-3"><label asp-for="SandboxDatabaseServer">Test database server</label></div>
+                    <div class="col-md-9"><input asp-for="SandboxDatabaseServer" class="form-control" /></div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-3"><label asp-for="LiveDatabaseName">Live database name</label></div>
+                    <div class="col-md-9"><input asp-for="LiveDatabaseName" class="form-control" /></div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-3"><label asp-for="LiveDatabaseServer">Live database server</label></div>
+                    <div class="col-md-9"><input asp-for="LiveDatabaseServer" class="form-control" /></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card card-default">
+            <div class="card-header"><h3 class="card-title">Restricted credentials</h3></div>
+            <div class="card-body">
+                <p class="text-muted">Saved values are never returned to this page. Leave a password field blank to keep its current value.</p>
+                <div class="form-group row">
+                    <div class="col-md-3"><label asp-for="TestRestrictedKey">Test restricted key</label></div>
+                    <div class="col-md-9">
+                        <input asp-for="TestRestrictedKey" class="form-control" autocomplete="new-password" value="" />
+                        <small class="form-text text-muted">Status: @(Model.TestRestrictedKeyConfigured ? "configured" : "not configured"); must start with rk_test_.</small>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-3"><label asp-for="TestWebhookSecret">Test webhook signing secret</label></div>
+                    <div class="col-md-9">
+                        <input asp-for="TestWebhookSecret" class="form-control" autocomplete="new-password" value="" />
+                        <small class="form-text text-muted">Status: @(Model.TestWebhookSecretConfigured ? "configured" : "not configured"); must start with whsec_.</small>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-3"><label asp-for="LiveRestrictedKey">Live restricted key</label></div>
+                    <div class="col-md-9">
+                        <input asp-for="LiveRestrictedKey" class="form-control" autocomplete="new-password" value="" />
+                        <small class="form-text text-muted">Status: @(Model.LiveRestrictedKeyConfigured ? "configured" : "not configured"); must start with rk_live_.</small>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-3"><label asp-for="LiveWebhookSecret">Live webhook signing secret</label></div>
+                    <div class="col-md-9">
+                        <input asp-for="LiveWebhookSecret" class="form-control" autocomplete="new-password" value="" />
+                        <small class="form-text text-muted">Status: @(Model.LiveWebhookSecretConfigured ? "configured" : "not configured"); must start with whsec_.</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card card-default">
+            <div class="card-header"><h3 class="card-title">Provider-only Payment Method Configurations</h3></div>
+            <div class="card-body">
+                <div class="row font-weight-bold mb-2">
+                    <div class="col-md-2">Provider</div><div class="col-md-5">Test pmc_ ID</div><div class="col-md-5">Live pmc_ ID</div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-2"><label>Klarna</label></div>
+                    <div class="col-md-5"><input asp-for="TestKlarnaConfigurationId" class="form-control" /></div>
+                    <div class="col-md-5"><input asp-for="LiveKlarnaConfigurationId" class="form-control" /></div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-2"><label>Affirm</label></div>
+                    <div class="col-md-5"><input asp-for="TestAffirmConfigurationId" class="form-control" /></div>
+                    <div class="col-md-5"><input asp-for="LiveAffirmConfigurationId" class="form-control" /></div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-2"><label>Afterpay / Clearpay</label></div>
+                    <div class="col-md-5"><input asp-for="TestAfterpayConfigurationId" class="form-control" /></div>
+                    <div class="col-md-5"><input asp-for="LiveAfterpayConfigurationId" class="form-control" /></div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-2"><label>Zip</label></div>
+                    <div class="col-md-5"><input asp-for="TestZipConfigurationId" class="form-control" /></div>
+                    <div class="col-md-5"><input asp-for="LiveZipConfigurationId" class="form-control" /></div>
+                </div>
+                <small class="text-muted">Each configuration must have only its named BNPL provider enabled. Zip may remain blank or disabled until Stripe grants the capability.</small>
+            </div>
+        </div>
+
+        <div class="card card-default">
+            <div class="card-header"><h3 class="card-title">Written live approval evidence</h3></div>
+            <div class="card-body">
+                <p class="text-muted">Record a provider-specific written case/reference number. A blank value always hides that provider in live mode.</p>
+                <div class="form-group row">
+                    <div class="col-md-3"><label asp-for="KlarnaApprovalReference">Klarna reference</label></div>
+                    <div class="col-md-9"><input asp-for="KlarnaApprovalReference" class="form-control" /></div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-3"><label asp-for="AffirmApprovalReference">Affirm reference</label></div>
+                    <div class="col-md-9"><input asp-for="AffirmApprovalReference" class="form-control" /></div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-3"><label asp-for="AfterpayApprovalReference">Afterpay / Clearpay reference</label></div>
+                    <div class="col-md-9"><input asp-for="AfterpayApprovalReference" class="form-control" /></div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-3"><label asp-for="ZipApprovalReference">Zip reference</label></div>
+                    <div class="col-md-9"><input asp-for="ZipApprovalReference" class="form-control" /></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card card-default">
+            <div class="card-header"><h3 class="card-title">Eligibility limits</h3></div>
+            <div class="card-body">
+                <div class="form-group row">
+                    <div class="col-md-3"><label asp-for="AfterpayMaximumFulfillmentDays">Afterpay optional maximum fulfillment days</label></div>
+                    <div class="col-md-9"><input asp-for="AfterpayMaximumFulfillmentDays" min="0" class="form-control" /><small class="form-text text-muted">0 keeps Stripe's account-level activation review authoritative; a positive value is an optional stricter local limit.</small></div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-3"><label asp-for="PendingOrderCancellationHours">Pending BNPL order cancellation hours</label></div>
+                    <div class="col-md-9"><input asp-for="PendingOrderCancellationHours" min="1" max="168" class="form-control" /><small class="form-text text-muted">Terminal Stripe failures cancel immediately; abandoned pending orders are cancelled after this period.</small></div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-3"><label asp-for="WebhookSignatureToleranceSeconds">Webhook signature tolerance (seconds)</label></div>
+                    <div class="col-md-9"><input asp-for="WebhookSignatureToleranceSeconds" min="60" max="600" class="form-control" /></div>
+                </div>
+                <div class="row font-weight-bold mb-2">
+                    <div class="col-md-3">Provider</div><div class="col-md-4">Minimum</div><div class="col-md-5">Maximum</div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-3">Klarna</div>
+                    <div class="col-md-4"><input asp-for="KlarnaMinimumAmount" min="0" class="form-control" /></div>
+                    <div class="col-md-5"><input asp-for="KlarnaMaximumAmount" min="0" class="form-control" /></div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-3">Affirm</div>
+                    <div class="col-md-4"><input asp-for="AffirmMinimumAmount" min="0" class="form-control" /></div>
+                    <div class="col-md-5"><input asp-for="AffirmMaximumAmount" min="0" class="form-control" /></div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-3">Afterpay / Clearpay</div>
+                    <div class="col-md-4"><input asp-for="AfterpayMinimumAmount" min="0" class="form-control" /></div>
+                    <div class="col-md-5"><input asp-for="AfterpayMaximumAmount" min="0" class="form-control" /></div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-3">Zip</div>
+                    <div class="col-md-4"><input asp-for="ZipMinimumAmount" min="0" class="form-control" /></div>
+                    <div class="col-md-5"><input asp-for="ZipMaximumAmount" min="0" class="form-control" /></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <div class="col-md-9 offset-md-3">
+                <button type="submit" class="btn btn-primary">Save BNPL settings</button>
+            </div>
+        </div>
+    </div>
+</form>

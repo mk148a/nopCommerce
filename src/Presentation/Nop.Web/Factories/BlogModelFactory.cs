@@ -8,6 +8,7 @@ using Nop.Services.Blogs;
 using Nop.Services.Common;
 using Nop.Services.Customers;
 using Nop.Services.Helpers;
+using Nop.Services.Localization;
 using Nop.Services.Media;
 using Nop.Services.Seo;
 using Nop.Web.Infrastructure.Cache;
@@ -29,6 +30,7 @@ public partial class BlogModelFactory : IBlogModelFactory
     protected readonly ICustomerService _customerService;
     protected readonly IDateTimeHelper _dateTimeHelper;
     protected readonly IGenericAttributeService _genericAttributeService;
+    protected readonly ILocalizationService _localizationService;
     protected readonly IPictureService _pictureService;
     protected readonly IStaticCacheManager _staticCacheManager;
     protected readonly IStoreContext _storeContext;
@@ -47,6 +49,7 @@ public partial class BlogModelFactory : IBlogModelFactory
         ICustomerService customerService,
         IDateTimeHelper dateTimeHelper,
         IGenericAttributeService genericAttributeService,
+        ILocalizationService localizationService,
         IPictureService pictureService,
         IStaticCacheManager staticCacheManager,
         IStoreContext storeContext,
@@ -61,6 +64,7 @@ public partial class BlogModelFactory : IBlogModelFactory
         _customerService = customerService;
         _dateTimeHelper = dateTimeHelper;
         _genericAttributeService = genericAttributeService;
+        _localizationService = localizationService;
         _pictureService = pictureService;
         _staticCacheManager = staticCacheManager;
         _storeContext = storeContext;
@@ -86,14 +90,16 @@ public partial class BlogModelFactory : IBlogModelFactory
 
         ArgumentNullException.ThrowIfNull(blogPost);
 
+        var languageId = (await _workContext.GetWorkingLanguageAsync()).Id;
+
         model.Id = blogPost.Id;
-        model.MetaTitle = blogPost.MetaTitle;
-        model.MetaDescription = blogPost.MetaDescription;
-        model.MetaKeywords = blogPost.MetaKeywords;
-        model.SeName = await _urlRecordService.GetSeNameAsync(blogPost, blogPost.LanguageId, ensureTwoPublishedLanguages: false);
-        model.Title = blogPost.Title;
-        model.Body = blogPost.Body;
-        model.BodyOverview = blogPost.BodyOverview;
+        model.MetaTitle = await _localizationService.GetLocalizedAsync(blogPost, post => post.MetaTitle, languageId, ensureTwoPublishedLanguages: false);
+        model.MetaDescription = await _localizationService.GetLocalizedAsync(blogPost, post => post.MetaDescription, languageId, ensureTwoPublishedLanguages: false);
+        model.MetaKeywords = await _localizationService.GetLocalizedAsync(blogPost, post => post.MetaKeywords, languageId, ensureTwoPublishedLanguages: false);
+        model.SeName = await _urlRecordService.GetSeNameAsync(blogPost, languageId, ensureTwoPublishedLanguages: false);
+        model.Title = await _localizationService.GetLocalizedAsync(blogPost, post => post.Title, languageId, ensureTwoPublishedLanguages: false);
+        model.Body = await _localizationService.GetLocalizedAsync(blogPost, post => post.Body, languageId, ensureTwoPublishedLanguages: false);
+        model.BodyOverview = await _localizationService.GetLocalizedAsync(blogPost, post => post.BodyOverview, languageId, ensureTwoPublishedLanguages: false);
         model.AllowComments = blogPost.AllowComments;
 
         model.PreventNotRegisteredUsersToLeaveComments =
@@ -148,8 +154,8 @@ public partial class BlogModelFactory : IBlogModelFactory
         var language = await _workContext.GetWorkingLanguageAsync();
         var store = await _storeContext.GetCurrentStoreAsync();
         var blogPosts = string.IsNullOrEmpty(command.Tag)
-            ? await _blogService.GetAllBlogPostsAsync(store.Id, language.Id, dateFrom, dateTo, command.PageNumber - 1, command.PageSize)
-            : await _blogService.GetAllBlogPostsByTagAsync(store.Id, language.Id, command.Tag, command.PageNumber - 1, command.PageSize);
+            ? await _blogService.GetAllBlogPostsAsync(store.Id, store.DefaultLanguageId, dateFrom, dateTo, command.PageNumber - 1, command.PageSize)
+            : await _blogService.GetAllBlogPostsByTagAsync(store.Id, store.DefaultLanguageId, command.Tag, command.PageNumber - 1, command.PageSize);
 
         var model = new BlogPostListModel
         {
@@ -181,7 +187,7 @@ public partial class BlogModelFactory : IBlogModelFactory
 
         //get tags
         var tags = (await _blogService
-                .GetAllBlogPostTagsAsync(store.Id, (await _workContext.GetWorkingLanguageAsync()).Id))
+                .GetAllBlogPostTagsAsync(store.Id, store.DefaultLanguageId))
             .OrderByDescending(x => x.BlogPostCount)
             .Take(_blogSettings.NumberOfTags);
 
@@ -212,7 +218,7 @@ public partial class BlogModelFactory : IBlogModelFactory
             var model = new List<BlogPostYearModel>();
 
             var blogPosts = await _blogService.GetAllBlogPostsAsync(store.Id,
-                currentLanguage.Id);
+                store.DefaultLanguageId);
             if (blogPosts.Any())
             {
                 var months = new SortedDictionary<DateTime, int>();

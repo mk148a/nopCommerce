@@ -81,7 +81,14 @@ public partial class SlugRouteTransformer : DynamicRouteValueTransformer
         if (!urlRecord.IsActive || !string.IsNullOrEmpty(catalogPath))
         {
             //permanent redirect to new URL with active single slug
-            InternalRedirect(httpContext, values, $"/{slug}", true);
+            var redirectPath = $"/{slug}";
+            if (_localizationSettings.SeoFriendlyUrlsForLanguagesEnabled && urlRecord.LanguageId > 0)
+            {
+                var language = await _languageService.GetLanguageByIdAsync(urlRecord.LanguageId);
+                if (language?.Published == true)
+                    redirectPath = $"/{language.UniqueSeoCode}/{slug}";
+            }
+            InternalRedirect(httpContext, values, redirectPath, true);
             return;
         }
 
@@ -101,7 +108,7 @@ public partial class SlugRouteTransformer : DynamicRouteValueTransformer
                 //we should make validation above because some entities does not have SeName for standard (Id = 0) language (e.g. news, blog posts)
 
                 //redirect to the page for current language
-                InternalRedirect(httpContext, values, $"/{language.UniqueSeoCode}/{slugLocalized}", false);
+                InternalRedirect(httpContext, values, $"/{language.UniqueSeoCode}/{slugLocalized}", true);
                 return;
             }
         }
@@ -219,7 +226,7 @@ public partial class SlugRouteTransformer : DynamicRouteValueTransformer
                 //redirect to localized URL for the current language
                 var activeSlug = !string.IsNullOrEmpty(slugLocalized) ? slugLocalized : slug;
                 var activeCatalogSlug = !string.IsNullOrEmpty(catalogSlugLocalized) ? catalogSlugLocalized : catalogUrlRecord.Slug;
-                InternalRedirect(httpContext, values, $"/{language.UniqueSeoCode}/{activeCatalogSlug}/{activeSlug}", false);
+                InternalRedirect(httpContext, values, $"/{language.UniqueSeoCode}/{activeCatalogSlug}/{activeSlug}", true);
                 return true;
             }
         }

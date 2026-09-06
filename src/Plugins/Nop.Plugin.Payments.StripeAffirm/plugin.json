@@ -1,0 +1,14 @@
+{
+  "Group": "Payment methods",
+  "FriendlyName": "Affirm",
+  "SystemName": "Payments.StripeAffirm",
+  "Version": "1.0.0",
+  "SupportedVersions": [ "4.80" ],
+  "Author": "Genius Software",
+  "DisplayOrder": 11,
+  "FileName": "Nop.Plugin.Payments.StripeAffirm.dll",
+  "Description": "Pay in 4 or monthly with Affirm through Stripe Checkout.",
+  "LimitedToStores": [],
+  "LimitedToCustomerRoles": [],
+  "DependsOnSystemNames": [ "Misc.StripeBnplCore" ]
+}
