@@ -142,8 +142,11 @@
                             dataDictRental.TemplateInfo.HtmlFieldPrefix = $"rental_{Model.Id}";
                             @await Html.PartialAsync("_RentalInfo", Model, dataDictRental)
                         }
-                        <!--estimate shipping-->
-                        @await Html.PartialAsync("_ProductEstimateShipping", Model.ProductEstimateShipping)
+                        @* estimate shipping disabled on product detail page for CLS/SEO.
+                           Cart and checkout shipping estimation remain active.
+                           Original line:
+                           @await Html.PartialAsync("_ProductEstimateShipping", Model.ProductEstimateShipping)
+                        *@
                         <!--price & add to cart-->
                         @{
                             var dataDictPrice = new ViewDataDictionary(ViewData);
@@ -179,7 +182,7 @@
         </form>
         <div class="product-collateral">
             @await Html.PartialAsync("_ProductSpecifications", Model.ProductSpecificationModel)
-            @await Html.PartialAsync("_ProductTags", Model.ProductTags)
+            @* HOOD V8: product tags hidden on product detail to reduce DOM/noise and mobile CLS. Tag landing pages remain available. *@
             @if (Model.ProductReviewOverview.AllowCustomerReviews)
             {
                 @await Html.PartialAsync("_ProductReviews", Model.ProductReviews)

@@ -1,0 +1,153 @@
+@model IList<Nop.Plugin.Shipping.FixedByWeightByTotal.Models.ProductionTime.ProductProductionTimeModel>
+@{
+    Layout = "_ConfigurePlugin";
+    var productId = (int)(ViewBag.ProductId ?? 0);
+    var onlyEnabled = (bool)(ViewBag.OnlyEnabled ?? false);
+}
+
+<div class="content-header clearfix">
+    <h1 class="float-left">Hood production time manager</h1>
+    <div class="float-right">
+        <a href="@Url.Action("Configure", "FixedByWeightByTotal")" class="btn btn-secondary">Back to rates</a>
+    </div>
+</div>
+
+<div class="card card-default">
+    <div class="card-header"><strong>Search</strong></div>
+    <div class="card-body">
+        <form method="get" action="@Url.Action("ProductProductionTimes", "FixedByWeightByTotal")">
+            <div class="row">
+                <div class="col-md-3"><input class="form-control" name="productId" value="@productId" placeholder="ProductId" title="Filter by one product id." /></div>
+                <div class="col-md-3">
+                    <label title="Show only products that already have an enabled production time record.">
+                        @if (onlyEnabled)
+                        {
+                            <input type="checkbox" name="onlyEnabled" value="true" checked="checked" />
+                        }
+                        else
+                        {
+                            <input type="checkbox" name="onlyEnabled" value="true" />
+                        }
+                        only enabled
+                    </label>
+                </div>
+                <div class="col-md-3"><button class="btn btn-primary" type="submit" title="Reload the list using the selected filters.">Search</button></div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card card-default mt-3">
+    <div class="card-header"><strong>Bulk actions</strong></div>
+    <div class="card-body">
+        <div class="alert alert-info" style="margin-bottom:15px;">
+            This bulk tool scans product short/full descriptions, finds phrases such as <strong>Production Time</strong>, <strong>Processing Time</strong>, <strong>about 1 week</strong>, and creates production time records automatically. It avoids pure shipping/delivery phrases where possible.
+        </div>
+        <div class="row align-items-end">
+            <div class="col-md-2">
+                <label title="Maximum number of products to scan in one run. Use a smaller number first for testing.">Max products</label>
+                <input id="hood-bulk-max-products" class="form-control" type="number" min="1" max="20000" value="1000" />
+            </div>
+            <div class="col-md-3">
+                <label title="When enabled, existing production time records are not overwritten.">
+                    <input id="hood-bulk-only-missing" type="checkbox" checked="checked" />
+                    only products without record
+                </label>
+                <br />
+                <label title="When enabled, deleted/unpublished products are skipped.">
+                    <input id="hood-bulk-published-only" type="checkbox" checked="checked" />
+                    published products only
+                </label>
+            </div>
+            <div class="col-md-4">
+                <button id="hood-bulk-extract" type="button" class="btn btn-success" title="Scan descriptions and save production time records automatically. Start with 1000 products, then repeat if needed.">
+                    Extract production times from descriptions
+                </button>
+            </div>
+            <div class="col-md-3">
+                <span id="hood-bulk-result" class="text-muted"></span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card card-default mt-3">
+    <div class="card-header"><strong>Records</strong></div>
+    <div class="card-body">
+        <table class="table table-bordered table-hover">
+            <thead>
+            <tr>
+                <th>Product</th>
+                <th>Enabled</th>
+                <th>Production</th>
+                <th>Show</th>
+                <th>Add to estimate</th>
+                <th>Source</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td><strong>@item.ProductId</strong><br />@item.ProductName</td>
+                    <td>@item.Enabled</td>
+                    <td>@item.EffectiveProductionText<br /><small>@item.ProductionMinDays-@item.ProductionMaxDays days</small></td>
+                    <td>@item.DisplayOnProductPage</td>
+                    <td>@item.IncludeInShippingEstimate</td>
+                    <td>@item.Source</td>
+                    <td>
+                        <a class="btn btn-sm btn-primary" href="@Url.Action("Edit", "Product", new { id = item.ProductId })" target="_blank" title="Open the nopCommerce product edit page.">Product</a>
+                        <button class="btn btn-sm btn-secondary hood-extract" data-product-id="@item.ProductId" title="Re-read this product description and save the detected production time.">Extract</button>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('.hood-extract').on('click', function () {
+            var btn = $(this);
+            var postData = { productId: btn.data('product-id'), save: true };
+            addAntiForgeryToken(postData);
+            btn.prop('disabled', true).text('Extracting...');
+            $.post('@Url.Action("ExtractProductProductionTime", "FixedByWeightByTotal")', postData, function () {
+                location.reload();
+            }).fail(function (xhr) {
+                alert('Extract failed: ' + (xhr.responseText || xhr.status));
+                btn.prop('disabled', false).text('Extract');
+            });
+        });
+
+        $('#hood-bulk-extract').on('click', function () {
+            var btn = $(this);
+            var result = $('#hood-bulk-result');
+            var postData = {
+                onlyMissing: $('#hood-bulk-only-missing').is(':checked'),
+                publishedOnly: $('#hood-bulk-published-only').is(':checked'),
+                maxProducts: parseInt($('#hood-bulk-max-products').val() || '1000', 10)
+            };
+            addAntiForgeryToken(postData);
+
+            btn.prop('disabled', true).text('Scanning...');
+            result.text('Scanning product descriptions. Please wait...');
+
+            $.post('@Url.Action("BulkExtractProductProductionTimes", "FixedByWeightByTotal")', postData, function (r) {
+                if (!r || !r.Result) {
+                    result.text('Bulk extract failed.');
+                    btn.prop('disabled', false).text('Extract production times from descriptions');
+                    return;
+                }
+
+                result.html('Scanned: <strong>' + r.Scanned + '</strong>, saved: <strong>' + r.Saved + '</strong>, skipped: <strong>' + r.Skipped + '</strong>, errors: <strong>' + r.Errors + '</strong>. Reloading...');
+                setTimeout(function () { location.reload(); }, 1200);
+            }).fail(function (xhr) {
+                result.text('Bulk extract failed: ' + (xhr.responseText || xhr.status));
+                btn.prop('disabled', false).text('Extract production times from descriptions');
+            });
+        });
+    });
+</script>

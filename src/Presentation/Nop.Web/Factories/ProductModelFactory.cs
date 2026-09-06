@@ -1615,7 +1615,9 @@ public partial class ProductModelFactory : IProductModelFactory
         if (_seoSettings.MicrodataEnabled)
         {
             var jsonLdModel = await _jsonLdModelFactory.PrepareJsonLdProductAsync(model);
-            model.JsonLd = JsonConvert.SerializeObject(jsonLdModel, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
+            model.JsonLd = jsonLdModel.SuppressOutput
+                ? null
+                : JsonConvert.SerializeObject(jsonLdModel, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
         }
 
         return model;

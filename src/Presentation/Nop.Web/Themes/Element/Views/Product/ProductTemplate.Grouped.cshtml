@@ -190,12 +190,13 @@
                                     dataDictRental.TemplateInfo.HtmlFieldPrefix = $"rental_{variant.Id}";
                                     @await Html.PartialAsync("_RentalInfo", variant, dataDictRental)
                                 }
-                                <!--estimate shipping-->
-                                @{
-                                    var dataDictEstimateShipping = new ViewDataDictionary(ViewData);
-                                    dataDictEstimateShipping.TemplateInfo.HtmlFieldPrefix = $"estimate_shipping_{variant.Id}";
-                                    @await Html.PartialAsync("_ProductEstimateShipping", variant.ProductEstimateShipping, dataDictEstimateShipping)
-                                }
+                                @* estimate shipping disabled on grouped product detail page for CLS/SEO.
+                                   Cart and checkout shipping estimation remain active.
+                                   Original block:
+                                   var dataDictEstimateShipping = new ViewDataDictionary(ViewData);
+                                   dataDictEstimateShipping.TemplateInfo.HtmlFieldPrefix = $"estimate_shipping_{variant.Id}";
+                                   @await Html.PartialAsync("_ProductEstimateShipping", variant.ProductEstimateShipping, dataDictEstimateShipping)
+                                *@
                                 <!--price & add to cart & wishlist-->
                                 <div class="buttons-wrapper">
                                     @{
@@ -232,7 +233,7 @@
         </form>
         <div class="product-collateral">           
             @await Html.PartialAsync("_ProductSpecifications", Model.ProductSpecificationModel)
-            @await Html.PartialAsync("_ProductTags", Model.ProductTags)
+            @* HOOD V8: product tags hidden on product detail to reduce DOM/noise and mobile CLS. Tag landing pages remain available. *@
             @if (Model.ProductReviewOverview.AllowCustomerReviews)
             {
                 @await Html.PartialAsync("_ProductReviews", Model.ProductReviews)

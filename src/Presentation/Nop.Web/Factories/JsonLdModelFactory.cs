@@ -1,8 +1,10 @@
 ﻿using System.Globalization;
-using System.Text.Encodings.Web;
+using System.Net;
 using Nop.Core;
 using Nop.Core.Domain.Catalog;
 using Nop.Core.Events;
+using Nop.Services.Catalog;
+using Nop.Services.Html;
 using Nop.Web.Framework.Mvc.Routing;
 using Nop.Web.Models.Catalog;
 using Nop.Web.Models.JsonLD;
@@ -17,7 +19,9 @@ public partial class JsonLdModelFactory : IJsonLdModelFactory
     #region Fields
 
     protected readonly IEventPublisher _eventPublisher;
+    protected readonly IHtmlFormatter _htmlFormatter;
     protected readonly INopUrlHelper _nopUrlHelper;
+    protected readonly IProductService _productService;
     protected readonly IWebHelper _webHelper;
 
     #endregion
@@ -25,11 +29,15 @@ public partial class JsonLdModelFactory : IJsonLdModelFactory
     #region Ctor
 
     public JsonLdModelFactory(IEventPublisher eventPublisher,
+        IHtmlFormatter htmlFormatter,
         INopUrlHelper nopUrlHelper,
+        IProductService productService,
         IWebHelper webHelper)
     {
         _eventPublisher = eventPublisher;
+        _htmlFormatter = htmlFormatter;
         _nopUrlHelper = nopUrlHelper;
+        _productService = productService;
         _webHelper = webHelper;
     }
 
@@ -124,64 +132,65 @@ public partial class JsonLdModelFactory : IJsonLdModelFactory
     public virtual async Task<JsonLdProductModel> PrepareJsonLdProductAsync(ProductDetailsModel model, string productUrl = null)
     {
         productUrl ??= await _nopUrlHelper.RouteGenericUrlAsync<Product>(new { SeName = model.SeName }, _webHelper.GetCurrentRequestProtocol());
+        productUrl = productUrl.ToLowerInvariant();
 
-        var productPrice = model.AssociatedProducts.Any()
-            ? model.AssociatedProducts.Min(associatedProduct => associatedProduct.ProductPrice.PriceValue)
-            : model.ProductPrice.PriceValue;
+        var catalogProduct = await _productService.GetProductByIdAsync(model.Id);
+        var imageUrls = model.PictureModels.Select(x => x.FullSizeImageUrl ?? x.ImageUrl)
+            .Where(x => !string.IsNullOrWhiteSpace(x)).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+        var description = NormalizePlainText(model.FullDescription) ?? NormalizePlainText(model.ShortDescription);
 
         var product = new JsonLdProductModel
         {
+            Id = $"{productUrl}#product",
+            Url = productUrl,
             Name = model.Name,
             Sku = model.Sku,
             Gtin = model.Gtin,
             Mpn = model.ManufacturerPartNumber,
-            Description = model.ShortDescription,
-            Image = model.DefaultPictureModel.ImageUrl,
+            Description = description,
+            Image = imageUrls.Any() ? imageUrls : null,
+            Category = model.Breadcrumb?.CategoryBreadcrumb?.LastOrDefault()?.Name,
             Offer = new JsonLdOfferModel
             {
-                Url = productUrl.ToLowerInvariant(),
-                Price = model.ProductPrice.CallForPrice ? null : productPrice?.ToString("0.00", CultureInfo.InvariantCulture),
+                Id = $"{productUrl}#offer",
+                Url = productUrl,
+                Price = model.ProductPrice.CallForPrice ? null : model.ProductPrice.PriceValue,
                 PriceCurrency = model.ProductPrice.CurrencyCode,
-                PriceValidUntil = model.AvailableEndDate,
-                Availability = @"https://schema.org/" + (model.InStock ? "InStock" : "OutOfStock")
+                Availability = $"https://schema.org/{GetAvailability(catalogProduct, model.InStock)}",
+                ItemCondition = "https://schema.org/NewCondition",
+                Seller = new JsonLdOrganizationModel { Id = $"{_webHelper.GetStoreLocation().TrimEnd('/')}#organization" }
             },
-            Brand = model.ProductManufacturers?.Select(manufacturer => new JsonLdBrandModel { Name = manufacturer.Name }).ToList()
+            Brand = model.ProductManufacturers?.Select(manufacturer => new JsonLdBrandModel { Name = manufacturer.Name }).FirstOrDefault()
         };
 
-        if (model.ProductReviewOverview.TotalReviews > 0)
-        {
-            var ratingPercent = model.ProductReviewOverview.RatingSum * 100 / model.ProductReviewOverview.TotalReviews / 5;
-
-            var ratingValue = ratingPercent / (decimal)20;
-
-            product.AggregateRating = new JsonLdAggregateRatingModel
-            {
-                RatingValue = ratingValue.ToString("0.0", CultureInfo.InvariantCulture),
-                ReviewCount = model.ProductReviewOverview.TotalReviews
-            };
-
-            product.Review = model.ProductReviews.Items?.Select(review => new JsonLdReviewModel
-            {
-                Name = JavaScriptEncoder.Default.Encode(review.Title),
-                ReviewBody = JavaScriptEncoder.Default.Encode(review.ReviewText),
-                ReviewRating = new JsonLdRatingModel
-                {
-                    RatingValue = review.Rating
-                },
-                Author = new JsonLdPersonModel { Name = JavaScriptEncoder.Default.Encode(review.CustomerName) },
-                DatePublished = review.WrittenOnStr
-            }).ToList();
-        }
-
-        foreach (var associatedProduct in model.AssociatedProducts)
-        {
-            var parentUrl = !associatedProduct.VisibleIndividually ? productUrl : null;
-            product.HasVariant.Add(await PrepareJsonLdProductAsync(associatedProduct, parentUrl));
-        }
+        // ProductReview has no provenance field, so review schema is deliberately omitted.
 
         await _eventPublisher.PublishAsync(new JsonLdCreatedEvent<JsonLdProductModel>(product));
 
         return product;
+    }
+
+    protected virtual string NormalizePlainText(string html)
+    {
+        if (string.IsNullOrWhiteSpace(html))
+            return null;
+
+        return string.Join(' ', WebUtility.HtmlDecode(_htmlFormatter.StripTags(html))
+            .Split((char[])null, StringSplitOptions.RemoveEmptyEntries));
+    }
+
+    protected virtual string GetAvailability(Product product, bool inStock)
+    {
+        if (product is null || product.Deleted || !product.Published || product.DisableBuyButton)
+            return "OutOfStock";
+
+        if (product.AvailableForPreOrder && product.PreOrderAvailabilityStartDateTimeUtc > DateTime.UtcNow)
+            return "PreOrder";
+
+        if (!inStock && product.BackorderMode != BackorderMode.NoBackorders)
+            return "BackOrder";
+
+        return inStock ? "InStock" : "OutOfStock";
     }
 
     #endregion

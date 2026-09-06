@@ -1,0 +1,61 @@
+@model IList<Nop.Plugin.Shipping.FixedByWeightByTotal.Domain.HoodProductShippingDimensionExclusion>
+@{
+    Layout = "_ConfigurePlugin";
+}
+
+<div class="content-header clearfix">
+    <h1 class="float-left">Hood/Navlungo automation exclusions</h1>
+    <div class="float-right">
+        <a href="@Url.Action("Configure", "FixedByWeightByTotal")" class="btn btn-secondary">Back to rates</a>
+        <a href="@Url.Action("CategoryBulkApplyDimensions", "FixedByWeightByTotal")" class="btn btn-warning">Bulk apply</a>
+    </div>
+</div>
+
+<div class="card card-default">
+    <div class="card-body">
+        <p>Products listed here are skipped by Navlungo Learning Apply and category bulk-copy operations. Runtime manual rules still work.</p>
+        <div class="row">
+            <div class="col-md-2"><label>ProductId</label><input id="productId" class="form-control" /></div>
+            <div class="col-md-6"><label>Reason</label><input id="reason" class="form-control" placeholder="e.g. Archery tag / custom arrows / manual dimensions" /></div>
+            <div class="col-md-2 mt-4"><label><input type="checkbox" id="isActive" checked /> active</label></div>
+            <div class="col-md-2 mt-4"><button type="button" id="save-exclusion" class="btn btn-success">Save</button></div>
+        </div>
+    </div>
+</div>
+
+<div class="card card-default">
+    <div class="card-body table-responsive">
+        <table class="table table-bordered table-hover table-sm">
+            <thead><tr><th>Id</th><th>ProductId</th><th>Reason</th><th>Active</th><th>Created</th><th></th></tr></thead>
+            <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Id</td>
+                    <td><a href="/Admin/Product/Edit/@item.ProductId" target="_blank">@item.ProductId</a></td>
+                    <td>@item.Reason</td>
+                    <td>@item.IsActive</td>
+                    <td>@item.CreatedOnUtc</td>
+                    <td><button type="button" class="btn btn-sm btn-danger delete-exclusion" data-id="@item.Id">Delete</button></td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('#save-exclusion').on('click', function () {
+            var postData = { productId: $('#productId').val(), reason: $('#reason').val(), isActive: $('#isActive').is(':checked') };
+            addAntiForgeryToken(postData);
+            $.post('@Url.Action("SaveShippingDimensionExclusion", "FixedByWeightByTotal")', postData, function () { location.reload(); });
+        });
+        $('.delete-exclusion').on('click', function () {
+            if (!confirm('Delete exclusion?')) return;
+            var postData = { id: $(this).data('id') };
+            addAntiForgeryToken(postData);
+            $.post('@Url.Action("DeleteShippingDimensionExclusion", "FixedByWeightByTotal")', postData, function () { location.reload(); });
+        });
+    });
+</script>
