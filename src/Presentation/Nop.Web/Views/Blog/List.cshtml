@@ -1,12 +1,22 @@
 ﻿@model BlogPostListModel
 
 @using Nop.Core.Domain.Blogs
+@using Nop.Core
+@using Nop.Core.Domain.Seo
+
+@inject IWebHelper webHelper
+@inject SeoSettings seoSettings
 
 @{
     Layout = "_ColumnsTwo";
 
     //title
     NopHtml.AddTitleParts(T("PageTitle.Blog").Text);
+    if (seoSettings.CanonicalUrlsEnabled)
+    {
+        var blogUrl = Url.RouteUrl("Blog", null, webHelper.GetCurrentRequestProtocol()).ToLowerInvariant();
+        NopHtml.AddCanonicalUrlParts(blogUrl, seoSettings.QueryStringInCanonicalUrlsEnabled);
+    }
     //page class
     NopHtml.AppendPageCssClassParts("html-blog-page");
 }

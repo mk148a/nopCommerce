@@ -1,8 +1,11 @@
 ﻿@using Nop.Core
 @using Nop.Services.Localization
+@using Nop.Core.Domain.Seo
 
 @inject ILocalizationService localizationService
 @inject IStoreContext storeContext
+@inject IWebHelper webHelper
+@inject SeoSettings seoSettings
 
 @{
     Layout = "_ColumnsOne";
@@ -21,6 +24,12 @@
     if (!string.IsNullOrEmpty(homepageDescription))
     {
         NopHtml.AddMetaDescriptionParts(homepageDescription);
+    }
+
+    if (seoSettings.CanonicalUrlsEnabled)
+    {
+        var homepageUrl = $"{webHelper.GetStoreLocation().TrimEnd('/')}{Context.Request.PathBase}{Context.Request.Path}".ToLowerInvariant();
+        NopHtml.AddCanonicalUrlParts(homepageUrl, seoSettings.QueryStringInCanonicalUrlsEnabled);
     }
 
     //page class

@@ -1,9 +1,37 @@
 ﻿@model ContactUsModel
+@using Nop.Core
+@using Nop.Core.Domain.Seo
+@using Nop.Services.Localization
+@using Nop.Services.Stores
+@using Nop.Services.Topics
+
+@inject IWebHelper webHelper
+@inject SeoSettings seoSettings
+@inject ILocalizationService localizationService
+@inject IStoreContext storeContext
+@inject ITopicService topicService
+
 @{
     Layout = "_ColumnsOne";
 
     //title
-    NopHtml.AddTitleParts(T("PageTitle.ContactUs").Text);
+    var contactTopic = await topicService.GetTopicBySystemNameAsync("ContactUs", (await storeContext.GetCurrentStoreAsync()).Id);
+    if (contactTopic is not null)
+    {
+        var localizedMetaTitle = await localizationService.GetLocalizedAsync(contactTopic, topic => topic.MetaTitle);
+        NopHtml.AddTitleParts(!string.IsNullOrWhiteSpace(localizedMetaTitle) ? localizedMetaTitle : T("PageTitle.ContactUs").Text);
+        NopHtml.AddMetaDescriptionParts(await localizationService.GetLocalizedAsync(contactTopic, topic => topic.MetaDescription));
+        NopHtml.AddMetaKeywordParts(await localizationService.GetLocalizedAsync(contactTopic, topic => topic.MetaKeywords));
+    }
+    else
+    {
+        NopHtml.AddTitleParts(T("PageTitle.ContactUs").Text);
+    }
+    if (seoSettings.CanonicalUrlsEnabled)
+    {
+        var contactUrl = Url.RouteUrl("ContactUs", null, webHelper.GetCurrentRequestProtocol()).ToLowerInvariant();
+        NopHtml.AddCanonicalUrlParts(contactUrl, seoSettings.QueryStringInCanonicalUrlsEnabled);
+    }
     //page class
     NopHtml.AppendPageCssClassParts("html-contact-page");
 }

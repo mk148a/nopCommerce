@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using Nop.Core;
 using Nop.Core.Domain.Blogs;
 using Nop.Core.Domain.Customers;
 using Nop.Core.Domain.Media;
@@ -7,6 +8,8 @@ using Nop.Services.Blogs;
 using Nop.Services.Configuration;
 using Nop.Services.Customers;
 using Nop.Services.Helpers;
+using Nop.Services.Localization;
+using Nop.Services.Seo;
 using Nop.Web.Factories;
 using Nop.Web.Models.Blogs;
 using NUnit.Framework;
@@ -111,6 +114,60 @@ public class BlogModelFactoryTests : BaseNopTest
         model.Tags.Should().BeEquivalentTo(await _blogService.ParseTagsAsync(blogPost));
         model.NumberOfComments.Should().Be(await _blogService.GetBlogCommentsCountAsync(blogPost, 0, true));
         model.Comments.Count.Should().Be(0);
+    }
+
+    [Test]
+    public async Task CanPrepareLocalizedBlogPostModel()
+    {
+        var blogPost = await _blogService.GetBlogPostByIdAsync(1);
+        var languageId = (await GetService<IWorkContext>().GetWorkingLanguageAsync()).Id;
+        var localizedEntityService = GetService<ILocalizedEntityService>();
+        var urlRecordService = GetService<IUrlRecordService>();
+        var localizedValues = new Dictionary<string, string>
+        {
+            [nameof(BlogPost.Title)] = "Localized blog title",
+            [nameof(BlogPost.Body)] = "<p>Localized blog body</p>",
+            [nameof(BlogPost.BodyOverview)] = "Localized blog overview",
+            [nameof(BlogPost.MetaTitle)] = "Localized blog meta title",
+            [nameof(BlogPost.MetaDescription)] = "Localized blog meta description",
+            [nameof(BlogPost.MetaKeywords)] = "localized,blog"
+        };
+        var originalValues = new Dictionary<string, string>();
+        foreach (var key in localizedValues.Keys)
+            originalValues[key] = await localizedEntityService.GetLocalizedValueAsync(languageId, blogPost.Id, nameof(BlogPost), key);
+        var originalSlug = await urlRecordService.GetActiveSlugAsync(blogPost.Id, nameof(BlogPost), languageId);
+
+        try
+        {
+            await localizedEntityService.SaveLocalizedValueAsync(blogPost, post => post.Title, localizedValues[nameof(BlogPost.Title)], languageId);
+            await localizedEntityService.SaveLocalizedValueAsync(blogPost, post => post.Body, localizedValues[nameof(BlogPost.Body)], languageId);
+            await localizedEntityService.SaveLocalizedValueAsync(blogPost, post => post.BodyOverview, localizedValues[nameof(BlogPost.BodyOverview)], languageId);
+            await localizedEntityService.SaveLocalizedValueAsync(blogPost, post => post.MetaTitle, localizedValues[nameof(BlogPost.MetaTitle)], languageId);
+            await localizedEntityService.SaveLocalizedValueAsync(blogPost, post => post.MetaDescription, localizedValues[nameof(BlogPost.MetaDescription)], languageId);
+            await localizedEntityService.SaveLocalizedValueAsync(blogPost, post => post.MetaKeywords, localizedValues[nameof(BlogPost.MetaKeywords)], languageId);
+            await urlRecordService.SaveSlugAsync(blogPost, "localized-blog-title", languageId);
+
+            var model = new BlogPostModel();
+            await _blogModelFactory.PrepareBlogPostModelAsync(model, blogPost, false);
+
+            model.Title.Should().Be(localizedValues[nameof(BlogPost.Title)]);
+            model.Body.Should().Be(localizedValues[nameof(BlogPost.Body)]);
+            model.BodyOverview.Should().Be(localizedValues[nameof(BlogPost.BodyOverview)]);
+            model.MetaTitle.Should().Be(localizedValues[nameof(BlogPost.MetaTitle)]);
+            model.MetaDescription.Should().Be(localizedValues[nameof(BlogPost.MetaDescription)]);
+            model.MetaKeywords.Should().Be(localizedValues[nameof(BlogPost.MetaKeywords)]);
+            model.SeName.Should().Be("localized-blog-title");
+        }
+        finally
+        {
+            await localizedEntityService.SaveLocalizedValueAsync(blogPost, post => post.Title, originalValues[nameof(BlogPost.Title)], languageId);
+            await localizedEntityService.SaveLocalizedValueAsync(blogPost, post => post.Body, originalValues[nameof(BlogPost.Body)], languageId);
+            await localizedEntityService.SaveLocalizedValueAsync(blogPost, post => post.BodyOverview, originalValues[nameof(BlogPost.BodyOverview)], languageId);
+            await localizedEntityService.SaveLocalizedValueAsync(blogPost, post => post.MetaTitle, originalValues[nameof(BlogPost.MetaTitle)], languageId);
+            await localizedEntityService.SaveLocalizedValueAsync(blogPost, post => post.MetaDescription, originalValues[nameof(BlogPost.MetaDescription)], languageId);
+            await localizedEntityService.SaveLocalizedValueAsync(blogPost, post => post.MetaKeywords, originalValues[nameof(BlogPost.MetaKeywords)], languageId);
+            await urlRecordService.SaveSlugAsync(blogPost, originalSlug, languageId);
+        }
     }
 
     [Test]

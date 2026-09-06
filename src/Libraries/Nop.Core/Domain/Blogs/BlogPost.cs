@@ -1,12 +1,13 @@
 ﻿using Nop.Core.Domain.Seo;
 using Nop.Core.Domain.Stores;
+using Nop.Core.Domain.Localization;
 
 namespace Nop.Core.Domain.Blogs;
 
 /// <summary>
 /// Represents a blog post
 /// </summary>
-public partial class BlogPost : BaseEntity, ISlugSupported, IStoreMappingSupported
+public partial class BlogPost : BaseEntity, ILocalizedEntity, ISlugSupported, IStoreMappingSupported
 {
     /// <summary>
     /// Gets or sets the language identifier

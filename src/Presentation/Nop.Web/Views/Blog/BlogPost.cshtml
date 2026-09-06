@@ -1,4 +1,11 @@
 ﻿@inject Nop.Services.Html.IHtmlFormatter htmlFormatter
+@using Nop.Core
+@using Nop.Core.Domain.Blogs
+@using Nop.Core.Domain.Seo
+
+@inject IWebHelper webHelper
+@inject SeoSettings seoSettings
+
 @model BlogPostModel
 @{
     Layout = "_ColumnsTwo";
@@ -8,6 +15,11 @@
     //meta
     NopHtml.AddMetaDescriptionParts(Model.MetaDescription);
     NopHtml.AddMetaKeywordParts(Model.MetaKeywords);
+    if (seoSettings.CanonicalUrlsEnabled)
+    {
+        var blogPostUrl = Url.RouteUrl<BlogPost>(new { SeName = Model.SeName }, webHelper.GetCurrentRequestProtocol()).ToLowerInvariant();
+        NopHtml.AddCanonicalUrlParts(blogPostUrl, seoSettings.QueryStringInCanonicalUrlsEnabled);
+    }
     //page class
     NopHtml.AppendPageCssClassParts("html-blogpost-page");
 }

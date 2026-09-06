@@ -12,6 +12,7 @@
 
     //title
     NopHtml.AddTitleParts(string.Format(T("PageTitle.ProductsByTag").Text, Model.TagName));
+    NopHtml.AddHeadCustomParts("<meta name=\"robots\" content=\"noindex,follow\" />");
     //page class
     NopHtml.AppendPageCssClassParts("html-product-tag-page");
     //lancelot Seo

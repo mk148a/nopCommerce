@@ -114,7 +114,6 @@ namespace Nop.Plugin.Misc.GoogleMultiLanguageAndCurrency.Components
                         UriFormat.Unescaped);
             var path = new Uri(currentUrl).PathAndQuery;
             UrlRecord urlRecord = null;
-            var currentLanguageId = currentLanguage.Id;
             if (actionKeys.Count > 0 && actionKeys.Any(x => x.EndsWith("id") && data.Values[x] != null && int.TryParse(data.Values[x].ToString(), out _)))
             {
                 var key = actionKeys.Single(x => !string.IsNullOrEmpty(x));
@@ -149,10 +148,6 @@ namespace Nop.Plugin.Misc.GoogleMultiLanguageAndCurrency.Components
                     AddDefaultLanguageHreflang(model, pathBase, path, scheme, defaultLang);
                     foreach (var activeLanguagee in activeLanguages)
                     {
-                        if (activeLanguagee.Id == currentLanguageId)
-                        {
-                            continue;
-                        }
                         //Replace seo code
                         var localizedPath = path
                             .RemoveLanguageSeoCodeFromUrl(pathBase, true)
@@ -176,10 +171,6 @@ namespace Nop.Plugin.Misc.GoogleMultiLanguageAndCurrency.Components
                 AddSeoUrlDefaultLanguageHreflang(model, urlRecord, currentStore, hostName, defaultLang);
                 foreach (var language in activeLanguages)
                 {
-                    if (language.Id == currentLanguageId)
-                    {
-                        continue;
-                    }
                     var alternateUrl = await GetSeoUrlForLanguage(urlRecord, currentStore, language);
 
 
