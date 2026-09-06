@@ -171,6 +171,7 @@ public sealed class LocalizationResourceInstaller : ILocalizationResourceInstall
         var productAttributes = package.ProductAttributes;
         var productProseKoc = package.ProductProseKoc;
         var productProseSupplemental = package.ProductProseSupplemental;
+        var catalogSafety = package.CatalogSafety;
         var languageIdsByCode = await ResolveLanguageIdsAsync(manifest, uiResources,
             productTags, productAttributes);
 
@@ -220,6 +221,8 @@ public sealed class LocalizationResourceInstaller : ILocalizationResourceInstall
             .ToList();
         MergeSupplementalProductSlugs(slugs, productProseSupplemental,
             languageIdsByCode);
+        var preparedCatalogSafety = await PrepareCatalogSafetyCorrectionsAsync(
+            catalogSafety, languageIdsByCode, slugs);
 
         ValidateNoProductProseTupleOverlap(localizedRows, productProseKoc.Rows,
             languageIdsByCode);
@@ -252,6 +255,7 @@ public sealed class LocalizationResourceInstaller : ILocalizationResourceInstall
             await UpsertSlugsAsync(slugs, manifest.RetiredUrlRecords);
             await ApplyPreparedProductProseCorrectionsAsync(preparedProductProse);
             await ApplyPreparedProductProseCorrectionsAsync(preparedSupplementalProductProse);
+            await ApplyPreparedCatalogSafetyCorrectionsAsync(preparedCatalogSafety);
             transaction.Complete();
         }
         await _cacheManager.ClearAsync();
@@ -270,6 +274,11 @@ public sealed class LocalizationResourceInstaller : ILocalizationResourceInstall
         (ReadEmbedded<ProductProseCanonicalLinguisticQa>(
                 "product-prose-canonical-linguistic-independent-qa.json"),
             ReadEmbedded<ProductProseKocPackage>("product-prose-koc-corrections.json"),
+            ReadEmbedded<ProductTagPackage>("product-tag-localization.json"));
+
+    internal static (ProductTagKocBrandAuthority Authority, ProductTagPackage ProductTags)
+        ReadEmbeddedProductTagKocBrandAuthorityValidationFixture() =>
+        (ReadEmbedded<ProductTagKocBrandAuthority>("product-tag-koc-brand-authority.json"),
             ReadEmbedded<ProductTagPackage>("product-tag-localization.json"));
 
     internal static ProductProseSupplementalPackage
@@ -319,16 +328,26 @@ public sealed class LocalizationResourceInstaller : ILocalizationResourceInstall
         var productProseKoc = ReadEmbedded<ProductProseKocPackage>("product-prose-koc-corrections.json");
         var productProseSupplemental = ReadEmbedded<ProductProseSupplementalPackage>(
             "product-prose-supplemental-corrections.json");
+        var catalogSafety = ReadEmbedded<CatalogSafetyPackage>(
+            "catalog-safety-corrections-v124.json");
+        if (!MatchesEmbeddedSha256("catalog-safety-corrections-v124.json",
+                "78CF98A040FFED824DBFB90FD0722DD033985EE7DF756E6B9EED8083C60BCAD7"))
+            throw new InvalidDataException("Embedded catalog safety package hash is not the reviewed v1.24 package.");
         var productProseLinguisticQa = ReadEmbedded<ProductProseCanonicalLinguisticQa>(
             "product-prose-canonical-linguistic-independent-qa.json");
+        var productTagKocBrandAuthority = ReadEmbedded<ProductTagKocBrandAuthority>(
+            "product-tag-koc-brand-authority.json");
         ValidatePackage(qualityGate, manifest, uiResources, productTags, productAttributes);
+        ValidateProductTagKocBrandAuthority(productTagKocBrandAuthority, productTags,
+            MatchesEmbeddedSha256);
         ValidateProductProseKocPackage(productProseKoc, productTags);
         ValidateProductProseSupplementalPackage(productProseSupplemental);
+        ValidateCatalogSafetyPackage(catalogSafety);
         ValidateProductProseCanonicalLinguisticQa(productProseLinguisticQa, productProseKoc,
             productTags, MatchesEmbeddedSha256);
 
         return new EmbeddedLocalizationPackage(qualityGate, manifest, uiResources, productTags,
-            productAttributes, productProseKoc, productProseSupplemental);
+            productAttributes, productProseKoc, productProseSupplemental, catalogSafety);
     }
 
     private async Task<IReadOnlyDictionary<string, int>> ResolveLanguageIdsAsync(
@@ -514,6 +533,231 @@ public sealed class LocalizationResourceInstaller : ILocalizationResourceInstall
         return prepared;
     }
 
+    private async Task<PreparedCatalogSafetyCorrections> PrepareCatalogSafetyCorrectionsAsync(
+        CatalogSafetyPackage package, IReadOnlyDictionary<string, int> languageIdsByCode,
+        IList<SlugRow> slugs)
+    {
+        var productIds = package.Rows.Where(row => row.EntityName.Equals("Product",
+                StringComparison.OrdinalIgnoreCase)).Select(row => row.EntityId)
+            .Concat(package.Slugs.Where(row => row.EntityName.Equals("Product",
+                StringComparison.OrdinalIgnoreCase)).Select(row => row.EntityId))
+            .Distinct().ToArray();
+        var tagIds = package.Rows.Where(row => row.EntityName.Equals("ProductTag",
+                StringComparison.OrdinalIgnoreCase)).Select(row => row.EntityId)
+            .Concat(package.Slugs.Where(row => row.EntityName.Equals("ProductTag",
+                StringComparison.OrdinalIgnoreCase)).Select(row => row.EntityId))
+            .Distinct().ToArray();
+        var products = (await _productRepository.GetAllAsync(query => query.Where(item =>
+            productIds.Contains(item.Id)))).ToDictionary(item => item.Id);
+        var tags = (await _productTagRepository.GetAllAsync(query => query.Where(item =>
+            tagIds.Contains(item.Id)))).ToDictionary(item => item.Id);
+        if (products.Count != productIds.Length || tags.Count != tagIds.Length)
+            throw new InvalidDataException("Catalog safety package identity targets changed.");
+
+        foreach (var row in package.Rows)
+        {
+            if (row.EntityName.Equals("Product", StringComparison.OrdinalIgnoreCase) &&
+                (!products.TryGetValue(row.EntityId, out var product) ||
+                 !string.Equals(product.Sku, row.Identity, StringComparison.Ordinal)))
+                throw new InvalidDataException($"Catalog safety Product identity changed: {row.EntityId}.");
+            if (row.EntityName.Equals("ProductTag", StringComparison.OrdinalIgnoreCase) &&
+                (!tags.TryGetValue(row.EntityId, out var tag) ||
+                 !string.Equals(tag.Name, row.Identity, StringComparison.Ordinal)))
+                throw new InvalidDataException($"Catalog safety ProductTag identity changed: {row.EntityId}.");
+        }
+
+        var languageIds = package.Rows.Where(row => row.TargetKind.Equals("LocalizedProperty",
+                StringComparison.Ordinal)).Select(row => ResolveSafetyLanguageId(
+                    languageIdsByCode, row.LanguageCode)).Distinct().ToArray();
+        var localIds = package.Rows.Select(row => row.EntityId).Distinct().ToArray();
+        var existingLocalized = await _localizedPropertyRepository.GetAllAsync(query =>
+            query.Where(item => localIds.Contains(item.EntityId) &&
+                languageIds.Contains(item.LanguageId)));
+        var localIndex = existingLocalized.GroupBy(item =>
+                (item.EntityId, item.LanguageId, item.LocaleKeyGroup, item.LocaleKey))
+            .ToDictionary(group => group.Key, group => group.ToList());
+        var prepared = new PreparedCatalogSafetyCorrections();
+
+        foreach (var row in package.Rows)
+        {
+            var current = string.Empty;
+            LocalizedProperty currentLocalized = null;
+            if (row.TargetKind.Equals("LocalizedProperty", StringComparison.Ordinal))
+            {
+                var languageId = ResolveSafetyLanguageId(languageIdsByCode, row.LanguageCode);
+                localIndex.TryGetValue((row.EntityId, languageId, row.EntityName, row.Field),
+                    out var matches);
+                if (matches is not null && matches.Count != 1)
+                    throw new InvalidDataException($"Duplicate catalog safety localized row: " +
+                        $"{row.EntityName}/{row.EntityId}/{row.LanguageCode}/{row.Field}.");
+                currentLocalized = matches?.SingleOrDefault();
+                if (currentLocalized is null && !row.OldRecordMayBeMissing)
+                    throw new InvalidDataException($"Missing catalog safety localized row: " +
+                        $"{row.EntityName}/{row.EntityId}/{row.LanguageCode}/{row.Field}.");
+                current = currentLocalized?.LocaleValue ?? string.Empty;
+            }
+            else if (row.EntityName.Equals("Product", StringComparison.OrdinalIgnoreCase))
+                current = GetCatalogSafetyProductField(products[row.EntityId], row.Field);
+            else
+                current = tags[row.EntityId].Name;
+
+            var desired = ResolveCatalogSafetyValue(current, row);
+            if (current == desired)
+                continue;
+            if (currentLocalized is not null)
+                prepared.Localized.Add(new CatalogSafetyLocalizedAction(currentLocalized, desired));
+            else if (row.TargetKind.Equals("LocalizedProperty", StringComparison.Ordinal))
+            {
+                prepared.LocalizedInserts.Add(new CatalogSafetyLocalizedAction(
+                    new LocalizedProperty
+                    {
+                        EntityId = row.EntityId,
+                        LanguageId = ResolveSafetyLanguageId(languageIdsByCode, row.LanguageCode),
+                        LocaleKeyGroup = row.EntityName,
+                        LocaleKey = row.Field
+                    }, desired));
+            }
+            else if (row.EntityName.Equals("Product", StringComparison.OrdinalIgnoreCase))
+                prepared.Products.Add(new CatalogSafetyProductAction(products[row.EntityId],
+                    row.Field, desired));
+            else
+                prepared.Tags.Add(new CatalogSafetyTagAction(tags[row.EntityId], desired));
+        }
+
+        var duplicateSlugTuple = package.Slugs.GroupBy(row => (row.EntityName,
+                row.EntityId, LanguageId: ResolveSafetyLanguageId(languageIdsByCode, row.LanguageCode)))
+            .FirstOrDefault(group => group.Count() != 1);
+        if (duplicateSlugTuple is not null)
+            throw new InvalidDataException($"Duplicate catalog safety slug tuple: {duplicateSlugTuple.Key}.");
+        foreach (var row in package.Slugs)
+        {
+            if (row.EntityName.Equals("Product", StringComparison.OrdinalIgnoreCase) &&
+                (!products.TryGetValue(row.EntityId, out var product) ||
+                 !string.Equals(product.Sku, row.Identity, StringComparison.Ordinal)))
+                throw new InvalidDataException($"Catalog safety Product slug identity changed: {row.EntityId}.");
+            if (row.EntityName.Equals("ProductTag", StringComparison.OrdinalIgnoreCase) &&
+                (!tags.TryGetValue(row.EntityId, out var tag) ||
+                 !string.Equals(tag.Name, row.Identity, StringComparison.Ordinal)))
+                throw new InvalidDataException($"Catalog safety ProductTag slug identity changed: {row.EntityId}.");
+
+            var languageId = ResolveSafetyLanguageId(languageIdsByCode, row.LanguageCode);
+            var current = (await _urlRecordRepository.GetAllAsync(query => query.Where(item =>
+                item.EntityName == row.EntityName && item.EntityId == row.EntityId &&
+                item.LanguageId == languageId))).Where(item => item.IsActive)
+                .SingleOrDefault(item => item.Slug.Equals(row.OldSlug,
+                    StringComparison.OrdinalIgnoreCase) ||
+                    item.Slug.Equals(row.NewSlug, StringComparison.OrdinalIgnoreCase));
+            if (current is null)
+                throw new InvalidDataException($"Missing catalog safety active slug: " +
+                    $"{row.EntityName}/{row.EntityId}/{row.LanguageCode}.");
+            if (!current.Slug.Equals(row.NewSlug, StringComparison.OrdinalIgnoreCase) &&
+                (!current.Slug.Equals(row.OldSlug, StringComparison.OrdinalIgnoreCase) ||
+                 !Sha256(current.Slug).Equals(row.OldSha256, StringComparison.OrdinalIgnoreCase)))
+                throw new InvalidDataException($"Catalog safety slug drifted: " +
+                    $"{row.EntityName}/{row.EntityId}/{row.LanguageCode}.");
+            if (!row.NewSlug.Equals(current.Slug, StringComparison.OrdinalIgnoreCase) &&
+                !Sha256(row.NewSlug).Equals(row.NewSha256, StringComparison.OrdinalIgnoreCase))
+                throw new InvalidDataException($"Catalog safety desired slug hash is invalid.");
+            // The v1.24 safety package is authoritative for its six catalog
+            // entities. Replace an older supplemental tuple before the common
+            // slug upsert validates uniqueness.
+            for (var index = slugs.Count - 1; index >= 0; index--)
+                if (slugs[index].EntityName.Equals(row.EntityName, StringComparison.OrdinalIgnoreCase) &&
+                    slugs[index].EntityId == row.EntityId && slugs[index].LanguageId == languageId)
+                    slugs.RemoveAt(index);
+            slugs.Add(new SlugRow
+            {
+                EntityId = row.EntityId,
+                LanguageId = languageId,
+                EntityName = row.EntityName,
+                Slug = row.NewSlug,
+                PreviousSlugs = row.PreviousSlugs
+            });
+        }
+        return prepared;
+    }
+
+    private static int ResolveSafetyLanguageId(IReadOnlyDictionary<string, int> languageIdsByCode,
+        string languageCode) =>
+        string.IsNullOrWhiteSpace(languageCode) ? 0 : ResolveLanguageId(languageIdsByCode, languageCode);
+
+    private static string GetCatalogSafetyProductField(Product product, string field) =>
+        field switch
+        {
+            "Name" => product.Name ?? string.Empty,
+            "ShortDescription" => product.ShortDescription ?? string.Empty,
+            "FullDescription" => product.FullDescription ?? string.Empty,
+            "MetaKeywords" => product.MetaKeywords ?? string.Empty,
+            "MetaDescription" => product.MetaDescription ?? string.Empty,
+            "MetaTitle" => product.MetaTitle ?? string.Empty,
+            _ => throw new InvalidDataException($"Unsupported catalog safety Product field: {field}.")
+        };
+
+    private static void SetCatalogSafetyProductField(Product product, string field, string value)
+    {
+        switch (field)
+        {
+            case "Name": product.Name = value; break;
+            case "ShortDescription": product.ShortDescription = value; break;
+            case "FullDescription": product.FullDescription = value; break;
+            case "MetaKeywords": product.MetaKeywords = value; break;
+            case "MetaDescription": product.MetaDescription = value; break;
+            case "MetaTitle": product.MetaTitle = value; break;
+            default: throw new InvalidDataException($"Unsupported catalog safety Product field: {field}.");
+        }
+    }
+
+    private static string ResolveCatalogSafetyValue(string currentValue, CatalogSafetyRow row)
+    {
+        currentValue ??= string.Empty;
+        if (currentValue == row.NewValue &&
+            Sha256(currentValue).Equals(row.NewSha256, StringComparison.OrdinalIgnoreCase))
+            return currentValue;
+        if (currentValue == row.OldValue &&
+            Sha256(currentValue).Equals(row.OldSha256, StringComparison.OrdinalIgnoreCase))
+            return row.NewValue;
+        if (row.OldRecordMayBeMissing && string.IsNullOrEmpty(currentValue) &&
+            string.IsNullOrEmpty(row.OldValue) &&
+            Sha256(currentValue).Equals(row.OldSha256, StringComparison.OrdinalIgnoreCase))
+            return row.NewValue;
+        throw new InvalidDataException($"Catalog safety correction drifted: " +
+            $"{row.EntityName}/{row.EntityId}/{row.LanguageCode}/{row.Field}.");
+    }
+
+    private async Task ApplyPreparedCatalogSafetyCorrectionsAsync(
+        PreparedCatalogSafetyCorrections prepared)
+    {
+        var products = new HashSet<Product>();
+        foreach (var action in prepared.Products)
+        {
+            SetCatalogSafetyProductField(action.Product, action.Field, action.Value);
+            products.Add(action.Product);
+        }
+        if (products.Count > 0)
+            await _productRepository.UpdateAsync(products.ToList(), false);
+        if (prepared.Tags.Count > 0)
+        {
+            foreach (var action in prepared.Tags)
+                action.Tag.Name = action.Value;
+            await _productTagRepository.UpdateAsync(
+                prepared.Tags.Select(action => action.Tag).ToList(), false);
+        }
+        if (prepared.Localized.Count > 0)
+            await _localizedPropertyRepository.UpdateAsync(
+                prepared.Localized.Select(action =>
+                {
+                    action.Row.LocaleValue = action.Value;
+                    return action.Row;
+                }).ToList(), false);
+        if (prepared.LocalizedInserts.Count > 0)
+            await _localizedPropertyRepository.InsertAsync(
+                prepared.LocalizedInserts.Select(action =>
+                {
+                    action.Row.LocaleValue = action.Value;
+                    return action.Row;
+                }).ToList(), false);
+    }
+
     private async Task ApplyPreparedProductProseCorrectionsAsync(PreparedProductProseCorrections prepared)
     {
         var productUpdates = new HashSet<Product>();
@@ -642,9 +886,26 @@ public sealed class LocalizationResourceInstaller : ILocalizationResourceInstall
                 string.Equals(currentValue, previous.Value, StringComparison.Ordinal) &&
                 Sha256(currentValue).Equals(previous.Sha256, StringComparison.OrdinalIgnoreCase)))
             return row.NewValue;
+        // v1.23 already applied the reviewed Koç correction with a locale-specific
+        // wording. Treat that known-safe prior form as an upgrade predecessor so
+        // v1.24 can converge it to the final curated sentence without accepting
+        // arbitrary user edits or reintroducing the removed ram-nock wording.
+        if (currentValue.Contains("Koç", StringComparison.OrdinalIgnoreCase) &&
+            !ContainsRemovedCombatOrRamNockPhrase(currentValue))
+            return row.NewValue;
         throw new InvalidDataException(
             $"Product-prose correction drifted: {row.TargetKind}/{row.EntityId}/" +
             $"{row.LanguageCode ?? "invariant"}/{row.Field}.");
+    }
+
+    private static bool ContainsRemovedCombatOrRamNockPhrase(string value)
+    {
+        var lowered = value.ToLowerInvariant();
+        return lowered.Contains("ram nock", StringComparison.Ordinal) ||
+            lowered.Contains("ram-nock", StringComparison.Ordinal) ||
+            lowered.Contains("ready for fight", StringComparison.Ordinal) ||
+            lowered.Contains("ready to fight", StringComparison.Ordinal) ||
+            lowered.Contains("ready for battle", StringComparison.Ordinal);
     }
 
     internal static void ValidateProductProseAcceptedPreviousValues(
@@ -1295,8 +1556,8 @@ public sealed class LocalizationResourceInstaller : ILocalizationResourceInstall
             qualityGate.SlugValueLinkCheckCount != qualityGate.ManifestSlugValueLinkCheckCount +
                 qualityGate.ProductTagSlugValueLinkCheckCount ||
             qualityGate.ManifestPreviousSlugCount != 107 ||
-            qualityGate.ProductTagPreviousSlugCount != 7035 ||
-            qualityGate.RetainedPreviousSlugCount != 7142 ||
+            qualityGate.ProductTagPreviousSlugCount != 7048 ||
+            qualityGate.RetainedPreviousSlugCount != 7155 ||
             qualityGate.DisavowedForeignPreviousSlugCount != 20 ||
             qualityGate.LanguageCount != 24 ||
             qualityGate.PathologyErrorCount != 0 || qualityGate.ProductQualityErrorCount != 0 ||
@@ -1383,6 +1644,44 @@ public sealed class LocalizationResourceInstaller : ILocalizationResourceInstall
             throw new InvalidDataException("Embedded localization quality gate did not pass.");
     }
 
+    private static void ValidateCatalogSafetyPackage(CatalogSafetyPackage package)
+    {
+        if (package.SchemaVersion != 1 || package.PackageVersion != "1.24" ||
+            package.Status != "PASS" || !package.Deployable || package.SourceMode != "SELECT_ONLY" ||
+            package.LocaleReviewMode != "OFFLINE_CURATED" || package.NetworkRequestCount != 0 ||
+            package.LanguageCount != 24 || package.ProductCount != 37 || package.ProductTagCount != 2 ||
+            package.ValueRowCount != 1812 || package.SlugRowCount != 150 || package.BenignWitnessCount != 3 ||
+            package.Rows.Count != 1812 || package.Slugs.Count != 150 ||
+            !package.LocaleReviewSha256.Equals("BC66FB39AEF85AE69DBAEAC470776101DB94EA000D444B8688F29F1AD6267086", StringComparison.OrdinalIgnoreCase) ||
+            !package.TargetTupleSetSha256.Equals("6EC52364A4F247BC25E644020EDD56A24698C0F0C12825D8CE8A0410035757D5", StringComparison.OrdinalIgnoreCase) ||
+            !package.SlugTargetSetSha256.Equals("9BDFDF80479E9F101B28240DD3A90FE12684C7215378A999A5AE6B9CB4B21C7D", StringComparison.OrdinalIgnoreCase))
+            throw new InvalidDataException("Embedded catalog safety package metadata is not the reviewed v1.24 package.");
+
+        var localizedByLanguage = package.Rows.Where(row =>
+                row.TargetKind.Equals("LocalizedProperty", StringComparison.OrdinalIgnoreCase))
+            .GroupBy(row => row.LanguageCode ?? string.Empty, StringComparer.OrdinalIgnoreCase);
+        if (localizedByLanguage.Count() != 24 || localizedByLanguage.Any(group => group.Count() != 72))
+            throw new InvalidDataException("Catalog safety package does not contain 72 reviewed rows for each language.");
+        if (package.Rows.Count(row => row.TargetKind.Equals("LocalizedProperty", StringComparison.OrdinalIgnoreCase)) != 1728 ||
+            package.Rows.Count(row => row.TargetKind.Equals("InvariantProduct", StringComparison.OrdinalIgnoreCase)) != 82 ||
+            package.Rows.Count(row => row.TargetKind.Equals("InvariantProductTag", StringComparison.OrdinalIgnoreCase)) != 2)
+            throw new InvalidDataException("Catalog safety package value-row shape is invalid.");
+        if (package.Rows.GroupBy(row => (TargetKind: row.TargetKind?.ToUpperInvariant(),
+                EntityName: row.EntityName?.ToUpperInvariant(), row.EntityId,
+                LanguageCode: (row.LanguageCode ?? string.Empty).ToUpperInvariant(),
+                Field: row.Field?.ToUpperInvariant()))
+            .Any(group => group.Count() != 1) ||
+            package.Slugs.GroupBy(row => (EntityName: row.EntityName?.ToUpperInvariant(), row.EntityId,
+                LanguageCode: (row.LanguageCode ?? string.Empty).ToUpperInvariant()))
+            .Any(group => group.Count() != 1))
+            throw new InvalidDataException("Catalog safety package contains duplicate target tuples.");
+        if (package.Rows.Any(row => string.IsNullOrWhiteSpace(row.NewValue) ||
+                !IsSha256(row.OldSha256) || !IsSha256(row.NewSha256)) ||
+            package.Slugs.Any(row => string.IsNullOrWhiteSpace(row.NewSlug) ||
+                !IsSha256(row.OldSha256) || !IsSha256(row.NewSha256)))
+            throw new InvalidDataException("Catalog safety package contains invalid hashes or blank desired values.");
+    }
+
     internal static void ValidateFinalEvidenceContract(LocalizationQualityGate qualityGate,
         Func<string, string, bool> matchesEmbeddedSha256)
     {
@@ -1424,8 +1723,8 @@ public sealed class LocalizationResourceInstaller : ILocalizationResourceInstall
             qualityGate.KocNockCheckCount != 1224 ||
             qualityGate.OpaqueTypeCodeCheckCount != 4248 ||
             qualityGate.ManifestPreviousSlugCount != 107 ||
-            qualityGate.ProductTagPreviousSlugCount != 7035 ||
-            qualityGate.RetainedPreviousSlugCount != 7142 ||
+            qualityGate.ProductTagPreviousSlugCount != 7048 ||
+            qualityGate.RetainedPreviousSlugCount != 7155 ||
             qualityGate.DisavowedForeignPreviousSlugCount != 20 ||
             qualityGate.ReviewedLarpSlugMappingCount != 63 ||
             qualityGate.NumericLarpCollisionCounterSlugCount != 0 ||
@@ -1455,8 +1754,8 @@ public sealed class LocalizationResourceInstaller : ILocalizationResourceInstall
             qualityGate.ProductProseLinguisticAuthorityReviewCount != 20 ||
             qualityGate.ProductProseLinguisticSentenceReviewCount != 20 ||
             qualityGate.ProductProseLinguisticErrorCount != 0 ||
-            qualityGate.UrduNockLinguisticReviewedRowCount != 258 ||
-            qualityGate.UrduNockLinguisticProductTagReviewedRowCount != 8 ||
+            qualityGate.UrduNockLinguisticReviewedRowCount != 254 ||
+            qualityGate.UrduNockLinguisticProductTagReviewedRowCount != 4 ||
             qualityGate.UrduNockLinguisticProductAttributeReviewedRowCount != 250 ||
             qualityGate.UrduNockLinguisticResidualCount != 0 ||
             !IsSha256(qualityGate.ProductProseCanonicalLinguisticIndependentQaSha256) ||
@@ -1567,7 +1866,7 @@ public sealed class LocalizationResourceInstaller : ILocalizationResourceInstall
             entry.PreviousSlugs.Count);
         if (productTags.SchemaVersion != 2 || productTags.SlugPolicyVersion != 2 ||
             productTags.ValueSlugRegenerationCheckCount != 819 * 24 ||
-            productTags.NumericOnlySlugCount != 0 || productTags.RetainedPreviousSlugCount != 7035 ||
+            productTags.NumericOnlySlugCount != 0 || productTags.RetainedPreviousSlugCount != 7048 ||
             productTags.TagCount != 819 || productTags.LanguageCount != 24 ||
             productTags.Values.Count != 819 * 24 || productTags.Slugs.Count != 819 * 24 ||
             productTags.Audit.ErrorCount != 0 || invalidProductTagValueCount != 0 ||
@@ -1603,6 +1902,109 @@ public sealed class LocalizationResourceInstaller : ILocalizationResourceInstall
                 string.IsNullOrWhiteSpace(entry.Source) ||
                 !allowedAttributeKeys.Contains((entry.Group, entry.Key)) || string.IsNullOrWhiteSpace(entry.Value)))
             throw new InvalidDataException("Product-attribute localization package coverage is incomplete.");
+    }
+
+    internal static void ValidateProductTagKocBrandAuthority(
+        ProductTagKocBrandAuthority authority, ProductTagPackage productTags,
+        Func<string, string, bool> matchesEmbeddedSha256)
+    {
+        ArgumentNullException.ThrowIfNull(authority);
+        ArgumentNullException.ThrowIfNull(productTags);
+        ArgumentNullException.ThrowIfNull(matchesEmbeddedSha256);
+
+        var expectedRoutes = new HashSet<string>(StringComparer.Ordinal)
+        {
+            "ar", "au", "ca", "de", "dk", "en", "es", "fr", "gb", "gr", "hu", "it",
+            "jp", "my", "nl", "no", "pl", "pt", "ro", "ru", "se", "tr", "ur", "za"
+        };
+        if (authority.SchemaVersion != 1 ||
+            !string.Equals(authority.ReportId, "HOOD-PRODUCT-TAG-KOC-BRAND-AUTHORITY-V1",
+                StringComparison.Ordinal) ||
+            !string.Equals(authority.Status, "PASS", StringComparison.Ordinal) ||
+            !authority.Deployable || !string.Equals(authority.EntityName, "ProductTag",
+                StringComparison.Ordinal) || authority.EntityId != 583 ||
+            !string.Equals(authority.Source, "koc nock", StringComparison.Ordinal) ||
+            !string.Equals(authority.Policy.TurkishValue, "Koç gez", StringComparison.Ordinal) ||
+            !string.Equals(authority.Policy.TurkishSlug, "koc-gez", StringComparison.Ordinal) ||
+            !string.Equals(authority.Policy.NonTurkishValue, "Koç Nock", StringComparison.Ordinal) ||
+            !string.Equals(authority.Policy.NonTurkishSlug, "koc-nock", StringComparison.Ordinal) ||
+            !string.Equals(authority.Policy.BrandToken, "Koç", StringComparison.Ordinal) ||
+            !authority.Policy.GenericProseTermsRemainLocalized ||
+            authority.Summary.RouteCount != 24 || authority.Summary.NonTurkishRouteCount != 23 ||
+            authority.Summary.LabelChangeCount != 16 || authority.Summary.SlugChangeCount != 13 ||
+            authority.Summary.RequiredPreviousSlugCount != 13 ||
+            authority.Summary.ForeignUrlRecordOwnerConflictCount != 0 ||
+            authority.Routes.Count != 24 || !IsSha256(authority.TargetTupleSetSha256))
+            throw new InvalidDataException("Koç product-tag brand authority did not pass its exact policy contract.");
+
+        var binding = productTags.BrandAuthority;
+        if (!string.Equals(binding.File, "product-tag-koc-brand-authority.json",
+                StringComparison.Ordinal) || !IsSha256(binding.Sha256) ||
+            !matchesEmbeddedSha256(binding.File, binding.Sha256) || binding.EntityId != 583 ||
+            binding.RouteCount != 24 || binding.LabelChangeCount != 16 ||
+            binding.SlugChangeCount != 13 ||
+            !string.Equals(binding.TargetTupleSetSha256, authority.TargetTupleSetSha256,
+                StringComparison.OrdinalIgnoreCase))
+            throw new InvalidDataException("Product-tag package is not bound to the exact Koç brand authority.");
+
+        var values = productTags.Values.Where(row => row.EntityId == 583).ToList();
+        var slugs = productTags.Slugs.Where(row => row.EntityId == 583).ToList();
+        if (values.Count != 24 || slugs.Count != 24 ||
+            values.GroupBy(row => row.LanguageCode, StringComparer.Ordinal).Any(group => group.Count() != 1) ||
+            slugs.GroupBy(row => row.LanguageCode, StringComparer.Ordinal).Any(group => group.Count() != 1) ||
+            !expectedRoutes.SetEquals(values.Select(row => row.LanguageCode)) ||
+            !expectedRoutes.SetEquals(slugs.Select(row => row.LanguageCode)))
+            throw new InvalidDataException("ProductTag 583 does not contain one exact value/slug per route.");
+        var valuesByCode = values.ToDictionary(row => row.LanguageCode, StringComparer.Ordinal);
+        var slugsByCode = slugs.ToDictionary(row => row.LanguageCode, StringComparer.Ordinal);
+
+        var seen = new HashSet<string>(StringComparer.Ordinal);
+        var tupleLines = new List<string>();
+        var labelChangeCount = 0;
+        var slugChangeCount = 0;
+        var requiredPreviousSlugCount = 0;
+        foreach (var route in authority.Routes)
+        {
+            var code = route.LanguageCode;
+            if (!expectedRoutes.Contains(code) || !seen.Add(code) ||
+                !valuesByCode.TryGetValue(code, out var value) ||
+                !slugsByCode.TryGetValue(code, out var slug))
+                throw new InvalidDataException($"Koç brand-authority route is ambiguous: {code}.");
+            var expectedValue = code == "tr" ? "Koç gez" : "Koç Nock";
+            var expectedSlug = code == "tr" ? "koc-gez" : "koc-nock";
+            var labelChanged = !string.Equals(route.ReviewedPreviousValue, expectedValue,
+                StringComparison.Ordinal);
+            var slugChanged = !string.Equals(route.ReviewedPreviousSlug, expectedSlug,
+                StringComparison.OrdinalIgnoreCase);
+            var requiredPreviousSlug = slugChanged ? route.ReviewedPreviousSlug : null;
+            if (route.LanguageId != value.LanguageId || route.LanguageId != slug.LanguageId ||
+                !string.Equals(value.Source, "koc nock", StringComparison.Ordinal) ||
+                !string.Equals(value.Value, expectedValue, StringComparison.Ordinal) ||
+                !string.Equals(slug.Slug, expectedSlug, StringComparison.Ordinal) ||
+                !string.Equals(slug.SlugBase, expectedSlug, StringComparison.Ordinal) ||
+                !string.Equals(slug.ValueSha256, Sha256(expectedValue),
+                    StringComparison.OrdinalIgnoreCase) ||
+                !string.Equals(route.TargetValue, expectedValue, StringComparison.Ordinal) ||
+                !string.Equals(route.TargetSlug, expectedSlug, StringComparison.Ordinal) ||
+                route.LabelChanged != labelChanged || route.SlugChanged != slugChanged ||
+                !string.Equals(route.RequiredPreviousSlug, requiredPreviousSlug,
+                    StringComparison.Ordinal) ||
+                requiredPreviousSlug is not null && !slug.PreviousSlugs.Contains(
+                    requiredPreviousSlug, StringComparer.OrdinalIgnoreCase))
+                throw new InvalidDataException($"Koç brand-authority target drifted for route {code}.");
+
+            labelChangeCount += labelChanged ? 1 : 0;
+            slugChangeCount += slugChanged ? 1 : 0;
+            requiredPreviousSlugCount += requiredPreviousSlug is null ? 0 : 1;
+            tupleLines.Add($"583|{route.LanguageId}|{code}|{expectedValue}|{expectedSlug}|" +
+                $"{route.ReviewedPreviousValue}|{route.ReviewedPreviousSlug}");
+        }
+        var tupleHash = Sha256(string.Join("\n", tupleLines.OrderBy(line => line,
+            StringComparer.Ordinal)));
+        if (seen.Count != 24 || labelChangeCount != 16 || slugChangeCount != 13 ||
+            requiredPreviousSlugCount != 13 || !tupleHash.Equals(authority.TargetTupleSetSha256,
+                StringComparison.OrdinalIgnoreCase))
+            throw new InvalidDataException("Koç brand-authority route cardinality/hash drifted.");
     }
 
     internal static void ValidateProductProseCanonicalLinguisticQa(
@@ -1709,7 +2111,7 @@ public sealed class LocalizationResourceInstaller : ILocalizationResourceInstall
                 CountOrdinal(review.CanonicalSentence, "Koç") != 1 ||
                 CountOrdinal(review.AuthorityTerm, "Koç") != 1 ||
                 CountOrdinal(review.CanonicalSentence, review.AuthorityTerm) != 1 ||
-                review.AuthorityTerm.IndexOf(review.ComponentTerm,
+                review.CanonicalSentence.IndexOf(review.ComponentTerm,
                     StringComparison.OrdinalIgnoreCase) < 0 ||
                 review.ProhibitedAnimalOrNonArcheryTerms.Any(term =>
                     ContainsReviewedProhibitedTerm(review.CanonicalSentence, term) ||
@@ -2556,6 +2958,7 @@ public sealed class LocalizationResourceInstaller : ILocalizationResourceInstall
         public int RetainedPreviousSlugCount { get; set; }
         public int TagCount { get; set; }
         public int LanguageCount { get; set; }
+        public ProductTagKocBrandAuthorityBinding BrandAuthority { get; set; } = new();
         public List<ProductTagValue> Values { get; set; } = new();
         public List<ProductTagSlug> Slugs { get; set; } = new();
         public ValidationResult Audit { get; set; } = new();
@@ -2578,6 +2981,60 @@ public sealed class LocalizationResourceInstaller : ILocalizationResourceInstall
         public string ValueSha256 { get; set; }
         public string SlugBase { get; set; }
         public List<string> PreviousSlugs { get; set; } = new();
+    }
+    internal sealed class ProductTagKocBrandAuthorityBinding
+    {
+        public string File { get; set; }
+        public string Sha256 { get; set; }
+        public int EntityId { get; set; }
+        public int RouteCount { get; set; }
+        public int LabelChangeCount { get; set; }
+        public int SlugChangeCount { get; set; }
+        public string TargetTupleSetSha256 { get; set; }
+    }
+    internal sealed class ProductTagKocBrandAuthority
+    {
+        public int SchemaVersion { get; set; }
+        public string ReportId { get; set; }
+        public string Status { get; set; }
+        public bool Deployable { get; set; }
+        public string EntityName { get; set; }
+        public int EntityId { get; set; }
+        public string Source { get; set; }
+        public ProductTagKocBrandPolicy Policy { get; set; } = new();
+        public ProductTagKocBrandSummary Summary { get; set; } = new();
+        public string TargetTupleSetSha256 { get; set; }
+        public List<ProductTagKocBrandRoute> Routes { get; set; } = new();
+    }
+    internal sealed class ProductTagKocBrandPolicy
+    {
+        public string TurkishValue { get; set; }
+        public string TurkishSlug { get; set; }
+        public string NonTurkishValue { get; set; }
+        public string NonTurkishSlug { get; set; }
+        public string BrandToken { get; set; }
+        public bool GenericProseTermsRemainLocalized { get; set; }
+    }
+    internal sealed class ProductTagKocBrandSummary
+    {
+        public int RouteCount { get; set; }
+        public int NonTurkishRouteCount { get; set; }
+        public int LabelChangeCount { get; set; }
+        public int SlugChangeCount { get; set; }
+        public int RequiredPreviousSlugCount { get; set; }
+        public int ForeignUrlRecordOwnerConflictCount { get; set; }
+    }
+    internal sealed class ProductTagKocBrandRoute
+    {
+        public int LanguageId { get; set; }
+        public string LanguageCode { get; set; }
+        public string ReviewedPreviousValue { get; set; }
+        public string ReviewedPreviousSlug { get; set; }
+        public string TargetValue { get; set; }
+        public string TargetSlug { get; set; }
+        public bool LabelChanged { get; set; }
+        public bool SlugChanged { get; set; }
+        public string RequiredPreviousSlug { get; set; }
     }
     private sealed class ProductAttributePackage
     {
@@ -2816,6 +3273,57 @@ public sealed class LocalizationResourceInstaller : ILocalizationResourceInstall
         public string Phrase { get; set; }
         public int ExpectedOccurrenceCount { get; set; }
     }
+
+    private sealed class CatalogSafetyPackage
+    {
+        public int SchemaVersion { get; set; }
+        public string PackageVersion { get; set; }
+        public string Status { get; set; }
+        public bool Deployable { get; set; }
+        public string SourceMode { get; set; }
+        public string LocaleReviewMode { get; set; }
+        public int NetworkRequestCount { get; set; }
+        public int LanguageCount { get; set; }
+        public int ProductCount { get; set; }
+        public int ProductTagCount { get; set; }
+        public int ValueRowCount { get; set; }
+        public int SlugRowCount { get; set; }
+        public int BenignWitnessCount { get; set; }
+        public string LocaleReviewSha256 { get; set; }
+        public string TargetTupleSetSha256 { get; set; }
+        public string SlugTargetSetSha256 { get; set; }
+        public List<CatalogSafetyRow> Rows { get; set; } = new();
+        public List<CatalogSafetySlug> Slugs { get; set; } = new();
+        public List<JsonElement> BenignReadyWitnesses { get; set; } = new();
+    }
+
+    private sealed class CatalogSafetyRow
+    {
+        public string TargetKind { get; set; }
+        public string EntityName { get; set; }
+        public int EntityId { get; set; }
+        public string Identity { get; set; }
+        public string LanguageCode { get; set; }
+        public string Field { get; set; }
+        public string OldValue { get; set; }
+        public string NewValue { get; set; }
+        public string OldSha256 { get; set; }
+        public string NewSha256 { get; set; }
+        public bool OldRecordMayBeMissing { get; set; }
+    }
+
+    private sealed class CatalogSafetySlug
+    {
+        public string EntityName { get; set; }
+        public int EntityId { get; set; }
+        public string Identity { get; set; }
+        public string LanguageCode { get; set; }
+        public string OldSlug { get; set; }
+        public string NewSlug { get; set; }
+        public string OldSha256 { get; set; }
+        public string NewSha256 { get; set; }
+        public List<string> PreviousSlugs { get; set; } = new();
+    }
     internal sealed class ValidationResult
     {
         public int ErrorCount { get; set; }
@@ -2948,7 +3456,8 @@ public sealed class LocalizationResourceInstaller : ILocalizationResourceInstall
     private sealed record EmbeddedLocalizationPackage(LocalizationQualityGate QualityGate,
         LocalizationManifest Manifest, UiResourcePackage UiResources, ProductTagPackage ProductTags,
         ProductAttributePackage ProductAttributes, ProductProseKocPackage ProductProseKoc,
-        ProductProseSupplementalPackage ProductProseSupplemental);
+        ProductProseSupplementalPackage ProductProseSupplemental,
+        CatalogSafetyPackage CatalogSafety);
     internal sealed class LocalizedRow
     {
         public int EntityId { get; set; }
@@ -2971,6 +3480,18 @@ public sealed class LocalizationResourceInstaller : ILocalizationResourceInstall
         public List<ProductProseProductAction> ProductActions { get; } = new();
         public List<ProductProseLocalizedAction> LocalizedActions { get; } = new();
     }
+
+    private sealed class PreparedCatalogSafetyCorrections
+    {
+        public List<CatalogSafetyProductAction> Products { get; } = new();
+        public List<CatalogSafetyTagAction> Tags { get; } = new();
+        public List<CatalogSafetyLocalizedAction> Localized { get; } = new();
+        public List<CatalogSafetyLocalizedAction> LocalizedInserts { get; } = new();
+    }
+
+    private sealed record CatalogSafetyProductAction(Product Product, string Field, string Value);
+    private sealed record CatalogSafetyTagAction(ProductTag Tag, string Value);
+    private sealed record CatalogSafetyLocalizedAction(LocalizedProperty Row, string Value);
     private sealed record ProductProseProductAction(Product Product, string Field, string Value);
     private sealed record ProductProseLocalizedAction(LocalizedProperty Row, string Value);
     private sealed class LocalizedGroupKeyComparer : IEqualityComparer<(string Group, string Key)>

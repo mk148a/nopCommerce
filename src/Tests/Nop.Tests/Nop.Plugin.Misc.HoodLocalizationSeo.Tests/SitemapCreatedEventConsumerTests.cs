@@ -6,6 +6,7 @@ using Nop.Core.Domain.Topics;
 using Nop.Plugin.Misc.HoodLocalizationSeo.Consumers;
 using Nop.Plugin.Misc.HoodLocalizationSeo.Services;
 using Nop.Services.Blogs;
+using Nop.Services.Catalog;
 using Nop.Services.Localization;
 using Nop.Services.Seo;
 using Nop.Services.Topics;
@@ -95,10 +96,60 @@ public sealed class SitemapCreatedEventConsumerTests
         });
     }
 
-    private static SitemapCreatedEventConsumer CreateConsumer(IList<Language> languages,
-        Topic contactTopic = null, IReadOnlyDictionary<int, string> contactSlugs = null)
+    [Test]
+    public async Task RemovesDeletedProductButKeepsCustomPrefixWithSameSlug()
     {
-        var store = new Store { Id = 3, DefaultLanguageId = 1 };
+        var language = new Language { Id = 1, UniqueSeoCode = "en", Published = true };
+        var deleted = new Nop.Core.Domain.Catalog.Product { Id = 42, Deleted = true };
+        var deletedUrl = CreateUrl($"{StoreLocation}/en/old-product");
+        var customUrl = CreateUrl($"{StoreLocation}/campaign/old-product");
+        var foreignUrl = CreateUrl("https://example.com/en/old-product");
+        var urls = new List<SitemapUrlModel> { deletedUrl, customUrl, foreignUrl };
+
+        await CreateConsumer(new[] { language }, product: deleted)
+            .HandleEventAsync(new SitemapCreatedEvent(urls));
+
+        Assert.That(urls, Has.Count.EqualTo(2));
+        Assert.That(urls.Select(url => url.Location), Does.Contain(customUrl.Location));
+        Assert.That(urls.Select(url => url.Location), Does.Contain(foreignUrl.Location));
+    }
+
+    [Test]
+    public async Task AppliesStorePathBaseWhenClassifyingProductRoutes()
+    {
+        var language = new Language { Id = 1, UniqueSeoCode = "en", Published = true };
+        var deleted = new Nop.Core.Domain.Catalog.Product { Id = 42, Deleted = true };
+        var removed = CreateUrl($"{StoreLocation}/store/en/old-product");
+        var custom = CreateUrl($"{StoreLocation}/store/campaign/old-product");
+        var foreign = CreateUrl("https://example.com/store/en/old-product");
+        var urls = new List<SitemapUrlModel> { removed, custom, foreign };
+
+        await CreateConsumer(new[] { language }, product: deleted,
+                storeUrl: $"{StoreLocation}/store/")
+            .HandleEventAsync(new SitemapCreatedEvent(urls));
+
+        Assert.That(urls.Select(url => url.Location), Is.EquivalentTo(new[] { custom.Location, foreign.Location }));
+    }
+
+    [Test]
+    public async Task Uses_https_store_origin_when_ssl_is_enabled()
+    {
+        var language = new Language { Id = 1, UniqueSeoCode = "en", Published = true };
+        var deleted = new Nop.Core.Domain.Catalog.Product { Id = 42, Deleted = true };
+        var urls = new List<SitemapUrlModel> { CreateUrl($"{StoreLocation}/en/old-product") };
+
+        await CreateConsumer(new[] { language }, product: deleted, sslEnabled: true)
+            .HandleEventAsync(new SitemapCreatedEvent(urls));
+
+        Assert.That(urls, Is.Empty);
+    }
+
+    private static SitemapCreatedEventConsumer CreateConsumer(IList<Language> languages,
+        Topic contactTopic = null, IReadOnlyDictionary<int, string> contactSlugs = null,
+        Nop.Core.Domain.Catalog.Product product = null, string storeUrl = StoreLocation,
+        bool sslEnabled = false)
+    {
+        var store = new Store { Id = 3, DefaultLanguageId = 1, SslEnabled = sslEnabled };
         var storeContext = new Mock<IStoreContext>();
         storeContext.Setup(context => context.GetCurrentStoreAsync()).ReturnsAsync(store);
         var languageService = new Mock<ILanguageService>();
@@ -109,10 +160,20 @@ public sealed class SitemapCreatedEventConsumerTests
                 null, null, 0, int.MaxValue, false, null))
             .ReturnsAsync(new PagedList<Nop.Core.Domain.Blogs.BlogPost>(
                 Array.Empty<Nop.Core.Domain.Blogs.BlogPost>(), 0, int.MaxValue));
+        var productService = new Mock<IProductService>();
+        if (product is not null)
+            productService.Setup(service => service.GetProductByIdAsync(product.Id)).ReturnsAsync(product);
         var topicService = new Mock<ITopicService>();
         topicService.Setup(service => service.GetTopicBySystemNameAsync("ContactUs", store.Id))
             .ReturnsAsync(contactTopic);
         var urlRecordService = new Mock<IUrlRecordService>();
+        if (product is not null)
+            urlRecordService.Setup(service => service.GetBySlugAsync("old-product"))
+                .ReturnsAsync(new Nop.Core.Domain.Seo.UrlRecord
+                {
+                    EntityId = product.Id,
+                    EntityName = nameof(Nop.Core.Domain.Catalog.Product)
+                });
         if (contactTopic is not null)
         {
             urlRecordService.Setup(service => service.GetSeNameAsync(contactTopic.Id, "Topic",
@@ -121,10 +182,10 @@ public sealed class SitemapCreatedEventConsumerTests
                     contactSlugs?.GetValueOrDefault(languageId ?? 0) ?? string.Empty);
         }
         var webHelper = new Mock<IWebHelper>();
-        webHelper.Setup(helper => helper.GetStoreLocation(null)).Returns($"{StoreLocation}/");
+        webHelper.Setup(helper => helper.GetStoreLocation(It.IsAny<bool>())).Returns($"{storeUrl.TrimEnd('/')}/");
 
         return new SitemapCreatedEventConsumer(Mock.Of<IBlogLocalizationService>(), blogService.Object,
-            languageService.Object, storeContext.Object, topicService.Object, urlRecordService.Object,
+            languageService.Object, productService.Object, storeContext.Object, topicService.Object, urlRecordService.Object,
             webHelper.Object);
     }
 

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "errorCount": 0,
-  "warningCount": 6778,
+  "warningCount": 6773,
   "tagCount": 819,
   "tagValueCount": 19656,
   "tagSlugCount": 19656,
@@ -41,21 +41,21 @@
   "technicalEnglishLeakCountByLanguage": {
     "ar": 3,
     "de": 3,
-    "dk": 5,
+    "dk": 4,
     "es": 5,
     "fr": 7,
     "gr": 3,
-    "hu": 10,
+    "hu": 9,
     "it": 6,
     "jp": 3,
     "my": 5,
     "nl": 3,
     "no": 3,
     "pl": 3,
-    "pt": 8,
-    "ro": 9,
+    "pt": 7,
+    "ro": 8,
     "ru": 3,
-    "se": 5,
+    "se": 4,
     "tr": 6,
     "ur": 3
   },
@@ -5109,16 +5109,6 @@
     },
     {
       "check": "englishTechnicalToken",
-      "entityId": 583,
-      "languageCode": "dk",
-      "source": "koc nock",
-      "value": "Koç-nock",
-      "tokens": [
-        "nock"
-      ]
-    },
-    {
-      "check": "englishTechnicalToken",
       "entityId": 36,
       "languageCode": "dk",
       "source": "wooden arrow nock",
@@ -6110,16 +6100,6 @@
       "entityId": 656,
       "languageCode": "se",
       "source": "gander mountain"
-    },
-    {
-      "check": "englishTechnicalToken",
-      "entityId": 583,
-      "languageCode": "se",
-      "source": "koc nock",
-      "value": "Koç-nock",
-      "tokens": [
-        "nock"
-      ]
     },
     {
       "check": "englishTechnicalToken",
@@ -8173,16 +8153,6 @@
       "languageCode": "hu",
       "source": "archery nock",
       "value": "íjász nock",
-      "tokens": [
-        "nock"
-      ]
-    },
-    {
-      "check": "englishTechnicalToken",
-      "entityId": 583,
-      "languageCode": "hu",
-      "source": "koc nock",
-      "value": "Koç nock",
       "tokens": [
         "nock"
       ]
@@ -11231,16 +11201,6 @@
     },
     {
       "check": "englishTechnicalToken",
-      "entityId": 583,
-      "languageCode": "pt",
-      "source": "koc nock",
-      "value": "nock Koç",
-      "tokens": [
-        "nock"
-      ]
-    },
-    {
-      "check": "englishTechnicalToken",
       "entityId": 36,
       "languageCode": "pt",
       "source": "wooden arrow nock",
@@ -12259,16 +12219,6 @@
       "languageCode": "ro",
       "source": "archery nock",
       "value": "nock pentru săgeată",
-      "tokens": [
-        "nock"
-      ]
-    },
-    {
-      "check": "englishTechnicalToken",
-      "entityId": 583,
-      "languageCode": "ro",
-      "source": "koc nock",
-      "value": "nock Koç",
       "tokens": [
         "nock"
       ]

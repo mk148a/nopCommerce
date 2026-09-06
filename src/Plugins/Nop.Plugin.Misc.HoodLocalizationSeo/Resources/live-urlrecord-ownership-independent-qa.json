@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "reportId": "HOOD-LIVE-URLRECORD-OWNERSHIP-INDEPENDENT-QA",
-  "generatedAtUtc": "2026-08-13T10:03:33.325901+00:00",
+  "generatedAtUtc": "2026-08-13T14:54:18.291821+00:00",
   "status": "PASS",
   "deployable": true,
   "immutableInputs": {
@@ -11,7 +11,7 @@
     },
     "productTagPackage": {
       "file": "product-tag-localization.json",
-      "sha256": "37382D8BB83EA739D54F63BF5917E9C9CC7275664D66715946DDAF111AF9745B"
+      "sha256": "910B06F4E343DAAEEB551D5E2537FE916BDA7B218781BC1D4EBC6AE899494864"
     },
     "liveUrlRecordSnapshot": {
       "file": "live-urlrecord-ownership-snapshot-20260813.json",
@@ -26,8 +26,8 @@
     "reviewedProductTagLarpSlugChangeCount": 55,
     "numericLarpSlugCount": 0,
     "disavowedForeignProductTagHistoryCount": 1,
-    "desiredUniqueSlugCount": 13466,
-    "previousUniqueSlugCount": 6815,
+    "desiredUniqueSlugCount": 13455,
+    "previousUniqueSlugCount": 6824,
     "internalOwnerConflictCount": 0,
     "desiredUrlRecordForeignOwnerConflictCount": 0,
     "previousUrlRecordForeignOwnerConflictCount": 0,

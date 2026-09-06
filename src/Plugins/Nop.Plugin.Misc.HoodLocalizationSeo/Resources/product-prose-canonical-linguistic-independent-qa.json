@@ -3,11 +3,11 @@
   "status": "PASS",
   "sourcePackage": {
     "file": "product-prose-koc-corrections.json",
-    "sha256": "D057A6469B3CA0C6307B3A335CEB891E76AC15D3679C0B47649E230C46A1029B"
+    "sha256": "6CF75B966561233A023A125633E9C209415F302F0640CCEAED9FCFF5F3B46F72"
   },
   "authorityPackage": {
     "file": "product-tag-localization.json",
-    "sha256": "37382D8BB83EA739D54F63BF5917E9C9CC7275664D66715946DDAF111AF9745B",
+    "sha256": "910B06F4E343DAAEEB551D5E2537FE916BDA7B218781BC1D4EBC6AE899494864",
     "entityId": 583
   },
   "supportingPackageBindings": {
@@ -17,7 +17,7 @@
     },
     "urduNockCorrection": {
       "file": "urdu-nock-linguistic-correction-audit.json",
-      "sha256": "E7E54E9F7E5DD0DEE0354AFF45CFAFDDF0277596823FB1D20DF5628ABA6B9CD2"
+      "sha256": "A7069E2E4EEA413885C129B8388F891AE297FAE9C351114DF192F7EA459984AC"
     }
   },
   "routeCount": 24,
@@ -211,10 +211,10 @@
         "de"
       ],
       "languageName": "German",
-      "authorityTerm": "Koç-Nocke",
+      "authorityTerm": "Koç Nock",
       "componentTerm": "Nocke",
-      "canonicalSentence": "Bitte teilen Sie mir mit, ob Sie eine Koç-Nocke oder eine Standardnocke bevorzugen.",
-      "canonicalSentenceSha256": "2E512A8C7210BA9C527972C60E6ACDE6259A0680D360133ACA9300331C6360E1",
+      "canonicalSentence": "Bitte teilen Sie mir mit, ob Sie das Modell Koç Nock oder eine Standardnocke bevorzugen.",
+      "canonicalSentenceSha256": "20CBDD3E731764DCA1EE8EE4499D0C4C94DCF855835B19E4C56D9F8E196E1DA4",
       "prohibitedAnimalOrNonArcheryTerms": [
         "Widder",
         "Schaf",
@@ -239,10 +239,10 @@
         "fr"
       ],
       "languageName": "French",
-      "authorityTerm": "encoche Koç",
+      "authorityTerm": "Koç Nock",
       "componentTerm": "encoche",
-      "canonicalSentence": "Veuillez m’indiquer si vous préférez une encoche Koç ou une encoche standard.",
-      "canonicalSentenceSha256": "45F22A18567A5675388726E36DE79040E5A7862227C24350A0BC60B6BA9D224B",
+      "canonicalSentence": "Veuillez m’indiquer si vous préférez le modèle Koç Nock ou une encoche standard.",
+      "canonicalSentenceSha256": "AA8C389147E256419032CA306998D5BF5A6984FB7D8112B5A1C7967ECC64D2BF",
       "prohibitedAnimalOrNonArcheryTerms": [
         "bélier",
         "mouton",
@@ -267,10 +267,10 @@
         "it"
       ],
       "languageName": "Italian",
-      "authorityTerm": "cocca Koç",
+      "authorityTerm": "Koç Nock",
       "componentTerm": "cocca",
-      "canonicalSentence": "Indica se preferisci una cocca Koç o una cocca standard.",
-      "canonicalSentenceSha256": "AEEB7B38B384D160C9DF418AEB4EA790B5DFBAC40425FB06D265F2CD4EB5A398",
+      "canonicalSentence": "Indica se preferisci il modello Koç Nock o una cocca standard.",
+      "canonicalSentenceSha256": "11D853029FF2FC7AD56EA6C1BF7FB394DF788C3B4C5C05839EEBF66B1D3913FD",
       "prohibitedAnimalOrNonArcheryTerms": [
         "ariete",
         "montone",
@@ -296,10 +296,10 @@
         "dk"
       ],
       "languageName": "Danish",
-      "authorityTerm": "Koç-nock",
+      "authorityTerm": "Koç Nock",
       "componentTerm": "nock",
-      "canonicalSentence": "Angiv venligst, om du foretrækker en Koç-nock eller en standardnock.",
-      "canonicalSentenceSha256": "6CDB614C9387C57A93A0BE9D1ED8BF7DF586F6CF512E757B77077E9A0F4DF989",
+      "canonicalSentence": "Angiv venligst, om du foretrækker modellen Koç Nock eller en standardnock.",
+      "canonicalSentenceSha256": "7ACE69AAB9229CF97DA4026B9BEEFD930C4137CE3B1722D23EE6AFB6E4BF9A7E",
       "prohibitedAnimalOrNonArcheryTerms": [
         "vædder",
         "får",
@@ -324,10 +324,10 @@
         "nl"
       ],
       "languageName": "Dutch",
-      "authorityTerm": "Koç-nok",
+      "authorityTerm": "Koç Nock",
       "componentTerm": "nok",
-      "canonicalSentence": "Geef aan of u een Koç-nok of een standaardnok verkiest.",
-      "canonicalSentenceSha256": "03B63C4B8CE319999ED0C59EF9406477D60C4A2A478FB1779C89E2AC2C031DD3",
+      "canonicalSentence": "Geef aan of u het model Koç Nock of een standaardnok verkiest.",
+      "canonicalSentenceSha256": "A92A5C99364440629983BB98C3146F1EAEAAAF3C2A20A7A7A79FEE2CF536AD64",
       "prohibitedAnimalOrNonArcheryTerms": [
         "ram",
         "schaap",
@@ -352,10 +352,10 @@
         "hu"
       ],
       "languageName": "Hungarian",
-      "authorityTerm": "Koç nock",
+      "authorityTerm": "Koç Nock",
       "componentTerm": "nock",
-      "canonicalSentence": "Kérjük, jelezze, hogy Koç nockot vagy szabványos nockot szeretne.",
-      "canonicalSentenceSha256": "C9562B9A24F1B8468D60F936D19E762FD5C010341AB97A9F454043EF8927BBB6",
+      "canonicalSentence": "Kérjük, jelezze, hogy a Koç Nock modellt vagy szabványos nockot szeretne.",
+      "canonicalSentenceSha256": "F182FD74DC8F5D0168B68D555D896D4CF427A4BACA2D30FC7CAD4B059FE8BE31",
       "prohibitedAnimalOrNonArcheryTerms": [
         "kos",
         "juh",
@@ -381,10 +381,10 @@
         "no"
       ],
       "languageName": "Norwegian",
-      "authorityTerm": "Koç-nokk",
+      "authorityTerm": "Koç Nock",
       "componentTerm": "nokk",
-      "canonicalSentence": "Oppgi om du foretrekker en Koç-nokk eller en standardnokk.",
-      "canonicalSentenceSha256": "79837F893FA922BFF0267CD8411A3BC255C38469272F5BBD77403455139FB311",
+      "canonicalSentence": "Oppgi om du foretrekker modellen Koç Nock eller en standardnokk.",
+      "canonicalSentenceSha256": "B25C9CEE0CA08A5A6A8D96DE10E8A8FE50B36EA422FBE82FBA2DCE700268D5E4",
       "prohibitedAnimalOrNonArcheryTerms": [
         "vær",
         "sau",
@@ -409,10 +409,10 @@
         "pl"
       ],
       "languageName": "Polish",
-      "authorityTerm": "nasadka Koç",
+      "authorityTerm": "Koç Nock",
       "componentTerm": "nasadka",
-      "canonicalSentence": "Proszę podać preferowany wariant: nasadka Koç czy nasadka standardowa.",
-      "canonicalSentenceSha256": "AC5E764E9201ADBF09943A81DEDEBD633833071130594F8254A9217007F02AC1",
+      "canonicalSentence": "Proszę podać preferowany wariant: model Koç Nock czy nasadka standardowa.",
+      "canonicalSentenceSha256": "30F45E1210B398126BA2885938CDA27FD8C93E55EAB97A4FF38D665817A91EAE",
       "prohibitedAnimalOrNonArcheryTerms": [
         "baran",
         "owca",
@@ -437,10 +437,10 @@
         "pt"
       ],
       "languageName": "Portuguese",
-      "authorityTerm": "nock Koç",
+      "authorityTerm": "Koç Nock",
       "componentTerm": "nock",
-      "canonicalSentence": "Indique se prefere um nock Koç ou um nock padrão.",
-      "canonicalSentenceSha256": "2D2E98901493CCE2BA6D28BE47D4DB38CB8E3BE54F470D8EE6C7AAFC36CA69D2",
+      "canonicalSentence": "Indique se prefere o modelo Koç Nock ou um nock padrão.",
+      "canonicalSentenceSha256": "54EFAF2198D3095CBFED9930B593288344D85B7300D1695D3580DCAC36794D6D",
       "prohibitedAnimalOrNonArcheryTerms": [
         "carneiro",
         "ovelha",
@@ -466,10 +466,10 @@
         "ro"
       ],
       "languageName": "Romanian",
-      "authorityTerm": "nock Koç",
+      "authorityTerm": "Koç Nock",
       "componentTerm": "nock",
-      "canonicalSentence": "Vă rugăm să precizați dacă preferați un nock Koç sau un nock standard.",
-      "canonicalSentenceSha256": "8EF7C0FFBEEBF0BA29F74620FF20870D2337E3A6F23C825410F0C88A23A427DC",
+      "canonicalSentence": "Vă rugăm să precizați dacă preferați modelul Koç Nock sau un nock standard.",
+      "canonicalSentenceSha256": "29ABADD36D3E2171A9E7220B53BACA33E7FD13D7C947314A317A5F597109E6B8",
       "prohibitedAnimalOrNonArcheryTerms": [
         "berbec",
         "oaie",
@@ -495,10 +495,10 @@
         "es"
       ],
       "languageName": "Spanish",
-      "authorityTerm": "culatín Koç",
+      "authorityTerm": "Koç Nock",
       "componentTerm": "culatín",
-      "canonicalSentence": "Indique si prefiere un culatín Koç o un culatín estándar.",
-      "canonicalSentenceSha256": "4C17265CAF4BFC33791E51D9973CD5DA083D56F126B2080CA34ED093BF2990F2",
+      "canonicalSentence": "Indique si prefiere el modelo Koç Nock o un culatín estándar.",
+      "canonicalSentenceSha256": "7BBC1CDA21DEE790E5FE9C537D200B245F01AE9612AFC98912FFA810E3F7CCCE",
       "prohibitedAnimalOrNonArcheryTerms": [
         "carnero",
         "oveja",
@@ -523,10 +523,10 @@
         "se"
       ],
       "languageName": "Swedish",
-      "authorityTerm": "Koç-nock",
+      "authorityTerm": "Koç Nock",
       "componentTerm": "nock",
-      "canonicalSentence": "Ange om du föredrar en Koç-nock eller en standardnock.",
-      "canonicalSentenceSha256": "78750042C7F747F143C758C4A0A95B1597082F9580656E2E5FFAEEBB30B7B25A",
+      "canonicalSentence": "Ange om du föredrar modellen Koç Nock eller en standardnock.",
+      "canonicalSentenceSha256": "9F518244C70725C945E895BA621459E7EFD9EE0C2AAE17C9F423C5A395341B10",
       "prohibitedAnimalOrNonArcheryTerms": [
         "bagge",
         "får",
@@ -551,10 +551,10 @@
         "gr"
       ],
       "languageName": "Greek",
-      "authorityTerm": "Koç νοκ",
+      "authorityTerm": "Koç Nock",
       "componentTerm": "νοκ",
-      "canonicalSentence": "Παρακαλώ δηλώστε αν προτιμάτε ένα Koç νοκ ή ένα τυπικό νοκ.",
-      "canonicalSentenceSha256": "EC77EF735E98CFD566B8A52DA024A9BAEDEDC80C304B30DEED1ED999FA49974C",
+      "canonicalSentence": "Παρακαλώ δηλώστε αν προτιμάτε το μοντέλο Koç Nock ή ένα τυπικό νοκ.",
+      "canonicalSentenceSha256": "31A84EAEFAFEFAD1585C6A0A8E4A53D76A28BFA30AFA8DB079F7FBF3BB501FB5",
       "prohibitedAnimalOrNonArcheryTerms": [
         "κριάρι",
         "πρόβατο",
@@ -581,8 +581,8 @@
       "languageName": "Malay",
       "authorityTerm": "Koç Nock",
       "componentTerm": "nock",
-      "canonicalSentence": "Sila nyatakan pilihan anda: Koç Nock atau nock standard.",
-      "canonicalSentenceSha256": "E24BEC71C9A94DDEE9AE25B458BD45D16A80123A4933614EF71274C084ED7D12",
+      "canonicalSentence": "Sila nyatakan pilihan anda: model Koç Nock atau nock standard.",
+      "canonicalSentenceSha256": "120537C9DF2138618C0544D227380F77D011B5E107372A28EA1876B5E8C31981",
       "prohibitedAnimalOrNonArcheryTerms": [
         "biri-biri",
         "domba",
@@ -608,10 +608,10 @@
         "jp"
       ],
       "languageName": "Japanese",
-      "authorityTerm": "Koçノック",
+      "authorityTerm": "Koç Nock",
       "componentTerm": "ノック",
-      "canonicalSentence": "Koçノックと標準ノックのどちらをご希望かお知らせください。",
-      "canonicalSentenceSha256": "57FF571CC7F94A900167C7AD139192CBDDDE85FD8CC90520D03C9D07208334BE",
+      "canonicalSentence": "Koç Nockモデルと標準ノックのどちらをご希望かお知らせください。",
+      "canonicalSentenceSha256": "35F6F00DA9034ACE22EB522A1EF30D58F43FE84E5DFA9B4F58653CC4B6F78DF9",
       "prohibitedAnimalOrNonArcheryTerms": [
         "雄羊",
         "羊",
@@ -636,10 +636,10 @@
         "ar"
       ],
       "languageName": "Arabic",
-      "authorityTerm": "نوك Koç",
+      "authorityTerm": "Koç Nock",
       "componentTerm": "نوك",
-      "canonicalSentence": "يرجى تحديد ما إذا كنت تفضّل نوك Koç أم نوكًا قياسيًا.",
-      "canonicalSentenceSha256": "AE88F201DE832524C17D2879FCDA3AC0781FB11FBB6F23155CFE8682F0162175",
+      "canonicalSentence": "يرجى تحديد ما إذا كنت تفضّل طراز Koç Nock أم نوكًا قياسيًا.",
+      "canonicalSentenceSha256": "415F679692BAFBC8918FAE6D08140B858EA1A938D374A31EAF93F9E3591B6EB8",
       "prohibitedAnimalOrNonArcheryTerms": [
         "كبش",
         "خروف",
@@ -664,10 +664,10 @@
         "ru"
       ],
       "languageName": "Russian",
-      "authorityTerm": "хвостовик Koç",
+      "authorityTerm": "Koç Nock",
       "componentTerm": "хвостовик",
-      "canonicalSentence": "Пожалуйста, укажите, какой вариант вы предпочитаете: хвостовик Koç или стандартный хвостовик.",
-      "canonicalSentenceSha256": "8BE2A0F793FF83CEBB0E2170126C93275FDC54D5A798B4BDB457576D8F8A4ED9",
+      "canonicalSentence": "Пожалуйста, укажите, какой вариант вы предпочитаете: модель Koç Nock или стандартный хвостовик.",
+      "canonicalSentenceSha256": "2E3B5D42284572AB6C415D97DBB211319316AE49B575C9E1544C80991AFF55F6",
       "prohibitedAnimalOrNonArcheryTerms": [
         "баран",
         "овца",
