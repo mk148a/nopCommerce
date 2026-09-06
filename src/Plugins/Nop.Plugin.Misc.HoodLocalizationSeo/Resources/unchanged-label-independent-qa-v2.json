@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "reportId": "HOOD-PRODUCT-UNCHANGED-LABEL-INDEPENDENT-QA-V2",
-  "generatedAtUtc": "2026-08-13T10:22:25.973014+00:00",
+  "generatedAtUtc": "2026-08-13T14:54:18.291821+00:00",
   "status": "PASS",
   "deployable": true,
   "decision": "PASS",
@@ -10,8 +10,8 @@
     {
       "kind": "finalProductTagPackage",
       "path": "C:\\inetpub\\hood-localization-audit-20260812-083849\\product-tag-localization.json",
-      "sha256": "37382D8BB83EA739D54F63BF5917E9C9CC7275664D66715946DDAF111AF9745B",
-      "lengthBytes": 11283198
+      "sha256": "910B06F4E343DAAEEB551D5E2537FE916BDA7B218781BC1D4EBC6AE899494864",
+      "lengthBytes": 11283862
     },
     {
       "kind": "finalProductAttributePackage",
@@ -94,7 +94,7 @@
     {
       "id": "exact-final-package-hash-binding",
       "status": "PASS",
-      "tagPackageSha256": "37382D8BB83EA739D54F63BF5917E9C9CC7275664D66715946DDAF111AF9745B",
+      "tagPackageSha256": "910B06F4E343DAAEEB551D5E2537FE916BDA7B218781BC1D4EBC6AE899494864",
       "attributePackageSha256": "51DCC3AC06BCF3CDE4EB38514BA30E78FBAC67EFF1E8987C1366D4E0537D0B64"
     }
   ],

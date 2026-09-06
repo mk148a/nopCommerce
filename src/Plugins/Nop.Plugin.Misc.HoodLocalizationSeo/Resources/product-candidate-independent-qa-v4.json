@@ -1,7 +1,7 @@
 {
   "schemaVersion": 4,
   "reportId": "HOOD-PRODUCT-CANDIDATE-INDEPENDENT-QA-V4",
-  "generatedAtUtc": "2026-08-13T10:22:26.358063+00:00",
+  "generatedAtUtc": "2026-08-13T14:54:48.799499+00:00",
   "status": "PASS",
   "deployable": true,
   "decision": "PASS",
@@ -10,8 +10,8 @@
     {
       "kind": "finalProductTagPackage",
       "path": "C:\\inetpub\\hood-localization-audit-20260812-083849\\product-tag-localization.json",
-      "sha256": "37382D8BB83EA739D54F63BF5917E9C9CC7275664D66715946DDAF111AF9745B",
-      "lengthBytes": 11283198
+      "sha256": "910B06F4E343DAAEEB551D5E2537FE916BDA7B218781BC1D4EBC6AE899494864",
+      "lengthBytes": 11283862
     },
     {
       "kind": "finalProductAttributePackage",
@@ -64,14 +64,20 @@
     {
       "kind": "liveUrlRecordOwnershipQA",
       "path": "C:\\inetpub\\hood-localization-audit-20260812-083849\\live-urlrecord-ownership-independent-qa.json",
-      "sha256": "36FF8A449523ECF1DF940412098B85375D16BFDF36E1488F5153B7CF034DE7EB",
+      "sha256": "BD71F2CE10D3A645F512950F1CD6D9BEF8E6E943393F0D66B89A01F46D3F0FF7",
       "lengthBytes": 2422
     },
     {
       "kind": "nockLinguisticCorrections",
       "path": "C:\\inetpub\\hood-localization-audit-20260812-083849\\urdu-nock-linguistic-correction-audit.json",
-      "sha256": "E7E54E9F7E5DD0DEE0354AFF45CFAFDDF0277596823FB1D20DF5628ABA6B9CD2",
-      "lengthBytes": 6800
+      "sha256": "A7069E2E4EEA413885C129B8388F891AE297FAE9C351114DF192F7EA459984AC",
+      "lengthBytes": 6597
+    },
+    {
+      "kind": "kocBrandAuthority",
+      "path": "C:\\inetpub\\hood-localization-audit-20260812-083849\\product-tag-koc-brand-authority.json",
+      "sha256": "830531763A68AF4AF032065E4B740B2A23CBAFF4D6C939E35E48469EA1B55B92",
+      "lengthBytes": 8952
     }
   ],
   "summary": {
@@ -83,8 +89,12 @@
     "finalLabelFixMismatchCount": 0,
     "unexpectedTagValueChangeCount": 0,
     "unexpectedAttributeValueChangeCount": 0,
-    "nockLinguisticTagCorrectionCount": 8,
+    "nockLinguisticTagCorrectionCount": 4,
     "nockLinguisticAttributeCorrectionCount": 250,
+    "kocBrandAuthorityRouteCount": 24,
+    "kocBrandAuthorityLabelChangeCount": 16,
+    "kocBrandAuthorityBaseTransitionCount": 18,
+    "kocBrandAuthoritySlugChangeCount": 13,
     "attributeBlockerCount": 0,
     "newSemanticBrandKocArcheryPathologyRegressionCount": 0,
     "historicalOwnerMembershipMissingCount": 0,
@@ -104,7 +114,7 @@
     {
       "id": "exact-final-package-hash-binding",
       "status": "PASS",
-      "tagPackageSha256": "37382D8BB83EA739D54F63BF5917E9C9CC7275664D66715946DDAF111AF9745B",
+      "tagPackageSha256": "910B06F4E343DAAEEB551D5E2537FE916BDA7B218781BC1D4EBC6AE899494864",
       "attributePackageSha256": "51DCC3AC06BCF3CDE4EB38514BA30E78FBAC67EFF1E8987C1366D4E0537D0B64"
     },
     {
@@ -138,8 +148,9 @@
       "unexpectedTagValueChangeCount": 0,
       "unexpectedAttributeValueChangeCount": 0,
       "unexpectedTagSlugOrHistoryChangeCount": 0,
-      "linguisticTagCorrectionCount": 8,
-      "linguisticAttributeCorrectionCount": 250
+      "linguisticTagCorrectionCount": 4,
+      "linguisticAttributeCorrectionCount": 250,
+      "kocBrandAuthorityBaseTransitionCount": 18
     },
     {
       "id": "old-current-and-previous-owner-pair-subset",
@@ -154,7 +165,7 @@
       "historicalCrossOwnerSlugTakeoverCount": 0,
       "newMultiOwnerSlugCount": 0,
       "oldPreviousAliasOccurrenceCount": 6921,
-      "newPreviousAliasOccurrenceCount": 7035,
+      "newPreviousAliasOccurrenceCount": 7048,
       "oldAliasLossCount": 0,
       "reviewedOldAliasDisavowalCount": 1,
       "oldOwnerPairSetSha256": "6F54C557A8E137C20DC374903CA75ABBB52C5B7AA6C0DFA10A66E7189F8E040C",
@@ -166,13 +177,21 @@
       "reviewedSlugCount": 63,
       "liveUrlRecordCount": 10023,
       "conflictCount": 0,
-      "ownershipQaSha256": "36FF8A449523ECF1DF940412098B85375D16BFDF36E1488F5153B7CF034DE7EB"
+      "ownershipQaSha256": "BD71F2CE10D3A645F512950F1CD6D9BEF8E6E943393F0D66B89A01F46D3F0FF7"
     },
     {
       "id": "koc-nock-policy",
       "status": "PASS",
       "checkedCellCount": 1224,
       "policy": "Koç is a brand: English Koç Nock, Turkish Koç gez; never animal ram."
+    },
+    {
+      "id": "koc-brand-authority-24-route-exact-contract",
+      "status": "PASS",
+      "routeCount": 24,
+      "labelChangeCount": 16,
+      "slugChangeCount": 13,
+      "authoritySha256": "830531763A68AF4AF032065E4B740B2A23CBAFF4D6C939E35E48469EA1B55B92"
     },
     {
       "id": "opaque-type-code-preservation",
@@ -182,7 +201,7 @@
     {
       "id": "unicode-and-deterministic-pathology",
       "status": "PASS",
-      "unicodeCheckCount": 278355,
+      "unicodeCheckCount": 278368,
       "unicodeErrorCount": 0,
       "pathologyFindingCount": 0
     }
@@ -759,7 +778,7 @@
     "historicalCrossOwnerSlugTakeoverCount": 0,
     "newMultiOwnerSlugCount": 0,
     "oldPreviousAliasOccurrenceCount": 6921,
-    "newPreviousAliasOccurrenceCount": 7035,
+    "newPreviousAliasOccurrenceCount": 7048,
     "oldAliasLossCount": 0,
     "reviewedOldAliasDisavowalCount": 1,
     "oldOwnerPairSetSha256": "6F54C557A8E137C20DC374903CA75ABBB52C5B7AA6C0DFA10A66E7189F8E040C",

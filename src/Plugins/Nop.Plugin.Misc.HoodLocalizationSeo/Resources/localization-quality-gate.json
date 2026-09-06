@@ -12,12 +12,12 @@
   "numericOnlySlugCount": 0,
   "numericLarpCollisionCounterSlugCount": 0,
   "reviewedLarpSlugMappingCount": 63,
-  "reviewedNockLocalizedSlugCount": 6,
+  "reviewedNockLocalizedSlugCount": 28,
   "liveUrlRecordOwnerConflictCount": 0,
   "disavowedForeignProductTagHistoryCount": 1,
-  "retainedPreviousSlugCount": 7142,
+  "retainedPreviousSlugCount": 7155,
   "manifestPreviousSlugCount": 107,
-  "productTagPreviousSlugCount": 7035,
+  "productTagPreviousSlugCount": 7048,
   "disavowedForeignPreviousSlugCount": 20,
   "productTagReviewedTagCount": 819,
   "productTagLocalizedValueCount": 19656,
@@ -76,8 +76,8 @@
   "productProseLinguisticAuthorityReviewCount": 20,
   "productProseLinguisticSentenceReviewCount": 20,
   "productProseLinguisticErrorCount": 0,
-  "urduNockLinguisticReviewedRowCount": 258,
-  "urduNockLinguisticProductTagReviewedRowCount": 8,
+  "urduNockLinguisticReviewedRowCount": 254,
+  "urduNockLinguisticProductTagReviewedRowCount": 4,
   "urduNockLinguisticProductAttributeReviewedRowCount": 250,
   "urduNockLinguisticResidualCount": 0,
   "reviewedProductProseTranslationCount": 114,
@@ -114,23 +114,23 @@
   "finalProductRemainingReviewedWarningRowCount": 6778,
   "opaqueTypeCodeCheckCount": 4248,
   "finalEvidenceReportSha256": {
-    "final-manifest-independent-qa-v3.json": "B8B4814379C3D3BC07D519ED027AAFB58A9E37E040F65A8B728FFECEF431890A",
-    "product-candidate-independent-qa-v4.json": "AD65BC9FB70FFE435805053CA88F8B7ADB550D471AC032F6DD23B6CA0EDA0218",
-    "unchanged-label-independent-qa-v2.json": "830F02E7484CBECC731E2431E3A71B0E2724726000D88495541259BA5B230236",
+    "final-manifest-independent-qa-v3.json": "BAAB4657D11DDBA49E3946A60A302D88900A20A1088D44B93B418D612562998F",
+    "product-candidate-independent-qa-v4.json": "E7E1C0E067E77921284261916722A1DCF1FCE67F5ABD5B2B37918D70ADD057EF",
+    "unchanged-label-independent-qa-v2.json": "A332CEEC99CF78011D9376951E7F2E93F9A8E9AB7CF27388D8B83CC9AAD5D864",
     "final-manifest-resolution-audit.json": "611BDA6BA2340F66C82CC8FBEE49775EE105E96C5427D705D7980BB560D3CE1E",
     "manifest-content-quality-audit.json": "A3BFA1C9F275FDBBDE22CE3614DE66BDE29E8DF705CE6AEF93E76EE586967983",
-    "product-localization-quality-audit.json": "B7EDE452251696CE553C97414982F75CE1393B316A66359698312632D58F547D",
-    "slug-regeneration-audit.json": "DC9452E06092D7BE8738874996EB20E90249B945A85CE2989B6749157C6174D4",
+    "product-localization-quality-audit.json": "9CC48B764AEE471813FA3005B74C3D7BB1106E588895C0EE5489BB85734960BF",
+    "slug-regeneration-audit.json": "56CEBE9C7728E9E93CB83E9F72454385355899435749BDC1CD5A48CF7AC44FEA",
     "translation-pathology-audit.json": "0E0EB06661DCF2C6918B1145C50AD02D0F9A7AFDB9AD7A3303D12951A3902D01",
-    "larp-slug-linguistic-independent-qa.json": "8B0F5CA40DCC68FA2593FACD31FCB9EB7B1DB81C5A6EEC3A08BAB541F14BB239"
+    "larp-slug-linguistic-independent-qa.json": "8C19E069E94128E78199DFD546D8E732233CB9848729A8139A5409732F1E7F8E"
   },
-  "liveUrlRecordOwnershipIndependentQaSha256": "36FF8A449523ECF1DF940412098B85375D16BFDF36E1488F5153B7CF034DE7EB",
+  "liveUrlRecordOwnershipIndependentQaSha256": "BD71F2CE10D3A645F512950F1CD6D9BEF8E6E943393F0D66B89A01F46D3F0FF7",
   "packageSha256": {
     "localization-manifest.json": "F8241B4EF839DE2355073F096D471417E889B29FBAD21F8AC5E6FEC9D2D3F26F",
     "ui-localization-resources.json": "3ED396F302FDD575E412B6F6C857FBCFA2E2B88E81C52090A51807DAA37D5C55",
-    "product-tag-localization.json": "37382D8BB83EA739D54F63BF5917E9C9CC7275664D66715946DDAF111AF9745B",
+    "product-tag-localization.json": "910B06F4E343DAAEEB551D5E2537FE916BDA7B218781BC1D4EBC6AE899494864",
     "product-attribute-localization.json": "51DCC3AC06BCF3CDE4EB38514BA30E78FBAC67EFF1E8987C1366D4E0537D0B64",
-    "product-prose-koc-corrections.json": "D057A6469B3CA0C6307B3A335CEB891E76AC15D3679C0B47649E230C46A1029B",
+    "product-prose-koc-corrections.json": "6CF75B966561233A023A125633E9C209415F302F0640CCEAED9FCFF5F3B46F72",
     "product-prose-supplemental-corrections.json": "65E87792D3A15CD5A0D7B1CAA0AED670BEE32179E33499BD5513AD26B92AC38C"
   },
   "reviewReportSha256": {
@@ -148,6 +148,6 @@
   "reviewedArcheryCategoryAuditSha256": "C86C8DF400F27F54F95DF9EF50AA99645919DC700F47F6D161D18C9EBD45BA52",
   "manifestContentQualityAuditSha256": "A3BFA1C9F275FDBBDE22CE3614DE66BDE29E8DF705CE6AEF93E76EE586967983",
   "semanticReviewApplicationAuditSha256": "B1E811ED6712267C16A2085A99A4EF473F8BDC888F7A1D9C278B6B561CBCA11D",
-  "productProseCanonicalLinguisticIndependentQaSha256": "AA3160ACA4DAE1271FF845D57F904A7C25508D8C7EEF38B17EB9BCD6611554DF",
-  "urduNockLinguisticCorrectionAuditSha256": "E7E54E9F7E5DD0DEE0354AFF45CFAFDDF0277596823FB1D20DF5628ABA6B9CD2"
+  "productProseCanonicalLinguisticIndependentQaSha256": "6D36B3D097886FA394381AB2D70BE48A41CF7ACBF12D0378702A9E6750E3EDA1",
+  "urduNockLinguisticCorrectionAuditSha256": "A7069E2E4EEA413885C129B8388F891AE297FAE9C351114DF192F7EA459984AC"
 }

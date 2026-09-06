@@ -16,13 +16,13 @@
     },
     "productTag": {
       "file": "product-tag-localization.json",
-      "sha256": "37382D8BB83EA739D54F63BF5917E9C9CC7275664D66715946DDAF111AF9745B",
-      "byteLength": 11283198
+      "sha256": "910B06F4E343DAAEEB551D5E2537FE916BDA7B218781BC1D4EBC6AE899494864",
+      "byteLength": 11283862
     },
     "liveUrlRecordSnapshot": {
       "file": "live-urlrecord-ownership-snapshot.json",
-      "sha256": "1451B30965CF0C65787C65872F7E6D267CDECA01F2857245CB4E2A778A25F2B8",
-      "byteLength": 2676214
+      "sha256": "A54386345684882CE01B523518FDF8C0DA8ACCB49F0DB70467B82F904D6D8DF7",
+      "byteLength": 7681181
     },
     "mappingContractSha256": "8BF69EDB9A93D25277F2EB1CEC19DE345E7A14172B8332AF85BDC3C7CE7FC54F"
   },
@@ -38,7 +38,7 @@
     "packageCurrentHistoryOwnerConflictCount": 0,
     "liveDesiredOwnerConflictCount": 0,
     "liveHistoryOwnerConflictCount": 0,
-    "liveUrlRecordCount": 10023,
+    "liveUrlRecordCount": 37181,
     "larpCosplayProduct341WitnessCount": 1,
     "elvenProduct339WitnessCount": 1,
     "blockingFindingCount": 0
