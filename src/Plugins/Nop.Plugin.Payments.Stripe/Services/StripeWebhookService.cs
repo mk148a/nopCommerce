@@ -12,6 +12,7 @@ using Nop.Core.Domain.Payments;
 using Nop.Data;
 using Nop.Plugin.Payments.Stripe.Domains;
 using Nop.Services.Configuration;
+using Nop.Services.Common;
 using Nop.Services.Logging;
 using Nop.Services.Orders;
 using Stripe;
@@ -28,6 +29,7 @@ public sealed class StripeWebhookService : IStripeWebhookService
     private readonly IRepository<Order> _orderRepository;
     private readonly IRepository<StripeWebhookEvent> _eventRepository;
     private readonly IOrderService _orderService;
+    private readonly IGenericAttributeService _genericAttributeService;
     private readonly ISettingService _settingService;
     private readonly ILogger _logger;
     private readonly IWebHelper _webHelper;
@@ -36,6 +38,7 @@ public sealed class StripeWebhookService : IStripeWebhookService
     public StripeWebhookService(IRepository<Order> orderRepository,
         IRepository<StripeWebhookEvent> eventRepository,
         IOrderService orderService,
+        IGenericAttributeService genericAttributeService,
         ISettingService settingService,
         ILogger logger,
         IWebHelper webHelper,
@@ -44,6 +47,7 @@ public sealed class StripeWebhookService : IStripeWebhookService
         _orderRepository = orderRepository;
         _eventRepository = eventRepository;
         _orderService = orderService;
+        _genericAttributeService = genericAttributeService;
         _settingService = settingService;
         _logger = logger;
         _webHelper = webHelper;
@@ -261,7 +265,10 @@ public sealed class StripeWebhookService : IStripeWebhookService
         {
             case "payment_intent.succeeded":
                 if (order.PaymentStatus == PaymentStatus.Paid)
+                {
+                    await MarkWebhookPaymentVerifiedAsync(order, paymentIntentId);
                     return "processed";
+                }
 
                 if (order.OrderStatus == OrderStatus.Cancelled ||
                     order.PaymentStatus == PaymentStatus.Voided ||
@@ -277,6 +284,7 @@ public sealed class StripeWebhookService : IStripeWebhookService
                     : order.OrderStatus;
                 order.PaidDateUtc ??= DateTime.UtcNow;
                 await _orderService.UpdateOrderAsync(order);
+                await MarkWebhookPaymentVerifiedAsync(order, paymentIntentId);
                 await InsertOrderNoteAsync(order, $"Stripe webhook payment_intent.succeeded processed ({paymentIntentId}).");
                 await _logger.InformationAsync($"[Stripe] Order {order.CustomOrderNumber} marked paid from webhook {paymentIntentId}.");
                 return "processed";
@@ -302,6 +310,13 @@ public sealed class StripeWebhookService : IStripeWebhookService
                 await _logger.InformationAsync($"[Stripe] Ignored valid, unsupported webhook {eventType} ({paymentIntentId ?? "none"}).");
                 return "ignored";
         }
+    }
+
+    private Task MarkWebhookPaymentVerifiedAsync(Order order, string paymentIntentId)
+    {
+        return _genericAttributeService.SaveAttributeAsync(order,
+            StripePaymentDefaults.WebhookPaymentVerifiedAttribute,
+            paymentIntentId ?? string.Empty, order.StoreId);
     }
 
     private async Task<Order> FindOrderAsync(string paymentIntentId, int? orderId)

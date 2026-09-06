@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><TargetFramework>net9.0</TargetFramework><OutputType>Exe</OutputType><ImplicitUsings>enable</ImplicitUsings></PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Stripe.Build.csproj" />
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <Reference Include="D:/hood-localization-live-20260821-0900-bnpl-stripe-country-fix/*.dll" />
+    <Reference Include="D:/hood-localization-live-20260821-0900-bnpl-stripe-country-fix/Plugins/Nop.Plugin.Payments.Stripe/Stripe.net.dll" />
+  </ItemGroup>
+</Project>

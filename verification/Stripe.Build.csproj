@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <AssemblyName>Nop.Plugin.Payments.Stripe</AssemblyName>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyVersion>1.25.0.0</AssemblyVersion>
+    <FileVersion>1.25</FileVersion>
+    <Company>Genius Software</Company>
+    <Copyright>Genius Software</Copyright>
+    <InformationalVersion>1.0.0</InformationalVersion>
+    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
+    <StripeSource Condition="'$(StripeSource)' == ''">../src/Plugins/Nop.Plugin.Payments.Stripe</StripeSource>
+  </PropertyGroup>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <Compile Include="$(StripeSource)/**/*.cs" Exclude="$(StripeSource)/obj/**;$(StripeSource)/bin/**" />
+    <Reference Include="D:/hood-localization-live-20260821-0900-bnpl-stripe-country-fix/*.dll" />
+    <Reference Include="D:/hood-localization-live-20260821-0900-bnpl-stripe-country-fix/Plugins/Nop.Plugin.Payments.Stripe/Stripe.net.dll" />
+  </ItemGroup>
+</Project>

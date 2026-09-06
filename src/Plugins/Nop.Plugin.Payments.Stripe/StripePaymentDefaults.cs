@@ -32,6 +32,7 @@ namespace Nop.Plugin.Payments.Stripe
         /// Public endpoint that receives signed Stripe events.
         /// </summary>
         public const string WebhookPath = "PaymentStripe/WebhookHandler";
+        public const string WebhookPaymentVerifiedAttribute = "GoogleAnalytics.StripeWebhookVerifiedPaymentIntent";
 
         /// <summary>
         /// Events required by the nopCommerce PaymentIntent flow.

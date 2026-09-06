@@ -232,6 +232,10 @@ namespace Nop.Plugin.Payments.Stripe
 
             try
             {
+                // Do not allow unrelated checkouts to share an idempotency namespace.
+                if (processPaymentRequest.OrderGuid == Guid.Empty)
+                    throw new NopException("A checkout identifier is required before processing payment.");
+
                 // Re-use a pending intent after the customer completes 3DS.
                 var pending = await GetPendingPaymentAsync(processPaymentRequest);
                 var paymentIntentService = new PaymentIntentService();
@@ -318,7 +322,10 @@ namespace Nop.Plugin.Payments.Stripe
                 };
 
                 var paymentMethodService = new PaymentMethodService();
-                var paymentMethod = await paymentMethodService.CreateAsync(paymentMethodOptions, GetStripeApiRequestOptions());
+                // Every dependency of the idempotent intent must also be idempotent.
+                // Otherwise a retry creates different IDs and Stripe rejects the same intent key.
+                var paymentMethod = await paymentMethodService.CreateAsync(paymentMethodOptions,
+                    GetStripeApiRequestOptions($"nop-order-payment-method-{processPaymentRequest.OrderGuid:N}"));
                 var stripeCustomer = await new CustomerService().CreateAsync(new CustomerCreateOptions
                 {
                     Email = customer.billingAddress.Email,
@@ -332,11 +339,11 @@ namespace Nop.Plugin.Payments.Stripe
                         State = customer.billingAddress.State
                     },
                     Name = $"{customer.billingAddress.Name} {customer.billingAddress.Surname}"
-                }, GetStripeApiRequestOptions());
+                }, GetStripeApiRequestOptions($"nop-order-customer-{processPaymentRequest.OrderGuid:N}"));
 
                 await paymentMethodService.AttachAsync(paymentMethod.Id,
                     new PaymentMethodAttachOptions { Customer = stripeCustomer.Id },
-                    GetStripeApiRequestOptions());
+                    GetStripeApiRequestOptions($"nop-order-attach-{processPaymentRequest.OrderGuid:N}"));
 
                 var paymentIntentOptions = new PaymentIntentCreateOptions
                 {
