@@ -12,10 +12,20 @@ public class RouteProvider : BaseRouteProvider, IRouteProvider
 	public void RegisterRoutes(IEndpointRouteBuilder endpointRouteBuilder)
 	{
 		string languageRoutePattern = GetLanguageRoutePattern();
-		endpointRouteBuilder.MapControllerRoute("NopStation.GoogleTagManager.GtmEventSend", languageRoutePattern + "/GtmEventSend/ProductDetails", new
-		{
-			controller = "GtmEventSend",
-			action = "ProductDetails"
-		});
+		MapGtmRoute(endpointRouteBuilder, languageRoutePattern, "ProductDetails", "ProductDetails");
+		MapGtmRoute(endpointRouteBuilder, languageRoutePattern, "ProductDetailsViewItem", "ProductDetailsViewItem");
+		MapGtmRoute(endpointRouteBuilder, languageRoutePattern, "ShoppingCartDetails", "ShoppingCartDetails");
+		MapGtmRoute(endpointRouteBuilder, languageRoutePattern, "GetProducts", "GetProducts");
+	}
+
+	private static void MapGtmRoute(IEndpointRouteBuilder endpointRouteBuilder, string languageRoutePattern,
+		string routeSuffix, string action)
+	{
+		endpointRouteBuilder.MapControllerRoute($"NopStation.GoogleTagManager.GtmEventSend.{routeSuffix}",
+			languageRoutePattern + "/GtmEventSend/" + routeSuffix, new
+			{
+				controller = "GtmEventSend",
+				action
+			});
 	}
 }
