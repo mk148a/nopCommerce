@@ -1,0 +1,7 @@
+<Project>
+  <!-- Provenance build only: live retained these manual SQL files outside Git. They are content-only and do not affect the plugin assembly. -->
+  <ItemGroup>
+    <Content Remove="$(MSBuildThisFileDirectory)src\Plugins\Nop.Plugin.Shipping.FixedByWeightByTotal\sql\HoodNavlungoDimensionRules.manual.sql" />
+    <Content Remove="$(MSBuildThisFileDirectory)src\Plugins\Nop.Plugin.Shipping.FixedByWeightByTotal\sql\HoodProductProductionTime.manual.sql" />
+  </ItemGroup>
+</Project>
