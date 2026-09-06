@@ -1,0 +1,11 @@
+{
+  "Group": "Widgets",
+  "FriendlyName": "Hood Video SEO",
+  "SystemName": "Widgets.HoodVideoSeo",
+  "Version": "4.80.4",
+  "SupportedVersions": [ "4.80" ],
+  "Author": "Hood Archery Shop",
+  "DisplayOrder": 25,
+  "FileName": "Nop.Plugin.Widgets.HoodVideoSeo.dll",
+  "Description": "Responsive and accessible product video rendering without core modifications."
+}

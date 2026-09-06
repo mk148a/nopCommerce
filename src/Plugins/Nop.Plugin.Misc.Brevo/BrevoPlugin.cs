@@ -129,6 +129,21 @@ public class BrevoPlugin : BasePlugin, IMiscPlugin, IWidgetPlugin
             });
         }
 
+        if (await _scheduleTaskService.GetTaskByTypeAsync(BrevoDefaults.SeasonalCampaignTask) == null)
+        {
+            await _scheduleTaskService.InsertTaskAsync(new ScheduleTask
+            {
+                Enabled = true,
+                LastEnabledUtc = DateTime.UtcNow,
+                // Check hourly so a time-of-day offset cannot miss the seven-day delivery window.
+                // The delivery service itself permits only one recipient batch per UTC day.
+                Seconds = 60 * 60,
+                Name = BrevoDefaults.SeasonalCampaignTaskName,
+                Type = BrevoDefaults.SeasonalCampaignTask,
+                StopOnError = false
+            });
+        }
+
         //locales
         await _localizationService.AddOrUpdateLocaleResourceAsync(new Dictionary<string, string>
         {
@@ -185,7 +200,18 @@ public class BrevoPlugin : BasePlugin, IMiscPlugin, IWidgetPlugin
             ["Plugins.Misc.Brevo.SMSText.Hint"] = "Enter SMS text to send.",
             ["Plugins.Misc.Brevo.Synchronization"] = "Contacts",
             ["Plugins.Misc.Brevo.Transactional"] = "Transactional emails",
-            ["Plugins.Misc.Brevo.UseBrevoTemplate"] = "Brevo template"
+            ["Plugins.Misc.Brevo.UseBrevoTemplate"] = "Brevo template",
+            ["Plugins.Misc.Brevo.CampaignAutomation.Enabled"] = "Enable daily planner",
+            ["Plugins.Misc.Brevo.CampaignAutomation.CreateBrevoDraft"] = "Create Brevo draft",
+            ["Plugins.Misc.Brevo.CampaignAutomation.ScheduleBrevoEmail"] = "Schedule Brevo email automatically",
+            ["Plugins.Misc.Brevo.CampaignAutomation.DiscountPercentage"] = "Discount percentage",
+            ["Plugins.Misc.Brevo.CampaignAutomation.CouponDurationHours"] = "Coupon duration",
+            ["Plugins.Misc.Brevo.CampaignAutomation.LeadTimeDays"] = "Preparation lead time",
+            ["Plugins.Misc.Brevo.CampaignAutomation.CouponPrefix"] = "Coupon prefix",
+            ["Plugins.Misc.Brevo.CampaignAutomation.BrevoSegmentId"] = "Brevo consent segment ID",
+            ["Plugins.Misc.Brevo.CampaignAutomation.BrevoListId"] = "Brevo consent list ID",
+            ["Plugins.Misc.Brevo.CampaignAutomation.BrevoTemplateId"] = "Brevo approved template ID",
+            ["Plugins.Misc.Brevo.CampaignAutomation.BrevoSenderId"] = "Brevo sender ID"
         });
 
         await base.InstallAsync();
@@ -214,6 +240,7 @@ public class BrevoPlugin : BasePlugin, IMiscPlugin, IWidgetPlugin
             await _settingService.SaveSettingAsync(_widgetSettings);
         }
         await _settingService.DeleteSettingAsync<BrevoSettings>();
+        await _settingService.DeleteSettingAsync<CampaignAutomationSettings>();
 
         //generic attributes
         foreach (var store in await _storeService.GetAllStoresAsync())
@@ -227,6 +254,10 @@ public class BrevoPlugin : BasePlugin, IMiscPlugin, IWidgetPlugin
 
         //schedule task
         var task = await _scheduleTaskService.GetTaskByTypeAsync(BrevoDefaults.SynchronizationTask);
+        if (task != null)
+            await _scheduleTaskService.DeleteTaskAsync(task);
+
+        task = await _scheduleTaskService.GetTaskByTypeAsync(BrevoDefaults.SeasonalCampaignTask);
         if (task != null)
             await _scheduleTaskService.DeleteTaskAsync(task);
 

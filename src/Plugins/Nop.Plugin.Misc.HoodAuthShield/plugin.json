@@ -1,0 +1,11 @@
+{
+  "Group": "Misc",
+  "FriendlyName": "Hood Auth Shield",
+  "SystemName": "Misc.HoodAuthShield",
+  "Version": "1.0.0",
+  "SupportedVersions": [ "4.80" ],
+  "Author": "Hood Archery Shop",
+  "DisplayOrder": 31,
+  "FileName": "Nop.Plugin.Misc.HoodAuthShield.dll",
+  "Description": "Limits abusive login and registration bursts without affecting product crawls or normal catalog traffic."
+}

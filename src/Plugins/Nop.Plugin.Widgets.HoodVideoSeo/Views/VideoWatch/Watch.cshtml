@@ -1,0 +1,71 @@
+@using Nop.Plugin.Widgets.HoodVideoSeo.Models
+@using Nop.Web.Framework.UI
+@model VideoWatchModel
+@inject INopHtmlHelper NopHtml
+
+@{
+    Layout = "_ColumnsOne";
+    NopHtml.AddTitleParts(Model.Title);
+    NopHtml.AddMetaDescriptionParts(Model.Description);
+    NopHtml.AddCanonicalUrlParts(Model.CanonicalUrl);
+}
+
+@if (Model.PublicationDate is not null)
+{
+    var videoSchema = new Dictionary<string, object?>
+    {
+        ["@context"] = "https://schema.org",
+        ["@type"] = "VideoObject",
+        ["name"] = Model.Title,
+        ["description"] = Model.Description,
+        ["thumbnailUrl"] = new[] { Model.ThumbnailUrl },
+        ["uploadDate"] = Model.PublicationDate.Value.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture),
+        ["embedUrl"] = Model.EmbedUrl,
+        ["url"] = Model.CanonicalUrl
+    };
+    <script type="application/ld+json">@Html.Raw(System.Text.Json.JsonSerializer.Serialize(videoSchema))</script>
+}
+
+<main class="hood-video-watch-page" aria-labelledby="hood-video-watch-title">
+    <article>
+        <h1 id="hood-video-watch-title">@Model.Title</h1>
+        <figure class="hood-video-watch-frame">
+            @* This plugin-owned wrapper deliberately uses the legacy theme sentinel
+               without the theme's source-data attribute. The global optimiser therefore
+               leaves the validated embed URL and its origin/referrer parameters intact. *@
+            <div class="hood-youtube-lite hood-video-seo-managed" data-hood-youtube-loaded="true">
+                <iframe src="@Model.EmbedUrl"
+                        title="@Model.Title"
+                        width="1280"
+                        height="720"
+                        loading="eager"
+                        referrerpolicy="strict-origin-when-cross-origin"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        allowfullscreen></iframe>
+            </div>
+            <figcaption>Watch @Model.Title.</figcaption>
+        </figure>
+        @if (!string.IsNullOrWhiteSpace(Model.Description))
+        {
+            <section class="hood-video-watch-description" aria-labelledby="hood-video-watch-about">
+                <h2 id="hood-video-watch-about">About this video</h2>
+                <p>@Model.Description</p>
+            </section>
+        }
+        <p><a class="button-1" href="@Model.ProductUrl">View @Model.ProductName</a></p>
+        <p><a href="@Model.YouTubeUrl" target="_blank" rel="noopener noreferrer">Open on YouTube</a></p>
+    </article>
+</main>
+
+<style>
+    .hood-video-watch-page { box-sizing: border-box; margin: 24px auto; max-width: 960px; min-width: 0; padding: 0 16px; }
+    .hood-video-watch-page article { min-width: 0; }
+    .hood-video-watch-page h1 { font-size: clamp(1.6rem, 7vw, 2.25rem); line-height: 1.18; overflow-wrap: anywhere; }
+    .hood-video-watch-frame { margin: 16px 0; width: 100%; }
+    .hood-video-watch-frame .hood-video-seo-managed { aspect-ratio: 16 / 9; background: #111; display: block; margin: 0; max-width: none; min-width: 0; overflow: hidden; position: relative; width: 100%; }
+    .hood-video-watch-frame .hood-video-seo-managed::before { display: none; }
+    .hood-video-watch-frame .hood-video-seo-managed iframe { border: 0; display: block; height: 100%; inset: 0; position: absolute; width: 100%; z-index: 1; }
+    .hood-video-watch-frame figcaption { margin-top: 8px; }
+    .hood-video-watch-description { line-height: 1.6; max-width: 75ch; }
+    @@media (max-width: 480px) { .hood-video-watch-page { margin-top: 16px; padding: 0 12px; } }
+</style>

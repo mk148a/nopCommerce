@@ -1,0 +1,11 @@
+{
+  "Group": "Misc",
+  "FriendlyName": "Hood Sitemap Compatibility",
+  "SystemName": "Misc.HoodSitemapCompatibility",
+  "Version": "4.80.1",
+  "SupportedVersions": [ "4.80" ],
+  "Author": "Hood Archery Shop",
+  "DisplayOrder": 50,
+  "FileName": "Nop.Plugin.Misc.HoodSitemapCompatibility.dll",
+  "Description": "Redirects a known obsolete sitemap partition to the canonical sitemap without core changes."
+}

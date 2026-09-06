@@ -64,7 +64,7 @@
   <ItemGroup>
     <PackageReference Include="Quartz.AspNetCore" Version="3.6.3" />
     <PackageReference Include="Quartz.Extensions.DependencyInjection" Version="3.6.3" />
-    <PackageReference Include="RestSharp" Version="106.4.2">
+    <PackageReference Include="RestSharp" Version="106.12.0">
       <GeneratePathProperty>True</GeneratePathProperty>
     </PackageReference>
   </ItemGroup>

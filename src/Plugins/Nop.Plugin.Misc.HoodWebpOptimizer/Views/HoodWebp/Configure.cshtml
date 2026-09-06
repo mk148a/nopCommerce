@@ -1,0 +1,50 @@
+@model Nop.Plugin.Misc.HoodWebpOptimizer.Models.ConfigureModel
+@{
+    Layout = "_ConfigurePlugin";
+    NopHtml.SetActiveMenuItemSystemName("Misc.HoodWebpOptimizer");
+}
+
+<form asp-controller="HoodWebpOptimizer" asp-action="Configure" method="post">
+    <div class="cards-group">
+        <div class="card card-default no-margin">
+            <div class="card-header">Adaptive WebP uploads</div>
+            <div class="card-body">
+                @if (!Model.IsLocalPictureService)
+                {
+                    <div class="alert alert-warning">
+                        Azure Blob media storage is active. This plugin does not replace AzurePictureService, so no files will be changed until an Azure-specific adapter is installed and tested.
+                    </div>
+                }
+                else
+                {
+                    <div class="alert alert-info">
+                        Eligible uploads are compared against several WebP qualities. Conversion occurs only when it saves enough bytes and stays below the configured sampled pixel-error threshold. SVG, GIF, animated images, existing WebP and failed decodes are retained unchanged.
+                    </div>
+                }
+
+                <div class="form-group row"><div class="col-md-3"><label class="col-form-label" for="Enabled">Enable adaptive conversion</label></div><div class="col-md-9"><nop-editor asp-for="Enabled" /></div></div>
+                <div class="form-group row"><div class="col-md-3"><label class="col-form-label" for="PreserveOriginals">Keep original uploads</label></div><div class="col-md-9"><nop-editor asp-for="PreserveOriginals" /><div class="form-text-row">Recovery copies are stored outside wwwroot at App_Data/HoodWebpOptimizer/originals.</div></div></div>
+                <div class="form-group row"><div class="col-md-3"><label class="col-form-label" for="MinimumSourceBytes">Minimum source bytes</label></div><div class="col-md-9"><nop-editor asp-for="MinimumSourceBytes" /></div></div>
+                <div class="form-group row"><div class="col-md-3"><label class="col-form-label" for="MinimumSavingsPercent">Minimum byte saving (%)</label></div><div class="col-md-9"><nop-editor asp-for="MinimumSavingsPercent" /></div></div>
+                <div class="form-group row"><div class="col-md-3"><label class="col-form-label" for="MinimumQuality">Minimum WebP quality</label></div><div class="col-md-9"><nop-editor asp-for="MinimumQuality" /></div></div>
+                <div class="form-group row"><div class="col-md-3"><label class="col-form-label" for="MaximumQuality">Maximum WebP quality</label></div><div class="col-md-9"><nop-editor asp-for="MaximumQuality" /></div></div>
+                <div class="form-group row"><div class="col-md-3"><label class="col-form-label" for="MaximumPerceptualError">Maximum sampled pixel error</label></div><div class="col-md-9"><nop-editor asp-for="MaximumPerceptualError" /><div class="form-text-row">Lower is stricter. The default 0.0015 is conservative; the value is a normalized sampled RGB/alpha error, not a marketing quality score.</div></div></div>
+                <div class="form-group row"><div class="col-md-9 offset-md-3"><button type="submit" class="btn btn-primary">Save settings</button></div></div>
+            </div>
+        </div>
+
+        <div class="card card-default no-margin">
+            <div class="card-header">Existing catalog pictures</div>
+            <div class="card-body">
+                <p>Backfill is bounded to avoid a production CPU or disk spike. It examines only one batch per task run and retains any image without a safe WebP result.</p>
+                <div class="form-group row"><div class="col-md-3"><label class="col-form-label" for="ProcessExistingPictures">Enable scheduled backfill</label></div><div class="col-md-9"><nop-editor asp-for="ProcessExistingPictures" /></div></div>
+                <div class="form-group row"><div class="col-md-3"><label class="col-form-label" for="ExistingBatchSize">Pictures per batch</label></div><div class="col-md-9"><nop-editor asp-for="ExistingBatchSize" /></div></div>
+                <div class="form-group row"><div class="col-md-9 offset-md-3"><button type="submit" class="btn btn-primary">Save backfill settings</button></div></div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<form asp-controller="HoodWebpOptimizer" asp-action="ProcessBatch" method="post" class="mt-3">
+    <button type="submit" class="btn btn-secondary" @(Model.IsLocalPictureService ? null : "disabled")>Process one legacy batch now</button>
+</form>

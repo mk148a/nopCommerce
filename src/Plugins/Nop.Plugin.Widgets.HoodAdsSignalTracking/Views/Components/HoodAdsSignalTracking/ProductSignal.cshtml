@@ -1,0 +1,29 @@
+@using System.Text.Json
+@using Nop.Plugin.Widgets.HoodAdsSignalTracking.Models
+@model ProductSignalModel
+@{
+    var json = JsonSerializer.Serialize(Model, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+}
+<script>
+    (function () {
+        var signal = @Html.Raw(json);
+        if (!signal || !signal.itemId || window.__hoodViewedProductId === signal.productId) return;
+        window.__hoodViewedProductId = signal.productId;
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({ ecommerce: null });
+        window.dataLayer.push({
+            event: 'view_item',
+            ecommerce: {
+                currency: signal.currency || undefined,
+                value: signal.price || undefined,
+                items: [{
+                    item_id: signal.itemId,
+                    item_name: signal.itemName,
+                    item_category: signal.category || undefined,
+                    price: signal.price || undefined,
+                    quantity: 1
+                }]
+            }
+        });
+    })();
+</script>

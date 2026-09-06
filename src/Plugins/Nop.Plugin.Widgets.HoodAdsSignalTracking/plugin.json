@@ -1,0 +1,11 @@
+{
+  "Group": "Widgets",
+  "FriendlyName": "Hood Ads Signal Tracking",
+  "SystemName": "Widgets.HoodAdsSignalTracking",
+  "Version": "1.0.0",
+  "SupportedVersions": [ "4.80" ],
+  "Author": "Hood Archery Shop",
+  "DisplayOrder": 28,
+  "FileName": "Nop.Plugin.Widgets.HoodAdsSignalTracking.dll",
+  "Description": "Emits privacy-safe GA4 ecommerce data-layer signals for product views, product selections and checkout starts without changing nopCommerce core files."
+}

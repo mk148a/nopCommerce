@@ -52,6 +52,10 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Services
 
         Task<CustomProductReviewMapping> GetCustomProductReviewMappingByIdAsync(int customProductReviewMappingId);
         Task<List<CustomProductReviewMapping>> GetCustomProductReviewMappingByProductReviewIdAsync(int productReviewId);
+        Task<IPagedList<CustomProductReviewMapping>> GetCustomProductReviewMappingsAsync(int productReviewId = 0,
+            int pageIndex = 0, int pageSize = 100);
+        Task<int> GetPictureUsageCountAsync(int pictureId);
+        Task<int> GetVideoUsageCountAsync(int videoId);
 
 
 

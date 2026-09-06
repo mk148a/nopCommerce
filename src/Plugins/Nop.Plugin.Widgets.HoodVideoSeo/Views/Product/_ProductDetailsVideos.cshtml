@@ -1,0 +1,69 @@
+@using Nop.Core.Domain.Cms
+@using Nop.Web.Components
+@using Nop.Web.Framework.Infrastructure
+@model Nop.Web.Models.Catalog.ProductDetailsModel
+@inject Nop.Core.IWorkContext WorkContext
+@inject Nop.Plugin.Widgets.HoodVideoSeo.Services.IYouTubeVideoAvailabilityService VideoAvailabilityService
+
+@{
+    var normalizedVideos = Model.VideoModels
+        .Select((video, index) => new
+        {
+            Video = video,
+            Index = index,
+            YouTubeId = Nop.Plugin.Widgets.HoodVideoSeo.Services.YouTubeVideoUrlParser.TryParseEmbedUrl(video.VideoUrl, out var id)
+                ? id
+                : string.Empty
+        })
+        .Where(item => !string.IsNullOrWhiteSpace(item.YouTubeId))
+        .GroupBy(item => item.YouTubeId, StringComparer.OrdinalIgnoreCase)
+        .Select(group => group.First())
+        .ToList();
+}
+
+@if (normalizedVideos.Any())
+{
+    var languageCode = (await WorkContext.GetWorkingLanguageAsync()).UniqueSeoCode;
+    <section class="video-gallery hood-product-video-gallery" aria-label="@($"{Model.Name} videos")">
+        @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.ProductDetailsBeforeVideos, additionalData = Model })
+        <div class="video-thumbs hood-product-video-list">
+            @foreach (var item in normalizedVideos)
+            {
+                @* Keep this local guard even though the product result filter also
+                   removes retired IDs: the partial may be rendered independently. *@
+                if (!Nop.Plugin.Widgets.HoodVideoSeo.Services.RetiredYouTubeVideos.ShouldRender(item.YouTubeId, VideoAvailabilityService))
+                {
+                    continue;
+                }
+
+                var title = $"{Model.Name} video {item.Index + 1}";
+                <a class="hood-product-video-card" href="/@languageCode/watch/@Model.Id/@item.YouTubeId" data-youtube-id="@item.YouTubeId" aria-label="@title">
+                    <img src="https://i.ytimg.com/vi/@item.YouTubeId/hqdefault.jpg"
+                         alt="@title"
+                         loading="lazy"
+                         width="480"
+                         height="360" />
+                    <span class="hood-product-video-play" aria-hidden="true">▶</span>
+                    <span class="hood-product-video-label">Watch video</span>
+                </a>
+            }
+        </div>
+        @await Component.InvokeAsync(typeof(WidgetViewComponent), new { widgetZone = PublicWidgetZones.ProductDetailsAfterVideos, additionalData = Model })
+    </section>
+
+    <style>
+        .hood-product-video-gallery { margin: 16px 0; max-width: 100%; }
+        .hood-product-video-list { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+        .hood-product-video-card { aspect-ratio: 16 / 9; background: #111; color: #fff; display: block; overflow: hidden; position: relative; text-decoration: none; width: 100%; }
+        .hood-product-video-card img { display: block; height: 100%; object-fit: cover; width: 100%; }
+        .hood-product-video-play { align-items: center; background: rgba(0, 0, 0, .72); border-radius: 50%; display: flex; font-size: 28px; height: 60px; justify-content: center; left: 50%; position: absolute; top: 50%; transform: translate(-50%, -50%); width: 60px; }
+        .hood-product-video-label { background: rgba(0, 0, 0, .76); bottom: 0; left: 0; padding: 8px 10px; position: absolute; right: 0; }
+        .hood-video-modal-open { overflow: hidden; }
+        .hood-video-modal { align-items: center; background: rgba(0, 0, 0, .84); bottom: 0; display: flex; justify-content: center; left: 0; padding: 16px; position: fixed; right: 0; top: 0; z-index: 2147483647; }
+        .hood-video-modal__dialog { aspect-ratio: 16 / 9; background: #000; max-width: 1100px; position: relative; width: min(100%, 1100px); }
+        .hood-video-modal__dialog iframe { border: 0; height: 100%; width: 100%; }
+        .hood-video-modal__close { background: #fff; border: 0; border-radius: 50%; color: #111; cursor: pointer; font-size: 28px; height: 40px; line-height: 36px; position: absolute; right: -8px; top: -8px; width: 40px; z-index: 1; }
+        @@media (max-width: 480px) { .hood-product-video-list { grid-template-columns: 1fr; } }
+    </style>
+    <script defer src="/Plugins/Widgets.HoodVideoSeo/Content/hood-video-player.js"></script>
+}

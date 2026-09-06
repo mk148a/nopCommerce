@@ -1,0 +1,93 @@
+@model Nop.Plugin.Widgets.CustomProductReviews.Areas.Admin.Models.ReviewMediaManageModel
+@using Nop.Plugin.Widgets.CustomProductReviews.Areas.Admin.Models
+
+@{
+    Layout = "_AdminLayout";
+    NopHtml.SetActiveMenuItemSystemName("CustomProductReviews.Media");
+    ViewBag.PageTitle = "Review media manager";
+}
+
+<div class="content-header clearfix">
+    <h1 class="float-left">Review media manager</h1>
+</div>
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="card card-default">
+            <div class="card-header">Find review media</div>
+            <div class="card-body">
+                <form method="get" asp-action="Manage">
+                    <div class="form-group row">
+                        <div class="col-md-3"><label for="reviewId">Product review ID</label></div>
+                        <div class="col-md-4"><input id="reviewId" name="reviewId" value="@Model.ReviewId" class="form-control" type="number" min="0" /></div>
+                        <div class="col-md-3"><button type="submit" class="btn btn-primary">Filter</button></div>
+                    </div>
+                    <p class="text-muted mb-0">Leave the ID blank to show the latest 100 review-media records. This manager owns only plugin review-media mappings; it does not modify nopCommerce core review screens.</p>
+                </form>
+            </div>
+        </div>
+
+        <div class="card card-default">
+            <div class="card-header">FFmpeg review-video normalization</div>
+            <div class="card-body">
+                <p class="text-muted">New videos are accepted only after FFmpeg and ffprobe paths are configured. Output is single-pass H.264/AAC MP4 with faststart for iOS Safari, Chrome and Firefox.</p>
+                <form asp-action="SaveSettings" method="post">
+                    <input type="hidden" name="reviewId" value="@Model.ReviewId" />
+                    <div class="form-group row"><div class="col-md-4"><label for="EnableReviewVideoTranscoding">Enable review-video transcoding</label></div><div class="col-md-8"><input id="EnableReviewVideoTranscoding" name="EnableReviewVideoTranscoding" type="checkbox" value="true" @(Model.Settings.EnableReviewVideoTranscoding ? "checked" : null) /><input name="EnableReviewVideoTranscoding" type="hidden" value="false" /></div></div>
+                    <div class="form-group row"><div class="col-md-4"><label for="FfmpegExecutablePath">FFmpeg executable (absolute path)</label></div><div class="col-md-8"><input id="FfmpegExecutablePath" name="FfmpegExecutablePath" value="@Model.Settings.FfmpegExecutablePath" class="form-control" /></div></div>
+                    <div class="form-group row"><div class="col-md-4"><label for="FfprobeExecutablePath">ffprobe executable (absolute path)</label></div><div class="col-md-8"><input id="FfprobeExecutablePath" name="FfprobeExecutablePath" value="@Model.Settings.FfprobeExecutablePath" class="form-control" /></div></div>
+                    <div class="form-group row"><div class="col-md-4"><label for="MaximumVideoSizeBytes">Maximum uploaded video size (bytes)</label></div><div class="col-md-2"><input id="MaximumVideoSizeBytes" name="MaximumVideoSizeBytes" value="@Model.Settings.MaximumVideoSizeBytes" class="form-control" /></div><div class="col-md-6"><span class="text-muted">Default 104857600 (100 MB). The server checks this before and after normalization.</span></div></div>
+                    <div class="form-group row"><div class="col-md-4"><label for="MaximumVideoDurationSeconds">Maximum duration (seconds)</label></div><div class="col-md-2"><input id="MaximumVideoDurationSeconds" name="MaximumVideoDurationSeconds" value="@Model.Settings.MaximumVideoDurationSeconds" class="form-control" /></div><div class="col-md-3"><label for="NormalizedVideoMaxWidth">Output max width</label></div><div class="col-md-2"><input id="NormalizedVideoMaxWidth" name="NormalizedVideoMaxWidth" value="@Model.Settings.NormalizedVideoMaxWidth" class="form-control" /></div></div>
+                    <div class="form-group row"><div class="col-md-4"><label for="MaximumVideoWidth">Input max width</label></div><div class="col-md-2"><input id="MaximumVideoWidth" name="MaximumVideoWidth" value="@Model.Settings.MaximumVideoWidth" class="form-control" /></div><div class="col-md-3"><label for="MaximumVideoHeight">Input max height</label></div><div class="col-md-2"><input id="MaximumVideoHeight" name="MaximumVideoHeight" value="@Model.Settings.MaximumVideoHeight" class="form-control" /></div></div>
+                    <div class="form-group row"><div class="col-md-4"><label for="VideoCrf">H.264 CRF (18–30)</label></div><div class="col-md-2"><input id="VideoCrf" name="VideoCrf" value="@Model.Settings.VideoCrf" class="form-control" /></div><div class="col-md-3"><label for="VideoTranscodeTimeoutSeconds">Timeout (seconds)</label></div><div class="col-md-2"><input id="VideoTranscodeTimeoutSeconds" name="VideoTranscodeTimeoutSeconds" value="@Model.Settings.VideoTranscodeTimeoutSeconds" class="form-control" /></div></div>
+                    <button type="submit" class="btn btn-primary">Save video settings</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="card card-default">
+            <div class="card-header">Media records (@Model.Items.Count)</div>
+            <div class="card-body table-responsive p-0">
+                <table class="table table-hover table-striped">
+                    <thead><tr><th>Preview</th><th>Review / product</th><th>Type</th><th>Metadata</th><th>Order</th><th></th></tr></thead>
+                    <tbody>
+                    @foreach (var item in Model.Items)
+                    {
+                        <tr>
+                            <td style="min-width:180px">
+                                @if (item.IsVideo)
+                                {
+                                    <video controls playsinline preload="metadata" style="max-width:170px;max-height:140px"><source src="@item.MediaUrl" type="@item.MimeType" /></video>
+                                }
+                                else
+                                {
+                                    <a href="@item.MediaUrl" target="_blank" rel="noopener noreferrer"><img src="@item.MediaUrl" alt="@item.AltAttribute" style="max-width:170px;max-height:140px" /></a>
+                                }
+                            </td>
+                            <td><strong>Review #@item.ReviewId</strong><br />@item.ProductName<br /><span class="text-muted">@item.ReviewTitle</span></td>
+                            <td>@(item.IsVideo ? "Video" : "Photo")<br /><small>@item.MimeType</small></td>
+                            <td colspan="3">
+                                <form asp-action="Update" method="post" class="mb-2">
+                                    <input type="hidden" name="Id" value="@item.Id" /><input type="hidden" name="ReviewId" value="@item.ReviewId" />
+                                    <div class="form-group"><label>Alt text</label><input name="AltAttribute" value="@item.AltAttribute" class="form-control" maxlength="400" /></div>
+                                    <div class="form-group"><label>Title</label><input name="TitleAttribute" value="@item.TitleAttribute" class="form-control" maxlength="400" /></div>
+                                    <div class="form-group"><label>Display order</label><input name="DisplayOrder" value="@item.DisplayOrder" type="number" class="form-control" /></div>
+                                    <button type="submit" class="btn btn-sm btn-primary">Save</button>
+                                </form>
+                                <form asp-action="Delete" method="post" onsubmit="return confirm('Delete this review media?');">
+                                    <input type="hidden" name="id" value="@item.Id" /><input type="hidden" name="reviewId" value="@item.ReviewId" />
+                                    <button type="submit" class="btn btn-sm btn-danger">Delete media</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                    @if (!Model.Items.Any())
+                    {
+                        <tr><td colspan="6" class="text-center">No review-media records were found.</td></tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>

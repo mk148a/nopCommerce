@@ -1,0 +1,11 @@
+{
+  "Group": "Misc",
+  "FriendlyName": "Hood Adaptive WebP Optimizer",
+  "SystemName": "Misc.HoodWebpOptimizer",
+  "Version": "4.80.2",
+  "SupportedVersions": [ "4.80" ],
+  "Author": "Hood Archery Shop",
+  "DisplayOrder": 30,
+  "FileName": "Nop.Plugin.Misc.HoodWebpOptimizer.dll",
+  "Description": "Safely converts eligible new picture uploads to adaptive WebP without modifying nopCommerce core files."
+}

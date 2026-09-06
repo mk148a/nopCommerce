@@ -62,6 +62,8 @@ public class GoogleFeedUpdateTask : IScheduleTask
 
         await _googleService.CreateTaxonomyEntityAsync();
 
+        // Keep the lookup aligned with the installed plugin identity in plugin.json.
+        // Changing a deployed SystemName creates a second, stale plugin record.
         var descriptor = await _pluginService.GetPluginDescriptorBySystemNameAsync<IPlugin>("Nop.Plugin.Misc.GoogleShoppingMultiCountry");
         if (descriptor?.Instance<IPlugin>() is not GoogleShoppingMultiCountry plugin)
             throw new InvalidOperationException("The Google Shopping Multi Country plugin could not be loaded.");

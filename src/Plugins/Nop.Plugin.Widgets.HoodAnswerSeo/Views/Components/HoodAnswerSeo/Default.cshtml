@@ -1,0 +1,39 @@
+@model Nop.Plugin.Widgets.HoodAnswerSeo.Models.ProductAnswerSurfaceModel
+@using System.Globalization
+
+<section class="hood-answer-facts" aria-labelledby="hood-answer-facts-title">
+    <h2 id="hood-answer-facts-title">@Model.Labels.ProductFacts</h2>
+    <dl class="hood-answer-list">
+        @if (!string.IsNullOrWhiteSpace(Model.Category))
+        {
+            <div><dt>@Model.Labels.Category</dt><dd>@Model.Category</dd></div>
+        }
+        @if (!string.IsNullOrWhiteSpace(Model.Sku))
+        {
+            <div><dt>@Model.Labels.Sku</dt><dd>@Model.Sku</dd></div>
+        }
+        @if (!string.IsNullOrWhiteSpace(Model.Availability))
+        {
+            <div><dt>@Model.Labels.Availability</dt><dd>@Model.Availability</dd></div>
+        }
+        @if (!string.IsNullOrWhiteSpace(Model.Shipping))
+        {
+            <div><dt>@Model.Labels.Shipping</dt><dd>@Model.Shipping</dd></div>
+        }
+        @if (Model.ReviewCount > 0)
+        {
+            <div><dt>@Model.Labels.CustomerRating</dt><dd>@Model.AverageRating.ToString("0.##", CultureInfo.InvariantCulture) / 5 · @Model.ReviewCount</dd></div>
+        }
+    </dl>
+
+</section>
+<script type="application/ld+json">@Html.Raw(Model.PageSchemaJson)</script>
+
+<style>
+    .hood-answer-facts { margin: 24px 0 18px; padding: 14px 18px; border-top: 1px solid #e2e2e2; border-bottom: 1px solid #e2e2e2; background: #fcfcfc; }
+    .hood-answer-facts h2 { margin: 0 0 10px; font-size: 1.15em; }
+    .hood-answer-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px 20px; margin: 0; }
+    .hood-answer-list div { min-width: 0; }
+    .hood-answer-list dt { font-weight: 700; }
+    .hood-answer-list dd { margin: 3px 0 0; }
+</style>

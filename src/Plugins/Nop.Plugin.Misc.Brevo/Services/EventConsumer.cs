@@ -1,8 +1,11 @@
 ﻿using Nop.Core.Domain.Customers;
+using Nop.Core;
 using Nop.Core.Domain.Messages;
 using Nop.Core.Domain.Orders;
 using Nop.Core.Domain.Stores;
 using Nop.Core.Events;
+using Nop.Services.Common;
+using Nop.Services.Customers;
 using Nop.Services.Events;
 using Nop.Services.Messages;
 
@@ -27,6 +30,8 @@ public class EventConsumer :
     protected readonly BrevoManager _brevoEmailManager;
     protected readonly BrevoSettings _brevoSettings;
     protected readonly MarketingAutomationManager _marketingAutomationManager;
+    protected readonly IAddressService _addressService;
+    protected readonly ICustomerService _customerService;
 
     #endregion
 
@@ -34,11 +39,15 @@ public class EventConsumer :
 
     public EventConsumer(BrevoManager brevoEmailManager,
         BrevoSettings brevoSettings,
-        MarketingAutomationManager marketingAutomationManager)
+        MarketingAutomationManager marketingAutomationManager,
+        IAddressService addressService,
+        ICustomerService customerService)
     {
         _brevoEmailManager = brevoEmailManager;
         _brevoSettings = brevoSettings;
         _marketingAutomationManager = marketingAutomationManager;
+        _addressService = addressService;
+        _customerService = customerService;
     }
 
     #endregion
@@ -125,6 +134,8 @@ public class EventConsumer :
         if (!BrevoManager.IsConfigured(_brevoSettings))
             return;
 
+        await EnsureOrderCustomerEmailAsync(eventMessage.Order);
+
         //handle event
         await _marketingAutomationManager.HandleOrderCompletedEventAsync(eventMessage.Order);
         await _brevoEmailManager.UpdateContactAfterCompletingOrderAsync(eventMessage.Order);
@@ -174,6 +185,24 @@ public class EventConsumer :
         eventMessage.Tokens.Add(new Token("Customer.PhoneNumber", eventMessage.Entity.Phone));
 
         return Task.CompletedTask;
+    }
+
+    private async Task EnsureOrderCustomerEmailAsync(Order order)
+    {
+        if (order is null)
+            return;
+
+        var customer = await _customerService.GetCustomerByIdAsync(order.CustomerId);
+        if (customer is null || !string.IsNullOrWhiteSpace(customer.Email))
+            return;
+
+        var billingAddress = await _addressService.GetAddressByIdAsync(order.BillingAddressId);
+        var billingEmail = billingAddress?.Email?.Trim();
+        if (!CommonHelper.IsValidEmail(billingEmail))
+            return;
+
+        customer.Email = billingEmail;
+        await _customerService.UpdateCustomerAsync(customer);
     }
 
     #endregion

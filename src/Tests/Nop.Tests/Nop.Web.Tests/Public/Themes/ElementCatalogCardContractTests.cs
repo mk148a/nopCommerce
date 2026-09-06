@@ -212,6 +212,17 @@ public class ElementCatalogCardContractTests
     }
 
     [Test]
+    public void Google_language_widget_limits_the_Halloween_landing_to_translated_languages()
+    {
+        var component = ReadSource("src", "Plugins", "Nop.Plugin.Misc.GoogleMultiLanguageAndCurrency", "Components", "GoogleMultiLanguageAndCurrencyWidget.cs");
+
+        component.Should().Contain("HoodHalloweenLanding");
+        component.Should().Contain("HalloweenLandingLanguageCodes");
+        component.Should().Contain("\"en\", \"tr\", \"de\", \"fr\", \"es\"");
+        component.Should().Contain("GetHreflangLanguages(data, _activeLanguages)");
+    }
+
+    [Test]
     public void Catalog_old_price_requires_effective_old_price_above_current_minimum()
     {
         var factory = ReadSource("src", "Presentation", "Nop.Web", "Factories", "ProductModelFactory.cs");

@@ -20,6 +20,7 @@ public record ConfigurationModel : BaseNopModel
         MessageTemplateSearchModel = new BrevoMessageTemplateSearchModel();
         SmsSearchModel = new SmsSearchModel();
         AddSms = new SmsModel();
+        CampaignAutomation = new CampaignAutomationModel();
     }
 
     #endregion
@@ -104,6 +105,8 @@ public record ConfigurationModel : BaseNopModel
     public SmsSearchModel SmsSearchModel { get; set; }
 
     public SmsModel AddSms { get; set; }
+
+    public CampaignAutomationModel CampaignAutomation { get; set; }
 
     #endregion
 }

@@ -59,6 +59,16 @@ public static class BrevoDefaults
     public static string SynchronizationTask => "Nop.Plugin.Misc.Brevo.Services.SynchronizationTask";
 
     /// <summary>
+    /// Gets a name of the opt-in seasonal campaign planner task.
+    /// </summary>
+    public static string SeasonalCampaignTaskName => "Seasonal campaign planner (Brevo plugin)";
+
+    /// <summary>
+    /// Gets a type of the opt-in seasonal campaign planner task.
+    /// </summary>
+    public static string SeasonalCampaignTask => "Nop.Plugin.Misc.Brevo.Services.SeasonalCampaignTask";
+
+    /// <summary>
     /// Gets a default synchronization period in hours
     /// </summary>
     public static int DefaultSynchronizationPeriod => 12;

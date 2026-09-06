@@ -418,6 +418,21 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry
                     if (systemProductSkus.Contains(productToProcess.Sku, StringComparer.OrdinalIgnoreCase))
                         continue;
 
+                    // A feed item must have a valid, language-specific landing page.
+                    // One imported product without a slug must not abort every country feed.
+                    var localizedSeName = await _urlRecordService.GetSeNameAsync(productToProcess, languageId: lang.Id);
+                    if (string.IsNullOrWhiteSpace(localizedSeName))
+                        continue;
+
+                    // Feed generation runs through the scheduler route, where MVC can return no
+                    // named Product route. Build the canonical language path from the configured
+                    // store URL and the persisted product slug instead of depending on that route.
+                    if (!Uri.TryCreate(store.Url, UriKind.Absolute, out var storeUri))
+                        throw new NopException("The store URL must be an absolute URL to generate a Google Shopping feed.");
+
+                    var languagePath = $"{lang.UniqueSeoCode}/{localizedSeName.TrimStart('/')}";
+                    var localizedUrl = new Uri(storeUri, languagePath).ToString();
+
                     writer.WriteStartElement("item");
 
                     #region Basic Product Information
@@ -480,19 +495,6 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry
                         }
                     }
 
-              
-                    var urlHelper = GetUrlHelper();
-                    
-
-                    var productUrl = urlHelper.RouteUrl("Product", new { SeName = await _urlRecordService.GetSeNameAsync(productToProcess, languageId: lang.Id) }, await GetHttpProtocolAsync());
-                    var pathBase = urlHelper.ActionContext.HttpContext.Request.PathBase;
-                    var scheme = new Uri(productUrl).GetComponents(UriComponents.SchemeAndServer,
-                        UriFormat.Unescaped);
-                    var path = new Uri(productUrl).PathAndQuery;
-                    var localizedPath = path
-                        .RemoveLanguageSeoCodeFromUrl(pathBase, true)
-                        .AddLanguageSeoCodeToUrl(pathBase, true, lang);
-                    var localizedUrl = new Uri(new Uri(scheme), localizedPath).ToString();
                     writer.WriteElementString("link", localizedUrl);
 
                     //image link [image_link] - URL of an image of the item
@@ -572,10 +574,13 @@ namespace Nop.Plugin.Misc.GoogleShoppingMultiCountry
                     {
                         var currentCustomer = await _workContext.GetCurrentCustomerAsync();
 
-                        //calculate price for the maximum quantity if we have tier prices, and choose minimal
-                        var minPossiblePrice = (await _priceCalculationService.GetFinalPriceAsync(productToProcess, currentCustomer, store, quantity: int.MaxValue)).finalPrice;
+                        // Google compares g:price with the price a shopper sees before choosing a quantity.
+                        // Exporting the lowest tier price (quantity: int.MaxValue) makes a bulk-only price
+                        // look like the landing-page price and produces a mismatched-price disapproval.
+                        var displayedUnitPrice = (await _priceCalculationService.GetFinalPriceAsync(
+                            productToProcess, currentCustomer, store, quantity: 1)).finalPrice;
 
-                        finalPriceBase = (await _taxService.GetProductPriceAsync(productToProcess, minPossiblePrice)).price;
+                        finalPriceBase = (await _taxService.GetProductPriceAsync(productToProcess, displayedUnitPrice)).price;
                     }
                     else
                     {
