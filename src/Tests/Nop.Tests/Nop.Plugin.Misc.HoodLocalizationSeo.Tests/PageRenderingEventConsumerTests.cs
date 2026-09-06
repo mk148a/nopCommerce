@@ -47,6 +47,33 @@ public sealed class PageRenderingEventConsumerTests
     }
 
     [Test]
+    public async Task ProductsByTagEmitsNoIndexFollowWithoutTagHreflangWork()
+    {
+        var httpContext = new DefaultHttpContext();
+        httpContext.Request.RouteValues = new RouteValueDictionary
+        {
+            ["controller"] = "Catalog",
+            ["action"] = "ProductsByTag",
+            ["productTagId"] = 322
+        };
+        var headParts = new List<string>();
+        var helper = new Mock<INopHtmlHelper>();
+        helper.Setup(item => item.GetRouteName(true)).Returns("GenericUrl");
+        helper.Setup(item => item.AddHeadCustomParts(It.IsAny<string>()))
+            .Callback<string>(headParts.Add);
+        var workContext = new Mock<IWorkContext>(MockBehavior.Strict);
+        var consumer = new PageRenderingEventConsumer(
+            new HttpContextAccessor { HttpContext = httpContext }, Mock.Of<IBlogTagHreflangService>(),
+            Mock.Of<ILocalizationService>(), new SeoSettings(), Mock.Of<IStoreContext>(),
+            Mock.Of<ITopicService>(), workContext.Object);
+
+        await consumer.HandleEventAsync(new PageRenderingEvent(helper.Object));
+
+        Assert.That(headParts, Is.EqualTo(new[] { "<meta name=\"robots\" content=\"noindex,follow\" />" }));
+        workContext.Verify(context => context.GetWorkingLanguageAsync(), Times.Never);
+    }
+
+    [Test]
     public async Task BlogByTagStillEmitsExactXDefaultAndTwentyFourLanguageCluster()
     {
         var httpContext = new DefaultHttpContext();
