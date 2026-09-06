@@ -34,9 +34,11 @@
 
     var productService = EngineContext.Current.Resolve<IProductService>();
     var urlRecordService = EngineContext.Current.Resolve<IUrlRecordService>();
+    var workContext = EngineContext.Current.Resolve<Nop.Core.IWorkContext>();
+    var workingLanguage = await workContext.GetWorkingLanguageAsync();
     var product = await productService.GetProductByIdAsync(Model.ProductId);
     var productName = product?.Name ?? string.Empty;
-    var productSeName = product == null ? string.Empty : await urlRecordService.GetSeNameAsync(product);
+    var productSeName = product == null ? string.Empty : await urlRecordService.GetSeNameAsync(product, workingLanguage?.Id ?? 0);
 }
 <div class="page product-reviews-page custom-product-reviews-page">
 <div >

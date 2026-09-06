@@ -1,0 +1,302 @@
+{
+  "schemaVersion": 1,
+  "reportId": "HOOD-PRODUCT-TAG-KOC-BRAND-AUTHORITY-V1",
+  "status": "PASS",
+  "deployable": true,
+  "entityName": "ProductTag",
+  "entityId": 583,
+  "source": "koc nock",
+  "policy": {
+    "turkishValue": "Koç gez",
+    "turkishSlug": "koc-gez",
+    "nonTurkishValue": "Koç Nock",
+    "nonTurkishSlug": "koc-nock",
+    "brandToken": "Koç",
+    "genericProseTermsRemainLocalized": true
+  },
+  "summary": {
+    "routeCount": 24,
+    "nonTurkishRouteCount": 23,
+    "labelChangeCount": 16,
+    "slugChangeCount": 13,
+    "requiredPreviousSlugCount": 13,
+    "foreignUrlRecordOwnerConflictCount": 0
+  },
+  "liveOwnershipEvidence": {
+    "file": "live-urlrecord-ownership-snapshot-20260813.json",
+    "sha256": "EBE8BC194FC262ED3C614DE7F81B33D7C5EDC09A81AE310ED086C030D7F84497",
+    "rowCount": 10023
+  },
+  "targetTupleSetSha256": "DF4398EECC174915307727541B3B1706AEBAD2FFE688BDAD957C645DE757593B",
+  "routes": [
+    {
+      "languageId": 1,
+      "languageCode": "en",
+      "reviewedPreviousValue": "Koç Nock",
+      "reviewedPreviousSlug": "koc-nock",
+      "targetValue": "Koç Nock",
+      "targetSlug": "koc-nock",
+      "labelChanged": false,
+      "slugChanged": false,
+      "requiredPreviousSlug": null
+    },
+    {
+      "languageId": 2,
+      "languageCode": "tr",
+      "reviewedPreviousValue": "Koç gez",
+      "reviewedPreviousSlug": "koc-gez",
+      "targetValue": "Koç gez",
+      "targetSlug": "koc-gez",
+      "labelChanged": false,
+      "slugChanged": false,
+      "requiredPreviousSlug": null
+    },
+    {
+      "languageId": 3,
+      "languageCode": "za",
+      "reviewedPreviousValue": "Koç Nock",
+      "reviewedPreviousSlug": "koc-nock",
+      "targetValue": "Koç Nock",
+      "targetSlug": "koc-nock",
+      "labelChanged": false,
+      "slugChanged": false,
+      "requiredPreviousSlug": null
+    },
+    {
+      "languageId": 4,
+      "languageCode": "ca",
+      "reviewedPreviousValue": "Koç Nock",
+      "reviewedPreviousSlug": "koc-nock",
+      "targetValue": "Koç Nock",
+      "targetSlug": "koc-nock",
+      "labelChanged": false,
+      "slugChanged": false,
+      "requiredPreviousSlug": null
+    },
+    {
+      "languageId": 5,
+      "languageCode": "ur",
+      "reviewedPreviousValue": "Koç Nock",
+      "reviewedPreviousSlug": "koc-nock",
+      "targetValue": "Koç Nock",
+      "targetSlug": "koc-nock",
+      "labelChanged": false,
+      "slugChanged": false,
+      "requiredPreviousSlug": null
+    },
+    {
+      "languageId": 6,
+      "languageCode": "gb",
+      "reviewedPreviousValue": "Koç Nock",
+      "reviewedPreviousSlug": "koc-nock",
+      "targetValue": "Koç Nock",
+      "targetSlug": "koc-nock",
+      "labelChanged": false,
+      "slugChanged": false,
+      "requiredPreviousSlug": null
+    },
+    {
+      "languageId": 7,
+      "languageCode": "au",
+      "reviewedPreviousValue": "Koç Nock",
+      "reviewedPreviousSlug": "koc-nock",
+      "targetValue": "Koç Nock",
+      "targetSlug": "koc-nock",
+      "labelChanged": false,
+      "slugChanged": false,
+      "requiredPreviousSlug": null
+    },
+    {
+      "languageId": 9,
+      "languageCode": "de",
+      "reviewedPreviousValue": "Koç-Nocke",
+      "reviewedPreviousSlug": "koc-nocke",
+      "targetValue": "Koç Nock",
+      "targetSlug": "koc-nock",
+      "labelChanged": true,
+      "slugChanged": true,
+      "requiredPreviousSlug": "koc-nocke"
+    },
+    {
+      "languageId": 10,
+      "languageCode": "fr",
+      "reviewedPreviousValue": "encoche Koç",
+      "reviewedPreviousSlug": "encoche-koc",
+      "targetValue": "Koç Nock",
+      "targetSlug": "koc-nock",
+      "labelChanged": true,
+      "slugChanged": true,
+      "requiredPreviousSlug": "encoche-koc"
+    },
+    {
+      "languageId": 11,
+      "languageCode": "it",
+      "reviewedPreviousValue": "cocca Koç",
+      "reviewedPreviousSlug": "cocca-koc",
+      "targetValue": "Koç Nock",
+      "targetSlug": "koc-nock",
+      "labelChanged": true,
+      "slugChanged": true,
+      "requiredPreviousSlug": "cocca-koc"
+    },
+    {
+      "languageId": 12,
+      "languageCode": "dk",
+      "reviewedPreviousValue": "Koç-nock",
+      "reviewedPreviousSlug": "koc-nock",
+      "targetValue": "Koç Nock",
+      "targetSlug": "koc-nock",
+      "labelChanged": true,
+      "slugChanged": false,
+      "requiredPreviousSlug": null
+    },
+    {
+      "languageId": 13,
+      "languageCode": "nl",
+      "reviewedPreviousValue": "Koç-nok",
+      "reviewedPreviousSlug": "koc-nok",
+      "targetValue": "Koç Nock",
+      "targetSlug": "koc-nock",
+      "labelChanged": true,
+      "slugChanged": true,
+      "requiredPreviousSlug": "koc-nok"
+    },
+    {
+      "languageId": 14,
+      "languageCode": "hu",
+      "reviewedPreviousValue": "Koç nock",
+      "reviewedPreviousSlug": "koc-nock",
+      "targetValue": "Koç Nock",
+      "targetSlug": "koc-nock",
+      "labelChanged": true,
+      "slugChanged": false,
+      "requiredPreviousSlug": null
+    },
+    {
+      "languageId": 15,
+      "languageCode": "no",
+      "reviewedPreviousValue": "Koç-nokk",
+      "reviewedPreviousSlug": "koc-nokk",
+      "targetValue": "Koç Nock",
+      "targetSlug": "koc-nock",
+      "labelChanged": true,
+      "slugChanged": true,
+      "requiredPreviousSlug": "koc-nokk"
+    },
+    {
+      "languageId": 16,
+      "languageCode": "pl",
+      "reviewedPreviousValue": "nasadka Koç",
+      "reviewedPreviousSlug": "nasadka-koc",
+      "targetValue": "Koç Nock",
+      "targetSlug": "koc-nock",
+      "labelChanged": true,
+      "slugChanged": true,
+      "requiredPreviousSlug": "nasadka-koc"
+    },
+    {
+      "languageId": 17,
+      "languageCode": "pt",
+      "reviewedPreviousValue": "nock Koç",
+      "reviewedPreviousSlug": "nock-koc",
+      "targetValue": "Koç Nock",
+      "targetSlug": "koc-nock",
+      "labelChanged": true,
+      "slugChanged": true,
+      "requiredPreviousSlug": "nock-koc"
+    },
+    {
+      "languageId": 18,
+      "languageCode": "ro",
+      "reviewedPreviousValue": "nock Koç",
+      "reviewedPreviousSlug": "nock-koc",
+      "targetValue": "Koç Nock",
+      "targetSlug": "koc-nock",
+      "labelChanged": true,
+      "slugChanged": true,
+      "requiredPreviousSlug": "nock-koc"
+    },
+    {
+      "languageId": 19,
+      "languageCode": "es",
+      "reviewedPreviousValue": "culatín Koç",
+      "reviewedPreviousSlug": "culatin-koc",
+      "targetValue": "Koç Nock",
+      "targetSlug": "koc-nock",
+      "labelChanged": true,
+      "slugChanged": true,
+      "requiredPreviousSlug": "culatin-koc"
+    },
+    {
+      "languageId": 20,
+      "languageCode": "se",
+      "reviewedPreviousValue": "Koç-nock",
+      "reviewedPreviousSlug": "koc-nock",
+      "targetValue": "Koç Nock",
+      "targetSlug": "koc-nock",
+      "labelChanged": true,
+      "slugChanged": false,
+      "requiredPreviousSlug": null
+    },
+    {
+      "languageId": 21,
+      "languageCode": "gr",
+      "reviewedPreviousValue": "Koç νοκ",
+      "reviewedPreviousSlug": "koc",
+      "targetValue": "Koç Nock",
+      "targetSlug": "koc-nock",
+      "labelChanged": true,
+      "slugChanged": true,
+      "requiredPreviousSlug": "koc"
+    },
+    {
+      "languageId": 22,
+      "languageCode": "my",
+      "reviewedPreviousValue": "Koç Nock",
+      "reviewedPreviousSlug": "koc-nock",
+      "targetValue": "Koç Nock",
+      "targetSlug": "koc-nock",
+      "labelChanged": false,
+      "slugChanged": false,
+      "requiredPreviousSlug": null
+    },
+    {
+      "languageId": 23,
+      "languageCode": "jp",
+      "reviewedPreviousValue": "Koçノック",
+      "reviewedPreviousSlug": "koc",
+      "targetValue": "Koç Nock",
+      "targetSlug": "koc-nock",
+      "labelChanged": true,
+      "slugChanged": true,
+      "requiredPreviousSlug": "koc"
+    },
+    {
+      "languageId": 24,
+      "languageCode": "ar",
+      "reviewedPreviousValue": "نوك Koç",
+      "reviewedPreviousSlug": "نوك-koc",
+      "targetValue": "Koç Nock",
+      "targetSlug": "koc-nock",
+      "labelChanged": true,
+      "slugChanged": true,
+      "requiredPreviousSlug": "نوك-koc"
+    },
+    {
+      "languageId": 25,
+      "languageCode": "ru",
+      "reviewedPreviousValue": "хвостовик Koç",
+      "reviewedPreviousSlug": "хвостовик-koc",
+      "targetValue": "Koç Nock",
+      "targetSlug": "koc-nock",
+      "labelChanged": true,
+      "slugChanged": true,
+      "requiredPreviousSlug": "хвостовик-koc"
+    }
+  ],
+  "releaseDecision": {
+    "status": "PASS",
+    "deployable": true,
+    "reason": "Koç is the protected product/model brand; generic prose terminology is a separate localized layer."
+  }
+}

@@ -3,11 +3,11 @@
   "slugPolicyVersion": 2,
   "manifestValueSlugCheckCount": 1120,
   "productTagValueSlugCheckCount": 19656,
-  "retainedPreviousSlugCount": 7142,
+  "retainedPreviousSlugCount": 7155,
   "numericOnlySlugCount": 0,
   "numericLarpCollisionCounterSlugCount": 0,
   "reviewedLarpSlugCheckCount": 63,
-  "reviewedNockSlugCheckCount": 6,
+  "reviewedNockSlugCheckCount": 28,
   "errorCount": 0,
   "errors": []
 }

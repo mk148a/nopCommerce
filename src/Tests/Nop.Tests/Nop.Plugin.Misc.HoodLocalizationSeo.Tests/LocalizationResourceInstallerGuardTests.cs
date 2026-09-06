@@ -131,6 +131,83 @@ public sealed class LocalizationResourceInstallerGuardTests
     }
 
     [Test]
+    public void EmbeddedKocBrandAuthorityPassesExact24RouteContract()
+    {
+        var (authority, productTags) = LocalizationResourceInstaller
+            .ReadEmbeddedProductTagKocBrandAuthorityValidationFixture();
+
+        Assert.DoesNotThrow(() => LocalizationResourceInstaller
+            .ValidateProductTagKocBrandAuthority(authority, productTags, (_, _) => true));
+        Assert.Multiple(() =>
+        {
+            Assert.That(authority.Routes, Has.Count.EqualTo(24));
+            Assert.That(authority.Summary.LabelChangeCount, Is.EqualTo(16));
+            Assert.That(authority.Summary.SlugChangeCount, Is.EqualTo(13));
+            Assert.That(authority.Routes.Single(row => row.LanguageCode == "tr").TargetValue,
+                Is.EqualTo("Koç gez"));
+            Assert.That(authority.Routes.Where(row => row.LanguageCode != "tr")
+                .All(row => row.TargetValue == "Koç Nock" && row.TargetSlug == "koc-nock"),
+                Is.True);
+        });
+    }
+
+    [TestCase("policy")]
+    [TestCase("target-value")]
+    [TestCase("package-value")]
+    [TestCase("package-slug")]
+    [TestCase("legacy-history")]
+    [TestCase("summary-count")]
+    [TestCase("tuple-hash")]
+    [TestCase("binding-hash")]
+    public void KocBrandAuthorityRejectsEveryExactBoundary(string mutation)
+    {
+        var (authority, productTags) = LocalizationResourceInstaller
+            .ReadEmbeddedProductTagKocBrandAuthorityValidationFixture();
+        Func<string, string, bool> matchesHash = (_, _) => true;
+        switch (mutation)
+        {
+            case "policy":
+                authority.Policy.GenericProseTermsRemainLocalized = false;
+                break;
+            case "target-value":
+                authority.Routes.Single(row => row.LanguageCode == "de").TargetValue = "Koç-Nocke";
+                break;
+            case "package-value":
+                productTags.Values.Single(row => row.EntityId == 583 && row.LanguageCode == "de")
+                    .Value = "Koç-Nocke";
+                break;
+            case "package-slug":
+                productTags.Slugs.Single(row => row.EntityId == 583 && row.LanguageCode == "ru")
+                    .Slug = "hvvostovik-koc";
+                break;
+            case "legacy-history":
+            {
+                var route = authority.Routes.Single(row => row.LanguageCode == "ru");
+                productTags.Slugs.Single(row => row.EntityId == 583 && row.LanguageCode == "ru")
+                    .PreviousSlugs.RemoveAll(slug => slug.Equals(route.RequiredPreviousSlug,
+                        StringComparison.OrdinalIgnoreCase));
+                break;
+            }
+            case "summary-count":
+                authority.Summary.LabelChangeCount--;
+                break;
+            case "tuple-hash":
+                authority.TargetTupleSetSha256 = new string('A', 64);
+                break;
+            case "binding-hash":
+                matchesHash = (_, _) => false;
+                break;
+            default:
+                Assert.Fail($"Unknown mutation '{mutation}'.");
+                break;
+        }
+
+        Assert.That(() => LocalizationResourceInstaller.ValidateProductTagKocBrandAuthority(
+                authority, productTags, matchesHash),
+            Throws.TypeOf<InvalidDataException>());
+    }
+
+    [Test]
     public void EmbeddedSupplementalProductProsePassesExactContract()
     {
         var package = LocalizationResourceInstaller
@@ -1175,8 +1252,8 @@ public sealed class LocalizationResourceInstallerGuardTests
             KocNockCheckCount = 1224,
             OpaqueTypeCodeCheckCount = 4248,
             ManifestPreviousSlugCount = 107,
-            ProductTagPreviousSlugCount = 7035,
-            RetainedPreviousSlugCount = 7142,
+            ProductTagPreviousSlugCount = 7048,
+            RetainedPreviousSlugCount = 7155,
             DisavowedForeignPreviousSlugCount = 20,
             ReviewedLarpSlugMappingCount = 63,
             NumericLarpCollisionCounterSlugCount = 0,
@@ -1200,8 +1277,8 @@ public sealed class LocalizationResourceInstallerGuardTests
         ProductProseLinguisticAuthorityReviewCount = 20,
         ProductProseLinguisticSentenceReviewCount = 20,
         ProductProseLinguisticErrorCount = 0,
-        UrduNockLinguisticReviewedRowCount = 258,
-        UrduNockLinguisticProductTagReviewedRowCount = 8,
+        UrduNockLinguisticReviewedRowCount = 254,
+        UrduNockLinguisticProductTagReviewedRowCount = 4,
         UrduNockLinguisticProductAttributeReviewedRowCount = 250,
         UrduNockLinguisticResidualCount = 0,
         ProductProseCanonicalLinguisticIndependentQaSha256 = new string('A', 64),
