@@ -14,6 +14,9 @@
     NopHtml.AddTitleParts(string.Format(T("PageTitle.ProductsByTag").Text, Model.TagName));
     //page class
     NopHtml.AppendPageCssClassParts("html-product-tag-page");
+    //Product-tag listings are navigational discovery pages, not sellable product pages.
+    //Keep their product links crawlable while preventing localized tag copies from being indexed as offers.
+    NopHtml.AddHeadCustomParts("<meta name=\"robots\" content=\"noindex,follow\" />");
     //lancelot Seo
     NopHtml.AddMetaDescriptionParts(Model.MetaDescription);
     NopHtml.AddMetaKeywordParts(Model.MetaKeywords);
