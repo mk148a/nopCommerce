@@ -120,7 +120,6 @@ public class BrevoController : BasePluginController
         model.LocalStoreOwnerSmtpHost = brevoSettings.LocalStoreOwnerSmtpHost;
         model.LocalStoreOwnerSmtpPort = brevoSettings.LocalStoreOwnerSmtpPort;
         model.LocalStoreOwnerSmtpUseSsl = brevoSettings.LocalStoreOwnerSmtpUseSsl;
-        model.LocalStoreOwnerSmtpUsername = brevoSettings.LocalStoreOwnerSmtpUsername;
         model.UseSmsNotifications = brevoSettings.UseSmsNotifications;
         model.SmsSenderName = brevoSettings.SmsSenderName;
         model.StoreOwnerPhoneNumber = brevoSettings.StoreOwnerPhoneNumber;
@@ -200,8 +199,6 @@ public class BrevoController : BasePluginController
             model.LocalStoreOwnerSmtpHost_OverrideForStore = await _settingService.SettingExistsAsync(brevoSettings, settings => settings.LocalStoreOwnerSmtpHost, storeId);
             model.LocalStoreOwnerSmtpPort_OverrideForStore = await _settingService.SettingExistsAsync(brevoSettings, settings => settings.LocalStoreOwnerSmtpPort, storeId);
             model.LocalStoreOwnerSmtpUseSsl_OverrideForStore = await _settingService.SettingExistsAsync(brevoSettings, settings => settings.LocalStoreOwnerSmtpUseSsl, storeId);
-            model.LocalStoreOwnerSmtpUsername_OverrideForStore = await _settingService.SettingExistsAsync(brevoSettings, settings => settings.LocalStoreOwnerSmtpUsername, storeId);
-            model.LocalStoreOwnerSmtpPassword_OverrideForStore = await _settingService.SettingExistsAsync(brevoSettings, settings => settings.LocalStoreOwnerSmtpPassword, storeId);
             model.UseSmsNotifications_OverrideForStore = await _settingService.SettingExistsAsync(brevoSettings, settings => settings.UseSmsNotifications, storeId);
             model.SmsSenderName_OverrideForStore = await _settingService.SettingExistsAsync(brevoSettings, settings => settings.SmsSenderName, storeId);
             model.UseMarketingAutomation_OverrideForStore = await _settingService.SettingExistsAsync(brevoSettings, settings => settings.UseMarketingAutomation, storeId);
@@ -411,14 +408,6 @@ public class BrevoController : BasePluginController
         brevoSettings.LocalStoreOwnerSmtpUseSsl = model.LocalStoreOwnerSmtpUseSsl;
         await _settingService.SaveSettingOverridablePerStoreAsync(brevoSettings,
             settings => settings.LocalStoreOwnerSmtpUseSsl, model.LocalStoreOwnerSmtpUseSsl_OverrideForStore, storeId, false);
-        brevoSettings.LocalStoreOwnerSmtpUsername = model.LocalStoreOwnerSmtpUsername?.Trim();
-        await _settingService.SaveSettingOverridablePerStoreAsync(brevoSettings,
-            settings => settings.LocalStoreOwnerSmtpUsername, model.LocalStoreOwnerSmtpUsername_OverrideForStore, storeId, false);
-        if (!string.IsNullOrWhiteSpace(model.LocalStoreOwnerSmtpPassword))
-            brevoSettings.LocalStoreOwnerSmtpPassword = model.LocalStoreOwnerSmtpPassword;
-        await _settingService.SaveSettingOverridablePerStoreAsync(brevoSettings,
-            settings => settings.LocalStoreOwnerSmtpPassword, model.LocalStoreOwnerSmtpPassword_OverrideForStore, storeId, false);
-
         //now clear settings cache
         await _settingService.ClearCacheAsync();
 
@@ -438,14 +427,6 @@ public class BrevoController : BasePluginController
         {
             _notificationService.ErrorNotification(await _localizationService.GetResourceAsync(
                 "Plugins.Misc.Brevo.LocalStoreOwnerSmtp.TestOnlyLoopback"));
-            return await Configure();
-        }
-
-        var username = model.LocalStoreOwnerSmtpUsername?.Trim();
-        if (string.IsNullOrEmpty(username) != string.IsNullOrEmpty(model.LocalStoreOwnerSmtpPassword))
-        {
-            _notificationService.ErrorNotification(await _localizationService.GetResourceAsync(
-                "Plugins.Misc.Brevo.LocalStoreOwnerSmtp.TestCredentialsRequired"));
             return await Configure();
         }
 
@@ -469,12 +450,6 @@ public class BrevoController : BasePluginController
             using var client = new SmtpClient();
             var security = model.LocalStoreOwnerSmtpUseSsl ? SecureSocketOptions.SslOnConnect : SecureSocketOptions.None;
             await client.ConnectAsync("127.0.0.1", model.LocalStoreOwnerSmtpPort, security);
-            // hMailServer's loopback listener on port 25 is intentionally a trusted
-            // relay and does not support SMTP AUTH. Credentials may have been entered
-            // in the form, but must not turn a successful local relay test into a
-            // false failure.
-            if (!string.IsNullOrEmpty(username) && model.LocalStoreOwnerSmtpPort != 25)
-                await client.AuthenticateAsync(username, model.LocalStoreOwnerSmtpPassword);
             await client.SendAsync(message);
             await client.DisconnectAsync(true);
 

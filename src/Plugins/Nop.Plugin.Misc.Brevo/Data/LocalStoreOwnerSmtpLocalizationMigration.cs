@@ -30,12 +30,9 @@ public class LocalStoreOwnerSmtpLocalizationMigration : MigrationBase
             ["Plugins.Misc.Brevo.Fields.LocalStoreOwnerSmtpHost"] = "Local SMTP host",
             ["Plugins.Misc.Brevo.Fields.LocalStoreOwnerSmtpPort"] = "Local SMTP port",
             ["Plugins.Misc.Brevo.Fields.LocalStoreOwnerSmtpUseSsl"] = "Use SSL for local SMTP",
-            ["Plugins.Misc.Brevo.Fields.LocalStoreOwnerSmtpUsername"] = "Local SMTP user name",
-            ["Plugins.Misc.Brevo.Fields.LocalStoreOwnerSmtpPassword"] = "Local SMTP password",
             ["Plugins.Misc.Brevo.LocalStoreOwnerSmtp.TestButton"] = "Test local SMTP relay",
             ["Plugins.Misc.Brevo.LocalStoreOwnerSmtp.TestSuccess"] = "Local SMTP relay test message was accepted.",
-            ["Plugins.Misc.Brevo.LocalStoreOwnerSmtp.TestOnlyLoopback"] = "The local SMTP test only supports 127.0.0.1 and a valid port.",
-            ["Plugins.Misc.Brevo.LocalStoreOwnerSmtp.TestCredentialsRequired"] = "Enter both the local SMTP user name and password, or leave both empty."
+            ["Plugins.Misc.Brevo.LocalStoreOwnerSmtp.TestOnlyLoopback"] = "The local SMTP test only supports 127.0.0.1 and a valid port."
         }, languageId);
     }
 
