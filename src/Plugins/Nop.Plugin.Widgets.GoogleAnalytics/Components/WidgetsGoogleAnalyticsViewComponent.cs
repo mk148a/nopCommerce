@@ -17,6 +17,7 @@ using Nop.Services.Orders;
 using Nop.Web.Framework.Components;
 using Nop.Web.Framework.Infrastructure;
 using Nop.Web.Models.Checkout;
+using Nop.Web.Models.Order;
 
 namespace Nop.Plugin.Widgets.GoogleAnalytics.Components;
 
@@ -108,7 +109,7 @@ public class WidgetsGoogleAnalyticsViewComponent : NopViewComponent
     /// paid order. The completed page is customer-scoped, so this never exposes
     /// another customer's order details.
     /// </summary>
-    protected async Task<string> GetPurchaseScriptAsync(CheckoutCompletedModel completedModel)
+    protected async Task<string> GetPurchaseScriptAsync(int orderId, string customOrderNumber)
     {
         // The checkout dataLayer event is intentionally configuration-gated.
         // Keeping this false leaves GTM as the lifecycle-only integration; a
@@ -117,7 +118,7 @@ public class WidgetsGoogleAnalyticsViewComponent : NopViewComponent
         if (!_googleAnalyticsSettings.EnableEcommerce || !HasValidMeasurementId())
             return string.Empty;
 
-        var order = await _orderService.GetOrderByIdAsync(completedModel.OrderId);
+        var order = await _orderService.GetOrderByIdAsync(orderId);
         var customer = await _workContext.GetCurrentCustomerAsync();
 
         // A conversion represents a successfully captured/paid transaction.
@@ -162,8 +163,8 @@ public class WidgetsGoogleAnalyticsViewComponent : NopViewComponent
         var currencyRate = order.CurrencyRate;
         var transactionId = !string.IsNullOrWhiteSpace(order.CustomOrderNumber)
             ? order.CustomOrderNumber.Trim()
-            : !string.IsNullOrWhiteSpace(completedModel.CustomOrderNumber)
-                ? completedModel.CustomOrderNumber.Trim()
+            : !string.IsNullOrWhiteSpace(customOrderNumber)
+                ? customOrderNumber.Trim()
                 : order.Id.ToString(CultureInfo.InvariantCulture);
         var paymentTracking = ResolvePaymentTracking(order.PaymentMethodSystemName);
         var coupon = await GetCouponCodesAsync(order.Id);
@@ -245,6 +246,11 @@ public class WidgetsGoogleAnalyticsViewComponent : NopViewComponent
         return $"<script>(function(p,u,d){{var done=false;function confirm(){{if(done)return;done=true;try{{var b=new URLSearchParams();b.set('orderId',String(d.orderId));b.set('token',d.token);b.set(d.requestVerificationFieldName,d.requestVerificationToken);if(navigator.sendBeacon&&navigator.sendBeacon(u,b))return;if(window.fetch)window.fetch(u,{{method:'POST',credentials:'same-origin',keepalive:true,headers:{{'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8'}},body:b.toString()}});}}catch(e){{}}}}p.eventCallback=confirm;p.eventTimeout=2000;window.dataLayer=window.dataLayer||[];window.dataLayer.push({{ecommerce:null}});window.dataLayer.push(p);window.setTimeout(confirm,2500);}})({json},{confirmUrlJson},{confirmationJson});</script>";
     }
 
+    // Kept as a compatibility overload for existing component tests and
+    // callers while the order-details fallback shares the same implementation.
+    protected Task<string> GetPurchaseScriptAsync(CheckoutCompletedModel completedModel)
+        => GetPurchaseScriptAsync(completedModel.OrderId, completedModel.CustomOrderNumber);
+
     /// <summary>
     /// Determines whether a configured Google Analytics 4 Measurement ID is
     /// safe to use. The dataLayer purchase path does not load gtag itself,
@@ -315,7 +321,17 @@ public class WidgetsGoogleAnalyticsViewComponent : NopViewComponent
             // aggregator and would leave the script visible as text instead of
             // executing it in the completed-page DOM.
             return View("~/Plugins/Widgets.GoogleAnalytics/Views/PublicInfo.cshtml",
-                await GetPurchaseScriptAsync(completedModel));
+                await GetPurchaseScriptAsync(completedModel.OrderId, completedModel.CustomOrderNumber));
+
+        // Some payment methods redirect directly to the authenticated order
+        // details page instead of rendering CheckoutCompleted. Keep the same
+        // paid-state, ownership and durable lease checks there so the purchase
+        // event is not lost, while the OrderId-unique dispatch row still
+        // prevents duplicate GA4/Ads purchases on refresh.
+        if (widgetZone.Equals(PublicWidgetZones.OrderDetailsPageBottom, StringComparison.OrdinalIgnoreCase) &&
+            additionalData is OrderDetailsModel orderDetailsModel)
+            return View("~/Plugins/Widgets.GoogleAnalytics/Views/PublicInfo.cshtml",
+                await GetPurchaseScriptAsync(orderDetailsModel.Id, orderDetailsModel.CustomOrderNumber));
 
         var script = await GetScriptAsync();
         return View("~/Plugins/Widgets.GoogleAnalytics/Views/PublicInfo.cshtml", script);
