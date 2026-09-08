@@ -64,6 +64,21 @@ public class BrevoSettings : ISettings
     public int LocalStoreOwnerSmtpPort { get; set; } = 25;
 
     /// <summary>
+    /// Gets or sets a value indicating whether the local store-owner SMTP relay uses SSL.
+    /// </summary>
+    public bool LocalStoreOwnerSmtpUseSsl { get; set; }
+
+    /// <summary>
+    /// Gets or sets the optional local SMTP user name for store-owner notifications.
+    /// </summary>
+    public string LocalStoreOwnerSmtpUsername { get; set; }
+
+    /// <summary>
+    /// Gets or sets the optional local SMTP password for store-owner notifications.
+    /// </summary>
+    public string LocalStoreOwnerSmtpPassword { get; set; }
+
+    /// <summary>
     /// Gets or sets a value indicating whether to use SMS notifications
     /// </summary>
     public bool UseSmsNotifications { get; set; }

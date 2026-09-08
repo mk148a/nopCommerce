@@ -76,8 +76,12 @@ public class BrevoEmailSender : EmailSender
                     ? "127.0.0.1"
                     : _brevoSettings.LocalStoreOwnerSmtpHost,
                 Port = _brevoSettings.LocalStoreOwnerSmtpPort > 0 ? _brevoSettings.LocalStoreOwnerSmtpPort : 25,
-                EnableSsl = false,
-                EmailAuthenticationMethod = EmailAuthenticationMethod.None,
+                EnableSsl = _brevoSettings.LocalStoreOwnerSmtpUseSsl,
+                Username = _brevoSettings.LocalStoreOwnerSmtpUsername ?? string.Empty,
+                Password = _brevoSettings.LocalStoreOwnerSmtpPassword ?? string.Empty,
+                EmailAuthenticationMethod = string.IsNullOrWhiteSpace(_brevoSettings.LocalStoreOwnerSmtpUsername)
+                    ? EmailAuthenticationMethod.None
+                    : EmailAuthenticationMethod.Login,
                 MaxNumberOfEmails = emailAccount.MaxNumberOfEmails
             };
         }
