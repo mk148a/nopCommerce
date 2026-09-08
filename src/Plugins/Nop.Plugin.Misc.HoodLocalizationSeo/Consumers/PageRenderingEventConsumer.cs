@@ -56,6 +56,8 @@ public sealed class PageRenderingEventConsumer : IConsumer<PageRenderingEvent>
         var isBlogByTag = routeName.Equals("BlogByTag", StringComparison.OrdinalIgnoreCase) ||
                           controller?.Equals("Blog", StringComparison.OrdinalIgnoreCase) == true &&
                           action?.Equals("BlogByTag", StringComparison.OrdinalIgnoreCase) == true;
+        var isProductsByTag = controller?.Equals("Catalog", StringComparison.OrdinalIgnoreCase) == true &&
+                              action?.Equals("ProductsByTag", StringComparison.OrdinalIgnoreCase) == true;
         var isContactUs = IsContactUsAction(controller, action);
 
         if (_seoSettings.CanonicalUrlsEnabled &&
@@ -70,9 +72,11 @@ public sealed class PageRenderingEventConsumer : IConsumer<PageRenderingEvent>
         if (isContactUs)
             await AddLocalizedContactMetadataAsync(eventMessage);
 
+        if (isBlogByTag || isProductsByTag)
+            eventMessage.Helper.AddHeadCustomParts("<meta name=\"robots\" content=\"noindex,follow\" />");
+
         if (isBlogByTag)
         {
-            eventMessage.Helper.AddHeadCustomParts("<meta name=\"robots\" content=\"noindex,follow\" />");
             await AddLocalizedBlogTagHreflangAsync(eventMessage, context);
         }
     }
