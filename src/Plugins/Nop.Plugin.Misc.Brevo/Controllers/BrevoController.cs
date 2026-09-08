@@ -1,6 +1,9 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using MailKit.Net.Smtp;
+using MailKit.Security;
+using MimeKit;
 using Nop.Core;
 using Nop.Core.Caching;
 using Nop.Core.Domain.Messages;
@@ -420,6 +423,65 @@ public class BrevoController : BasePluginController
         await _settingService.ClearCacheAsync();
 
         _notificationService.SuccessNotification(await _localizationService.GetResourceAsync("Admin.Plugins.Saved"));
+
+        return await Configure();
+    }
+
+    [AuthorizeAdmin]
+    [Area(AreaNames.ADMIN)]
+    [HttpPost, ActionName("Configure")]
+    [FormValueRequired("testLocalStoreOwnerSmtp")]
+    public async Task<IActionResult> TestLocalStoreOwnerSmtp(ConfigurationModel model)
+    {
+        var host = model.LocalStoreOwnerSmtpHost?.Trim();
+        if (!string.Equals(host, "127.0.0.1", StringComparison.Ordinal) || model.LocalStoreOwnerSmtpPort is <= 0 or > 65535)
+        {
+            _notificationService.ErrorNotification(await _localizationService.GetResourceAsync(
+                "Plugins.Misc.Brevo.LocalStoreOwnerSmtp.TestOnlyLoopback"));
+            return await Configure();
+        }
+
+        var username = model.LocalStoreOwnerSmtpUsername?.Trim();
+        if (string.IsNullOrEmpty(username) != string.IsNullOrEmpty(model.LocalStoreOwnerSmtpPassword))
+        {
+            _notificationService.ErrorNotification(await _localizationService.GetResourceAsync(
+                "Plugins.Misc.Brevo.LocalStoreOwnerSmtp.TestCredentialsRequired"));
+            return await Configure();
+        }
+
+        var storeId = await _storeContext.GetActiveStoreScopeConfigurationAsync();
+        var brevoSettings = await _settingService.LoadSettingAsync<BrevoSettings>(storeId);
+        var emailAccount = await _emailAccountService.GetEmailAccountByIdAsync(brevoSettings.EmailAccountId);
+        if (emailAccount is null || string.IsNullOrWhiteSpace(emailAccount.Email))
+        {
+            _notificationService.ErrorNotification("The Brevo sender email account is not configured.");
+            return await Configure();
+        }
+
+        try
+        {
+            var message = new MimeMessage();
+            message.From.Add(new MailboxAddress(emailAccount.DisplayName, emailAccount.Email));
+            message.To.Add(new MailboxAddress(emailAccount.DisplayName, emailAccount.Email));
+            message.Subject = "Local store-owner SMTP relay test";
+            message.Body = new TextPart("plain") { Text = "The local store-owner SMTP relay test completed successfully." };
+
+            using var client = new SmtpClient();
+            var security = model.LocalStoreOwnerSmtpUseSsl ? SecureSocketOptions.SslOnConnect : SecureSocketOptions.None;
+            await client.ConnectAsync("127.0.0.1", model.LocalStoreOwnerSmtpPort, security);
+            if (!string.IsNullOrEmpty(username))
+                await client.AuthenticateAsync(username, model.LocalStoreOwnerSmtpPassword);
+            await client.SendAsync(message);
+            await client.DisconnectAsync(true);
+
+            _notificationService.SuccessNotification(await _localizationService.GetResourceAsync(
+                "Plugins.Misc.Brevo.LocalStoreOwnerSmtp.TestSuccess"));
+        }
+        catch (Exception exception)
+        {
+            await _logger.ErrorAsync("Brevo local store-owner SMTP relay test failed.", exception);
+            _notificationService.ErrorNotification($"Local SMTP relay test failed: {exception.Message}");
+        }
 
         return await Configure();
     }
