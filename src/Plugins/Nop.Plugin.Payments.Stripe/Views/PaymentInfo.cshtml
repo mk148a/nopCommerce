@@ -1,0 +1,324 @@
+﻿@using Nop.Services.Directory
+@using System.Text.Json
+@using Nop.Web.Framework.TagHelpers.Shared
+@using Nop.Core
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model Nop.Plugin.Payments.Stripe.Models.PaymentInfoModel
+@{
+    Layout = "";
+
+}
+
+
+@inject IWorkContext _workContext;
+@inject ICurrencyService currencyService;
+@inject IWebHelper webHelper;
+
+
+@if (Model.PaymentResult == false)
+{
+    @Html.Raw(Model.Html)
+}
+else
+{
+    <table width="100%" cellspacing="2" cellpadding="1" border="0">
+        <tr>
+            <td>
+                <label asp-for="CreditCardTypes">@T("Payment.SelectCreditCard"):</label>
+            </td>
+            <td>
+                <select name="CreditCardType" id="CreditCardType" data="" asp-for="CreditCardType" asp-items="Model.CreditCardTypes" class="dropdownlists"></select>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label asp-for="CardholderName">@T("Payment.CardholderName"):</label>
+            </td>
+            <td>
+                <input type="text" asp-for="CardholderName" style="width:165px;" autocomplete="off"/>
+                <span asp-validation-for="CardholderName"></span>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label asp-for="CardNumber">@T("Payment.CardNumber"):</label>
+            </td>
+            <td>
+                <input type="text" asp-for="CardNumber" style="width:165px;" autocomplete="off" maxlength="22"/>
+                <span asp-validation-for="CardNumber"></span>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label asp-for="ExpireMonth">@T("Payment.ExpirationDate"):</label>
+            </td>
+            <td>
+                <select asp-for="ExpireMonth" asp-items="Model.ExpireMonths"></select>
+                /
+                <select asp-for="ExpireYear" asp-items="Model.ExpireYears"></select>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label asp-for="CardCode">@T("Payment.CardCode"):</label>
+            </td>
+            <td>
+                <input type="text" asp-for="CardCode" autocomplete="off" maxlength="4"/>
+                <span asp-validation-for="CardCode"></span>
+            </td>
+        </tr>
+    </table>
+
+
+    
+}
+
+<style>
+    #opc-confirm_order .stripe-inline-payment-error {
+        margin: 12px 0;
+        padding: 12px 16px;
+        border: 1px solid #d9534f;
+        background: #fff5f5;
+        color: #a94442;
+    }
+</style>
+
+<script asp-location="Footer">
+(function ($) {
+    'use strict';
+
+    var publishableKey = @Html.Raw(JsonSerializer.Serialize(Model.StripePublishableKey ?? string.Empty));
+    var threeDsPrefix = '__STRIPE_3DS__:';
+
+    function textMessage(value) {
+        if ($.isArray(value))
+            return value.join(' ');
+        if (value && typeof value === 'object')
+            return value.message || value.error || 'Payment could not be completed.';
+        return String(value || 'Payment could not be completed.');
+    }
+
+    function showError(message) {
+        var $host = $('#opc-confirm_order');
+        if (!$host.length)
+            $host = $('#checkout-step-confirm-order');
+        if (!$host.length)
+            return;
+
+        $host.find('.stripe-inline-payment-error').remove();
+        $('<div/>', {
+            'class': 'stripe-inline-payment-error',
+            'role': 'alert',
+            'text': message
+        }).prependTo($host);
+
+        if (window.Checkout && typeof window.Checkout.gotoSection === 'function')
+            window.Checkout.gotoSection('confirm_order');
+    }
+
+    function loadStripe(callback) {
+        if (typeof window.Stripe === 'function') {
+            callback();
+            return;
+        }
+        $.getScript('https://js.stripe.com/v3/').done(callback).fail(function () {
+            showError('Additional card verification could not be loaded. Please try another card.');
+        });
+    }
+
+    function handleThreeDs(payload) {
+        var separator = payload.indexOf('|');
+        var clientSecret = separator < 0 ? payload.substring(threeDsPrefix.length) : payload.substring(threeDsPrefix.length, separator);
+        if (!clientSecret) {
+            showError('Your bank requires additional verification. Please try again.');
+            return;
+        }
+
+        showError('Your bank requires additional verification. Complete it here to finish your order.');
+        loadStripe(function () {
+            var stripe = window.Stripe(publishableKey);
+            stripe.handleCardAction(clientSecret).then(function (result) {
+                if (result && result.error) {
+                    showError(result.error.message || 'The verification was not completed. Please try again.');
+                    return;
+                }
+                showError('Verification completed. Confirming your order...');
+                if (window.ConfirmOrder && typeof window.ConfirmOrder.save === 'function')
+                    window.ConfirmOrder.save();
+            });
+        });
+    }
+
+    function installInlineCheckoutHandler() {
+        if (window.__hoodStripeInlineCheckoutInstalled)
+            return;
+        if (!window.ConfirmOrder || typeof window.ConfirmOrder.nextStep !== 'function') {
+            window.setTimeout(installInlineCheckoutHandler, 50);
+            return;
+        }
+
+        var originalNextStep = window.ConfirmOrder.nextStep;
+        window.ConfirmOrder.nextStep = function (response) {
+            if (response && response.error) {
+                var message = textMessage(response.message || response.error);
+                if (message.indexOf(threeDsPrefix) === 0) {
+                    handleThreeDs(message);
+                } else {
+                    showError(message.replace(/^Payment error:\s*/i, ''));
+                }
+                return false;
+            }
+            return originalNextStep.apply(this, arguments);
+        };
+        window.__hoodStripeInlineCheckoutInstalled = true;
+    }
+
+    $(installInlineCheckoutHandler);
+})(jQuery);
+</script>
+@* 
+<script type="text/javascript">
+
+    
+
+    $(document).ready(function () {
+  @{
+
+      //iyzico Sanal POS hangi para birimlerini destekliyor?
+
+      //- Amerikan Doları (USD)
+      //- Avrupa Para Birimi (EUR)
+      //- İngiliz Sterlini (GBP)
+      //- Rus Rublesi (RUB)
+      //- İsviçre Frangı (CHF)
+      //- Norveç Kronu (NOK) 
+
+      // var currencyCodes = new List<string>();
+
+      // var usdCurrency = -1;
+
+      // //bendeki tanımlı hesaplar 
+      // //Todo:Bunu configden ayarlanır hale getir
+      // currencyCodes.Add("USD");
+      // currencyCodes.Add("EUR");
+      // currencyCodes.Add("GBP");
+      // currencyCodes.Add("TRY");
+
+      // var currentCurrencyCode = (await _workContext.GetWorkingCurrencyAsync()).CurrencyCode;
+
+
+      // if (!currencyCodes.Contains(currentCurrencyCode))
+      // {
+      //     usdCurrency = currencyService.GetCurrencyByCodeAsync("USD").Result.Id;
+
+      //     var setCurrency = await currencyService.GetCurrencyByIdAsync(usdCurrency);
+      //     if (setCurrency != null)
+      //         await _workContext.SetWorkingCurrencyAsync(setCurrency);
+      // }
+
+  }
+  
+    $("#CreditCardType").change(function () 
+    {   var custCurrency=-1; 
+       
+        
+        $("#CreditCardType").find("data").html = this.value;
+
+       var t = $("input[name='__RequestVerificationToken']").val();
+        if (this.value == "Amex")
+        {
+        $('#curVal').val("Amex");
+           
+    @{
+        int customercurrency = -1;
+        int defaultCurId = ( await _workContext.GetWorkingCurrencyAsync()).Id;
+        var returnUrlCurrency = webHelper.GetRawUrl(Context.Request);
+        try
+        {
+            customercurrency = currencyService.GetCurrencyByCodeAsync("TRY").Result.Id;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+
+        } 
+    }              
+
+              
+
+             custCurrency= @customercurrency; 
+           
+           
+            if(custCurrency!=-1)
+            {
+                 
+                 $.ajax({
+            url: '@Url.Action("SetCurrency","Common",   new { customerCurrency = @customercurrency})',
+            type: 'POST',
+            headers:
+            {
+                "RequestVerificationToken": t
+            },
+            contentType: false,
+            processData: false,
+            success: function (data) {
+
+
+
+            },
+            error: function (xhr, resp, text) {
+                console.log(xhr, resp, text);
+            },
+            complete: function () {
+
+
+            }
+        });
+            }
+           
+       
+
+        }
+        else{
+            
+                 $.ajax({
+            url: '@Url.Action("SetCurrency","Common",   new { customerCurrency = @defaultCurId})',
+            type: 'POST',
+            headers:
+            {
+                "RequestVerificationToken": t
+            },
+            contentType: false,
+            processData: false,
+            success: function (data) {
+
+
+
+            },
+            error: function (xhr, resp, text) {
+                console.log(xhr, resp, text);
+            },
+            complete: function () {
+
+
+            }
+        });
+        }
+
+       
+                
+   
+    });
+
+
+
+
+      
+        
+           
+           });
+            
+    
+</script> *@
+
+                

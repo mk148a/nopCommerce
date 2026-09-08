@@ -1,0 +1,11 @@
+{
+  "Group": "Genius Software",
+  "FriendlyName": "Etsy To NopCommerce",
+  "SystemName": "Nop.Plugin.Misc.EtsyToNopcommerce",
+  "Version": "1.05",
+  "SupportedVersions": [ "4.80" ],
+  "Author": "Genius Software",
+  "DisplayOrder": 1,
+  "FileName": "Nop.Plugin.Misc.EtsyToNopcommerce.dll",
+  "Description": "Etsy listings, orders and review synchronization."
+}

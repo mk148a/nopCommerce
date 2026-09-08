@@ -1,0 +1,168 @@
+﻿@model Nop.Plugin.Misc.NopTranslator.Models.ConfigurationModel
+@{
+    Layout = "_ConfigurePlugin";
+}
+
+@await Component.InvokeAsync("StoreScopeConfiguration")
+<form asp-controller="NopTranslator" asp-action="Configure" method="post" autocomplete="off">
+    <div class="cards-group">
+        <div class="card card-default">
+            <div class="card-body">
+                <p>
+                    <h5>"Instruction is here"</h5>
+                    <br />
+                </p>
+                <hr />
+                <p>Header is Here!</p>
+                <div class="form-group row">
+                    <div class="col-md-3">
+                        <nop-override-store-checkbox asp-for="ApiUrl_OverrideForStore" asp-input="ApiUrl" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                        <nop-label asp-for="ApiUrl" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="ApiUrl" asp-required="false" />
+                    </div>
+                </div>
+                <hr />
+
+                <!-- İlerleme durumu gösterimi -->
+                <div class="form-group row">
+                    <div class="col-md-3">
+                        <label for="progressPercentage">Translation Progress:</label>
+                    </div>
+                    <div class="col-md-9">
+                        <p id="progressPercentage">0%</p>
+                        <p id="currentProduct">Current Product: None</p>
+                        <p id="startTime">Start Time: Not started</p>
+                        <p id="estimatedEndTime">Estimated End Time: Calculating...</p>
+                        <progress id="progressBar" value="0" max="100"></progress>
+                    </div>
+                </div>
+
+                <hr />
+
+                <!-- Çevirisi tamamlanan ürünlerin listesi -->
+                <h5>Translated Products</h5>
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Product Name</th>
+                            <th>Translated Languages</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (ViewBag.TranslationResults != null)
+                        {
+                            foreach (var result in ViewBag.TranslationResults)
+                            {
+                                <tr>
+                                    <td>@result.ProductName</td>
+                                    <td>@string.Join(", ", result.TranslatedLanguages)</td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="2">No translations available.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+
+                <hr />
+
+                <div class="form-group row">
+                    <div class="col-md-9 offset-md-3">
+                        <button type="submit" name="save" class="btn btn-primary">Translate Product</button>
+                    </div>
+                </div>
+
+                <table id="errorTable" style="display:none;">
+                    <thead>
+                        <tr>
+                            <th>Select</th>
+                            <th>Product Name</th>
+                            <th>Error</th>
+                        </tr>
+                    </thead>
+                    <tbody id="errorTableBody"></tbody>
+                </table>
+                <button id="retryButton" style="display:none;" onclick="retryTranslation()">Retry Selected</button>
+            </div>
+        </div>
+    </div>
+</form>
+<script>
+    let interval;
+
+    function updateProgress() {
+        console.log('updateProgress called'); // Debugging için eklendi
+        $.get('/Admin/NopTranslator/GetTranslationProgress', function (data) {
+            console.log('GetTranslationProgress response:', data); // Debugging için eklendi
+            if (data && data.PercentageComplete !== undefined && data.CurrentProduct) {
+                $('#progressPercentage').text(data.PercentageComplete + '%');
+                $('#currentProduct').text('Current Product: ' + data.CurrentProduct);
+                $('#progressBar').val(data.PercentageComplete);
+
+                if (data.StartTime) {
+                    const startTime = new Date(data.StartTime);
+                    const currentTime = new Date();
+                    const elapsedTime = (currentTime - startTime) / 1000; // Geçen süre (saniye)
+                    const estimatedTotalTime = elapsedTime * 100 / data.PercentageComplete; // Toplam tahmini süre
+                    const remainingTime = estimatedTotalTime - elapsedTime; // Kalan süre
+                    const estimatedEndTime = new Date(currentTime.getTime() + remainingTime * 1000);
+
+                    $('#startTime').text('Start Time: ' + startTime.toLocaleString());
+                    $('#estimatedEndTime').text('Estimated End Time: ' + estimatedEndTime.toLocaleString());
+                }
+
+                if (data.PercentageComplete >= 100) {
+                    clearInterval(interval);
+                    interval = null; // Interval'i sıfırla
+                    $('#progressPercentage').text('Completed!');
+                    $('#currentProduct').text('Translation Complete');
+                    $('#progressBar').val(100);
+                }
+            } else {
+                $('#progressPercentage').text('No data');
+                $('#currentProduct').text('No product');
+            }
+        }).fail(function () {
+            $('#progressPercentage').text('Error');
+            $('#currentProduct').text('Error');
+        });
+    }
+
+    function checkBackgroundProcess() {
+        console.log('Checking for background process'); // Debugging için eklendi
+        $.get('/Admin/NopTranslator/GetTranslationProgress', function (data) {
+            console.log('Background process status:', data); // Debugging için eklendi
+            if (data && data.IsRunning) {
+                if (!interval) { // Interval zaten başlatılmadıysa başlat
+                    interval = setInterval(updateProgress, 5000);
+                }
+            }
+        });
+    }
+
+    function retryTranslation() {
+        const selectedProducts = [];
+        $('#errorTableBody input[type="checkbox"]:checked').each(function () {
+            selectedProducts.push($(this).data('product-id'));
+        });
+
+        if (selectedProducts.length > 0) {
+            console.log('Retrying translation for products:', selectedProducts); // Debugging için eklendi
+            $.post('/Admin/NopTranslator/RetryTranslation', { productIds: selectedProducts }, function () {
+                if (!interval) { // Interval zaten başlatılmadıysa başlat
+                    interval = setInterval(updateProgress, 5000);
+                }
+            });
+        }
+    }
+
+    $(document).ready(function () {
+        checkBackgroundProcess(); // Sayfa yüklendiğinde arka planda işlem olup olmadığını kontrol et
+    });
+</script>

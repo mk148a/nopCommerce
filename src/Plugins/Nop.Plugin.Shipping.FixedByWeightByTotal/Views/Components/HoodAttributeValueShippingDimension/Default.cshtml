@@ -1,0 +1,143 @@
+@model Nop.Plugin.Shipping.FixedByWeightByTotal.Models.ShippingDimensions.AttributeValueShippingDimensionEditorModel
+
+@if (Model.ProductId > 0 && Model.ProductAttributeValueId > 0)
+{
+    <div id="hood-navlungo-attribute-shipping" class="card card-default card-popup" style="border-left:4px solid #00a65a;">
+        <div class="card-header">
+            <strong>Hood/Navlungo shipping dimensions</strong>
+            <small class="text-muted"> - saved into HoodProductShippingDimensionRule</small>
+        </div>
+        <div class="card-body">
+            <input type="hidden" id="HoodNavlungoProductId" value="@Model.ProductId" />
+            <input type="hidden" id="HoodNavlungoProductAttributeValueId" value="@Model.ProductAttributeValueId" />
+            <input type="hidden" id="HoodNavlungoExistingRuleId" value="@(Model.ExistingRuleId ?? 0)" />
+
+            <div class="form-group row">
+                <div class="col-sm-3">
+                    <label for="HoodNavlungoEnabled">Use for shipping dimensions</label>
+                </div>
+                <div class="col-sm-9">
+                    <input type="checkbox" id="HoodNavlungoEnabled" @Html.Raw(Model.Enabled ? "checked=\"checked\"" : "") />
+                    <span class="text-muted">When enabled, this attribute value overrides package L/W/H and actual weight for chargeable-weight calculation.</span>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col-sm-3"><label for="HoodNavlungoRuleType">Rule type</label></div>
+                <div class="col-sm-9">
+                    <select id="HoodNavlungoRuleType" class="form-control">
+                        @if (Model.RuleType == "ARROW_PCS")
+                        {
+                            <option value="ATTRIBUTE_VALUE">ATTRIBUTE_VALUE</option>
+                            <option value="ARROW_PCS" selected="selected">ARROW_PCS</option>
+                        }
+                        else
+                        {
+                            <option value="ATTRIBUTE_VALUE" selected="selected">ATTRIBUTE_VALUE</option>
+                            <option value="ARROW_PCS">ARROW_PCS</option>
+                        }
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col-sm-3"><label>Package L / W / H cm</label></div>
+                <div class="col-sm-9">
+                    <div class="row">
+                        <div class="col-sm-4"><input id="HoodNavlungoLengthCm" class="form-control" type="number" step="0.0001" min="0" placeholder="Length cm" value="@(Model.LengthCm?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "")" /></div>
+                        <div class="col-sm-4"><input id="HoodNavlungoWidthCm" class="form-control" type="number" step="0.0001" min="0" placeholder="Width cm" value="@(Model.WidthCm?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "")" /></div>
+                        <div class="col-sm-4"><input id="HoodNavlungoHeightCm" class="form-control" type="number" step="0.0001" min="0" placeholder="Height cm" value="@(Model.HeightCm?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "")" /></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col-sm-3"><label>Actual weight / divisor / packages</label></div>
+                <div class="col-sm-9">
+                    <div class="row">
+                        <div class="col-sm-4"><input id="HoodNavlungoWeightGram" class="form-control" type="number" step="0.0001" min="0" placeholder="Weight gram" value="@(Model.WeightGram?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "")" /></div>
+                        <div class="col-sm-4"><input id="HoodNavlungoDivisor" class="form-control" type="number" step="0.0001" min="1" value="@Model.Divisor.ToString(System.Globalization.CultureInfo.InvariantCulture)" /></div>
+                        <div class="col-sm-4"><input id="HoodNavlungoPackageCount" class="form-control" type="number" step="1" min="1" value="@Model.PackageCount" /></div>
+                    </div>
+                    <div class="mt-1 text-muted" id="HoodNavlungoChargeablePreview"></div>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col-sm-3"><label for="HoodNavlungoShipSeparately">Ship separately</label></div>
+                <div class="col-sm-9">
+                    <input type="checkbox" id="HoodNavlungoShipSeparately" @Html.Raw(Model.IsShipSeparately ? "checked=\"checked\"" : "") />
+                    <span id="HoodNavlungoSaveStatus" class="ml-2 text-muted"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            function n(id) {
+                var v = parseFloat($(id).val());
+                return isNaN(v) ? 0 : v;
+            }
+            function preview() {
+                var l = n('#HoodNavlungoLengthCm');
+                var w = n('#HoodNavlungoWidthCm');
+                var h = n('#HoodNavlungoHeightCm');
+                var g = n('#HoodNavlungoWeightGram');
+                var d = n('#HoodNavlungoDivisor') || 5000;
+                var actual = g / 1000.0;
+                var vol = d > 0 ? (l * w * h / d) : 0;
+                var ch = Math.max(actual, vol);
+                $('#HoodNavlungoChargeablePreview').text('actual kg=' + actual.toFixed(4) + ' | volumetric kg=' + vol.toFixed(4) + ' | chargeable kg=' + ch.toFixed(4));
+            }
+            $('#hood-navlungo-attribute-shipping input,#hood-navlungo-attribute-shipping select').on('input change', preview);
+            preview();
+
+            var form = $('#hood-navlungo-attribute-shipping').closest('form');
+            var submitted = false;
+            form.find('button[type=submit][name=save]').off('click.hoodNavlungo').on('click.hoodNavlungo', function (e) {
+                if (submitted) {
+                    return true;
+                }
+
+                e.preventDefault();
+                var btn = $(this);
+                var token = form.find('input[name=__RequestVerificationToken]').val();
+
+                $('#HoodNavlungoSaveStatus').text('Saving shipping dimensions...');
+
+                $.ajax({
+                    url: '@Url.Action("SaveAttributeValueShippingDimension", "FixedByWeightByTotal", new { area = "Admin" })',
+                    type: 'POST',
+                    headers: token ? { 'RequestVerificationToken': token } : {},
+                    data: {
+                        productId: $('#HoodNavlungoProductId').val(),
+                        productAttributeValueId: $('#HoodNavlungoProductAttributeValueId').val(),
+                        enabled: $('#HoodNavlungoEnabled').is(':checked'),
+                        ruleType: $('#HoodNavlungoRuleType').val(),
+                        lengthCm: $('#HoodNavlungoLengthCm').val(),
+                        widthCm: $('#HoodNavlungoWidthCm').val(),
+                        heightCm: $('#HoodNavlungoHeightCm').val(),
+                        weightGram: $('#HoodNavlungoWeightGram').val(),
+                        divisor: $('#HoodNavlungoDivisor').val(),
+                        packageCount: $('#HoodNavlungoPackageCount').val(),
+                        isShipSeparately: $('#HoodNavlungoShipSeparately').is(':checked')
+                    }
+                }).done(function () {
+                    $('#HoodNavlungoSaveStatus').text('Saved.');
+                }).fail(function (xhr) {
+                    $('#HoodNavlungoSaveStatus').text('Shipping dimensions save failed: ' + (xhr.responseText || xhr.status));
+                }).always(function () {
+                    submitted = true;
+                    btn.trigger('click');
+                });
+
+                return false;
+            });
+        })();
+    </script>
+}
+else
+{
+    <div class="alert alert-warning">Hood/Navlungo shipping fields could not resolve ProductId/ProductAttributeValueId for this popup.</div>
+}

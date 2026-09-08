@@ -1,0 +1,16 @@
+{
+  "Group": "Misc",
+  "FriendlyName": "Google Shopping Multi Country",
+  "SystemName": "Nop.Plugin.Misc.GoogleShoppingMultiCountry",
+  "Version": "1.23",
+  "SupportedVersions": [ "4.80" ],
+  "Author": "Genius Software",
+  "DisplayOrder": 1,
+  "FileName": "Nop.Plugin.Misc.GoogleShoppingMultiCountry.dll",
+  "Description": "This plugin allows you to export your products to Google Shopping",
+  "ResourceRootKey": "Plugins.Feed.GoogleShopping",
+  "DependencyFiles": [
+    "Content/jquery-ui.css",
+    "Content/jquery-ui.min.js"
+  ]
+}

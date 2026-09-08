@@ -1,0 +1,149 @@
+﻿@using Nop.Plugin.Payments.Iyzico
+@using Nop.Web.Framework.TagHelpers.Shared
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using Nop.Services.Directory
+@model Nop.Plugin.Payments.Iyzico.Models.PaymentInfoModel
+@{
+	Layout = "";
+}
+
+@inject IyzicoPaymentSettings stripePaymentSettings
+@inject Nop.Core.Domain.Orders.OrderSettings orderSettings
+@inject Nop.Core.IWebHelper webHelper
+@inject ICurrencyService currencyService
+
+@if (Model.PaymentResult == false)
+{
+    @Html.Raw(Model.Html)
+}
+else
+{
+    <table width="100%" cellspacing="2" cellpadding="1" border="0">
+        <tr>
+            <td>
+                <label asp-for="CreditCardTypes">@T("Payment.SelectCreditCard"):</label>
+            </td>
+            <td>
+                <select name="CreditCardType" id="CreditCardType" data="" asp-for="CreditCardType" asp-items="Model.CreditCardTypes" class="dropdownlists"></select>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label asp-for="CardholderName">@T("Payment.CardholderName"):</label>
+            </td>
+            <td>
+                <input type="text" asp-for="CardholderName" style="width:165px;" autocomplete="off" />
+                <span asp-validation-for="CardholderName"></span>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label asp-for="CardNumber">@T("Payment.CardNumber"):</label>
+            </td>
+            <td>
+                <input type="text" asp-for="CardNumber" style="width:165px;" autocomplete="off" maxlength="22" />
+                <span asp-validation-for="CardNumber"></span>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label asp-for="ExpireMonth">@T("Payment.ExpirationDate"):</label>
+            </td>
+            <td>
+                <select asp-for="ExpireMonth" asp-items="Model.ExpireMonths"></select>
+                /
+                <select asp-for="ExpireYear" asp-items="Model.ExpireYears"></select>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label asp-for="CardCode">@T("Payment.CardCode"):</label>
+            </td>
+            <td>
+                <input type="text" asp-for="CardCode" autocomplete="off" maxlength="4" />
+                <span asp-validation-for="CardCode"></span>
+            </td>
+        </tr>
+    </table>
+}
+<script type="text/javascript">
+
+    $(function ()
+    {     
+        $("#CreditCardType").change(function () {
+            console.log("Card type Changed");
+            $("#CreditCardType").find("data").html = this.value;
+            console.log(this.value);
+            var t = $("input[name='__RequestVerificationToken']").val();
+            var customerCurrencyX=0;
+            if (this.value == "Amex") 
+            {
+                console.log("TRY currency");
+               @{
+                                   var returnUrl = webHelper.GetRawUrl(Context.Request);
+                   var customercurrency = @currencyService.GetCurrencyByCodeAsync("TRY").Result.Id;
+                   Url.Action("SetCurrency", "Common", new { customercurrency, returnUrl});
+
+               }
+               
+
+                    $.ajax({
+                        url: '@Url.Action("SetCurrency","Common",   new { customerCurrency = customercurrency })',
+                        type: 'POST',
+                        headers:
+                        {
+                            "RequestVerificationToken": t
+                        },                       
+                        contentType: false,
+                        processData: false,
+                        success: function (data) {
+
+                            console.log("success");
+                            console.log(data);
+
+                        },
+                        error: function (xhr, resp, text) {
+                            console.log(xhr, resp, text);
+                        },
+                        complete: function () {
+                            console.log("complate");
+
+                        }
+                    });          
+                var result="";
+              
+            }
+        });
+
+        });
+</script>
+
+@*@if (!Model.IsGuest && Model.StoredCards.Any())
+    {
+        <table width="100%" cellspacing="2" cellpadding="1" border="0">
+            <tr>
+                <td>
+                    <label asp-for="StoredCardId">@T("Plugins.Payments.Square.Fields.StoredCard"):</label>
+                </td>
+                <td>
+                    <select asp-for="StoredCardId" asp-items="Model.StoredCards" class="square-input"></select>
+                </td>
+            </tr>
+        </table>
+    }*@
+
+
+
+
+@*@if (!Model.IsGuest)
+    {
+        <tr>
+            <td>
+                <label asp-for="SaveCard">@T("Plugins.Payments.Square.Fields.SaveCard"):</label>
+            </td>
+            <td>
+                <input type="checkbox" asp-for="SaveCard" />
+                <span asp-validation-for="SaveCard"></span>
+            </td>
+        </tr>
+    }*@

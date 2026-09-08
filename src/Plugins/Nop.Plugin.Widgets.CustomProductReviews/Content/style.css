@@ -1,0 +1,339 @@
+﻿
+.custom-product-reviews-page{
+	float: left;
+    width: 100%;
+}
+.custom-product-reviews-page .page-title {
+    float: left;
+    width: 100%;
+    padding: 20px 0px;
+}
+
+
+.custom-product-reviews-page .write-review .review-rating div {
+    height: 17px;
+    margin: 0 5px;
+    cursor: default;
+    font-size: 14px;
+    display: inline-block;
+    vertical-align: middle;
+}
+.custom-product-reviews-page .write-review .review-rating {
+    text-align: left;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    float: left;
+    display: inline-block;
+    width: 100%;
+}
+.custom-product-reviews-page .write-review .review-rating label {
+    display: block;
+    margin: 0px;
+    font-size: 14px;
+    color: #444;
+    float: left;
+}
+.custom-product-reviews-page .write-review .review-rating div.first {
+	color: #e4444c;
+}
+.custom-product-reviews-page .write-review .review-rating div.rating-options {
+    padding-top: 2px;
+}
+.custom-product-reviews-page .write-review .review-rating div.rating-options input {
+	vertical-align: baseline;
+}
+.custom-product-reviews-page .write-review .review-rating div.last {
+	color: #4cb17c;
+}
+
+/* Render the accessible numeric labels as the Element theme star control.
+   The generic label rule above previously won the cascade and exposed 1-5. */
+.custom-product-reviews-page .write-review .review-rating .rating-options label {
+    display: inline-block;
+    float: none;
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    overflow: hidden;
+    background-image: url('../../../Themes/Element/Content/img/rating-sprite.png');
+    background-position: center bottom;
+    background-repeat: no-repeat;
+    color: transparent;
+    font-size: 0;
+    line-height: 0;
+    text-indent: -9999px;
+    cursor: pointer;
+}
+
+.air-theme .custom-product-reviews-page .write-review .review-rating .rating-options label {
+    background-color: #eda187;
+}
+
+.earth-theme .custom-product-reviews-page .write-review .review-rating .rating-options label {
+    background-color: #007c5a;
+}
+
+.custom-product-reviews-page .write-review .review-rating .rating-options input[type="radio"] {
+    position: absolute;
+    z-index: -1;
+    width: 1px;
+    height: 1px;
+    margin: 1px 0 0 1px;
+    opacity: 0;
+}
+
+.custom-product-reviews-page .write-review .review-rating .rating-options input[type="radio"]:checked + label ~ label {
+    background-position: center top;
+}
+.custom-product-reviews-page .formProductReviews-body .inputs{
+clear: both;
+    font-size: 0;
+    margin: 0 0 15px;
+    position: relative;
+    text-align: left;
+    white-space: nowrap;
+    float: left;
+    width: 100%;
+    max-width: 100%;
+}
+.custom-product-reviews-page .formProductReviews-body .inputs label {
+    text-align: left;
+    margin: 0 10px 5px 0;
+    display: inline-block;
+    color: #333;
+    font-size: 14px;
+    float: left;
+    width: auto;
+}
+.custom-product-reviews-page .formProductReviews-body .buttons{
+    float:left;
+    width:100%;
+}
+.custom-product-reviews-page .inputs:before, .custom-product-reviews-page .inputs:after{
+    display:none;
+}
+.custom-product-reviews-page input[type="text"], .custom-product-reviews-page input[type="email"], .custom-product-reviews-page input[type="tel"], .custom-product-reviews-page input[type="password"], .custom-product-reviews-page textarea, .custom-product-reviews-page select {
+   height: 36px;
+   padding: 8px;
+   border-radius: 5px;
+   border: 1px solid #ddd;
+   vertical-align: middle;
+   float:left;
+   width:100%;
+}
+
+.custom-product-reviews-page .required {
+    right: 0;
+    top: 30px;
+    z-index: 1;
+    color: #e4434b;
+    font-size: 24px;
+    position: absolute;
+    font-weight: normal;
+    vertical-align: top;
+    margin: 0 -8px 0 3px;
+}
+.custom-product-reviews-page .product-review-list{
+    float:left;
+    width:100%;
+    margin:20px 0px;
+}
+.custom-product-reviews-page .product-review-list .title{
+    text-align:left;
+}
+.custom-product-reviews-page .product-review-item .review-content {
+    padding: 20px 10px;
+    text-align:left;
+}
+.custom-product-reviews-page .product-review-item .review-text {
+    color: #333;
+    margin: 0 0 15px;
+    line-height: 22px;
+}
+.custom-product-reviews-page .product-review-item .review-info {
+    margin: 0 0 5px;
+}
+.custom-product-reviews-page .product-review-helpfulness .question {
+    margin: 0 5px 0 0;
+    font-style: italic;
+}
+.custom-product-reviews-page .product-review-item .review-info a, .custom-product-reviews-page .product-review-helpfulness .vote {
+    padding: 0 5px;
+    color: #369000;
+    cursor: pointer;
+    display: inline-block;
+}
+.custom-product-reviews-page .product-review-helpfulness .result {
+    margin: 0 0 0 10px;
+}
+.custom-product-reviews-page .product-review-item .review-item-head {
+    padding: 10px;
+    overflow: hidden;
+    border: 1px solid #ddd;
+}
+#formProductReviews .formProductReviews-body {
+    float: left;
+    width: 100%;
+    margin-top: 20px;
+}
+
+#formProductReviews .formProductReviews-body .form-fields {
+    position: relative;
+    padding: 30px 30px;
+    border-radius: 5px;
+    box-shadow: 0 0 8px rgba(0,0,0,.2);
+    margin-bottom: 20px;
+    float: left;
+    width: 100%;
+}
+
+#formProductReviews .message-success, #formProductReviews .message-error {
+    padding: 0px;
+    float: left;
+    width: 100%;
+    clear: both;
+    margin: 0px;
+}
+#formProductReviews .message-success {
+    color: green;
+    font-weight: bold;
+}
+.message-success {
+  color: green;
+  font-weight: bold;
+}
+#formProductReviews .ajax-loader {
+    background: #F9F9F9;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+    z-index: 99;
+    visibility: hidden;
+    opacity: 0.7;
+}
+
+    #formProductReviews .ajax-loader img {
+        width: auto;
+        height: auto;
+        position: absolute;
+        top: 35%;
+        left: 45%;
+        margin-left: -50px;
+        margin-right: -50px;
+        -webkit-animation: none;
+        animation: none;
+    }
+/*.product-review-item .review-content .picture-thumbs{
+    float:left;
+    width:100%;
+}
+.product-review-item .review-content .picture-thumbs .thumb-item {
+    float: left;
+    width: 150px;
+    margin: 10px;
+}*/
+
+
+.submitReviewResult {
+  margin: 0 0 30px;
+  text-align: center;
+  color: #555;
+}
+
+.product-review-item video {
+  /* Make video to at least 100% wide and tall */
+  max-width: 640px;
+  max-height: 480px;
+  /* Setting width & height to auto prevents the browser from stretching or squishing the video */
+  width: auto;
+  height: auto;
+  padding: 10px;
+  /* Center the video */
+  /*position: absolute;
+  top: 50%;
+  left: 50%;*/
+}
+.product-review-item .picture-thumbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  width: 100%;
+}
+
+.product-review-item .thumb-item {
+  display: block;
+  width: 150px;
+  height: 150px;
+  padding: 0;
+  overflow: hidden;
+}
+
+.product-review-item .review-photo-link,
+.product-review-item .review-photo-thumb {
+  display: block;
+  width: 150px;
+  height: 150px;
+}
+
+.product-review-item .review-photo-thumb {
+  object-fit: contain;
+  object-position: center;
+  background: #f7f7f7;
+}
+
+.product-review-item .mediacontainer {
+  /* position: fixed;*/
+  display: grid;
+  max-width: calc(100% - 20px);
+}
+
+
+
+.progressa {
+  border-radius: 50px !important;
+  height: 35px;
+  line-height: 36px;
+  font-size: 14px;
+  overflow: hidden;
+  height: 35px;
+  margin-bottom: 20px;
+  background-color: rgba(0,0,0,0.5);
+  border-radius: 4px;
+  -webkit-box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+  line-height: 36px;
+  height: 35px;
+  font-size: 14px;
+  border: 3px solid transparent;
+}
+
+.progressab {
+  background-image: -webkit-linear-gradient(45deg,rgba(255,255,255,0.15) 25%,transparent 25%,transparent 50%,rgba(255,255,255,0.15) 50%,rgba(255,255,255,0.15) 75%,transparent 75%,transparent);
+  background-image: -o-linear-gradient(45deg,rgba(255,255,255,0.15) 25%,transparent 25%,transparent 50%,rgba(255,255,255,0.15) 50%,rgba(255,255,255,0.15) 75%,transparent 75%,transparent);
+  -webkit-background-size: 40px 40px;
+  background-size: 40px 40px;
+  -webkit-transition: width .25s ease,height .25s ease,font-size .25s ease;
+  -moz-transition: width .25s ease,height .25s ease,font-size .25s ease;
+  -ms-transition: width .25s ease,height .25s ease,font-size .25s ease;
+  -o-transition: width .25s ease,height .25s ease,font-size .25s ease;
+  transition: width .25s ease,height .25s ease,font-size .25s ease;
+  width: 0;
+  color: #fff;
+  text-align: center;
+  font-family: 'Open Sans',sans-serif !important;
+  animation: progress-bar-stripes 2s linear infinite reverse;
+}
+
+@keyframes progress-bar-stripes {
+  0% {
+    background-position: 40px 0;
+  }
+
+  100% {
+    background-position: 0 0;
+  }
+}
+
+

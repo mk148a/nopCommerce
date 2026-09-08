@@ -1,0 +1,57 @@
+﻿@model List<VideoModel>
+@using Nop.Plugin.Widgets.CustomProductReviews.Models
+@*<script src="https://vjs.zencdn.net/7.21.1/video.min.js"></script>
+<link href="https://vjs.zencdn.net/7.21.1/video-js.css" rel="stylesheet" />*@
+
+@if (Model.Count > 0)
+{
+
+    <div class="video-thumbs" id="main-review-vid">
+            @foreach (var picture in Model)
+            {
+            <div class="video-container">
+                @*  <a href="@picture.FullSizeImageUrl" target="_blank">
+                    <img style="object-fit: contain" src="@picture.ImageUrl" alt="@picture.AlternateText" title="@picture.Title" data-defaultsize="@picture.ImageUrl" data-fullsize="@picture.FullSizeImageUrl" />
+                </a>*@
+                @if (picture.ImageUrl.Contains("webm"))
+                {
+                    <video controls="controls" class="embed-responsive-item">
+                        <source src="@picture.ImageUrl" type="video/webm;codecs=vp9,opus"/>
+                        Your browser does not support the video tag.
+                    </video>
+                }
+                else if (picture.ImageUrl.Contains("mp4"))
+                {
+                    <video controls="controls" class="embed-responsive-item">
+                        <source src="@picture.ImageUrl" type="video/mp4"/>
+                        Your browser does not support the video tag.
+                    </video>
+                }
+         @*     <video
+                  id="my-video"
+                  class="video-js"
+                  controls="true"
+                  autoplay="false"
+                  preload="auto"
+                  width="640"
+                  height="480"
+                  poster="MY_VIDEO_POSTER.jpg"
+                  data-setup="{}"
+              >
+                    <source src="@picture.ImageUrl" type="video/mp4" />
+                  <p class="vjs-no-js">
+                      To view this video please enable JavaScript, and consider upgrading to a
+                      web browser that
+                      <a href="https://videojs.com/html5-video-support/" target="_blank"
+                      >supports HTML5 video</a
+                      >
+                  </p>
+              </video>*@
+
+            </div>
+            }
+    </div>
+    
+    
+
+}

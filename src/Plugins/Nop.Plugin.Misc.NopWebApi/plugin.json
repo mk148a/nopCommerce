@@ -1,0 +1,11 @@
+{
+  "Group": "Miscellaneous",
+  "FriendlyName": "Nop Web API",
+  "SystemName": "Misc.NopWebApi",
+  "Version": "1.00",
+  "SupportedVersions": [ "4.80" ],
+  "Author": "Genius Software",
+  "DisplayOrder": 1,
+  "FileName": "Nop.Plugin.Misc.NopWebApi.dll",
+  "Description": "NopCommerce Web API integration."
+}

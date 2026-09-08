@@ -1,0 +1,14 @@
+﻿{
+  "Group": "Genius Software",
+  "FriendlyName": "Google Bot Aggregator Plugin",
+  "SystemName": "Nop.Plugin.Misc.GoogleBotAggregator",
+  "Version": "1.00",
+  "SupportedVersions": [
+    "4.80"
+  ],
+  "Author": "Genius Software",
+  "DisplayOrder": 1,
+  "FileName": "Nop.Plugin.Misc.GoogleBotAggregator.dll",
+  "Description": "The Google Bot Aggregator Plugin consolidates traffic from GoogleBot and similar sources into a single membership account ('Google Bot'), merging shopping carts and excluding such traffic from analytics.",
+  "ResourceRootKey": "Plugins.Misc.GoogleBotAggregator"
+}

@@ -1,0 +1,87 @@
+﻿@model Nop.Plugin.Payments.StripeApplePay.Models.ConfigurationModel
+@{
+    Layout = "_ConfigurePlugin";
+}
+
+
+
+@await Component.InvokeAsync("StoreScopeConfiguration")
+
+<form asp-controller="PaymentStripeApplePay" asp-action="Configure" method="post" autocomplete="off">
+    <div class="cards-group">
+        <div class="card card-default">
+            <div class="card-body">
+                <p>
+                    <h5>@T("Plugins.Payments.StripeApplePay.Instructions")</h5>
+                    <br />
+                </p>
+                <hr />
+                <p>@T("Plugins.Payments.StripeApplePay.AccountInfo")</p>
+                <div class="form-group row">
+                    <div class="col-md-3">
+                        <nop-override-store-checkbox asp-for="PublishableKey_OverrideForStore" asp-input="PublishableKey" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                        <nop-label asp-for="PublishableKey" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="PublishableKey" asp-required="true" />
+                        <span asp-validation-for="PublishableKey"></span>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-3">
+                        <nop-override-store-checkbox asp-for="SecretKey_OverrideForStore" asp-input="SecretKey" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                        <nop-label asp-for="SecretKey" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="SecretKey" asp-required="true" />
+                        <span asp-validation-for="SecretKey"></span>
+                    </div>
+                </div>
+
+                <hr />
+                <p><strong>Stripe test mode</strong></p>
+                <p class="text-muted">Keep this disabled for live payments. When enabled, wallet requests use only the test key pair below.</p>
+                <div class="form-group row">
+                    <div class="col-md-3">
+                        <nop-override-store-checkbox asp-for="UseSandbox_OverrideForStore" asp-input="UseSandbox" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                        <nop-label asp-for="UseSandbox" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="UseSandbox" />
+                        <span asp-validation-for="UseSandbox"></span>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-3">
+                        <nop-override-store-checkbox asp-for="TestPublishableKey_OverrideForStore" asp-input="TestPublishableKey" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                        <nop-label asp-for="TestPublishableKey" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="TestPublishableKey" asp-required="false" />
+                        <span asp-validation-for="TestPublishableKey"></span>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-md-3">
+                        <nop-override-store-checkbox asp-for="TestSecretKey_OverrideForStore" asp-input="TestSecretKey" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                        <nop-label asp-for="TestSecretKey" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="TestSecretKey" asp-required="false" />
+                        <span class="text-muted">Leave blank to retain the saved test secret.</span>
+                        <span asp-validation-for="TestSecretKey"></span>
+                    </div>
+                </div>
+               
+                <hr />
+     
+                
+                <div class="form-group row">
+                    <div class="col-md-9 offset-md-3">
+                        <button type="submit" name="save" class="btn btn-primary">@T("Admin.Common.Save")</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

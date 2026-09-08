@@ -1,0 +1,5 @@
+@model Nop.Plugin.Misc.GoogleMultiLanguageAndCurrency.Models.GoogleMultiLanguageAndCurrencysModel
+@foreach (var linkTag in Model.LinkTags)
+{
+    <link rel="@linkTag.Rel" hreflang="@linkTag.Hreflang" href="@linkTag.Href" />
+}

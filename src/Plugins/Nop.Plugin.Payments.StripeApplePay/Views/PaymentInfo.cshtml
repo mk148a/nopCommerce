@@ -1,0 +1,152 @@
+@using System.Text.Json
+@model Nop.Plugin.Payments.StripeApplePay.Models.PaymentInfoModel
+
+<input type="hidden" id="PaymentMethodId" asp-for="PaymentMethodId" name="PaymentMethodId" />
+
+<div id="payment-request-button"></div>
+<div id="messages">
+    <p id="message"></p>
+</div>
+
+<style>
+    #opc-confirm_order .stripe-inline-payment-error {
+        margin: 12px 0;
+        padding: 12px 16px;
+        border: 1px solid #d9534f;
+        background: #fff5f5;
+        color: #a94442;
+    }
+</style>
+
+<script asp-location="Footer">
+(function ($) {
+    'use strict';
+
+    // These values are rendered as JSON literals, not locale-formatted Razor
+    // strings. Stripe always receives an integer amount in minor units.
+    var publishableKey = @Html.Raw(JsonSerializer.Serialize(Model.StripePublishableKey ?? string.Empty));
+    var walletCurrency = @Html.Raw(JsonSerializer.Serialize((Model.Currency ?? string.Empty).ToLowerInvariant()));
+    var walletCountry = @Html.Raw(JsonSerializer.Serialize((Model.Country ?? string.Empty).ToUpperInvariant()));
+    var walletAmount = @Model.OrderTotalMinor;
+    var threeDsPrefix = '__STRIPE_3DS__:';
+
+    function showError(message) {
+        var $host = $('#opc-confirm_order');
+        if (!$host.length)
+            $host = $('#checkout-step-confirm-order');
+        if (!$host.length)
+            return;
+        $host.find('.stripe-inline-payment-error').remove();
+        $('<div/>', { 'class': 'stripe-inline-payment-error', 'role': 'alert', 'text': message }).prependTo($host);
+        if (window.Checkout && typeof window.Checkout.gotoSection === 'function')
+            window.Checkout.gotoSection('confirm_order');
+    }
+
+    function loadStripe(callback) {
+        if (typeof window.Stripe === 'function') {
+            callback();
+            return;
+        }
+        $.getScript('https://js.stripe.com/v3/').done(callback).fail(function () {
+            showError('Stripe could not be loaded. Please try another payment method.');
+        });
+    }
+
+    function initializeWallet() {
+        if (!publishableKey || !walletCurrency || !walletCountry || walletAmount <= 0) {
+            $('#payment-request-button').hide();
+            $('#message').text('Wallet payment is unavailable until the checkout total is calculated.');
+            return;
+        }
+
+        var stripe = window.Stripe(publishableKey);
+        var elements = stripe.elements();
+        var paymentRequest = stripe.paymentRequest({
+            country: walletCountry,
+            currency: walletCurrency,
+            total: {
+                label: 'Total',
+                amount: walletAmount
+            },
+            requestPayerName: true,
+            requestPayerEmail: true
+        });
+        var prButton = elements.create('paymentRequestButton', {
+            paymentRequest: paymentRequest
+        });
+
+        paymentRequest.canMakePayment().then(function (result) {
+            if (result) {
+                prButton.mount('#payment-request-button');
+                return;
+            }
+            $('#payment-request-button').hide();
+            $('#message').text('Apple Pay or Google Pay is currently unavailable. Use a supported browser and a wallet with an active payment method.');
+        });
+
+        paymentRequest.on('cancel', function () {
+            $('#PaymentMethodId').val('');
+            $('#message').text('Wallet payment was cancelled.');
+        });
+
+        paymentRequest.on('paymentmethod', function (event) {
+            $('#PaymentMethodId').val(event.paymentMethod.id);
+            // Tokenization succeeded. The server confirms the PaymentIntent
+            // only when the customer submits the nopCommerce confirmation step.
+            event.complete('success');
+            $('#payment-request-button').hide();
+            $('#message').text('Payment method selected. Confirm the order to complete payment.');
+        });
+    }
+
+    function handleThreeDs(payload) {
+        var separator = payload.indexOf('|');
+        var clientSecret = separator < 0 ? payload.substring(threeDsPrefix.length) : payload.substring(threeDsPrefix.length, separator);
+        if (!clientSecret) {
+            showError('Your bank requires additional verification. Please try again.');
+            return;
+        }
+        showError('Your bank requires additional verification. Complete it here to finish your order.');
+        loadStripe(function () {
+            window.Stripe(publishableKey).handleCardAction(clientSecret).then(function (result) {
+                if (result && result.error) {
+                    showError(result.error.message || 'The verification was not completed. Please try again.');
+                    return;
+                }
+                showError('Verification completed. Confirming your order...');
+                if (window.ConfirmOrder && typeof window.ConfirmOrder.save === 'function')
+                    window.ConfirmOrder.save();
+            });
+        });
+    }
+
+    function installInlineCheckoutHandler() {
+        if (window.__hoodStripeInlineCheckoutInstalled)
+            return;
+        if (!window.ConfirmOrder || typeof window.ConfirmOrder.nextStep !== 'function') {
+            window.setTimeout(installInlineCheckoutHandler, 50);
+            return;
+        }
+        var originalNextStep = window.ConfirmOrder.nextStep;
+        window.ConfirmOrder.nextStep = function (response) {
+            if (response && response.error) {
+                var message = $.isArray(response.message) ? response.message.join(' ') : String(response.message || response.error);
+                if (message.indexOf(threeDsPrefix) === 0)
+                    handleThreeDs(message);
+                else
+                    showError(message.replace(/^Payment error:\s*/i, ''));
+                return false;
+            }
+            return originalNextStep.apply(this, arguments);
+        };
+        window.__hoodStripeInlineCheckoutInstalled = true;
+    }
+
+    // The tag helper queues this block in the footer, after nopCommerce's
+    // jQuery and checkout scripts have been emitted.
+    $(function () {
+        installInlineCheckoutHandler();
+        loadStripe(initializeWallet);
+    });
+})(jQuery);
+</script>

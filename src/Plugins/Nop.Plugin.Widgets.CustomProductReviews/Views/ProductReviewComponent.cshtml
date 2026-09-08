@@ -1,0 +1,423 @@
+﻿@using Microsoft.AspNetCore.Mvc
+@using Nop.Core.Infrastructure
+@using Nop.Services.Catalog
+@using Nop.Services.Seo
+@model Nop.Web.Models.Catalog.ProductReviewsModel
+
+@{
+    // Let the Element theme know this widget supplied the review list so its
+    // standard partial does not render the same records a second time.
+    Context.Items["Hood.CustomProductReviews.Rendered"] = true;
+}
+
+
+
+
+@{
+    NopHtml.AppendPageCssClassParts("html-product-reviews-page");
+    NopHtml.AddCssFileParts("~/lib_npm/magnific-popup/magnific-popup.css");
+    NopHtml.AddScriptParts(ResourceLocation.Footer, "~/lib_npm/magnific-popup/jquery.magnific-popup.min.js", excludeFromBundle: true);
+    //Layout = "_ColumnsOne";
+}
+<link href="@Url.Content("~/Plugins/Widgets.CustomProductReviews/Content/style.css?v=1.12")" rel="stylesheet" />
+
+
+@{
+    var _storeContext = EngineContext.Current.Resolve<Nop.Core.IStoreContext>();
+    var _settingService = EngineContext.Current.Resolve<Nop.Services.Configuration.ISettingService>();
+
+    var setting = await _settingService.LoadSettingAsync<Nop.Plugin.Widgets.CustomProductReviews.CustomProductReviewsSettings>((await _storeContext.GetCurrentStoreAsync()).Id);
+    if (setting == null)
+    {
+        setting = await _settingService.LoadSettingAsync<Nop.Plugin.Widgets.CustomProductReviews.CustomProductReviewsSettings>();
+    }
+
+    var productService = EngineContext.Current.Resolve<IProductService>();
+    var urlRecordService = EngineContext.Current.Resolve<IUrlRecordService>();
+    var product = await productService.GetProductByIdAsync(Model.ProductId);
+    var productName = product?.Name ?? string.Empty;
+    var productSeName = product == null ? string.Empty : await urlRecordService.GetSeNameAsync(product);
+}
+<div class="page product-reviews-page custom-product-reviews-page">
+<div >
+        <h2 style="text-align: center;">@T("Reviews.ProductReviewsFor") <a href="@Url.RouteUrl("Product", new { SeName = productSeName })">@productName</a></h2>
+
+    </div>
+    <div class="page-body formProductReviews-body">
+        @if (!Model.AddProductReview.CanAddNewReview)
+        {
+            <div class="result review-already-added">
+                @T("Reviews.AlreadyAddedProductReviews")
+            </div>
+        }
+        else
+        {
+            <div class="write-review">
+                <div class="title">
+                    <strong>@T("Reviews.Write")</strong>
+                </div>
+                <form id="review-form" method="post" enctype="multipart/form-data">
+                    <input type="hidden" name="productId" value="@(Model.ProductId)" />
+                    <div asp-validation-summary="ModelOnly" class="message-error"></div>
+                    <div id="message-success-review-form" class="form-message message-success"></div>
+                    <div id="message-error-review-form" class="form-message message-error"></div>
+                    <div class="fieldset">
+                        <div class="form-fields">
+                            <div class="inputs">
+                                <label asp-for="AddProductReview.Title" asp-postfix=":"></label>
+                                <input asp-for="AddProductReview.Title" class="review-title" asp-disabled="@(!Model.AddProductReview.CanCurrentCustomerLeaveReview)"/>
+                                <nop-required/>
+                                <span asp-validation-for="AddProductReview.Title"></span>
+                            </div>
+                            <div class="inputs">
+                                <label asp-for="AddProductReview.ReviewText" asp-postfix=":"></label>
+                                <textarea asp-for="AddProductReview.ReviewText" class="review-text" asp-disabled="@(!Model.AddProductReview.CanCurrentCustomerLeaveReview)"></textarea>
+                                <nop-required/>
+                                <span asp-validation-for="AddProductReview.ReviewText"></span>
+                            </div>
+                            <div class="inputs">
+                                <label>Attach files</label>
+                                <input type="file" id="photos" name="photos" multiple="multiple" accept="image/jpeg,image/png,image/webp,video/mp4,video/quicktime,video/webm" onchange="readURLFileUpload()"/>
+                                Max file in upload: 5
+                            </div>
+                            <div class="review-rating">
+                                <label asp-for="AddProductReview.Rating" asp-postfix=":"></label>
+                                <ul>
+                                    <li class="label first">@T("Reviews.Fields.Rating.Bad")</li>
+                                    <li class="rating-options">
+                                        <input asp-for="AddProductReview.Rating" value="0" type="radio" id="addproductrating_0" style="display: none;"/>
+                                        <input asp-for="AddProductReview.Rating" value="1" type="radio" id="addproductrating_1" aria-label="@T("Reviews.Fields.Rating.Bad")"/>
+                                        <label for="addproductrating_1">1</label>
+                                        <input asp-for="AddProductReview.Rating" value="2" type="radio" id="addproductrating_2" aria-label="@T("Reviews.Fields.Rating.NotGood")"/>
+                                        <label for="addproductrating_2">2</label>
+                                        <input asp-for="AddProductReview.Rating" value="3" type="radio" id="addproductrating_3" aria-label="@T("Reviews.Fields.Rating.NotBadNotExcellent")"/>
+                                        <label for="addproductrating_3">3</label>
+                                        <input asp-for="AddProductReview.Rating" value="4" type="radio" id="addproductrating_4" aria-label="@T("Reviews.Fields.Rating.Good")"/>
+                                        <label for="addproductrating_4">4</label>
+                                        <input asp-for="AddProductReview.Rating" value="5" type="radio" id="addproductrating_5" aria-label="@T("Reviews.Fields.Rating.Excellent")"/>
+                                        <label for="addproductrating_5">5</label>
+                                    </li>
+                                    <li class="label last">@T("Reviews.Fields.Rating.Excellent")</li>
+                                </ul>
+                            </div>
+                            @if (Model.ReviewTypeList.Count > 0)
+                            {
+                                foreach (var additionalReview in Model.AddAdditionalProductReviewList.OrderBy(ob => ob.DisplayOrder).ToList())
+                                {
+                                    var curAdditionalReview = Model.AddAdditionalProductReviewList.IndexOf(additionalReview);
+                                    <div class="review-rating">
+                                        <label>@Html.Raw(additionalReview.Name):</label>
+                                        @*<span class="tooltip-text">@Html.Raw(additionalReview.Description)</span>*@
+                                        <ul>
+                                            <li class="label first">@T("Reviews.Fields.Rating.Bad")</li>
+                                            <li class="rating-options">
+                                                <input asp-for="@Model.AddAdditionalProductReviewList[curAdditionalReview].ReviewTypeId" value="@(additionalReview.ReviewTypeId)" type="hidden"/>
+                                                <input asp-for="@Model.AddAdditionalProductReviewList[curAdditionalReview].Name" value="@(additionalReview.Name)" type="hidden"/>
+                                                <input asp-for="@Model.AddAdditionalProductReviewList[curAdditionalReview].Description" value="@(additionalReview.Description)" type="hidden"/>
+                                                <input asp-for="@Model.AddAdditionalProductReviewList[curAdditionalReview].DisplayOrder" value="@(additionalReview.DisplayOrder)" type="hidden"/>
+                                                <input asp-for="@Model.AddAdditionalProductReviewList[curAdditionalReview].IsRequired" value="@(additionalReview.IsRequired)" type="hidden"/>
+                                                <input asp-for="@Model.AddAdditionalProductReviewList[curAdditionalReview].Rating" value="0" type="radio" id="addproductratingext_0_@(additionalReview.ReviewTypeId)" style="display: none"/>
+                                                <label for="addproductratingext_0_@(additionalReview.ReviewTypeId)" style="display: none">0</label>
+                                                <input asp-for="@Model.AddAdditionalProductReviewList[curAdditionalReview].Rating" value="1" type="radio" id="addproductratingext_1_@(additionalReview.ReviewTypeId)"/>
+                                                <label for="addproductratingext_1_@(additionalReview.ReviewTypeId)">1</label>
+                                                <input asp-for="@Model.AddAdditionalProductReviewList[curAdditionalReview].Rating" value="2" type="radio" id="addproductratingext_2_@(additionalReview.ReviewTypeId)"/>
+                                                <label for="addproductratingext_2_@(additionalReview.ReviewTypeId)">2</label>
+                                                <input asp-for="@Model.AddAdditionalProductReviewList[curAdditionalReview].Rating" value="3" type="radio" id="addproductratingext_3_@(additionalReview.ReviewTypeId)"/>
+                                                <label for="addproductratingext_3_@(additionalReview.ReviewTypeId)">3</label>
+                                                <input asp-for="@Model.AddAdditionalProductReviewList[curAdditionalReview].Rating" value="4" type="radio" id="addproductratingext_4_@(additionalReview.ReviewTypeId)"/>
+                                                <label for="addproductratingext_4_@(additionalReview.ReviewTypeId)">4</label>
+                                                <input asp-for="@Model.AddAdditionalProductReviewList[curAdditionalReview].Rating" value="5" type="radio" id="addproductratingext_5_@(additionalReview.ReviewTypeId)"/>
+                                                <label for="addproductratingext_5_@(additionalReview.ReviewTypeId)">5</label>
+                                            </li>
+                                            <li class="label last">@T("Reviews.Fields.Rating.Excellent")</li>
+                                        </ul>
+                                    </div>
+                                }
+                            }
+                            @if (Model.AddProductReview.DisplayCaptcha)
+                            {
+                                <nop-captcha/>
+                            }
+                        </div>
+                    </div>
+                    <div class="buttons">
+                        <div id="ajax-loader" style="display:none">
+                            <div class="progressa">
+                                <div class="progressab" style="    background-color: rgb(178, 222, 75);"></div>
+                            </div>
+                        </div>
+                        <input type="submit" id="add-review" name="add-review" @(!Model.AddProductReview.CanCurrentCustomerLeaveReview == true ? "disabled" : "") class="button-1 write-product-review-button" value="@T("Reviews.SubmitButton")"/>
+
+                    </div>
+                    
+                </form>
+            </div>
+        }
+        @if (Model.Items.Count > 0)
+        {
+            <div class="product-review-list">
+                <div class="title">
+                    <strong>@T("Reviews.ExistingReviews")</strong>
+                </div>
+                @foreach (var review in Model.Items)
+                {
+                    var ratingPercent = review.Rating * 20;
+                    <div class="product-review-item">
+                        <div class="review-item-head">
+
+                            <div class="review-info">
+                                <span class="user">
+                                    <label>@T("Reviews.From"):</label>
+                                    @if (review.AllowViewingProfiles)
+                                    {
+                                        <a href="@Url.RouteUrl("CustomerProfile", new { id = review.CustomerId })">@(review.CustomerName)</a>
+                                    }
+                                    else
+                                    {
+                                        <span>@review.CustomerName</span>
+                                    }
+                                </span>
+                                @if (!string.IsNullOrEmpty(review.CustomerAvatarUrl))
+                                {
+                                    <div class="avatar">
+                                        @if (review.AllowViewingProfiles)
+                                        {
+                                            <a href="@Url.RouteUrl("CustomerProfile", new { id = review.CustomerId })" class="avatar-img-link">
+                                                <img src="@(review.CustomerAvatarUrl)" class="avatar-img" alt="Avatar" />
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <img src="@(review.CustomerAvatarUrl)" class="avatar-img" alt="Avatar" />
+                                        }
+                                    </div>
+                                }
+                                <span class="date">
+                                    <label>@T("Reviews.Date"):</label>
+                                    <span>@review.WrittenOnStr</span>
+                                </span>
+                            </div>
+                            <div class="product-review-box">
+                                <div class="rating">
+                                    <div style="width: @(ratingPercent)%">
+                                    </div>
+                                </div>
+                            </div>
+                            @foreach (var reviewType in review.AdditionalProductReviewList.Where(x => x.Rating > 0 && x.VisibleToAllCustomers))
+                            {
+                                var ratingExtPercent = reviewType.Rating * 20;
+                                <div class="review-type-rating-ext">
+                                    <div class="review-title">
+                                        <span>@reviewType.Name</span>
+                                    </div>
+                                    <div class="product-review-box">
+                                        <div class="rating">
+                                            <div style="width: @(ratingExtPercent)%">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                        <div class="review-content">
+                            <div class="review-title">
+                                <strong>@review.Title</strong>
+                            </div>
+                            <div class="review-text">
+                                @Html.Raw(htmlFormatter.FormatText(review.ReviewText, false, true, false, false, false, false))
+                            </div>
+                            <div class="mediacontainer">
+                                @await Component.InvokeAsync("ProductReviewVideos",new { widgetZone = PublicWidgetZones.ProductReviewsPageInsideReview, additionalData = review  })
+                                @await Component.InvokeAsync("ProductReviewPictures",new { widgetZone = PublicWidgetZones.ProductReviewsPageInsideReview, additionalData = review  })
+                            </div>
+                            @await Html.PartialAsync("~/Plugins/Widgets.CustomProductReviews/Views/_ProductReviewHelpfulness.cshtml", review.Helpfulness)
+                            @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.ProductReviewsPageInsideReview, additionalData = review })
+                            @if (!string.IsNullOrEmpty(review.ReplyText))
+                            {
+                                <div class="reply">
+                                    <div class="reply-header">
+                                        @T("Reviews.Reply")
+                                    </div>
+                                    <div class="reply-text">
+                                        @Html.Raw(htmlFormatter.FormatText(review.ReplyText, false, true, false, false, false, false))
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.ProductReviewsPageBottom, additionalData = Model })
+
+
+    </div>
+</div>
+<script asp-location="Footer">
+    var uploadButton = document.getElementById('add-review');
+
+    function resetReviewUploadProgress() {
+        var progress = document.getElementsByClassName('progressab')[0];
+        if (progress) {
+            progress.style.width = '0%';
+            progress.textContent = '';
+            progress.style.backgroundColor = 'rgb(178, 222, 75)';
+        }
+    }
+
+    $('#review-form').on('submit', function (e) {
+        var form = $(this);
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        if (!uploadButton || !readURLFileUpload()) return false;
+        uploadButton.disabled = true;
+        uploadButton.value = 'Submitting...';
+        var formData = new FormData(this);
+        formData.append("productId", @Model.ProductId);
+        var t = $("input[name='__RequestVerificationToken']").val();
+        $(".form-message").html("");
+        $.ajax({
+            url: '@Url.Action("ProductReviewsAdd", "CustomProductReviews")',
+            type: 'POST',
+            headers:
+            {
+                "RequestVerificationToken": t
+            },
+            data: formData,
+            contentType: false,
+            processData: false,
+            beforeSend: function(){
+                document.getElementById("ajax-loader").style.display = "";
+
+
+            },
+            success: function (data) {
+               
+                var strmsg = "";
+                uploadButton.value = "@T("Reviews.SubmitButton")";
+                if (data.Result && data.Result.length > 0) {
+                    strmsg += "<ul>";
+                    strmsg += "<li>" + data.Result + "</li>";
+                    strmsg += "</ul>";
+                    if (!data.Success) {
+                        $("#message-error-review-form").html(strmsg);
+                    }
+                    else {
+                      
+                        $("#message-success-review-form").html(strmsg);
+                        $("#review-form .form-fields").css("display", "none");
+                        document.getElementById("review-form").reset();
+                    }
+                    if (typeof grecaptcha != "undefined") {
+                        grecaptcha.reset();
+                    }
+                    $('html, body').animate({ scrollTop: $("#review-form").offset().top }, 'slow');
+
+
+                    return false;
+                }
+               
+            },
+            error: function (xhr, resp, text) {
+                $("#message-error-review-form").text("An error occurred while submitting the review. Please try again.");
+            },
+            complete: function () {
+                document.getElementById("ajax-loader").style.display = "none";
+                uploadButton.disabled = false;
+                uploadButton.value = "@T("Reviews.SubmitButton")";
+                resetReviewUploadProgress();
+
+            },
+            xhr:function()
+            {
+            var filexhr=$.ajaxSettings.xhr();
+                if(filexhr.upload)
+                {
+                    filexhr.upload.addEventListener("progress",function(e){
+                        if(e.lengthComputable)
+                        {                           
+                            var progressval = parseInt(((e.loaded)/(e.total))*100);
+                            var elm = document.getElementsByClassName('progressab')[0];
+                            if (!elm) return;
+                            elm.style.width = progressval+"%";
+                            elm.innerText = progressval + "%";
+                            if(progressval>90 && progressval<=100 )
+                            {  
+                                elm.style.backgroundColor = 'blue';                            
+                            }
+                            else if(progressval>50 && progressval<90 )
+                            { 
+                                elm.style.backgroundColor = 'green';
+                            }
+                            else if(progressval<=50)
+                            { 
+                                elm.style.backgroundColor = 'red';
+                            }
+                        }
+                    },false);
+
+                }
+                return filexhr;
+            }
+        });
+        return false;
+    });
+
+    $(document).ready(function () {
+        $('.product-review-links a,.product-no-reviews a').on('click', function (e) {
+            e.preventDefault();
+            $('html, body').animate({
+                scrollTop: $("#review-form").offset().top
+            }, 500);
+        });
+    });
+
+    function readURLFileUpload() {
+        var fileSelect = document.getElementById('photos');
+        if (!fileSelect || !fileSelect.files) return true;
+
+        var files = fileSelect.files;
+        var allowedMimeTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'video/mp4', 'video/quicktime', 'video/webm'];
+        var allowedExtensions = ['jpg', 'jpeg', 'png', 'webp', 'mp4', 'mov', 'webm'];
+
+        if (files.length > @setting.MaximumFile) {
+            alert('You can upload up to @setting.MaximumFile files.');
+            $("#photos").val("");
+            return false;
+        }
+
+        for (var i = 0; i < files.length; i++) {
+            var myfile = files[i];
+            var mimeType = (myfile.type || '').toLowerCase();
+            var fileName = (myfile.name || '').toLowerCase();
+            var extension = fileName.indexOf('.') >= 0 ? fileName.split('.').pop() : '';
+
+            if (allowedMimeTypes.indexOf(mimeType) === -1 && allowedExtensions.indexOf(extension) === -1) {
+                alert('File type is not allowed. Supported formats: JPG, PNG, WEBP, MP4, MOV and WEBM.');
+
+                $("#photos").val("");
+                return false;
+            }
+
+            if (myfile.size > @setting.MaximumSize) {
+                alert('File upload exceeds the allowed size Your file sizes:' + myfile.size+'bytes / Maximum file size:'+@setting.MaximumSize+'bytes' );
+                //alert('@T("Nop.Plugin.Widgets.CustomProductReviews.MaximumUploadedFileSize")');
+                $("#photos").val("");
+                return false;
+            }
+        }
+        return true;
+    }
+
+    $(function () {
+        $('.review-photo-link').magnificPopup({
+            type: 'image',
+            gallery: { enabled: true, navigateByImgClick: true },
+            removalDelay: 300,
+            mainClass: 'mfp-fade'
+        });
+    });
+</script>
+
+
+
