@@ -4,6 +4,7 @@ using Nop.Core.Events;
 using System.Text;
 using Nop.Plugin.Misc.HoodLocalizationSeo.Services;
 using Nop.Services.Blogs;
+using Nop.Services.Catalog;
 using Nop.Services.Events;
 using Nop.Services.Localization;
 using Nop.Services.Seo;
@@ -17,6 +18,7 @@ public sealed class SitemapCreatedEventConsumer : IConsumer<SitemapCreatedEvent>
     private readonly IBlogLocalizationService _blogLocalizationService;
     private readonly IBlogService _blogService;
     private readonly ILanguageService _languageService;
+    private readonly IProductService _productService;
     private readonly IStoreContext _storeContext;
     private readonly ITopicService _topicService;
     private readonly IUrlRecordService _urlRecordService;
@@ -25,6 +27,7 @@ public sealed class SitemapCreatedEventConsumer : IConsumer<SitemapCreatedEvent>
     public SitemapCreatedEventConsumer(IBlogLocalizationService blogLocalizationService,
         IBlogService blogService,
         ILanguageService languageService,
+        IProductService productService,
         IStoreContext storeContext,
         ITopicService topicService,
         IUrlRecordService urlRecordService,
@@ -33,6 +36,7 @@ public sealed class SitemapCreatedEventConsumer : IConsumer<SitemapCreatedEvent>
         _blogLocalizationService = blogLocalizationService;
         _blogService = blogService;
         _languageService = languageService;
+        _productService = productService;
         _storeContext = storeContext;
         _topicService = topicService;
         _urlRecordService = urlRecordService;
@@ -44,7 +48,7 @@ public sealed class SitemapCreatedEventConsumer : IConsumer<SitemapCreatedEvent>
         var store = await _storeContext.GetCurrentStoreAsync();
         var languages = (await _languageService.GetAllLanguagesAsync(storeId: store.Id))
             .Where(language => language.Published).ToList();
-        var storeLocation = _webHelper.GetStoreLocation().TrimEnd('/');
+        var storeLocation = _webHelper.GetStoreLocation(store.SslEnabled).TrimEnd('/');
 
         var posts = (await _blogService.GetAllBlogPostsAsync(store.Id, store.DefaultLanguageId))
             .Where(post => post.IncludeInSitemap).ToList();
@@ -102,7 +106,103 @@ public sealed class SitemapCreatedEventConsumer : IConsumer<SitemapCreatedEvent>
             }
         }
 
+        var slugCache = new Dictionary<string, Nop.Core.Domain.Seo.UrlRecord>(StringComparer.OrdinalIgnoreCase);
+        var productCache = new Dictionary<int, Nop.Core.Domain.Catalog.Product>();
+        foreach (var existing in eventMessage.SitemapUrls.ToList())
+        {
+            if (await ContainsDeletedProductAsync(existing,
+                    languages.Select(language => language.UniqueSeoCode), storeLocation, slugCache, productCache))
+                eventMessage.SitemapUrls.Remove(existing);
+        }
+
         NormalizeAndDeduplicate(eventMessage.SitemapUrls);
+    }
+
+    private async Task<bool> ContainsDeletedProductAsync(SitemapUrlModel item,
+        IEnumerable<string> languageCodes, string storeLocation,
+        IDictionary<string, Nop.Core.Domain.Seo.UrlRecord> slugCache,
+        IDictionary<int, Nop.Core.Domain.Catalog.Product> productCache)
+    {
+        var codes = languageCodes.Where(code => !string.IsNullOrWhiteSpace(code))
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        foreach (var location in EnumerateLocations(item))
+        {
+            if (!TryGetProductRouteSlug(location, storeLocation, codes, out var slug))
+                continue;
+
+            if (!slugCache.TryGetValue(slug, out var record))
+            {
+                record = await _urlRecordService.GetBySlugAsync(slug);
+                slugCache[slug] = record;
+            }
+            if (record is null || !record.EntityName.Equals(nameof(Nop.Core.Domain.Catalog.Product),
+                    StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            if (!productCache.TryGetValue(record.EntityId, out var product))
+            {
+                product = await _productService.GetProductByIdAsync(record.EntityId);
+                productCache[record.EntityId] = product;
+            }
+            if (product?.Deleted == true)
+                return true;
+        }
+
+        return false;
+    }
+
+    private static bool TryGetProductRouteSlug(string url, string storeLocation,
+        ISet<string> languageCodes, out string slug)
+    {
+        slug = string.Empty;
+        var value = StripQueryAndFragment(url);
+        if (string.IsNullOrWhiteSpace(value))
+            return false;
+
+        var isAbsolute = Uri.TryCreate(value, UriKind.Absolute, out var absolute);
+        var path = isAbsolute ? absolute.AbsolutePath : value;
+        var basePath = Uri.TryCreate(storeLocation, UriKind.Absolute, out var storeUri)
+            ? storeUri.AbsolutePath.Trim('/')
+            : string.Empty;
+        if (isAbsolute && (storeUri is null ||
+            !absolute.Scheme.Equals(storeUri.Scheme, StringComparison.OrdinalIgnoreCase) ||
+            !absolute.Host.Equals(storeUri.Host, StringComparison.OrdinalIgnoreCase) ||
+            absolute.Port != storeUri.Port))
+            return false;
+        var normalizedPath = path.Trim('/');
+        if (!string.IsNullOrEmpty(basePath))
+        {
+            if (!normalizedPath.StartsWith(basePath + "/", StringComparison.OrdinalIgnoreCase))
+                return false;
+            normalizedPath = normalizedPath[(basePath.Length + 1)..];
+        }
+
+        var segments = normalizedPath.Split('/', StringSplitOptions.RemoveEmptyEntries);
+        try
+        {
+            if (segments.Length == 2 && !languageCodes.Contains(Uri.UnescapeDataString(segments[0])))
+                return false;
+        }
+        catch (UriFormatException)
+        {
+            return false;
+        }
+        if (segments.Length is < 1 or > 2)
+            return false;
+
+        var segment = segments[^1];
+        if (string.IsNullOrWhiteSpace(segment))
+            return false;
+
+        try
+        {
+            slug = Uri.UnescapeDataString(segment);
+            return !string.IsNullOrWhiteSpace(slug);
+        }
+        catch (UriFormatException)
+        {
+            return false;
+        }
     }
 
     private static bool UrlMatchesAnySlug(SitemapUrlModel item, ISet<string> slugs)
