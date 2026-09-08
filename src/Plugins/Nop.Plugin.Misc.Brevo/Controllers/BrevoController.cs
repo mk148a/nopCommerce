@@ -105,6 +105,11 @@ public class BrevoController : BasePluginController
         model.ListId = brevoSettings.ListId;
         model.SmtpKey = brevoSettings.SmtpKey;
         model.SenderId = brevoSettings.SenderId;
+        model.UseLocalStoreOwnerSmtp = brevoSettings.UseLocalStoreOwnerSmtp;
+        model.LocalStoreOwnerSmtpHost = brevoSettings.LocalStoreOwnerSmtpHost;
+        model.LocalStoreOwnerSmtpPort = brevoSettings.LocalStoreOwnerSmtpPort;
+        model.LocalStoreOwnerSmtpUseSsl = brevoSettings.LocalStoreOwnerSmtpUseSsl;
+        model.LocalStoreOwnerSmtpUsername = brevoSettings.LocalStoreOwnerSmtpUsername;
         model.UseSmsNotifications = brevoSettings.UseSmsNotifications;
         model.SmsSenderName = brevoSettings.SmsSenderName;
         model.StoreOwnerPhoneNumber = brevoSettings.StoreOwnerPhoneNumber;
@@ -163,6 +168,12 @@ public class BrevoController : BasePluginController
             model.ListId_OverrideForStore = await _settingService.SettingExistsAsync(brevoSettings, settings => settings.ListId, storeId);
             model.UseSmtp_OverrideForStore = await _settingService.SettingExistsAsync(brevoSettings, settings => settings.UseSmtp, storeId);
             model.SenderId_OverrideForStore = await _settingService.SettingExistsAsync(brevoSettings, settings => settings.SenderId, storeId);
+            model.UseLocalStoreOwnerSmtp_OverrideForStore = await _settingService.SettingExistsAsync(brevoSettings, settings => settings.UseLocalStoreOwnerSmtp, storeId);
+            model.LocalStoreOwnerSmtpHost_OverrideForStore = await _settingService.SettingExistsAsync(brevoSettings, settings => settings.LocalStoreOwnerSmtpHost, storeId);
+            model.LocalStoreOwnerSmtpPort_OverrideForStore = await _settingService.SettingExistsAsync(brevoSettings, settings => settings.LocalStoreOwnerSmtpPort, storeId);
+            model.LocalStoreOwnerSmtpUseSsl_OverrideForStore = await _settingService.SettingExistsAsync(brevoSettings, settings => settings.LocalStoreOwnerSmtpUseSsl, storeId);
+            model.LocalStoreOwnerSmtpUsername_OverrideForStore = await _settingService.SettingExistsAsync(brevoSettings, settings => settings.LocalStoreOwnerSmtpUsername, storeId);
+            model.LocalStoreOwnerSmtpPassword_OverrideForStore = await _settingService.SettingExistsAsync(brevoSettings, settings => settings.LocalStoreOwnerSmtpPassword, storeId);
             model.UseSmsNotifications_OverrideForStore = await _settingService.SettingExistsAsync(brevoSettings, settings => settings.UseSmsNotifications, storeId);
             model.SmsSenderName_OverrideForStore = await _settingService.SettingExistsAsync(brevoSettings, settings => settings.SmsSenderName, storeId);
             model.UseMarketingAutomation_OverrideForStore = await _settingService.SettingExistsAsync(brevoSettings, settings => settings.UseMarketingAutomation, storeId);
@@ -357,6 +368,20 @@ public class BrevoController : BasePluginController
         //set SMTP key
         brevoSettings.SmtpKey = model.SmtpKey;
         await _settingService.SaveSettingAsync(brevoSettings, settings => settings.SmtpKey, clearCache: false);
+
+        brevoSettings.UseLocalStoreOwnerSmtp = model.UseLocalStoreOwnerSmtp;
+        await _settingService.SaveSettingOverridablePerStoreAsync(brevoSettings, settings => settings.UseLocalStoreOwnerSmtp, model.UseLocalStoreOwnerSmtp_OverrideForStore, storeId, false);
+        brevoSettings.LocalStoreOwnerSmtpHost = string.IsNullOrWhiteSpace(model.LocalStoreOwnerSmtpHost) ? "127.0.0.1" : model.LocalStoreOwnerSmtpHost.Trim();
+        await _settingService.SaveSettingOverridablePerStoreAsync(brevoSettings, settings => settings.LocalStoreOwnerSmtpHost, model.LocalStoreOwnerSmtpHost_OverrideForStore, storeId, false);
+        brevoSettings.LocalStoreOwnerSmtpPort = model.LocalStoreOwnerSmtpPort > 0 ? model.LocalStoreOwnerSmtpPort : 25;
+        await _settingService.SaveSettingOverridablePerStoreAsync(brevoSettings, settings => settings.LocalStoreOwnerSmtpPort, model.LocalStoreOwnerSmtpPort_OverrideForStore, storeId, false);
+        brevoSettings.LocalStoreOwnerSmtpUseSsl = model.LocalStoreOwnerSmtpUseSsl;
+        await _settingService.SaveSettingOverridablePerStoreAsync(brevoSettings, settings => settings.LocalStoreOwnerSmtpUseSsl, model.LocalStoreOwnerSmtpUseSsl_OverrideForStore, storeId, false);
+        brevoSettings.LocalStoreOwnerSmtpUsername = model.LocalStoreOwnerSmtpUsername;
+        await _settingService.SaveSettingOverridablePerStoreAsync(brevoSettings, settings => settings.LocalStoreOwnerSmtpUsername, model.LocalStoreOwnerSmtpUsername_OverrideForStore, storeId, false);
+        if (!string.IsNullOrWhiteSpace(model.LocalStoreOwnerSmtpPassword))
+            brevoSettings.LocalStoreOwnerSmtpPassword = model.LocalStoreOwnerSmtpPassword;
+        await _settingService.SaveSettingOverridablePerStoreAsync(brevoSettings, settings => settings.LocalStoreOwnerSmtpPassword, model.LocalStoreOwnerSmtpPassword_OverrideForStore, storeId, false);
 
         //now clear settings cache
         await _settingService.ClearCacheAsync();

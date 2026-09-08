@@ -48,6 +48,31 @@ public record ConfigurationModel : BaseNopModel
     public bool SenderId_OverrideForStore { get; set; }
     public IList<SelectListItem> AvailableSenders { get; set; }
 
+    [NopResourceDisplayName("Plugins.Misc.Brevo.Fields.UseLocalStoreOwnerSmtp")]
+    public bool UseLocalStoreOwnerSmtp { get; set; }
+    public bool UseLocalStoreOwnerSmtp_OverrideForStore { get; set; }
+
+    [NopResourceDisplayName("Plugins.Misc.Brevo.Fields.LocalStoreOwnerSmtpHost")]
+    public string LocalStoreOwnerSmtpHost { get; set; }
+    public bool LocalStoreOwnerSmtpHost_OverrideForStore { get; set; }
+
+    [NopResourceDisplayName("Plugins.Misc.Brevo.Fields.LocalStoreOwnerSmtpPort")]
+    public int LocalStoreOwnerSmtpPort { get; set; }
+    public bool LocalStoreOwnerSmtpPort_OverrideForStore { get; set; }
+
+    [NopResourceDisplayName("Plugins.Misc.Brevo.Fields.LocalStoreOwnerSmtpUseSsl")]
+    public bool LocalStoreOwnerSmtpUseSsl { get; set; }
+    public bool LocalStoreOwnerSmtpUseSsl_OverrideForStore { get; set; }
+
+    [NopResourceDisplayName("Plugins.Misc.Brevo.Fields.LocalStoreOwnerSmtpUsername")]
+    public string LocalStoreOwnerSmtpUsername { get; set; }
+    public bool LocalStoreOwnerSmtpUsername_OverrideForStore { get; set; }
+
+    [DataType(DataType.Password)]
+    [NopResourceDisplayName("Plugins.Misc.Brevo.Fields.LocalStoreOwnerSmtpPassword")]
+    public string LocalStoreOwnerSmtpPassword { get; set; }
+    public bool LocalStoreOwnerSmtpPassword_OverrideForStore { get; set; }
+
     [NopResourceDisplayName("Plugins.Misc.Brevo.Fields.UseSmsNotifications")]
     public bool UseSmsNotifications { get; set; }
     public bool UseSmsNotifications_OverrideForStore { get; set; }

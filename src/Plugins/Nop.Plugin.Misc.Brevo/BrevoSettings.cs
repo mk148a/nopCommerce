@@ -47,6 +47,24 @@ public class BrevoSettings : ISettings
     /// </summary>
     public int EmailAccountId { get; set; }
 
+    /// <summary>Gets or sets whether store-owner notifications use the local SMTP server.</summary>
+    public bool UseLocalStoreOwnerSmtp { get; set; }
+
+    /// <summary>Gets or sets the local SMTP server host.</summary>
+    public string LocalStoreOwnerSmtpHost { get; set; } = "127.0.0.1";
+
+    /// <summary>Gets or sets the local SMTP server port.</summary>
+    public int LocalStoreOwnerSmtpPort { get; set; } = 25;
+
+    /// <summary>Gets or sets whether the local SMTP server requires SSL.</summary>
+    public bool LocalStoreOwnerSmtpUseSsl { get; set; }
+
+    /// <summary>Gets or sets the local SMTP user name, if authentication is required.</summary>
+    public string LocalStoreOwnerSmtpUsername { get; set; }
+
+    /// <summary>Gets or sets the local SMTP password, if authentication is required.</summary>
+    public string LocalStoreOwnerSmtpPassword { get; set; }
+
     /// <summary>
     /// Gets or sets a value indicating whether to use SMS notifications
     /// </summary>

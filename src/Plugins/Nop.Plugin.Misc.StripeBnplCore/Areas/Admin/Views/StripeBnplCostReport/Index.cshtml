@@ -1,0 +1,189 @@
+@model StripeBnplCostReportModel
+@{
+    Layout = "_AdminLayout";
+    ViewBag.PageTitle = "Stripe BNPL cost report";
+}
+
+<section class="content-header clearfix">
+    <h1 class="float-left">Stripe BNPL cost report</h1>
+    <div class="float-right">
+        <a asp-controller="StripeBnpl" asp-action="Configure" class="btn btn-outline-secondary">Configuration</a>
+        <a asp-controller="StripeBnpl" asp-action="Matrix" class="btn btn-outline-primary">Product eligibility matrix</a>
+    </div>
+</section>
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="alert alert-info">
+            This is an administrator-only reporting view. Stripe fees never change the customer order total.
+            Gross and refunded amounts use the transaction currency; fee and net amounts use Stripe's settlement currency.
+        </div>
+        <div class="alert alert-warning">
+            Stripe's original processing or FX fees may remain after a refund. Review the persisted fee breakdown and
+            reconciliation status before treating a refund as cost-neutral.
+        </div>
+
+        <div class="card card-default">
+            <div class="card-header"><h3 class="card-title">Filter</h3></div>
+            <div class="card-body">
+                <form asp-controller="StripeBnplCostReport" asp-action="Index" method="get">
+                    <div class="row">
+                        <div class="col-md-2 form-group">
+                            <label asp-for="OrderId">Order ID</label>
+                            <input asp-for="OrderId" type="number" min="1" class="form-control" />
+                        </div>
+                        <div class="col-md-2 form-group">
+                            <label asp-for="ProviderId">Provider</label>
+                            <select asp-for="ProviderId" class="form-control">
+                                <option value="">All providers</option>
+                                @foreach (var provider in Enum.GetValues<BnplProvider>())
+                                {
+                                    <option value="@((int)provider)">@provider</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-2 form-group">
+                            <label asp-for="IsSandbox">Environment</label>
+                            <select asp-for="IsSandbox" class="form-control">
+                                <option value="">Test and live</option>
+                                <option value="true">Test only</option>
+                                <option value="false">Live only</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2 form-group">
+                            <label asp-for="FeeDataStatus">Fee status</label>
+                            <select asp-for="FeeDataStatus" class="form-control">
+                                <option value="">All statuses</option>
+                                <option value="pending">Pending</option>
+                                <option value="reconciling">Reconciling</option>
+                                <option value="complete">Complete</option>
+                                <option value="error">Error</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2 form-group">
+                            <label asp-for="PageSize">Page size</label>
+                            <select asp-for="PageSize" class="form-control">
+                                <option value="10">10</option>
+                                <option value="25">25</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2 form-group d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary">Apply filter</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="card card-default">
+            <div class="card-header"><h3 class="card-title">Payments (@Model.TotalCount)</h3></div>
+            <div class="card-body table-responsive p-0">
+                <table class="table table-bordered table-striped">
+                    <thead>
+                    <tr>
+                        <th>Order</th>
+                        <th>Provider / method</th>
+                        <th>Payment</th>
+                        <th>Gross / refunded</th>
+                        <th>Stripe fee / net</th>
+                        <th>Fee reconciliation</th>
+                        <th>Stripe references</th>
+                        <th>Fee details</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @if (Model.Rows.Count == 0)
+                    {
+                        <tr><td colspan="8" class="text-center p-4">No BNPL payments match this filter.</td></tr>
+                    }
+                    @foreach (var row in Model.Rows)
+                    {
+                        var feeBadge = row.FeeDataStatus switch
+                        {
+                            "complete" => "badge-success",
+                            "error" => "badge-danger",
+                            "reconciling" => "badge-info",
+                            _ => "badge-warning"
+                        };
+                        <tr>
+                            <td>
+                                <a asp-controller="Order" asp-action="Edit" asp-route-id="@row.OrderId"><strong>@row.OrderNumber</strong></a><br />
+                                <small>ID @row.OrderId · @row.CreatedOnUtc.ToString("u")</small>
+                            </td>
+                            <td><strong>@row.Provider</strong><br />@row.PaymentMethodType<br /><span class="badge badge-secondary">@row.Environment</span></td>
+                            <td>@row.PaymentStatus</td>
+                            <td><strong>@row.Amount</strong><br /><small>Refunded: @row.RefundedAmount</small></td>
+                            <td><strong>Fee: @row.Fee</strong><br />Net: @row.Net<br /><small>FX rate: @row.ExchangeRate</small></td>
+                            <td>
+                                <span class="badge @feeBadge">@row.FeeDataStatus</span><br />
+                                <small>Attempts: @row.FeeReconciliationAttemptCount</small>
+                                @if (row.FeeLastAttemptOnUtc.HasValue)
+                                {
+                                    <br /><small>Last: @row.FeeLastAttemptOnUtc.Value.ToString("u")</small>
+                                }
+                                @if (row.FeeCompletedOnUtc.HasValue)
+                                {
+                                    <br /><small>Complete: @row.FeeCompletedOnUtc.Value.ToString("u")</small>
+                                }
+                                @if (!string.IsNullOrWhiteSpace(row.FeeDataError))
+                                {
+                                    <div class="text-danger mt-1">@row.FeeDataError</div>
+                                }
+                            </td>
+                            <td style="max-width:230px;word-break:break-all">
+                                <small>PaymentIntent</small><br />@(row.PaymentIntentId ?? "—")<br />
+                                <small>BalanceTransaction</small><br />@(row.BalanceTransactionId ?? "—")
+                            </td>
+                            <td>
+                                @if (row.FeeDetails.Count == 0)
+                                {
+                                    <span>—</span>
+                                }
+                                else
+                                {
+                                    <ul class="mb-0 pl-3">
+                                        @foreach (var detail in row.FeeDetails)
+                                        {
+                                            <li>
+                                                <strong>@detail.Amount</strong> · @detail.Type
+                                                @if (!string.IsNullOrWhiteSpace(detail.Description))
+                                                {
+                                                    <span> — @detail.Description</span>
+                                                }
+                                            </li>
+                                        }
+                                    </ul>
+                                }
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+            @if (Model.TotalPages > 1)
+            {
+                <div class="card-footer d-flex justify-content-between align-items-center">
+                    <span>Page @Model.PageNumber of @Model.TotalPages</span>
+                    <div>
+                        @if (Model.PageNumber > 1)
+                        {
+                            <a asp-action="Index" asp-route-orderId="@Model.OrderId" asp-route-providerId="@Model.ProviderId"
+                               asp-route-isSandbox="@Model.IsSandbox" asp-route-feeDataStatus="@Model.FeeDataStatus"
+                               asp-route-pageNumber="@(Model.PageNumber - 1)" asp-route-pageSize="@Model.PageSize"
+                               class="btn btn-outline-secondary">Previous</a>
+                        }
+                        @if (Model.PageNumber < Model.TotalPages)
+                        {
+                            <a asp-action="Index" asp-route-orderId="@Model.OrderId" asp-route-providerId="@Model.ProviderId"
+                               asp-route-isSandbox="@Model.IsSandbox" asp-route-feeDataStatus="@Model.FeeDataStatus"
+                               asp-route-pageNumber="@(Model.PageNumber + 1)" asp-route-pageSize="@Model.PageSize"
+                               class="btn btn-outline-secondary">Next</a>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</section>

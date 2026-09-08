@@ -61,6 +61,28 @@ public class BrevoEmailSender : EmailSender
         string attachmentFilePath = null, string attachmentFileName = null,
         int attachedDownloadId = 0, IDictionary<string, string> headers = null)
     {
+        // Store-owner notifications target the configured Brevo sender itself. Route only those
+        // messages through the local SMTP server; all customer-facing mail stays on Brevo.
+        if (_brevoSettings.UseLocalStoreOwnerSmtp &&
+            emailAccount.Id == _brevoSettings.EmailAccountId &&
+            string.Equals(toAddress, emailAccount.Email, StringComparison.OrdinalIgnoreCase))
+        {
+            emailAccount = new EmailAccount
+            {
+                Email = emailAccount.Email,
+                DisplayName = emailAccount.DisplayName,
+                Host = string.IsNullOrWhiteSpace(_brevoSettings.LocalStoreOwnerSmtpHost) ? "127.0.0.1" : _brevoSettings.LocalStoreOwnerSmtpHost,
+                Port = _brevoSettings.LocalStoreOwnerSmtpPort > 0 ? _brevoSettings.LocalStoreOwnerSmtpPort : 25,
+                EnableSsl = _brevoSettings.LocalStoreOwnerSmtpUseSsl,
+                Username = _brevoSettings.LocalStoreOwnerSmtpUsername ?? string.Empty,
+                Password = _brevoSettings.LocalStoreOwnerSmtpPassword ?? string.Empty,
+                EmailAuthenticationMethod = string.IsNullOrWhiteSpace(_brevoSettings.LocalStoreOwnerSmtpUsername)
+                    ? EmailAuthenticationMethod.None
+                    : EmailAuthenticationMethod.Login,
+                MaxNumberOfEmails = emailAccount.MaxNumberOfEmails
+            };
+        }
+
         //add store identifier in email headers
         if (emailAccount.Id == _brevoSettings.EmailAccountId)
         {
