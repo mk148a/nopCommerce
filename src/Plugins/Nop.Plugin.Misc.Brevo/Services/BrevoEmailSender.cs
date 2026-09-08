@@ -77,9 +77,12 @@ public class BrevoEmailSender : EmailSender
                     : _brevoSettings.LocalStoreOwnerSmtpHost,
                 Port = _brevoSettings.LocalStoreOwnerSmtpPort > 0 ? _brevoSettings.LocalStoreOwnerSmtpPort : 25,
                 EnableSsl = _brevoSettings.LocalStoreOwnerSmtpUseSsl,
-                Username = _brevoSettings.LocalStoreOwnerSmtpUsername ?? string.Empty,
-                Password = _brevoSettings.LocalStoreOwnerSmtpPassword ?? string.Empty,
-                EmailAuthenticationMethod = string.IsNullOrWhiteSpace(_brevoSettings.LocalStoreOwnerSmtpUsername)
+                // The configured hMailServer listener on 127.0.0.1:25 is a trusted,
+                // loopback-only relay and deliberately does not advertise SMTP AUTH.
+                // Do not attempt AUTH merely because an old value remains in settings.
+                Username = IsTrustedLocalRelay(_brevoSettings) ? string.Empty : _brevoSettings.LocalStoreOwnerSmtpUsername ?? string.Empty,
+                Password = IsTrustedLocalRelay(_brevoSettings) ? string.Empty : _brevoSettings.LocalStoreOwnerSmtpPassword ?? string.Empty,
+                EmailAuthenticationMethod = IsTrustedLocalRelay(_brevoSettings) || string.IsNullOrWhiteSpace(_brevoSettings.LocalStoreOwnerSmtpUsername)
                     ? EmailAuthenticationMethod.None
                     : EmailAuthenticationMethod.Login,
                 MaxNumberOfEmails = emailAccount.MaxNumberOfEmails
@@ -96,6 +99,10 @@ public class BrevoEmailSender : EmailSender
 
         await base.SendEmailAsync(emailAccount, subject, body, fromAddress, fromName, toAddress, toName, replyTo, replyToName, bcc, cc, attachmentFilePath, attachmentFileName, attachedDownloadId, headers);
     }
+
+    private static bool IsTrustedLocalRelay(BrevoSettings settings)
+        => string.Equals(settings.LocalStoreOwnerSmtpHost?.Trim(), "127.0.0.1", StringComparison.Ordinal)
+           && settings.LocalStoreOwnerSmtpPort == 25;
 
     #endregion
 }

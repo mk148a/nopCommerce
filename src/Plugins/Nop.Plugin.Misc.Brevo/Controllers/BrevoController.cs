@@ -469,7 +469,11 @@ public class BrevoController : BasePluginController
             using var client = new SmtpClient();
             var security = model.LocalStoreOwnerSmtpUseSsl ? SecureSocketOptions.SslOnConnect : SecureSocketOptions.None;
             await client.ConnectAsync("127.0.0.1", model.LocalStoreOwnerSmtpPort, security);
-            if (!string.IsNullOrEmpty(username))
+            // hMailServer's loopback listener on port 25 is intentionally a trusted
+            // relay and does not support SMTP AUTH. Credentials may have been entered
+            // in the form, but must not turn a successful local relay test into a
+            // false failure.
+            if (!string.IsNullOrEmpty(username) && model.LocalStoreOwnerSmtpPort != 25)
                 await client.AuthenticateAsync(username, model.LocalStoreOwnerSmtpPassword);
             await client.SendAsync(message);
             await client.DisconnectAsync(true);
