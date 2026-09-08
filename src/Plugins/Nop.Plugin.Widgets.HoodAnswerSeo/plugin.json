@@ -1,0 +1,11 @@
+{
+  "Group": "Widgets",
+  "FriendlyName": "Hood Answer SEO",
+  "SystemName": "Widgets.HoodAnswerSeo",
+  "Version": "1.0.0",
+  "SupportedVersions": [ "4.80" ],
+  "Author": "Hood Archery Shop",
+  "DisplayOrder": 26,
+  "FileName": "Nop.Plugin.Widgets.HoodAnswerSeo.dll",
+  "Description": "Answer-first product facts and standards-compliant WebPage entity links, derived only from visible catalog and review content."
+}

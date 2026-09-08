@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <OutputPath>..\..\Presentation\Nop.Web\Plugins\Misc.HoodWebpOptimizer</OutputPath>
+    <OutDir>$(OutputPath)</OutDir>
+    <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Remove="plugin.json" />
+    <None Remove="Views\_ViewImports.cshtml" />
+    <None Remove="Views\HoodWebp\Configure.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="plugin.json"><CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory></Content>
+    <Content Include="Views\_ViewImports.cshtml"><CopyToOutputDirectory>Always</CopyToOutputDirectory></Content>
+    <Content Include="Views\HoodWebp\Configure.cshtml"><CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory></Content>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="SkiaSharp" Version="2.88.9" />
+    <ProjectReference Include="..\..\Presentation\Nop.Web\Nop.Web.csproj" />
+    <ClearPluginAssemblies Include="..\..\Build\ClearPluginAssemblies.proj" />
+  </ItemGroup>
+  <Target Name="NopTarget" AfterTargets="Build" Condition="'$(SkipPluginCleanup)' != 'true'">
+    <MSBuild Projects="@(ClearPluginAssemblies)" Properties="PluginPath=$(OutDir)" Targets="NopClear" />
+  </Target>
+</Project>

@@ -1,0 +1,12 @@
+{
+  "Group": "Misc",
+  "FriendlyName": "Hood Social Feed compatibility",
+  "SystemName": "Misc.HoodSocialFeedCompatibility",
+  "Version": "1.0",
+  "SupportedVersions": [ "4.80" ],
+  "DependsOnSystemNames": [ "SevenSpikes.Nop.Plugins.SocialFeed" ],
+  "Author": "Hood Archery Shop",
+  "DisplayOrder": 1,
+  "FileName": "Nop.Plugin.Misc.HoodSocialFeedCompatibility.dll",
+  "Description": "Registers missing Social Feed services without modifying nopCommerce core."
+}

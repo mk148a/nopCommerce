@@ -124,6 +124,12 @@ public class MarketingAutomationManager
 
         var customer = await _customerService.GetCustomerByIdAsync(cartItem.CustomerId);
 
+        // The REST tracker requires a usable email address. A nopCommerce guest can
+        // change a cart before supplying one; sending an empty identify request then
+        // produces Brevo's 400 response and cannot identify or recover that cart.
+        if (string.IsNullOrWhiteSpace(customer?.Email))
+            return;
+
         try
         {
             //first, try to identify current customer
@@ -252,11 +258,21 @@ public class MarketingAutomationManager
         ArgumentNullException.ThrowIfNull(order);
 
         var customer = await _customerService.GetCustomerByIdAsync(order.CustomerId);
+        var billingAddress = await _addressService.GetAddressByIdAsync(order.BillingAddressId);
+        var trackingEmail = !string.IsNullOrWhiteSpace(customer?.Email)
+            ? customer.Email.Trim()
+            : billingAddress?.Email?.Trim();
+
+        // Guest customers intentionally have no Customer.Email in nopCommerce. An order has
+        // already validated its billing email, so use that value for this order's Brevo calls.
+        // If neither value is usable, skip the request instead of sending an invalid identify call.
+        if (!CommonHelper.IsValidEmail(trackingEmail))
+            return;
 
         try
         {
             //first, try to identify current customer
-            await _marketingAutomationHttpClient.RequestAsync(new IdentifyRequest { Email = customer.Email });
+            await _marketingAutomationHttpClient.RequestAsync(new IdentifyRequest { Email = trackingEmail });
 
             //get URL helper
             var urlHelper = _urlHelperFactory.GetUrlHelper(_actionContextAccessor.ActionContext);
@@ -297,7 +313,6 @@ public class MarketingAutomationManager
             }).ToArrayAsync();
 
             var shippingAddress = await _addressService.GetAddressByIdAsync(order.ShippingAddressId ?? 0);
-            var billingAddress = await _addressService.GetAddressByIdAsync(order.BillingAddressId);
 
             var shippingAddressData = new
             {
@@ -356,7 +371,7 @@ public class MarketingAutomationManager
             //create track event object
             var trackEvent = new TrackEventRequest
             {
-                Email = customer.Email,
+                Email = trackingEmail,
                 EventName = BrevoDefaults.OrderCompletedEventName,
                 EventData = new { id = $"cart:{shoppingCartGuid}", data = cartData }
             };

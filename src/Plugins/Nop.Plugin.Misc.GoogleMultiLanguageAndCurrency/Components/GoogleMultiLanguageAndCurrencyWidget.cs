@@ -26,6 +26,10 @@ namespace Nop.Plugin.Misc.GoogleMultiLanguageAndCurrency.Components
         private readonly IStoreContext _storeContext;
         private readonly ILogger<GoogleMultiLanguageAndCurrencyWidget> _logger;
         private List<Language> _activeLanguages;
+        private static readonly HashSet<string> HalloweenLandingLanguageCodes = new(StringComparer.OrdinalIgnoreCase)
+        {
+            "en", "tr", "de", "fr", "es"
+        };
 
         public GoogleMultiLanguageAndCurrencyWidget(
             IUrlRecordService urlRecordService,
@@ -78,9 +82,17 @@ namespace Nop.Plugin.Misc.GoogleMultiLanguageAndCurrency.Components
                 var activeLanguage = _activeLanguages.Single(x => x.UniqueSeoCode == currentLanguageTxt);
                 var currentLanguageId = activeLanguage.Id;
                 var currentStore = await _storeContext.GetCurrentStoreAsync();
-                var defaultLang = _activeLanguages.Single(z => z.Id == currentStore.DefaultLanguageId);
+                var hreflangLanguages = GetHreflangLanguages(data, _activeLanguages);
+                if (hreflangLanguages.Count == 0)
+                {
+                    return View("~/Plugins/Nop.Plugin.Misc.GoogleMultiLanguageAndCurrency/Views/Shared/Components/GoogleMultiLanguageAndCurrencyWidget/Default.cshtml", model);
+                }
 
-                model = await GenerateHreflangLinks(data, _activeLanguages, activeLanguage, currentStore, defaultLang, storeScope);
+                var defaultLang = hreflangLanguages.SingleOrDefault(z => z.Id == currentStore.DefaultLanguageId)
+                    ?? hreflangLanguages.SingleOrDefault(z => z.UniqueSeoCode.Equals("en", StringComparison.OrdinalIgnoreCase))
+                    ?? hreflangLanguages[0];
+
+                model = await GenerateHreflangLinks(data, hreflangLanguages, activeLanguage, currentStore, defaultLang, storeScope);
 
                 currentUrl = await GetHttpProtocolAsync() + "://" + HttpContext.Request.Host.Value + HttpContext.Request.Path + HttpContext.Request.QueryString;
 
@@ -102,6 +114,21 @@ namespace Nop.Plugin.Misc.GoogleMultiLanguageAndCurrency.Components
 
             return View("~/Plugins/Nop.Plugin.Misc.GoogleMultiLanguageAndCurrency/Views/Shared/Components/GoogleMultiLanguageAndCurrencyWidget/Default.cshtml", model);
         }
+
+        private static List<Language> GetHreflangLanguages(RouteData data, List<Language> activeLanguages)
+        {
+            var routeName = data.Values.TryGetValue("routeName", out var routeNameValue)
+                ? routeNameValue?.ToString()
+                : null;
+            var isHalloweenLanding = string.Equals(routeName, "HoodHalloweenLanding", StringComparison.OrdinalIgnoreCase) ||
+                                     string.Equals(data.Values["controller"]?.ToString(), "HalloweenLanding", StringComparison.OrdinalIgnoreCase) &&
+                                     string.Equals(data.Values["action"]?.ToString(), "HalloweenLanding", StringComparison.OrdinalIgnoreCase);
+
+            return isHalloweenLanding
+                ? activeLanguages.Where(language => HalloweenLandingLanguageCodes.Contains(language.UniqueSeoCode)).ToList()
+                : activeLanguages;
+        }
+
         private async Task<GoogleMultiLanguageAndCurrencysModel> GenerateHreflangLinks(RouteData data, List<Language> activeLanguages, Language currentLanguage,
              Core.Domain.Stores.Store currentStore, Language defaultLang, int storeScope)
         {

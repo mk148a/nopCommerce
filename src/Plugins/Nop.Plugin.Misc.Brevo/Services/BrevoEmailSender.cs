@@ -61,8 +61,29 @@ public class BrevoEmailSender : EmailSender
         string attachmentFilePath = null, string attachmentFileName = null,
         int attachedDownloadId = 0, IDictionary<string, string> headers = null)
     {
+        var isBrevoAccount = emailAccount.Id == _brevoSettings.EmailAccountId;
+
+        // Brevo may defer an email addressed to the same Brevo sender.  Store-owner notices
+        // therefore use the trusted local hMailServer relay; customer mail still uses Brevo.
+        if (_brevoSettings.UseLocalStoreOwnerSmtp && isBrevoAccount &&
+            string.Equals(toAddress, emailAccount.Email, StringComparison.OrdinalIgnoreCase))
+        {
+            emailAccount = new EmailAccount
+            {
+                Email = emailAccount.Email,
+                DisplayName = emailAccount.DisplayName,
+                Host = string.IsNullOrWhiteSpace(_brevoSettings.LocalStoreOwnerSmtpHost)
+                    ? "127.0.0.1"
+                    : _brevoSettings.LocalStoreOwnerSmtpHost,
+                Port = _brevoSettings.LocalStoreOwnerSmtpPort > 0 ? _brevoSettings.LocalStoreOwnerSmtpPort : 25,
+                EnableSsl = false,
+                EmailAuthenticationMethod = EmailAuthenticationMethod.None,
+                MaxNumberOfEmails = emailAccount.MaxNumberOfEmails
+            };
+        }
+
         //add store identifier in email headers
-        if (emailAccount.Id == _brevoSettings.EmailAccountId)
+        if (isBrevoAccount)
         {
             var store = await _storeContext.GetCurrentStoreAsync();
             headers ??= new Dictionary<string, string>();

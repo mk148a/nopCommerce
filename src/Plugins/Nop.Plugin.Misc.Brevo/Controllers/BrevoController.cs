@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Nop.Core;
 using Nop.Core.Caching;
 using Nop.Core.Domain.Messages;
+using Nop.Core.Domain.ScheduleTasks;
 using Nop.Plugin.Misc.Brevo.Models;
 using Nop.Plugin.Misc.Brevo.Services;
 using Nop.Services.Common;
@@ -11,6 +12,7 @@ using Nop.Services.Configuration;
 using Nop.Services.Localization;
 using Nop.Services.Logging;
 using Nop.Services.Messages;
+using Nop.Services.ScheduleTasks;
 using Nop.Services.Stores;
 using Nop.Web.Framework;
 using Nop.Web.Framework.Controllers;
@@ -37,6 +39,8 @@ public class BrevoController : BasePluginController
     protected readonly INotificationService _notificationService;
     protected readonly ISettingService _settingService;
     protected readonly IStaticCacheManager _staticCacheManager;
+    protected readonly IScheduleTaskService _scheduleTaskService;
+    protected readonly SeasonalCampaignService _seasonalCampaignService;
     protected readonly IStoreContext _storeContext;
     protected readonly IStoreMappingService _storeMappingService;
     protected readonly IStoreService _storeService;
@@ -57,6 +61,8 @@ public class BrevoController : BasePluginController
         INotificationService notificationService,
         ISettingService settingService,
         IStaticCacheManager staticCacheManager,
+        IScheduleTaskService scheduleTaskService,
+        SeasonalCampaignService seasonalCampaignService,
         IStoreContext storeContext,
         IStoreMappingService storeMappingService,
         IStoreService storeService,
@@ -73,6 +79,8 @@ public class BrevoController : BasePluginController
         _notificationService = notificationService;
         _settingService = settingService;
         _staticCacheManager = staticCacheManager;
+        _scheduleTaskService = scheduleTaskService;
+        _seasonalCampaignService = seasonalCampaignService;
         _storeContext = storeContext;
         _storeMappingService = storeMappingService;
         _storeService = storeService;
@@ -105,11 +113,31 @@ public class BrevoController : BasePluginController
         model.ListId = brevoSettings.ListId;
         model.SmtpKey = brevoSettings.SmtpKey;
         model.SenderId = brevoSettings.SenderId;
+        model.UseLocalStoreOwnerSmtp = brevoSettings.UseLocalStoreOwnerSmtp;
+        model.LocalStoreOwnerSmtpHost = brevoSettings.LocalStoreOwnerSmtpHost;
+        model.LocalStoreOwnerSmtpPort = brevoSettings.LocalStoreOwnerSmtpPort;
         model.UseSmsNotifications = brevoSettings.UseSmsNotifications;
         model.SmsSenderName = brevoSettings.SmsSenderName;
         model.StoreOwnerPhoneNumber = brevoSettings.StoreOwnerPhoneNumber;
         model.UseMarketingAutomation = brevoSettings.UseMarketingAutomation;
         model.TrackingScript = brevoSettings.TrackingScript;
+
+        var campaignSettings = await _settingService.LoadSettingAsync<CampaignAutomationSettings>(storeId);
+        model.CampaignAutomation.Enabled = campaignSettings.Enabled;
+        model.CampaignAutomation.CreateBrevoDraft = campaignSettings.CreateBrevoDraft;
+        model.CampaignAutomation.ScheduleBrevoEmail = campaignSettings.ScheduleBrevoEmail;
+        model.CampaignAutomation.DiscountPercentage = campaignSettings.DiscountPercentage;
+        model.CampaignAutomation.CouponDurationHours = campaignSettings.CouponDurationHours;
+        model.CampaignAutomation.LeadTimeDays = campaignSettings.LeadTimeDays;
+        if (string.Equals(campaignSettings.CampaignStartOverrideOccasionKey,
+            SeasonalOccasionCalendar.GetNext(DateTime.UtcNow).Key, StringComparison.Ordinal))
+            model.CampaignAutomation.CurrentOccasionStartOverrideUtc = campaignSettings.CampaignStartOverrideUtc;
+        model.CampaignAutomation.CouponPrefix = campaignSettings.CouponPrefix;
+        model.CampaignAutomation.BrevoSegmentId = campaignSettings.BrevoSegmentId;
+        model.CampaignAutomation.BrevoListId = campaignSettings.BrevoListId;
+        model.CampaignAutomation.BrevoTemplateId = campaignSettings.BrevoTemplateId;
+        model.CampaignAutomation.BrevoSenderId = campaignSettings.BrevoSenderId;
+        model.CampaignAutomation.NextOccasion = SeasonalOccasionCalendar.GetNext(DateTime.UtcNow).Name;
 
         var customer = await _workContext.GetCurrentCustomerAsync();
         model.HideGeneralBlock = await _genericAttributeService.GetAttributeAsync<bool>(customer, BrevoDefaults.HideGeneralBlock);
@@ -163,6 +191,9 @@ public class BrevoController : BasePluginController
             model.ListId_OverrideForStore = await _settingService.SettingExistsAsync(brevoSettings, settings => settings.ListId, storeId);
             model.UseSmtp_OverrideForStore = await _settingService.SettingExistsAsync(brevoSettings, settings => settings.UseSmtp, storeId);
             model.SenderId_OverrideForStore = await _settingService.SettingExistsAsync(brevoSettings, settings => settings.SenderId, storeId);
+            model.UseLocalStoreOwnerSmtp_OverrideForStore = await _settingService.SettingExistsAsync(brevoSettings, settings => settings.UseLocalStoreOwnerSmtp, storeId);
+            model.LocalStoreOwnerSmtpHost_OverrideForStore = await _settingService.SettingExistsAsync(brevoSettings, settings => settings.LocalStoreOwnerSmtpHost, storeId);
+            model.LocalStoreOwnerSmtpPort_OverrideForStore = await _settingService.SettingExistsAsync(brevoSettings, settings => settings.LocalStoreOwnerSmtpPort, storeId);
             model.UseSmsNotifications_OverrideForStore = await _settingService.SettingExistsAsync(brevoSettings, settings => settings.UseSmsNotifications, storeId);
             model.SmsSenderName_OverrideForStore = await _settingService.SettingExistsAsync(brevoSettings, settings => settings.SmsSenderName, storeId);
             model.UseMarketingAutomation_OverrideForStore = await _settingService.SettingExistsAsync(brevoSettings, settings => settings.UseMarketingAutomation, storeId);
@@ -357,6 +388,18 @@ public class BrevoController : BasePluginController
         //set SMTP key
         brevoSettings.SmtpKey = model.SmtpKey;
         await _settingService.SaveSettingAsync(brevoSettings, settings => settings.SmtpKey, clearCache: false);
+
+        brevoSettings.UseLocalStoreOwnerSmtp = model.UseLocalStoreOwnerSmtp;
+        await _settingService.SaveSettingOverridablePerStoreAsync(brevoSettings,
+            settings => settings.UseLocalStoreOwnerSmtp, model.UseLocalStoreOwnerSmtp_OverrideForStore, storeId, false);
+        brevoSettings.LocalStoreOwnerSmtpHost = string.IsNullOrWhiteSpace(model.LocalStoreOwnerSmtpHost)
+            ? "127.0.0.1"
+            : model.LocalStoreOwnerSmtpHost.Trim();
+        await _settingService.SaveSettingOverridablePerStoreAsync(brevoSettings,
+            settings => settings.LocalStoreOwnerSmtpHost, model.LocalStoreOwnerSmtpHost_OverrideForStore, storeId, false);
+        brevoSettings.LocalStoreOwnerSmtpPort = model.LocalStoreOwnerSmtpPort > 0 ? model.LocalStoreOwnerSmtpPort : 25;
+        await _settingService.SaveSettingOverridablePerStoreAsync(brevoSettings,
+            settings => settings.LocalStoreOwnerSmtpPort, model.LocalStoreOwnerSmtpPort_OverrideForStore, storeId, false);
 
         //now clear settings cache
         await _settingService.ClearCacheAsync();
@@ -624,6 +667,99 @@ public class BrevoController : BasePluginController
         _notificationService.SuccessNotification(await _localizationService.GetResourceAsync("Admin.Plugins.Saved"));
 
         return await Configure();
+    }
+
+    [AuthorizeAdmin]
+    [Area(AreaNames.ADMIN)]
+    [HttpPost, ActionName("Configure")]
+    [FormValueRequired("saveCampaignAutomation")]
+    public async Task<IActionResult> SaveCampaignAutomation(ConfigurationModel model)
+    {
+        var automation = model.CampaignAutomation;
+        if (automation is null || automation.DiscountPercentage is <= 0 or > SeasonalCampaignService.MaximumDiscountPercentage ||
+            automation.CouponDurationHours is < 1 or > 720 || automation.LeadTimeDays is < 0 or > 90 ||
+            string.IsNullOrWhiteSpace(automation.CouponPrefix))
+        {
+            _notificationService.ErrorNotification("Seasonal coupon settings are invalid. Discounts must be between 0.01% and 15%.");
+            return await Configure();
+        }
+
+        if (automation.ScheduleBrevoEmail && (!automation.CreateBrevoDraft || (automation.BrevoSegmentId <= 0 && automation.BrevoListId <= 0) ||
+                                               automation.BrevoSenderId <= 0))
+        {
+            _notificationService.ErrorNotification("Automatic Brevo scheduling requires campaign drafts plus a valid consent list or segment and sender ID.");
+            return await Configure();
+        }
+
+        var storeId = await _storeContext.GetActiveStoreScopeConfigurationAsync();
+        var settings = await _settingService.LoadSettingAsync<CampaignAutomationSettings>(storeId);
+        settings.Enabled = automation.Enabled;
+        settings.CreateBrevoDraft = automation.CreateBrevoDraft;
+        settings.ScheduleBrevoEmail = automation.ScheduleBrevoEmail;
+        settings.DiscountPercentage = automation.DiscountPercentage;
+        settings.CouponDurationHours = automation.CouponDurationHours;
+        settings.LeadTimeDays = automation.LeadTimeDays;
+        settings.CampaignStartOverrideUtc = automation.CurrentOccasionStartOverrideUtc;
+        settings.CampaignStartOverrideOccasionKey = automation.CurrentOccasionStartOverrideUtc.HasValue
+            ? SeasonalOccasionCalendar.GetNext(DateTime.UtcNow).Key
+            : null;
+        settings.CouponPrefix = automation.CouponPrefix;
+        settings.BrevoSegmentId = automation.BrevoSegmentId;
+        settings.BrevoListId = automation.BrevoListId;
+        settings.BrevoTemplateId = automation.BrevoTemplateId;
+        settings.BrevoSenderId = automation.BrevoSenderId;
+        await _settingService.SaveSettingAsync(settings, storeId);
+        await EnsureSeasonalCampaignTaskAsync();
+        await _settingService.ClearCacheAsync();
+
+        _notificationService.SuccessNotification("Seasonal coupon planner settings saved. Email scheduling remains off unless you explicitly enable it.");
+        return await Configure();
+    }
+
+    [AuthorizeAdmin]
+    [Area(AreaNames.ADMIN)]
+    [HttpPost, ActionName("Configure")]
+    [FormValueRequired("prepareNextSeasonalCampaign")]
+    public async Task<IActionResult> PrepareNextSeasonalCampaign()
+    {
+        var storeId = await _storeContext.GetActiveStoreScopeConfigurationAsync();
+        var settings = await _settingService.LoadSettingAsync<CampaignAutomationSettings>(storeId);
+        var result = await _seasonalCampaignService.PrepareNextCampaignAsync(settings, requireWithinLeadTime: false);
+
+        if (result.WasCreated)
+        {
+            _notificationService.SuccessNotification($"Prepared {result.Occasion.Name}: coupon {result.Discount.CouponCode} is valid from " +
+                $"{result.Discount.StartDateUtc:yyyy-MM-dd HH:mm} UTC for {(result.Discount.EndDateUtc - result.Discount.StartDateUtc)?.TotalHours:0} hours.");
+        }
+        else
+        {
+            _notificationService.WarningNotification($"A campaign for {result.Occasion.Name} already exists: {result.Discount?.CouponCode}.");
+        }
+
+        if (result.BrevoCampaignId.HasValue)
+            _notificationService.SuccessNotification($"Brevo draft #{result.BrevoCampaignId.Value} was prepared for {result.Occasion.Name}.");
+
+        if (!string.IsNullOrWhiteSpace(result.BrevoCampaignError))
+            _notificationService.WarningNotification($"Coupon was prepared, but no Brevo campaign was created: {result.BrevoCampaignError}");
+
+        return await Configure();
+    }
+
+    private async Task EnsureSeasonalCampaignTaskAsync()
+    {
+        if (await _scheduleTaskService.GetTaskByTypeAsync(BrevoDefaults.SeasonalCampaignTask) is not null)
+            return;
+
+        await _scheduleTaskService.InsertTaskAsync(new ScheduleTask
+        {
+            Enabled = true,
+            LastEnabledUtc = DateTime.UtcNow,
+            // The delivery service has its own UTC-day idempotency marker.
+            Seconds = 60 * 60,
+            Name = BrevoDefaults.SeasonalCampaignTaskName,
+            Type = BrevoDefaults.SeasonalCampaignTask,
+            StopOnError = false
+        });
     }
 
     public async Task<IActionResult> ImportContacts(BaseNopModel model, IFormCollection form)

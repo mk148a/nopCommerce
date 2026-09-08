@@ -48,6 +48,22 @@ public class BrevoSettings : ISettings
     public int EmailAccountId { get; set; }
 
     /// <summary>
+    /// Gets or sets a value indicating whether store-owner notifications use local SMTP.
+    /// Customer-facing transactional mail continues through Brevo.
+    /// </summary>
+    public bool UseLocalStoreOwnerSmtp { get; set; }
+
+    /// <summary>
+    /// Gets or sets the local SMTP host for store-owner notifications.
+    /// </summary>
+    public string LocalStoreOwnerSmtpHost { get; set; } = "127.0.0.1";
+
+    /// <summary>
+    /// Gets or sets the local SMTP port for store-owner notifications.
+    /// </summary>
+    public int LocalStoreOwnerSmtpPort { get; set; } = 25;
+
+    /// <summary>
     /// Gets or sets a value indicating whether to use SMS notifications
     /// </summary>
     public bool UseSmsNotifications { get; set; }

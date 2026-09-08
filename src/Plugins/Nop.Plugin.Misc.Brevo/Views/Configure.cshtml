@@ -238,6 +238,15 @@
                                     <button type="submit" name="saveSMTP" class="btn btn-primary">@T("Admin.Common.Save")</button>
                                 </div>
                             </div>
+                            <div class="card card-default">
+                                <div class="card-header">Store-owner notification relay</div>
+                                <div class="card-body">
+                                    <p>Order and other store-owner notifications can use local hMailServer. Customer emails remain on Brevo.</p>
+                                    <div class="form-group row"><div class="col-md-3"><nop-override-store-checkbox asp-for="UseLocalStoreOwnerSmtp_OverrideForStore" asp-input="UseLocalStoreOwnerSmtp" asp-store-scope="@Model.ActiveStoreScopeConfiguration" /><nop-label asp-for="UseLocalStoreOwnerSmtp" /></div><div class="col-md-9"><nop-editor asp-for="UseLocalStoreOwnerSmtp" /></div></div>
+                                    <div class="form-group row"><div class="col-md-3"><nop-override-store-checkbox asp-for="LocalStoreOwnerSmtpHost_OverrideForStore" asp-input="LocalStoreOwnerSmtpHost" asp-store-scope="@Model.ActiveStoreScopeConfiguration" /><nop-label asp-for="LocalStoreOwnerSmtpHost" /></div><div class="col-md-9"><nop-editor asp-for="LocalStoreOwnerSmtpHost" /></div></div>
+                                    <div class="form-group row"><div class="col-md-3"><nop-override-store-checkbox asp-for="LocalStoreOwnerSmtpPort_OverrideForStore" asp-input="LocalStoreOwnerSmtpPort" asp-store-scope="@Model.ActiveStoreScopeConfiguration" /><nop-label asp-for="LocalStoreOwnerSmtpPort" /></div><div class="col-md-9"><nop-editor asp-for="LocalStoreOwnerSmtpPort" /></div></div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -522,6 +531,74 @@
                             <div class="form-group row">
                                 <div class="col-md-9 offset-md-3">
                                     <button type="submit" name="submitCampaign" class="btn btn-primary">@T("Plugins.Misc.Brevo.SMS.Campaigns.Submit")</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </nop-card>
+            <nop-card asp-name="brevo-seasonal-campaigns" asp-icon="fas fa-calendar-alt" asp-title="Seasonal coupon campaigns" asp-hide-block-attribute-name="BrevoPage.HideSeasonalCampaignsBlock" asp-hide="false" asp-advanced="false">
+                <div class="card-body">
+                    <div class="card card-default">
+                        <div class="card-body">
+                            <p>
+                                Prepare one-use-per-customer order coupons for a global retail calendar: New Year, Valentine's Day, Easter, Halloween, Black Friday, Cyber Monday and Christmas.
+                                The planner independently enforces a 15% maximum. A Brevo campaign is a draft unless automatic scheduling is explicitly enabled below.
+                            </p>
+                            <p><strong>Next occasion:</strong> @Model.CampaignAutomation.NextOccasion (09:00 UTC)</p>
+                            <div class="form-group row">
+                                <div class="col-md-3"><label asp-for="CampaignAutomation.Enabled">Enable daily planner</label></div>
+                                <div class="col-md-9"><nop-editor asp-for="CampaignAutomation.Enabled" /></div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-3"><label asp-for="CampaignAutomation.DiscountPercentage">Discount percentage</label></div>
+                                <div class="col-md-9"><nop-editor asp-for="CampaignAutomation.DiscountPercentage" /><span asp-validation-for="CampaignAutomation.DiscountPercentage"></span><small class="form-text text-muted">Maximum: 15%.</small></div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-3"><label asp-for="CampaignAutomation.CouponDurationHours">Coupon duration</label></div>
+                                <div class="col-md-9"><nop-editor asp-for="CampaignAutomation.CouponDurationHours" /><small class="form-text text-muted">Hours, from 1 to 720. Existing cart-recovery coupon: 72 hours.</small></div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-3"><label asp-for="CampaignAutomation.LeadTimeDays">Preparation lead time</label></div>
+                                <div class="col-md-9"><nop-editor asp-for="CampaignAutomation.LeadTimeDays" /><small class="form-text text-muted">Days before the occasion in which the daily job creates the coupon.</small></div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-3"><label asp-for="CampaignAutomation.CurrentOccasionStartOverrideUtc">Current occasion launch override (UTC)</label></div>
+                                <div class="col-md-9"><nop-editor asp-for="CampaignAutomation.CurrentOccasionStartOverrideUtc" /><small class="form-text text-muted">Optional. Applies only to the current next occasion; later calendar entries retain the lead time above.</small></div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-3"><label asp-for="CampaignAutomation.CouponPrefix">Coupon prefix</label></div>
+                                <div class="col-md-9"><nop-editor asp-for="CampaignAutomation.CouponPrefix" /><small class="form-text text-muted">Letters and numbers only; the occasion suffix is added automatically.</small></div>
+                            </div>
+                            <hr />
+                            <div class="form-group row">
+                                <div class="col-md-3"><label asp-for="CampaignAutomation.CreateBrevoDraft">Create Brevo draft</label></div>
+                                <div class="col-md-9"><nop-editor asp-for="CampaignAutomation.CreateBrevoDraft" /><small class="form-text text-muted">Uses the approved Brevo template and the consented segment. It does not send an email.</small></div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-3"><label asp-for="CampaignAutomation.ScheduleBrevoEmail">Schedule Brevo email automatically</label></div>
+                                <div class="col-md-9"><nop-editor asp-for="CampaignAutomation.ScheduleBrevoEmail" /><small class="form-text text-danger">Off by default. Turning it on schedules future eligible occasions through Brevo.</small></div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-3"><label asp-for="CampaignAutomation.BrevoSegmentId">Brevo consent segment ID</label></div>
+                                <div class="col-md-9"><nop-editor asp-for="CampaignAutomation.BrevoSegmentId" /></div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-3"><label asp-for="CampaignAutomation.BrevoListId">Brevo consent list ID</label></div>
+                                <div class="col-md-9"><nop-editor asp-for="CampaignAutomation.BrevoListId" /><small class="form-text text-muted">Use a consented list or a consented segment; the configured list is used when both are supplied.</small></div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-3"><label asp-for="CampaignAutomation.BrevoTemplateId">Brevo approved template ID</label></div>
+                                <div class="col-md-9"><nop-editor asp-for="CampaignAutomation.BrevoTemplateId" /></div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-3"><label asp-for="CampaignAutomation.BrevoSenderId">Brevo sender ID</label></div>
+                                <div class="col-md-9"><nop-editor asp-for="CampaignAutomation.BrevoSenderId" /></div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-9 offset-md-3">
+                                    <button type="submit" name="saveCampaignAutomation" class="btn btn-primary">Save seasonal campaign settings</button>
+                                    <button type="submit" name="prepareNextSeasonalCampaign" class="btn btn-outline-secondary">Prepare next campaign now</button>
                                 </div>
                             </div>
                         </div>

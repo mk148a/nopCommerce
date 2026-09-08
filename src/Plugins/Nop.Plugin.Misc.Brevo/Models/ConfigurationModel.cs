@@ -20,6 +20,7 @@ public record ConfigurationModel : BaseNopModel
         MessageTemplateSearchModel = new BrevoMessageTemplateSearchModel();
         SmsSearchModel = new SmsSearchModel();
         AddSms = new SmsModel();
+        CampaignAutomation = new CampaignAutomationModel();
     }
 
     #endregion
@@ -47,6 +48,18 @@ public record ConfigurationModel : BaseNopModel
     public string SenderId { get; set; }
     public bool SenderId_OverrideForStore { get; set; }
     public IList<SelectListItem> AvailableSenders { get; set; }
+
+    [NopResourceDisplayName("Plugins.Misc.Brevo.Fields.UseLocalStoreOwnerSmtp")]
+    public bool UseLocalStoreOwnerSmtp { get; set; }
+    public bool UseLocalStoreOwnerSmtp_OverrideForStore { get; set; }
+
+    [NopResourceDisplayName("Plugins.Misc.Brevo.Fields.LocalStoreOwnerSmtpHost")]
+    public string LocalStoreOwnerSmtpHost { get; set; }
+    public bool LocalStoreOwnerSmtpHost_OverrideForStore { get; set; }
+
+    [NopResourceDisplayName("Plugins.Misc.Brevo.Fields.LocalStoreOwnerSmtpPort")]
+    public int LocalStoreOwnerSmtpPort { get; set; }
+    public bool LocalStoreOwnerSmtpPort_OverrideForStore { get; set; }
 
     [NopResourceDisplayName("Plugins.Misc.Brevo.Fields.UseSmsNotifications")]
     public bool UseSmsNotifications { get; set; }
@@ -104,6 +117,8 @@ public record ConfigurationModel : BaseNopModel
     public SmsSearchModel SmsSearchModel { get; set; }
 
     public SmsModel AddSms { get; set; }
+
+    public CampaignAutomationModel CampaignAutomation { get; set; }
 
     #endregion
 }
