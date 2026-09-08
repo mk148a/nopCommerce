@@ -337,3 +337,34 @@ clear: both;
 }
 
 
+.review-media-guidance,
+.review-media-requirements,
+.review-media-selected {
+    margin: 6px 0;
+    font-size: 0.9em;
+}
+
+.review-media-selected {
+    word-break: break-word;
+}
+
+/* Native file controls otherwise retain a browser minimum width and can make
+   the review form wider than a narrow product page. Keep the rule local to
+   this widget and only apply it on phone/tablet widths. */
+@media (max-width: 768px) {
+    .custom-product-reviews-page .formProductReviews-body input[type="file"] {
+        box-sizing: border-box;
+        display: block;
+        clear: both;
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+    }
+}
+
+.review-video-player {
+    display: block;
+    width: min(100%, 640px);
+    max-height: min(70vh, 480px);
+    background: #000;
+}

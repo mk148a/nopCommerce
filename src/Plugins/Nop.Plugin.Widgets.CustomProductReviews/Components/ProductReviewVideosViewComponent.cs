@@ -111,12 +111,13 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Components
                 var defaultPictureSize = 0;
                 foreach (var mapping in reviewMappings)
                {
-                    if (mapping.VideoId != null)
+                    if (mapping.ProductReviewVideoId != null)
                    {
-                       var vidId = mapping.VideoId.Value;
+                       var vidId = mapping.ProductReviewVideoId.Value;
 
                         var vid = await _videoService.GetVideoByIdAsync(vidId);
-                       reviewVidList.Add(vid);
+                       if (vid != null)
+                           reviewVidList.Add(vid);
 
                    }
                 }
@@ -126,14 +127,26 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Components
                 for (var i = 0; i < reviewVidList.Count; i++)
                 {
                     var video = reviewVidList[i];
+                    try
+                    {
+                        (imageUrl, video) = await _videoService.GetVideoUrlAsync(video, defaultPictureSize, false);
+                        (fullSizeImageUrl, video) = await _videoService.GetVideoUrlAsync(video, defaultPictureSize, false);
+                    }
+                    catch (InvalidOperationException)
+                    {
+                        // Historical/orphan records can contain an empty or corrupted binary.
+                        // A single unusable upload must never make the product page unavailable.
+                        continue;
+                    }
 
-                    (imageUrl, video) = await _videoService.GetVideoUrlAsync(video, defaultPictureSize, false);
-                    (fullSizeImageUrl, video) = await _videoService.GetVideoUrlAsync(video, defaultPictureSize, false);
+                    if (string.IsNullOrWhiteSpace(imageUrl) || video == null)
+                        continue;
 
                 var videoModel = new ReviewVideoModel()
                     {
                         ImageUrl = imageUrl,
                         FullSizeImageUrl = fullSizeImageUrl,
+                        MimeType = video.MimeType,
                         Title = string.Format(await _localizationService.GetResourceAsync("Media.Product.ImageLinkTitleFormat.Details"), model.Title),
                         AlternateText = string.Format(await _localizationService.GetResourceAsync("Media.Product.ImageAlternateTextFormat.Details"), model.Title),
                     };

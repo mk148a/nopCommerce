@@ -1,0 +1,43 @@
+<script>
+    (function () {
+        if (window.__hoodAdsSignalTrackingBound) return;
+        window.__hoodAdsSignalTrackingBound = true;
+
+        function push(eventName, ecommerce) {
+            window.dataLayer = window.dataLayer || [];
+            window.dataLayer.push({ ecommerce: null });
+            window.dataLayer.push({ event: eventName, ecommerce: ecommerce || undefined });
+        }
+
+        function productFromCard(card) {
+            if (!card) return null;
+            var id = card.getAttribute('data-productid');
+            var title = card.querySelector('.product-title a, .product-title');
+            if (!id && !title) return null;
+            return {
+                item_id: id || undefined,
+                item_name: title ? title.textContent.trim() : undefined,
+                quantity: 1
+            };
+        }
+
+        document.addEventListener('click', function (event) {
+            var productLink = event.target.closest('.product-item .product-title a, .product-item .picture a');
+            if (productLink) {
+                var item = productFromCard(productLink.closest('.product-item'));
+                if (item) {
+                    push('select_item', {
+                        item_list_name: document.title || undefined,
+                        items: [item]
+                    });
+                }
+                return;
+            }
+
+            var checkout = event.target.closest('a.checkout-button, .checkout-button, a[href*="/checkout"]');
+            if (checkout && !checkout.closest('.admin-header-links')) {
+                push('begin_checkout');
+            }
+        }, true);
+    })();
+</script>

@@ -16,6 +16,9 @@
     <None Remove="logo.jpg" />
 	<None Remove="plugin.json" />
     <None Remove="Areas\Admin\Views\_ViewImports.cshtml" />
+    <None Remove="Areas\Admin\Views\ReviewMedia\Manage.cshtml" />
+    <None Remove="Areas\Admin\Views\ReviewMedia\_ReviewMediaListButton.cshtml" />
+    <None Remove="Areas\Admin\Views\ReviewMedia\_ReviewMediaWidget.cshtml" />
     <None Remove="Views\CustomProductReviews\_ProductReviewPictures.cshtml" />
     <None Remove="Views\CustomProductReviews\_ViewImports.cshtml" />
     <None Remove="Views\ProductReviewComponent.cshtml" />
@@ -43,6 +46,15 @@
     <Content Include="Views\ProductReviewComponent.cshtml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Areas\Admin\Views\ReviewMedia\Manage.cshtml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Areas\Admin\Views\ReviewMedia\_ReviewMediaListButton.cshtml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Areas\Admin\Views\ReviewMedia\_ReviewMediaWidget.cshtml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Views\_ProductReviewVideos.cshtml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -59,7 +71,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Update="Areas\Admin\Views\_ViewImports.cshtml">
+    <Content Include="Areas\Admin\Views\_ViewImports.cshtml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Update="Views\_ViewImports.cshtml">
@@ -75,10 +87,6 @@
     <Folder Include="Content\Images\" />
     <Folder Include="Extensions\" />
     <Folder Include="Factories\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="NReco.VideoConverter" Version="1.2.0" />
   </ItemGroup>
 
   <ItemGroup>

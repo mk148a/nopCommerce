@@ -2,7 +2,7 @@
   "Group": "Genius Software",
   "FriendlyName": "Custom Product Reviews",
   "SystemName": "Nop.Plugin.Widgets.CustomProductReviews",
-  "Version": "1.12",
+  "Version": "1.14",
   "SupportedVersions": [
     "4.80"
   ],

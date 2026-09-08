@@ -1,0 +1,34 @@
+@model Nop.Plugin.Widgets.CustomProductReviews.Areas.Admin.Models.ReviewMediaWidgetModel
+
+<div class="card card-default">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span>Review media (@Model.Items.Count)</span>
+        <a class="btn btn-sm btn-primary" href="~/Admin/ReviewMedia/Manage?reviewId=@Model.ReviewId">Manage media</a>
+    </div>
+    <div class="card-body">
+        @if (!Model.Items.Any())
+        {
+            <span class="text-muted">No photos or videos are attached to this review.</span>
+        }
+        else
+        {
+            <div class="d-flex flex-wrap" style="gap: 10px">
+                @foreach (var item in Model.Items)
+                {
+                    @if (item.IsVideo)
+                    {
+                        <video controls muted playsinline preload="metadata" style="width: 150px; max-height: 110px">
+                            <source src="@item.MediaUrl" type="@item.MimeType" />
+                        </video>
+                    }
+                    else
+                    {
+                        <a href="@item.MediaUrl" target="_blank" rel="noopener noreferrer">
+                            <img src="@item.MediaUrl" alt="@item.AltAttribute" title="@item.TitleAttribute" style="width: 96px; height: 96px; object-fit: cover" />
+                        </a>
+                    }
+                }
+            </div>
+        }
+    </div>
+</div>

@@ -134,7 +134,39 @@ namespace Nop.Plugin.Widgets.CustomProductReviews
 
                 await _localizationService.AddOrUpdateLocaleResourceAsync(
                     new Dictionary<string, string> { ["Reviews.ProductReviewsFor"] = value }, language.Id);
+
+                var resources = GetReviewMediaResources(languageCode);
+                await _localizationService.AddOrUpdateLocaleResourceAsync(resources, language.Id);
             }
+        }
+
+        private static Dictionary<string, string> GetReviewMediaResources(string languageCode)
+        {
+            // Keep the form useful even when a new storefront language is added:
+            // the English copy is a safe fallback until a native translation is added.
+            var values = languageCode?.ToLowerInvariant() switch
+            {
+                "tr" => ("Fotoğraf veya kısa video ekleyin", "Deneyiminizi gösteren fotoğraf ya da kısa video yorumunuzu daha faydalı kılar.", "En fazla {0} dosya. Fotoğraf başına {1} MB, kısa video başına {2} MB. JPG, PNG, WebP, MP4, MOV veya WebM.", "Seçilen dosyalar"),
+                "de" => ("Foto oder kurzes Video hinzufügen", "Fotos oder ein kurzes Video machen Ihre Bewertung hilfreicher.", "Bis zu {0} Dateien. Fotos bis {1} MB, kurze Videos bis {2} MB. JPG, PNG, WebP, MP4, MOV oder WebM.", "Ausgewählte Dateien"),
+                "fr" => ("Ajoutez des photos ou une courte vidéo", "Des photos ou une courte vidéo rendent votre avis plus utile.", "Jusqu’à {0} fichiers. Photos jusqu’à {1} Mo, courtes vidéos jusqu’à {2} Mo. JPG, PNG, WebP, MP4, MOV ou WebM.", "Fichiers sélectionnés"),
+                "es" => ("Añade fotos o un vídeo corto", "Las fotos o un vídeo corto hacen que tu reseña sea más útil.", "Hasta {0} archivos. Fotos de hasta {1} MB y vídeos cortos de hasta {2} MB. JPG, PNG, WebP, MP4, MOV o WebM.", "Archivos seleccionados"),
+                "it" => ("Aggiungi foto o un breve video", "Le foto o un breve video rendono la recensione più utile.", "Fino a {0} file. Foto fino a {1} MB e brevi video fino a {2} MB. JPG, PNG, WebP, MP4, MOV o WebM.", "File selezionati"),
+                "pt" => ("Adicione fotos ou um vídeo curto", "Fotos ou um vídeo curto tornam a sua avaliação mais útil.", "Até {0} ficheiros. Fotografias até {1} MB e vídeos curtos até {2} MB. JPG, PNG, WebP, MP4, MOV ou WebM.", "Ficheiros selecionados"),
+                "nl" => ("Voeg foto’s of een korte video toe", "Foto’s of een korte video maken uw beoordeling nuttiger.", "Maximaal {0} bestanden. Foto’s tot {1} MB en korte video’s tot {2} MB. JPG, PNG, WebP, MP4, MOV of WebM.", "Geselecteerde bestanden"),
+                "ru" => ("Добавьте фотографии или короткое видео", "Фотографии или короткое видео сделают ваш отзыв полезнее.", "До {0} файлов. Фотографии до {1} МБ, короткие видео до {2} МБ. JPG, PNG, WebP, MP4, MOV или WebM.", "Выбранные файлы"),
+                _ => ("Add photos or a short video", "Photos or a short video make your review more helpful for other archers.", "Up to {0} files. Photos up to {1} MB each; short videos up to {2} MB. JPG, PNG, WebP, MP4, MOV or WebM.", "Selected files")
+            };
+
+            return new Dictionary<string, string>
+            {
+                ["Plugins.Widgets.CustomProductReviews.Media.Heading"] = values.Item1,
+                ["Plugins.Widgets.CustomProductReviews.Media.Guidance"] = values.Item2,
+                ["Plugins.Widgets.CustomProductReviews.Media.Requirements"] = values.Item3,
+                ["Plugins.Widgets.CustomProductReviews.Media.SelectedFiles"] = values.Item4,
+                ["Plugins.Widgets.CustomProductReviews.Media.InvalidType"] = "Unsupported file type.",
+                ["Plugins.Widgets.CustomProductReviews.Media.TooMany"] = "Too many files selected.",
+                ["Plugins.Widgets.CustomProductReviews.Media.TooLarge"] = "A selected file is too large."
+            };
         }
 
         /// <summary>
@@ -142,8 +174,7 @@ namespace Nop.Plugin.Widgets.CustomProductReviews
         /// </summary>
         public override string GetConfigurationPageUrl()
         {
-            //return _urlHelperFactory.GetUrlHelper(_actionContextAccessor.ActionContext).RouteUrl(AccessiBeDefaults.ConfigurationRouteName);
-            return "";
+            return $"{_webHelper.GetStoreLocation().TrimEnd('/')}/Admin/ReviewMedia/Manage";
         }
 
         /// <summary>
@@ -159,7 +190,12 @@ namespace Nop.Plugin.Widgets.CustomProductReviews
             // previous second zone rendered every review a second time and
             // made visible counts diverge from the summary/schema.
             return await Task.FromResult<IList<string>>(
-                new List<string> { PublicWidgetZones.ProductReviewsPageTop });
+                new List<string>
+                {
+                    PublicWidgetZones.ProductReviewsPageTop,
+                    AdminWidgetZones.ProductReviewDetailsTop,
+                    AdminWidgetZones.ProductReviewListButtons
+                });
            
            
         }
@@ -174,7 +210,10 @@ namespace Nop.Plugin.Widgets.CustomProductReviews
             if (widgetZone == null)
                 throw new ArgumentNullException(nameof(widgetZone));
 
-            return typeof(CustomProductReviewsViewComponent);
+            return string.Equals(widgetZone, AdminWidgetZones.ProductReviewDetailsTop, StringComparison.Ordinal) ||
+                   string.Equals(widgetZone, AdminWidgetZones.ProductReviewListButtons, StringComparison.Ordinal)
+                ? typeof(AdminReviewMediaWidgetViewComponent)
+                : typeof(CustomProductReviewsViewComponent);
         }
 
 
@@ -218,7 +257,15 @@ namespace Nop.Plugin.Widgets.CustomProductReviews
                     WidgetZone = PublicWidgetZones.ProductReviewsPageTop,
                     data = "json",
                     MaximumFile = 5,
-                    MaximumSize = 1073741824
+                    MaximumSize = 1073741824,
+                    MaximumVideoSizeBytes = 104857600,
+                    EnableReviewVideoTranscoding = false,
+                    MaximumVideoDurationSeconds = 120,
+                    MaximumVideoWidth = 3840,
+                    MaximumVideoHeight = 3840,
+                    NormalizedVideoMaxWidth = 1280,
+                    VideoCrf = 23,
+                    VideoTranscodeTimeoutSeconds = 180
                 });
 
                 await EnsureProductReviewsForResourcesAsync();

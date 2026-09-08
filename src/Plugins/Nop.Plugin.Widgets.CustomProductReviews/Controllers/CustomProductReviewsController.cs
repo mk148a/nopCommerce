@@ -86,6 +86,7 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Controllers
         private readonly ICustomProductReviewMappingService _customProductReviewMappingService;
         private readonly INopFileProvider _fileProvider;
         private readonly IBackgroundQueue _queue;
+        private readonly CustomProductReviewsSettings _customProductReviewsSettings;
 
         #endregion
 
@@ -122,7 +123,8 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Controllers
             INopFileProvider fileProvider,
             ShippingSettings shippingSettings,
             ICustomProductReviewMappingService customProductReviewMappingService,
-            IBackgroundQueue queue
+            IBackgroundQueue queue,
+            CustomProductReviewsSettings customProductReviewsSettings
 
         )
         {
@@ -158,6 +160,7 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Controllers
             _shippingSettings = shippingSettings;
             _customProductReviewMappingService = customProductReviewMappingService;
             _queue = queue;
+            _customProductReviewsSettings = customProductReviewsSettings;
 
         }
 
@@ -201,6 +204,8 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Controllers
             }
 
             await ValidateProductReviewAvailabilityAsync(product);
+            var mediaFiles = photos?.Where(file => file?.Length > 0).ToList() ?? new List<IFormFile>();
+            ValidateReviewMediaUploads(mediaFiles);
 
             if (ModelState.IsValid)
             {
@@ -262,19 +267,16 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Controllers
 
                 #region Product Review Media Upload Section
 
-                try
-                {
-
-
-                //pictures
+                // Input was validated before saving the review. The worker logs
+                // any decode/transcode failure instead of silently dropping it.
                 List<UploadDataBinary> dataList = new List<UploadDataBinary>();
 
 
-                foreach (var photo in photos)
+                foreach (var photo in mediaFiles)
                 {
                     var uploadData = new UploadDataBinary();
 
-                    uploadData.Extentions = photo.ContentType;
+                    uploadData.Extentions = GetCanonicalMediaMimeType(photo);
                         
                   
                     using (var ms = new MemoryStream())
@@ -299,12 +301,6 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Controllers
                     });
                 }
 
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e);
-                    
-                }
                 #endregion
                 var result = !isApproved
                     ? await _localizationService.GetResourceAsync("Reviews.SeeAfterApproving")
@@ -316,9 +312,52 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Controllers
             }
             //if we got this far, something failed, redisplay form
             model = await _productModelFactory.PrepareProductReviewsModelAsync(product);
-            return Json(new { Model = model, Success = false, Result = string.Empty });
+            var errors = ModelState.Values
+                .SelectMany(state => state.Errors)
+                .Select(error => string.IsNullOrWhiteSpace(error.ErrorMessage) ? "The review could not be submitted." : error.ErrorMessage)
+                .Distinct()
+                .ToList();
+            return Json(new { Model = model, Success = false, Result = string.Join(" ", errors) });
         }
     
+
+        private void ValidateReviewMediaUploads(IReadOnlyCollection<IFormFile> mediaFiles)
+        {
+            if (mediaFiles.Count > _customProductReviewsSettings.MaximumFile)
+                ModelState.AddModelError("photos", "Too many review-media files were selected.");
+
+            foreach (var file in mediaFiles)
+            {
+                var mimeType = GetCanonicalMediaMimeType(file);
+                if (string.IsNullOrWhiteSpace(mimeType))
+                {
+                    ModelState.AddModelError("photos", "Unsupported review-media type. Use JPG, PNG, WebP, MP4, MOV or WebM.");
+                    continue;
+                }
+
+                var maximumSize = mimeType.StartsWith("video/", StringComparison.OrdinalIgnoreCase)
+                    ? Math.Clamp(_customProductReviewsSettings.MaximumVideoSizeBytes, 5 * 1024 * 1024, 250 * 1024 * 1024)
+                    : _customProductReviewsSettings.MaximumSize;
+                if (maximumSize > 0 && file.Length > maximumSize)
+                    ModelState.AddModelError("photos", "A review-media file exceeds the allowed file size.");
+            }
+        }
+
+        private static string GetCanonicalMediaMimeType(IFormFile file)
+        {
+            var contentType = file?.ContentType?.Trim().ToLowerInvariant();
+            var extension = Path.GetExtension(file?.FileName ?? string.Empty).ToLowerInvariant();
+            return (contentType, extension) switch
+            {
+                ("image/jpeg", _) or ("image/jpg", _) or (_, ".jpg") or (_, ".jpeg") => "image/jpeg",
+                ("image/png", _) or (_, ".png") => "image/png",
+                ("image/webp", _) or (_, ".webp") => "image/webp",
+                ("video/mp4", _) or ("video/mpeg4", _) or (_, ".mp4") => Nop.Plugin.Widgets.CustomProductReviews.Data.MimeTypes.VideoMp4,
+                ("video/quicktime", _) or ("video/mov", _) or (_, ".mov") => Nop.Plugin.Widgets.CustomProductReviews.Data.MimeTypes.VideoMov,
+                ("video/webm", _) or (_, ".webm") => Nop.Plugin.Widgets.CustomProductReviews.Data.MimeTypes.VideoWebm,
+                _ => string.Empty
+            };
+        }
 
     public async Task<string> InsertReviewMedia(ProductReviewsModel model, UploadDataBinary data, int reviewId)
         {
@@ -332,39 +371,23 @@ namespace Nop.Plugin.Widgets.CustomProductReviews.Controllers
 
 
                 Video vid = new Video();
-                if (data.Extentions.Contains("image"))
+                if (data.Extentions.StartsWith("image/", StringComparison.OrdinalIgnoreCase))
                 {
-                    try
-                    {
-                        sw.Start();
+                    sw.Start();
 
-                        using var bitmap = SKBitmap.Decode(data.BinaryData)
-                            ?? throw new InvalidDataException("The uploaded review image could not be decoded.");
-                        using var image = SKImage.FromBitmap(bitmap);
-                        using var encoded = image.Encode(SKEncodedImageFormat.Webp, 90)
-                            ?? throw new InvalidDataException("The uploaded review image could not be encoded as WebP.");
-                        sw.Stop();
-                        Console.WriteLine("Elapsed Picture Encode={0}", sw.Elapsed);
-                        System.IO.File.AppendAllText(@"ImageProcessPerformace.log", string.Format("Elapsed Picture Encode={0}", sw.Elapsed) + Environment.NewLine);
+                    using var bitmap = SKBitmap.Decode(data.BinaryData)
+                        ?? throw new InvalidDataException("The uploaded review image could not be decoded.");
+                    using var image = SKImage.FromBitmap(bitmap);
+                    using var encoded = image.Encode(SKEncodedImageFormat.Webp, 90)
+                        ?? throw new InvalidDataException("The uploaded review image could not be encoded as WebP.");
+                    sw.Stop();
 
-                        var raw = encoded.ToArray();
-                        pic = await _pictureService.InsertPictureAsync(raw, "image/webp", name);
-                    }
-                    catch (Exception e)
-                    {
-                        System.IO.File.AppendAllText(@"customProductReview.log", e.Message + Environment.NewLine);
-                    }
+                    var raw = encoded.ToArray();
+                    pic = await _pictureService.InsertPictureAsync(raw, "image/webp", name);
                 }
-                else if (data.Extentions.Contains("video"))
+                else if (data.Extentions.StartsWith("video/", StringComparison.OrdinalIgnoreCase))
                 {
-                    try
-                    {
-                        vid = await _videoService.InsertVideoAsync(data.BinaryData, name, data.Extentions);
-                    }
-                    catch (Exception e)
-                    {
-                        System.IO.File.AppendAllText(@"customProductReview.log", e.InnerException + Environment.NewLine);
-                    }
+                    vid = await _videoService.InsertVideoAsync(data.BinaryData, name, data.Extentions);
                 }
 
                 int? lastPicId = pic.Id;
