@@ -1,9 +1,12 @@
+using Microsoft.AspNetCore.Http;
 using Nop.Core;
 using Nop.Core.Domain.Topics;
+using Nop.Core.Domain.Catalog;
 using Nop.Core.Events;
 using Nop.Core.Http;
 using Nop.Services.Events;
 using Nop.Services.Localization;
+using Nop.Services.Catalog;
 using Nop.Services.Seo;
 using Nop.Services.Topics;
 using Nop.Web.Framework.Events;
@@ -15,16 +18,19 @@ public sealed class RoutingEventConsumer : IConsumer<GenericRoutingEvent>
 {
     private readonly ILanguageService _languageService;
     private readonly IStoreContext _storeContext;
+    private readonly IProductService _productService;
     private readonly ITopicService _topicService;
     private readonly IUrlRecordService _urlRecordService;
 
     public RoutingEventConsumer(ILanguageService languageService,
         IStoreContext storeContext,
+        IProductService productService,
         ITopicService topicService,
         IUrlRecordService urlRecordService)
     {
         _languageService = languageService;
         _storeContext = storeContext;
+        _productService = productService;
         _topicService = topicService;
         _urlRecordService = urlRecordService;
     }
@@ -38,6 +44,46 @@ public sealed class RoutingEventConsumer : IConsumer<GenericRoutingEvent>
             return;
 
         var urlRecord = eventMessage.UrlRecord;
+        eventMessage.RouteValues.TryGetValue(NopRoutingDefaults.RouteValue.Language, out var languageValue);
+        var routeLanguageCode = languageValue?.ToString();
+        var requestPath = eventMessage.HttpContext.Request.Path.Value ?? string.Empty;
+        var firstPathSegment = requestPath.Trim('/').Split('/', StringSplitOptions.RemoveEmptyEntries)
+            .FirstOrDefault();
+        var hasLanguageCode = routeLanguageCode?.Length == 2 &&
+            string.Equals(firstPathSegment, routeLanguageCode, StringComparison.OrdinalIgnoreCase);
+
+        if (urlRecord.EntityName.Equals(nameof(Product), StringComparison.OrdinalIgnoreCase))
+        {
+            var product = await _productService.GetProductByIdAsync(urlRecord.EntityId);
+            if (product is null || product.Deleted)
+            {
+                eventMessage.HttpContext.Response.StatusCode = StatusCodes.Status404NotFound;
+                eventMessage.RouteValues[NopRoutingDefaults.RouteValue.Controller] = "Common";
+                eventMessage.RouteValues[NopRoutingDefaults.RouteValue.Action] = "PageNotFound";
+                StopRouting(eventMessage);
+                return;
+            }
+        }
+
+        // Language-neutral inactive records reached without a language prefix
+        // must canonicalize directly to the store default language slug.
+        if ((!hasLanguageCode || string.Equals(languageValue?.ToString(), language.UniqueSeoCode,
+                StringComparison.OrdinalIgnoreCase)) &&
+            urlRecord.LanguageId == 0 && !urlRecord.IsActive)
+        {
+            var store = await _storeContext.GetCurrentStoreAsync();
+            if (language.Id == store.DefaultLanguageId)
+            {
+                var activeDefaultSlug = await _urlRecordService.GetActiveSlugAsync(
+                    urlRecord.EntityId, urlRecord.EntityName, 0);
+                if (!string.IsNullOrWhiteSpace(activeDefaultSlug))
+                {
+                    SetPermanentRedirect(eventMessage, $"/{language.UniqueSeoCode}/{activeDefaultSlug}");
+                    return;
+                }
+            }
+        }
+
         var activeLocalizedSlug = await _urlRecordService.GetActiveSlugAsync(
             urlRecord.EntityId, urlRecord.EntityName, language.Id);
 

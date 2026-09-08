@@ -20,7 +20,9 @@ public sealed class HoodNopStartup : INopStartup
         services.AddScoped<IBlogTagHreflangService, BlogTagHreflangService>();
         services.AddScoped<ILocalizationResourceInstaller, LocalizationResourceInstaller>();
         services.AddScoped<ISitemapArtifactInvalidator, SitemapArtifactInvalidator>();
+        services.AddScoped<ISitemapHreflangStreamTransformer, SitemapHreflangStreamTransformer>();
         services.AddScoped<LocalizedBlogRedirectFilter>();
+        services.AddScoped<InvariantLegacySlugRedirectFilter>();
 
         Decorate<IBlogModelFactory, LocalizedBlogModelFactory>(services);
         Decorate<INopUrlHelper, LocalizedBlogUrlHelper>(services);
@@ -28,7 +30,10 @@ public sealed class HoodNopStartup : INopStartup
         Decorate<PublicWidgetModelFactory, BlogTagHreflangWidgetModelFactory>(services);
 
         services.Configure<MvcOptions>(options =>
-            options.Filters.AddService<LocalizedBlogRedirectFilter>());
+        {
+            options.Filters.AddService<LocalizedBlogRedirectFilter>();
+            options.Filters.AddService<InvariantLegacySlugRedirectFilter>();
+        });
     }
 
     public void Configure(IApplicationBuilder application)

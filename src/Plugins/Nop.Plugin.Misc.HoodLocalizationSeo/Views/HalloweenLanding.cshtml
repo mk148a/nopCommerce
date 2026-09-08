@@ -1,0 +1,61 @@
+@model Nop.Plugin.Misc.HoodLocalizationSeo.Models.HalloweenLandingModel
+
+@using Nop.Core.Domain.Catalog
+
+@{
+    Layout = "_ColumnsOne";
+    NopHtml.AddTitleParts(Model.Title);
+    NopHtml.AddMetaDescriptionParts(Model.MetaDescription);
+    NopHtml.AppendPageCssClassParts("html-halloween-landing-page");
+}
+
+<div class="page halloween-landing-page">
+    <div class="page-title">
+        <h1>@Model.Title</h1>
+    </div>
+    <div class="page-body">
+        <div class="topic-block">
+            <div class="topic-block-body">
+                <p>@Model.Introduction</p>
+            </div>
+        </div>
+
+        @if (Model.Categories.Count > 0)
+        {
+            <section class="category-grid" aria-labelledby="halloween-categories">
+                <div class="title"><strong id="halloween-categories">@Model.CategoriesHeading</strong></div>
+                <div class="item-grid">
+                    @foreach (var category in Model.Categories)
+                    {
+                        <div class="item-box">
+                            <div class="sub-category-item">
+                                <h2 class="title"><a href="@category.Url">@category.Name</a></h2>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </section>
+        }
+
+        @if (Model.Products.Count > 0)
+        {
+            <section class="product-grid" aria-labelledby="halloween-products">
+                <div class="title"><strong id="halloween-products">@Model.ProductsHeading</strong></div>
+                <div class="item-grid">
+                    @foreach (var product in Model.Products)
+                    {
+                        <div class="item-box">
+                            <div class="product-item">
+                                <h2 class="product-title"><a href="@Url.RouteUrl<Product>(new { SeName = product.SeName })">@product.Name</a></h2>
+                                @if (!string.IsNullOrWhiteSpace(product.ShortDescription))
+                                {
+                                    <div class="description">@Html.Raw(product.ShortDescription)</div>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            </section>
+        }
+    </div>
+</div>

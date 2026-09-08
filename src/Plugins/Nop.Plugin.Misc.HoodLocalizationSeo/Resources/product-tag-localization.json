@@ -10,7 +10,7 @@
   "exactGlossaryCheckCount": 12255,
   "valueSlugRegenerationCheckCount": 19656,
   "numericOnlySlugCount": 0,
-  "retainedPreviousSlugCount": 7035,
+  "retainedPreviousSlugCount": 7048,
   "glossarySources": [
     {
       "url": "https://yakegm.ktb.gov.tr/TR-345145/geleneksel-turk-okculugu.html",
@@ -36089,7 +36089,7 @@
       "languageId": 10,
       "languageCode": "fr",
       "source": "koc nock",
-      "value": "encoche Koç"
+      "value": "Koç Nock"
     },
     {
       "entityId": 610,
@@ -41822,7 +41822,7 @@
       "languageId": 9,
       "languageCode": "de",
       "source": "koc nock",
-      "value": "Koç-Nocke"
+      "value": "Koç Nock"
     },
     {
       "entityId": 610,
@@ -47555,7 +47555,7 @@
       "languageId": 11,
       "languageCode": "it",
       "source": "koc nock",
-      "value": "cocca Koç"
+      "value": "Koç Nock"
     },
     {
       "entityId": 610,
@@ -53288,7 +53288,7 @@
       "languageId": 19,
       "languageCode": "es",
       "source": "koc nock",
-      "value": "culatín Koç"
+      "value": "Koç Nock"
     },
     {
       "entityId": 610,
@@ -59021,7 +59021,7 @@
       "languageId": 12,
       "languageCode": "dk",
       "source": "koc nock",
-      "value": "Koç-nock"
+      "value": "Koç Nock"
     },
     {
       "entityId": 610,
@@ -64754,7 +64754,7 @@
       "languageId": 20,
       "languageCode": "se",
       "source": "koc nock",
-      "value": "Koç-nock"
+      "value": "Koç Nock"
     },
     {
       "entityId": 610,
@@ -70487,7 +70487,7 @@
       "languageId": 13,
       "languageCode": "nl",
       "source": "koc nock",
-      "value": "Koç-nok"
+      "value": "Koç Nock"
     },
     {
       "entityId": 610,
@@ -76220,7 +76220,7 @@
       "languageId": 14,
       "languageCode": "hu",
       "source": "koc nock",
-      "value": "Koç nock"
+      "value": "Koç Nock"
     },
     {
       "entityId": 610,
@@ -81953,7 +81953,7 @@
       "languageId": 15,
       "languageCode": "no",
       "source": "koc nock",
-      "value": "Koç-nokk"
+      "value": "Koç Nock"
     },
     {
       "entityId": 610,
@@ -87686,7 +87686,7 @@
       "languageId": 16,
       "languageCode": "pl",
       "source": "koc nock",
-      "value": "nasadka Koç"
+      "value": "Koç Nock"
     },
     {
       "entityId": 610,
@@ -93419,7 +93419,7 @@
       "languageId": 17,
       "languageCode": "pt",
       "source": "koc nock",
-      "value": "nock Koç"
+      "value": "Koç Nock"
     },
     {
       "entityId": 610,
@@ -99152,7 +99152,7 @@
       "languageId": 18,
       "languageCode": "ro",
       "source": "koc nock",
-      "value": "nock Koç"
+      "value": "Koç Nock"
     },
     {
       "entityId": 610,
@@ -104885,7 +104885,7 @@
       "languageId": 21,
       "languageCode": "gr",
       "source": "koc nock",
-      "value": "Koç νοκ"
+      "value": "Koç Nock"
     },
     {
       "entityId": 610,
@@ -116351,7 +116351,7 @@
       "languageId": 23,
       "languageCode": "jp",
       "source": "koc nock",
-      "value": "Koçノック"
+      "value": "Koç Nock"
     },
     {
       "entityId": 610,
@@ -122084,7 +122084,7 @@
       "languageId": 25,
       "languageCode": "ru",
       "source": "koc nock",
-      "value": "хвостовик Koç"
+      "value": "Koç Nock"
     },
     {
       "entityId": 610,
@@ -133550,7 +133550,7 @@
       "languageId": 24,
       "languageCode": "ar",
       "source": "koc nock",
-      "value": "نوك Koç"
+      "value": "Koç Nock"
     },
     {
       "entityId": 610,
@@ -195016,11 +195016,13 @@
       "languageId": 10,
       "languageCode": "fr",
       "source": "koc nock",
-      "slug": "encoche-koc",
+      "slug": "koc-nock",
       "slugPolicyVersion": 2,
-      "valueSha256": "95f7caccb5cbe02fce3e7473f236e17c421d2eb2138a796732fb2ca824956018",
-      "slugBase": "encoche-koc",
-      "previousSlugs": []
+      "valueSha256": "e49e69996f2fdeb93e9cbb0a9da8707aa257b9f756a668f30178f73e232cb534",
+      "slugBase": "koc-nock",
+      "previousSlugs": [
+        "encoche-koc"
+      ]
     },
     {
       "entityId": 610,
@@ -204535,11 +204537,13 @@
       "languageId": 9,
       "languageCode": "de",
       "source": "koc nock",
-      "slug": "koc-nocke",
+      "slug": "koc-nock",
       "slugPolicyVersion": 2,
-      "valueSha256": "70002aee0396184c384bb7f5a714fa3190a4ae9733bb8d84e71380c69af688dc",
-      "slugBase": "koc-nocke",
-      "previousSlugs": []
+      "valueSha256": "e49e69996f2fdeb93e9cbb0a9da8707aa257b9f756a668f30178f73e232cb534",
+      "slugBase": "koc-nock",
+      "previousSlugs": [
+        "koc-nocke"
+      ]
     },
     {
       "entityId": 610,
@@ -213934,11 +213938,13 @@
       "languageId": 11,
       "languageCode": "it",
       "source": "koc nock",
-      "slug": "cocca-koc",
+      "slug": "koc-nock",
       "slugPolicyVersion": 2,
-      "valueSha256": "6414470c0c8d239216ef2d830a1fa8fe83cd1b293b87752437349fa8142aab07",
-      "slugBase": "cocca-koc",
-      "previousSlugs": []
+      "valueSha256": "e49e69996f2fdeb93e9cbb0a9da8707aa257b9f756a668f30178f73e232cb534",
+      "slugBase": "koc-nock",
+      "previousSlugs": [
+        "cocca-koc"
+      ]
     },
     {
       "entityId": 610,
@@ -223477,11 +223483,13 @@
       "languageId": 19,
       "languageCode": "es",
       "source": "koc nock",
-      "slug": "culatin-koc",
+      "slug": "koc-nock",
       "slugPolicyVersion": 2,
-      "valueSha256": "b5617cf64ee10c567de5db2a6e8775bf1f9571ba1be0055afa18b8c66c4e2ff6",
-      "slugBase": "culatin-koc",
-      "previousSlugs": []
+      "valueSha256": "e49e69996f2fdeb93e9cbb0a9da8707aa257b9f756a668f30178f73e232cb534",
+      "slugBase": "koc-nock",
+      "previousSlugs": [
+        "culatin-koc"
+      ]
     },
     {
       "entityId": 610,
@@ -232978,7 +232986,7 @@
       "source": "koc nock",
       "slug": "koc-nock",
       "slugPolicyVersion": 2,
-      "valueSha256": "1ddc5e43a9b1d8466fd1c6e2eff88097bbe0c54124af3ac27e810afab894a1c8",
+      "valueSha256": "e49e69996f2fdeb93e9cbb0a9da8707aa257b9f756a668f30178f73e232cb534",
       "slugBase": "koc-nock",
       "previousSlugs": []
     },
@@ -242597,7 +242605,7 @@
       "source": "koc nock",
       "slug": "koc-nock",
       "slugPolicyVersion": 2,
-      "valueSha256": "1ddc5e43a9b1d8466fd1c6e2eff88097bbe0c54124af3ac27e810afab894a1c8",
+      "valueSha256": "e49e69996f2fdeb93e9cbb0a9da8707aa257b9f756a668f30178f73e232cb534",
       "slugBase": "koc-nock",
       "previousSlugs": []
     },
@@ -252365,11 +252373,13 @@
       "languageId": 13,
       "languageCode": "nl",
       "source": "koc nock",
-      "slug": "koc-nok",
+      "slug": "koc-nock",
       "slugPolicyVersion": 2,
-      "valueSha256": "f8698fd81a1cae4e992d8934e9b611806072da87bb59bc6bc30ccfd2c50f542c",
-      "slugBase": "koc-nok",
-      "previousSlugs": []
+      "valueSha256": "e49e69996f2fdeb93e9cbb0a9da8707aa257b9f756a668f30178f73e232cb534",
+      "slugBase": "koc-nock",
+      "previousSlugs": [
+        "koc-nok"
+      ]
     },
     {
       "entityId": 610,
@@ -261750,7 +261760,7 @@
       "source": "koc nock",
       "slug": "koc-nock",
       "slugPolicyVersion": 2,
-      "valueSha256": "2b102c1f41ffcf401f6d17276862cf0d994cc314a8c7e68a646cadb20e2e6ffe",
+      "valueSha256": "e49e69996f2fdeb93e9cbb0a9da8707aa257b9f756a668f30178f73e232cb534",
       "slugBase": "koc-nock",
       "previousSlugs": []
     },
@@ -271399,11 +271409,13 @@
       "languageId": 15,
       "languageCode": "no",
       "source": "koc nock",
-      "slug": "koc-nokk",
+      "slug": "koc-nock",
       "slugPolicyVersion": 2,
-      "valueSha256": "07e5e7139c334f482fdce2cd79d06388cf5f31c15f0705b2f6497e341a47f0b3",
-      "slugBase": "koc-nokk",
-      "previousSlugs": []
+      "valueSha256": "e49e69996f2fdeb93e9cbb0a9da8707aa257b9f756a668f30178f73e232cb534",
+      "slugBase": "koc-nock",
+      "previousSlugs": [
+        "koc-nokk"
+      ]
     },
     {
       "entityId": 610,
@@ -280754,11 +280766,13 @@
       "languageId": 16,
       "languageCode": "pl",
       "source": "koc nock",
-      "slug": "nasadka-koc",
+      "slug": "koc-nock",
       "slugPolicyVersion": 2,
-      "valueSha256": "19ed115cae4c2af2a2cca476db9340629d91ca45007cfd0071380c99f6bd3f00",
-      "slugBase": "nasadka-koc",
-      "previousSlugs": []
+      "valueSha256": "e49e69996f2fdeb93e9cbb0a9da8707aa257b9f756a668f30178f73e232cb534",
+      "slugBase": "koc-nock",
+      "previousSlugs": [
+        "nasadka-koc"
+      ]
     },
     {
       "entityId": 610,
@@ -290225,11 +290239,13 @@
       "languageId": 17,
       "languageCode": "pt",
       "source": "koc nock",
-      "slug": "nock-koc",
+      "slug": "koc-nock",
       "slugPolicyVersion": 2,
-      "valueSha256": "f1a02aa19bfd45da23eb86423e9ed0fbc72d90ec9b9978575d6e2dba8bfbd7ff",
-      "slugBase": "nock-koc",
-      "previousSlugs": []
+      "valueSha256": "e49e69996f2fdeb93e9cbb0a9da8707aa257b9f756a668f30178f73e232cb534",
+      "slugBase": "koc-nock",
+      "previousSlugs": [
+        "nock-koc"
+      ]
     },
     {
       "entityId": 610,
@@ -299756,11 +299772,13 @@
       "languageId": 18,
       "languageCode": "ro",
       "source": "koc nock",
-      "slug": "nock-koc",
+      "slug": "koc-nock",
       "slugPolicyVersion": 2,
-      "valueSha256": "f1a02aa19bfd45da23eb86423e9ed0fbc72d90ec9b9978575d6e2dba8bfbd7ff",
-      "slugBase": "nock-koc",
-      "previousSlugs": []
+      "valueSha256": "e49e69996f2fdeb93e9cbb0a9da8707aa257b9f756a668f30178f73e232cb534",
+      "slugBase": "koc-nock",
+      "previousSlugs": [
+        "nock-koc"
+      ]
     },
     {
       "entityId": 610,
@@ -309387,11 +309405,13 @@
       "languageId": 21,
       "languageCode": "gr",
       "source": "koc nock",
-      "slug": "koc",
+      "slug": "koc-nock",
       "slugPolicyVersion": 2,
-      "valueSha256": "078b1073df7724035539d0dd12fdbe6ef43a483f20f28c125ac36c4984baac32",
-      "slugBase": "koc",
-      "previousSlugs": []
+      "valueSha256": "e49e69996f2fdeb93e9cbb0a9da8707aa257b9f756a668f30178f73e232cb534",
+      "slugBase": "koc-nock",
+      "previousSlugs": [
+        "koc"
+      ]
     },
     {
       "entityId": 610,
@@ -329480,11 +329500,13 @@
       "languageId": 23,
       "languageCode": "jp",
       "source": "koc nock",
-      "slug": "koc",
+      "slug": "koc-nock",
       "slugPolicyVersion": 2,
-      "valueSha256": "f04c83f6d75cf0d17f0ff1d0f6698b6446d521bbacacb39cb4b6f6f4705c2933",
-      "slugBase": "koc",
-      "previousSlugs": []
+      "valueSha256": "e49e69996f2fdeb93e9cbb0a9da8707aa257b9f756a668f30178f73e232cb534",
+      "slugBase": "koc-nock",
+      "previousSlugs": [
+        "koc"
+      ]
     },
     {
       "entityId": 610,
@@ -339713,12 +339735,13 @@
       "languageId": 25,
       "languageCode": "ru",
       "source": "koc nock",
-      "slug": "хвостовик-koc",
+      "slug": "koc-nock",
       "slugPolicyVersion": 2,
-      "valueSha256": "d11e232e4fd2938d628ce9eca9d27632b9b58c09b858c43146fd9bd831cce9e1",
-      "slugBase": "хвостовик-koc",
+      "valueSha256": "e49e69996f2fdeb93e9cbb0a9da8707aa257b9f756a668f30178f73e232cb534",
+      "slugBase": "koc-nock",
       "previousSlugs": [
-        "koc"
+        "koc",
+        "хвостовик-koc"
       ]
     },
     {
@@ -360274,12 +360297,13 @@
       "languageId": 24,
       "languageCode": "ar",
       "source": "koc nock",
-      "slug": "نوك-koc",
+      "slug": "koc-nock",
       "slugPolicyVersion": 2,
-      "valueSha256": "dae2b4fe3931125eb2d3e9ce253f2c65fd3358f9d5ae128dfef8cb059dbb90d1",
-      "slugBase": "نوك-koc",
+      "valueSha256": "e49e69996f2fdeb93e9cbb0a9da8707aa257b9f756a668f30178f73e232cb534",
+      "slugBase": "koc-nock",
       "previousSlugs": [
-        "koc"
+        "koc",
+        "نوك-koc"
       ]
     },
     {
@@ -386099,5 +386123,14 @@
       "sha256": "9884B183765F16BFDD2AB5E702D639784E680DEFEC5161FA5F61DF67788A9A99",
       "effectiveFixCount": 203
     }
+  },
+  "brandAuthority": {
+    "file": "product-tag-koc-brand-authority.json",
+    "sha256": "830531763A68AF4AF032065E4B740B2A23CBAFF4D6C939E35E48469EA1B55B92",
+    "entityId": 583,
+    "routeCount": 24,
+    "labelChangeCount": 16,
+    "slugChangeCount": 13,
+    "targetTupleSetSha256": "DF4398EECC174915307727541B3B1706AEBAD2FFE688BDAD957C645DE757593B"
   }
 }
