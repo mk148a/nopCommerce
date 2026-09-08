@@ -603,6 +603,27 @@ public class FixedByWeightByTotalComputationMethod : BasePlugin, IShippingRateCo
             var productionMaxDays = productionRange.MaxDays;
             var destinationCountryCode = await GetDestinationCountryCodeAsync(countryId);
 
+            // Free-shipping products are intentionally removed from the rate-table weight and subtotal calculations.
+            // When every package item is free-shipping, the values passed to FindRecordsAsync are therefore 0/0.
+            // Imported carrier tables normally start at a positive weight or subtotal, which left the checkout with
+            // no selectable method even though the cart is eligible for free shipping. Return one explicit zero-rate
+            // option instead of requiring a synthetic carrier row for this case.
+            if (await getShippingOptionRequest.Items.AllAwaitAsync(async packageItem =>
+                    await _shippingService.IsFreeShippingAsync(packageItem.ShoppingCartItem)))
+            {
+                response.ShippingOptions.Add(new ShippingOption
+                {
+                    Name = await _localizationService.GetResourceAsync("Products.FreeShipping"),
+                    Description = BuildShippingOptionDescription(null, productionRange),
+                    Rate = decimal.Zero,
+                    HandlingMinDays = productionRange.MinDays > 0 ? productionRange.MinDays : null,
+                    HandlingMaxDays = productionRange.MaxDays > 0 ? productionRange.MaxDays : null,
+                    DestinationCountryCode = destinationCountryCode
+                });
+
+                return response;
+            }
+
             foreach (var shippingMethod in await _shippingService.GetAllShippingMethodsAsync(countryId))
             {
                 int? transitDays = null;

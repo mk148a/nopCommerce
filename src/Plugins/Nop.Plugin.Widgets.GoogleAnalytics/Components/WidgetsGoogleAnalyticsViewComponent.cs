@@ -7,6 +7,7 @@ using Nop.Core.Domain.Logging;
 using Nop.Core.Domain.Orders;
 using Nop.Core.Domain.Payments;
 using Nop.Plugin.Widgets.GoogleAnalytics.Models;
+using Nop.Plugin.Widgets.GoogleAnalytics.Services;
 using Nop.Services.Catalog;
 using Nop.Services.Customers;
 using Nop.Services.Logging;
@@ -26,6 +27,7 @@ public class WidgetsGoogleAnalyticsViewComponent : NopViewComponent
     protected readonly ILogger _logger;
     protected readonly IOrderService _orderService;
     protected readonly IProductService _productService;
+    protected readonly IGoogleAnalyticsPurchaseDispatchService _purchaseDispatchService;
     protected readonly IWorkContext _workContext;
 
     #endregion
@@ -38,6 +40,7 @@ public class WidgetsGoogleAnalyticsViewComponent : NopViewComponent
         ILogger logger,
         IOrderService orderService,
         IProductService productService,
+        IGoogleAnalyticsPurchaseDispatchService purchaseDispatchService,
         IWorkContext workContext)
     {
         _googleAnalyticsSettings = googleAnalyticsSettings;
@@ -45,6 +48,7 @@ public class WidgetsGoogleAnalyticsViewComponent : NopViewComponent
         _logger = logger;
         _orderService = orderService;
         _productService = productService;
+        _purchaseDispatchService = purchaseDispatchService;
         _workContext = workContext;
     }
 
@@ -95,8 +99,13 @@ public class WidgetsGoogleAnalyticsViewComponent : NopViewComponent
         // A conversion represents a successfully captured/paid transaction.
         // Authorized orders may still be cancelled or fail capture, so they
         // must not emit the purchase data layer event.
-        if (order == null || order.Deleted || order.CustomerId != customer.Id ||
-            order.OrderStatus == OrderStatus.Cancelled || order.PaymentStatus != PaymentStatus.Paid)
+        if (order == null || order.CustomerId != customer.Id ||
+            !GoogleAnalyticsPurchaseEligibility.CanEmit(order))
+            return string.Empty;
+
+        // The database-backed reservation is intentional: sessionStorage alone
+        // cannot prevent a duplicated conversion from another tab or device.
+        if (!await _purchaseDispatchService.TryReserveAsync(order))
             return string.Empty;
 
         var currency = string.IsNullOrWhiteSpace(order.CustomerCurrencyCode)
@@ -125,7 +134,7 @@ public class WidgetsGoogleAnalyticsViewComponent : NopViewComponent
 
         var purchase = new
         {
-            transaction_id = completedModel.CustomOrderNumber,
+            transaction_id = order.Id.ToString(CultureInfo.InvariantCulture),
             value = order.OrderTotal,
             currency,
             tax = order.OrderTax,
@@ -153,7 +162,9 @@ public class WidgetsGoogleAnalyticsViewComponent : NopViewComponent
             PropertyNamingPolicy = null
         });
 
-        return $"<script>(function(p){{try{{var k='hood_ga4_purchase_'+p.transaction_id;if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,'1');window.dataLayer=window.dataLayer||[];window.dataLayer.push(p)}}catch(e){{window.dataLayer=window.dataLayer||[];window.dataLayer.push(p)}}}})({json});</script>";
+        // GTM is the only delivery route for purchase. Do not call gtag here
+        // and do not send the same purchase through Measurement Protocol.
+        return $"<script>(function(p){{window.dataLayer=window.dataLayer||[];window.dataLayer.push({{ecommerce:null}});window.dataLayer.push(p)}})({json});</script>";
     }
 
     #endregion

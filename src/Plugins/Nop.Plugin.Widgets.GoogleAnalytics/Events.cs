@@ -21,7 +21,6 @@ namespace Nop.Plugin.Widgets.GoogleAnalytics;
 
 public class EventConsumer :
     IConsumer<OrderPlacedEvent>,
-    IConsumer<OrderPaidEvent>,
     IConsumer<OrderRefundedEvent>
 {
     protected readonly CurrencySettings _currencySettings;
@@ -191,31 +190,6 @@ public class EventConsumer :
 
         if (sendRequest)
             await ProcessOrderEventAsync(order, googleAnalyticsSettings, GoogleAnalyticsDefaults.OrderRefundedEventName);
-    }
-
-    /// <summary>
-    /// Handles the event
-    /// </summary>
-    /// <param name="eventMessage">The event message</param>
-    /// <returns>A task that represents the asynchronous operation</returns>
-    public async Task HandleEventAsync(OrderPaidEvent eventMessage)
-    {
-        //ensure the plugin is installed and active
-        if (!await IsPluginEnabledAsync())
-            return;
-
-        var order = eventMessage.Order;
-
-        //settings per store
-        var store = await _storeService.GetStoreByIdAsync(order.StoreId) ?? await _storeContext.GetCurrentStoreAsync();
-        var googleAnalyticsSettings = await _settingService.LoadSettingAsync<GoogleAnalyticsSettings>(store.Id);
-
-        //ecommerce is disabled
-        if (!googleAnalyticsSettings.EnableEcommerce)
-            return;
-
-        //we use HTTP requests to notify GA about new orders (only when they are paid)
-        await ProcessOrderEventAsync(order, googleAnalyticsSettings, GoogleAnalyticsDefaults.OrderPaidEventName);
     }
 
     /// <summary>

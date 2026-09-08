@@ -34,6 +34,13 @@ namespace Nop.Plugin.Payments.Stripe
         public const string WebhookPath = "PaymentStripe/WebhookHandler";
 
         /// <summary>
+        /// Persistent marker written only after a signed Stripe success webhook
+        /// has matched an order. Google Analytics uses it to ensure that a
+        /// browser return from BNPL is never treated as payment proof.
+        /// </summary>
+        public const string WebhookPaymentVerifiedAttribute = "GoogleAnalytics.StripeWebhookVerifiedPaymentIntent";
+
+        /// <summary>
         /// Events required by the nopCommerce PaymentIntent flow.
         /// </summary>
         public static IReadOnlyList<string> WebhookEvents { get; } = new[]
