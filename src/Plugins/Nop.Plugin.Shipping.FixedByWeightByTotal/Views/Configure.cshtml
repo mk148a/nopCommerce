@@ -1,4 +1,4 @@
-﻿@model Nop.Plugin.Shipping.FixedByWeightByTotal.Models.ConfigurationModel
+@model Nop.Plugin.Shipping.FixedByWeightByTotal.Models.ConfigurationModel
 @using Nop.Web.Framework.Models.AdminAreaTour
 
 @{
@@ -6,6 +6,32 @@
 
     //tour step
     ViewBag.TourStep = TourStep.ShippingManual;
+}
+
+
+@functions {
+    private bool HoodHas(string propertyName)
+    {
+        return Model?.GetType().GetProperty(propertyName) != null;
+    }
+
+    private object HoodGet(string propertyName, object fallback = null)
+    {
+        var prop = Model?.GetType().GetProperty(propertyName);
+        return prop == null ? fallback : (prop.GetValue(Model) ?? fallback);
+    }
+
+    private string HoodString(string propertyName, string fallback = "")
+    {
+        return System.Convert.ToString(HoodGet(propertyName, fallback), System.Globalization.CultureInfo.InvariantCulture) ?? fallback;
+    }
+
+    private bool HoodBool(string propertyName, bool fallback = false)
+    {
+        var value = HoodGet(propertyName, fallback);
+        if (value is bool b) return b;
+        return bool.TryParse(System.Convert.ToString(value, System.Globalization.CultureInfo.InvariantCulture), out var parsed) ? parsed : fallback;
+    }
 }
 
 @await Html.PartialAsync("_AdminTour")
@@ -36,6 +62,18 @@
     </div>
 </div>
 
+
+<div class="card card-default">
+    <div class="card-header"><strong>Hood/Navlungo tools</strong></div>
+    <div class="card-body">
+        <a href="@Url.Action("NavlungoLearning", "FixedByWeightByTotal")" class="btn btn-info">Navlungo Shipping Learning</a>
+        <a href="@Url.Action("ShippingDimensionRules", "FixedByWeightByTotal")" class="btn btn-primary">Dimension Rules</a>
+        <a href="@Url.Action("CategoryBulkApplyDimensions", "FixedByWeightByTotal")" class="btn btn-warning">Category Bulk Apply</a>
+        <a href="@Url.Action("ShippingDimensionExclusions", "FixedByWeightByTotal")" class="btn btn-danger">Exclusions</a>
+        <a href="@Url.Action("NavlungoShipmentLinks", "FixedByWeightByTotal")" class="btn btn-secondary">Shipment / Consignment Links</a>
+        <a href="@Url.Action("ProductProductionTimes", "FixedByWeightByTotal")" class="btn btn-success">Production Times</a>
+    </div>
+</div>
 <script>
     function checkAdvancedSettingsMode(advanced) {
         if (advanced) {
@@ -77,3 +115,128 @@
 
 @await Html.PartialAsync("~/Plugins/Shipping.FixedByWeightByTotal/Views/_FixedRate.cshtml")
 @await Html.PartialAsync("~/Plugins/Shipping.FixedByWeightByTotal/Views/_ByWeightByTotal.cshtml", Model)
+
+<div class="card card-default mt-3 advanced-setting">
+    <div class="card-header">
+        <strong>Hood/Navlungo chargeable weight</strong>
+    </div>
+    <div class="card-body">
+        <div class="form-group row">
+            <div class="col-md-3">Enable chargeable weight</div>
+            <div class="col-md-9"><input type="checkbox" id="HoodNavlungoChargeableWeightEnabled" @(Model.HoodNavlungoChargeableWeightEnabled ? "checked" : "") /></div>
+        </div>
+        <div class="form-group row">
+            <div class="col-md-3">Dimensional divisor</div>
+            <div class="col-md-9"><input class="form-control" id="HoodNavlungoDimensionalWeightDivisor" value="@Model.HoodNavlungoDimensionalWeightDivisor" /></div>
+        </div>
+        <div class="form-group row">
+            <div class="col-md-3">Rate weight multiplier</div>
+            <div class="col-md-9">
+                <input class="form-control" id="HoodNavlungoRateWeightMultiplier" value="@Model.HoodNavlungoRateWeightMultiplier" />
+                <small>Use 1000 when FixedByWeightByTotal rate tables are gram-based. Use 1 for kg-based tables.</small>
+            </div>
+        </div>
+        <button type="button" id="save-hood-navlungo-settings" class="btn btn-primary">Save Hood/Navlungo settings</button>
+        <a class="btn btn-info" href="@Url.Action("NavlungoLearning", "FixedByWeightByTotal")">Navlungo Shipping Learning</a>
+        <a class="btn btn-secondary" href="@Url.Action("ShippingDimensionRules", "FixedByWeightByTotal")">Dimension Rules</a>
+    </div>
+</div>
+
+
+
+<div class="card card-default mt-3 advanced-setting">
+    <div class="card-header">
+        <strong>PTT live Post service</strong>
+    </div>
+    <div class="card-body">
+        @if (!HoodHas("HoodPttPostServiceEnabled"))
+        {
+            <div class="alert alert-warning">
+                PTT fields are not available in the loaded plugin DLL. This page is protected from crashing, but Post service will work only after rebuilding/publishing the v25 DLL.
+            </div>
+        }
+        <div class="alert alert-info">
+            Adds an extra customer-facing <strong>Post service</strong> option only for explicitly allowed products/categories. Existing UPS/FedEx/THY rate-table options remain available.
+            PTT is calculated live with <strong>actual weight only</strong>; dimensions are used only as a parcel eligibility guard.
+        </div>
+        <div class="form-group row">
+            <div class="col-md-3">Enable PTT Post service</div>
+            <div class="col-md-9"><input type="checkbox" id="HoodPttPostServiceEnabled" @(HoodBool("HoodPttPostServiceEnabled") ? "checked" : "") /></div>
+        </div>
+        <div class="form-group row">
+            <div class="col-md-3">Eligible product IDs</div>
+            <div class="col-md-9">
+                <input class="form-control" id="HoodPttEligibleProductIdsCsv" value="@(HoodString("HoodPttEligibleProductIdsCsv"))" />
+                <small>Comma separated ProductId list. If the cart contains a product outside this list/category list, Post service is hidden.</small>
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-md-3">Eligible category IDs</div>
+            <div class="col-md-9">
+                <input class="form-control" id="HoodPttEligibleCategoryIdsCsv" value="@(HoodString("HoodPttEligibleCategoryIdsCsv"))" />
+                <small>Comma separated CategoryId list. Useful for enabling Post service for a whole product group.</small>
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-md-3">Public method name</div>
+            <div class="col-md-9"><input class="form-control" id="HoodPttMethodName" value="@(HoodString("HoodPttMethodName", "Post service"))" /></div>
+        </div>
+        <div class="form-group row">
+            <div class="col-md-3">PTT API parameters</div>
+            <div class="col-md-3"><input class="form-control" id="HoodPttDeliveryKind" value="@(HoodString("HoodPttDeliveryKind", "YD KOLİ"))" placeholder="YD KOLİ" /><small>DeliveryKind</small></div>
+            <div class="col-md-3"><input class="form-control" id="HoodPttDistributionType" value="@(HoodString("HoodPttDistributionType", "UC"))" placeholder="UC" /><small>DistributionType</small></div>
+            <div class="col-md-3"><input class="form-control" id="HoodPttAdditionalService" value="@(HoodString("HoodPttAdditionalService", "GM"))" placeholder="GM" /><small>additionalService</small></div>
+        </div>
+        <div class="form-group row">
+            <div class="col-md-3">Dimension guards</div>
+            <div class="col-md-3"><input class="form-control" id="HoodPttMaxSingleDimensionCm" value="@(HoodString("HoodPttMaxSingleDimensionCm", "150"))" /><small>Max single side cm</small></div>
+            <div class="col-md-3"><input class="form-control" id="HoodPttMaxGirthCm" value="@(HoodString("HoodPttMaxGirthCm", "300"))" /><small>Max L + 2W + 2H cm; use 0 to disable</small></div>
+        </div>
+        <div class="form-group row">
+            <div class="col-md-3">Transit estimate</div>
+            <div class="col-md-3"><input class="form-control" id="HoodPttTransitMinDays" value="@(HoodString("HoodPttTransitMinDays", "10"))" /><small>Min days</small></div>
+            <div class="col-md-3"><input class="form-control" id="HoodPttTransitMaxDays" value="@(HoodString("HoodPttTransitMaxDays", "20"))" /><small>Max days</small></div>
+        </div>
+        <div class="form-group row">
+            <div class="col-md-3">Price conversion/markup</div>
+            <div class="col-md-3"><input class="form-control" id="HoodPttLivePriceMultiplier" value="@(HoodString("HoodPttLivePriceMultiplier", "1"))" /><small>Live PTT amount × multiplier = store currency</small></div>
+            <div class="col-md-3"><input class="form-control" id="HoodPttAdditionalFixedMarkup" value="@(HoodString("HoodPttAdditionalFixedMarkup", "0"))" /><small>Fixed markup in store currency</small></div>
+            <div class="col-md-3"><input class="form-control" id="HoodPttRequestTimeoutSeconds" value="@(HoodString("HoodPttRequestTimeoutSeconds", "8"))" /><small>Timeout seconds</small></div>
+        </div>
+        <button type="button" id="save-hood-ptt-settings" class="btn btn-primary">Save PTT settings</button>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('#save-hood-navlungo-settings').on('click', function () {
+            var postData = {
+                LimitMethodsToCreated: @Model.LimitMethodsToCreated.ToString().ToLowerInvariant(),
+                ShippingByWeightByTotalEnabled: $('#advanced-settings-mode').is(':checked'),
+                HoodNavlungoChargeableWeightEnabled: $('#HoodNavlungoChargeableWeightEnabled').is(':checked'),
+                HoodNavlungoDimensionalWeightDivisor: $('#HoodNavlungoDimensionalWeightDivisor').val(),
+                HoodNavlungoRateWeightMultiplier: $('#HoodNavlungoRateWeightMultiplier').val(),
+                HoodPttPostServiceEnabled: $('#HoodPttPostServiceEnabled').is(':checked'),
+                HoodPttEligibleProductIdsCsv: $('#HoodPttEligibleProductIdsCsv').val(),
+                HoodPttEligibleCategoryIdsCsv: $('#HoodPttEligibleCategoryIdsCsv').val(),
+                HoodPttMethodName: $('#HoodPttMethodName').val(),
+                HoodPttDeliveryKind: $('#HoodPttDeliveryKind').val(),
+                HoodPttDistributionType: $('#HoodPttDistributionType').val(),
+                HoodPttAdditionalService: $('#HoodPttAdditionalService').val(),
+                HoodPttMaxSingleDimensionCm: $('#HoodPttMaxSingleDimensionCm').val(),
+                HoodPttMaxGirthCm: $('#HoodPttMaxGirthCm').val(),
+                HoodPttTransitMinDays: $('#HoodPttTransitMinDays').val(),
+                HoodPttTransitMaxDays: $('#HoodPttTransitMaxDays').val(),
+                HoodPttLivePriceMultiplier: $('#HoodPttLivePriceMultiplier').val(),
+                HoodPttAdditionalFixedMarkup: $('#HoodPttAdditionalFixedMarkup').val(),
+                HoodPttRequestTimeoutSeconds: $('#HoodPttRequestTimeoutSeconds').val()
+            };
+            addAntiForgeryToken(postData);
+            $.post('@Url.Action("Configure", "FixedByWeightByTotal")', postData, function () { alert('Saved'); });
+        });
+
+        $('#save-hood-ptt-settings').on('click', function () {
+            $('#save-hood-navlungo-settings').trigger('click');
+        });
+    });
+</script>

@@ -1,0 +1,92 @@
+﻿@using Nop.Core.Domain.Common
+@using Nop.Plugin.Misc.GoogleShoppingMultiCountry.Models
+@using Nop.Web.Framework.TagHelpers.Shared
+@model Nop.Plugin.Misc.GoogleShoppingMultiCountry.Models.GoogleFeedCategoryMappingModel
+<p>
+    @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+</p>
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_AdminPopupLayout.cshtml";
+    // <link rel="stylesheet" href="~/Plugins/Feed.GoogleShopping/Content/styles.css" />
+}
+
+<div class="card-body">
+    <div class="card card-default">
+        <div class="card-body">
+            @T("Plugins.Feed.GoogleShopping.OverrideInstructions")
+
+            @await Html.PartialAsync("Table", new DataTablesModel
+            {
+                Name = "categories-grid",
+                UrlRead = new DataUrl("GoogleCategoryList", "GoogleShoppingMultiCountry", null),
+                Length = Model.GoogleFeedCategoryListSearchModel.PageSize,
+                LengthMenu = Model.GoogleFeedCategoryListSearchModel.AvailablePageSizes,
+                ColumnCollection = new List<ColumnProperty>
+                {
+                    new ColumnProperty(nameof(GoogleFeedCategoryModel.CategoryName))
+                    {
+                        Title = T("Plugins.Misc.GoogleShoppingMultiCountry.Products.CategoryName").Text,
+                        Width = "300"
+                    },
+                    new ColumnProperty(nameof(GoogleFeedCategoryModel.GoogleCategory))
+                    {
+                        Title = T("Plugins.Feed.GoogleShopping.Products.GoogleCategory").Text,
+                        Width = "100"
+                    },
+                    new ColumnProperty(nameof(GoogleFeedCategoryModel.GoogleCategoryId))
+                    {
+                        Title = ("Google Category Id"),
+                        Width = "100"
+                    },
+                    new ColumnProperty(nameof(GoogleFeedCategoryModel.CategoryId))
+                    {
+                        Title = T("Admin.Common.Edit").Text,
+                        Width = "50",
+                        ClassName = NopColumnClassDefaults.Button,
+                        Render = new RenderCustom("renderColumnEdit")
+                    }
+                }
+            }
+            
+            )
+
+            <script>
+                function renderColumnEdit(data, type, row, meta) {
+                    return '<button onclick=\"javascript:OpenWindow(\'@Url.Content("~/Admin/GoogleShoppingMultiCountry/EditMapCategories/")' + data + '?btnId=btnRefresh&formId=google-shopping-form\', 800, 450, true); return false;\" class="btn btn-default"><i class="fa fa-pencil"></i>@T("Admin.Common.Edit")</button>';
+                }
+
+                @*function renderColumnData(data, type, row, meta) {
+                    var googleCategory = (row.GoogleCategory !== null) ? row.GoogleCategory : '';
+                    var categoryName = (row.CategoryName !== null) ? row.CategoryName : '';
+                    var googleCategoryId = (row.GoogleCategoryId !== null) ? row.GoogleCategoryId : '';
+                
+
+                    return '<div class="google-info">' +
+                    '<dl>' +
+                    '<dt>@T("Plugins.Feed.GoogleShopping.Products.GoogleCategory"):</dt><dd>' + categoryName + '</dd>' +
+                    '<dt>@T("Plugins.Feed.GoogleShopping.Products.GoogleCategory"):</dt><dd>' + googleCategory + '</dd>' +
+                    '<dt>@T("Plugins.Feed.GoogleShopping.Products.GoogleCategory"):</dt><dd>' + googleCategoryId + '</dd>' +
+                    '</div>';
+                    }
+                    *@
+            </script>
+
+            <div class="card-footer">
+                <input type="submit" id="btnRefresh" class="btn btn-default" style="display: none" />
+            </div>
+
+            <script>
+                $(document).ready(function () {
+                    $('#btnRefresh').click(function () {
+                        //refresh grid
+                        updateTable('#categories-grid');
+
+                        //return false to don't reload a page
+                        return false;
+                    });
+                });
+            </script>
+        </div>
+    </div>
+</div>

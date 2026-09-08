@@ -1,0 +1,128 @@
+﻿@model IList<Nop.Plugin.Shipping.FixedByWeightByTotal.Models.ShippingDimensions.ShippingLearningDetailModel>
+@{
+    Layout = "_ConfigurePlugin";
+    var productId = (int)(ViewBag.ProductId ?? 0);
+    var attributeHash = (string)ViewBag.AttributeHash;
+    var productAttributeValueId = (int?)ViewBag.ProductAttributeValueId;
+    var ruleType = (string)ViewBag.RuleType;
+    var first = Model.FirstOrDefault();
+
+    decimal maxLength = Model.Any() ? Model.Max(x => x.LengthCm) : 0;
+    decimal maxWidth = Model.Any() ? Model.Max(x => x.WidthCm) : 0;
+    decimal maxHeight = Model.Any() ? Model.Max(x => x.HeightCm) : 0;
+    decimal maxWeightGram = Model.Any() ? Model.Max(x => x.WeightGram) : 0;
+    decimal maxChargeable = Model.Any() ? Model.Max(x => x.ChargeableWeightKg) : 0;
+}
+
+<div class="content-header clearfix">
+    <h1 class="float-left">Navlungo Learning Details</h1>
+    <div class="float-right">
+        <a href="@Url.Action("NavlungoLearning", "FixedByWeightByTotal")" class="btn btn-secondary">Back to learning</a>
+        @if (productId > 0)
+        {
+            <a href="@Url.Action("ShippingDimensionRules", "FixedByWeightByTotal", new { productId })" class="btn btn-info">Dimension rules</a>
+        }
+    </div>
+</div>
+
+<div class="card card-default">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <h4>@productId @first?.ProductName</h4>
+                <p class="mb-1"><strong>Rule:</strong> @ruleType</p>
+                @if (!string.IsNullOrWhiteSpace(attributeHash))
+                {
+                    <p class="mb-1"><strong>Attribute hash:</strong> <code>@attributeHash</code></p>
+                }
+                @if (productAttributeValueId.HasValue)
+                {
+                    <p class="mb-1"><strong>Attribute value id:</strong> @productAttributeValueId</p>
+                }
+            </div>
+            <div class="col-md-6">
+                <table class="table table-bordered table-sm mb-0">
+                    <tbody>
+                    <tr><th>Samples</th><td>@Model.Count</td></tr>
+                    <tr><th>Suggested max L/W/H cm</th><td>@maxLength / @maxWidth / @maxHeight</td></tr>
+                    <tr><th>Suggested max weight</th><td>@maxWeightGram g</td></tr>
+                    <tr><th>Suggested max chargeable</th><td>@maxChargeable kg</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card card-default">
+    <div class="card-header">
+        <strong>Used shipments / packages</strong>
+    </div>
+    <div class="card-body table-responsive">
+        <table class="table table-bordered table-hover table-sm">
+            <thead>
+            <tr>
+                <th>Shipment</th>
+                <th>Order</th>
+                <th>Receiver</th>
+                <th>Date</th>
+                <th>Dimensions cm</th>
+                <th>Weight</th>
+                <th>Chargeable</th>
+                <th>Match</th>
+                <th>Attributes</th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        <strong>@item.ShipmentNo</strong><br />
+                        <small>@item.CarrierTrackingNo</small><br />
+                        @if (!string.IsNullOrWhiteSpace(item.NavlungoDetailUrl))
+                        {
+                            <a href="@item.NavlungoDetailUrl" target="_blank">Open Navlungo</a><br />
+                        }
+                        @if (!string.IsNullOrWhiteSpace(item.CarrierTrackingUrl))
+                        {
+                            <a href="@item.CarrierTrackingUrl" target="_blank">Carrier tracking</a><br />
+                        }
+                        @if (!string.IsNullOrWhiteSpace(item.DocumentsLinks))
+                        {
+                            foreach (var link in item.DocumentsLinks.Split('|', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+                            {
+                                <a href="@link" target="_blank">Document</a><br />
+                            }
+                        }
+                        @if (!string.IsNullOrWhiteSpace(item.PackageImageLinks))
+                        {
+                            foreach (var link in item.PackageImageLinks.Split('|', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+                            {
+                                <a href="@link" target="_blank">Package image/document</a><br />
+                            }
+                        }
+                    </td>
+                    <td>
+                        <strong>@item.CustomOrderNumber</strong><br />
+                        <small>OrderId: @item.OrderId</small>
+                    </td>
+                    <td>@item.ReceiverName<br /><small>@item.ReceiverCity / @item.ReceiverCountry</small></td>
+                    <td>@item.RequestDateTR</td>
+                    <td>@item.LengthCm / @item.WidthCm / @item.HeightCm</td>
+                    <td>@item.WeightGram g<br /><small>@item.WeightKg kg</small></td>
+                    <td>
+                        <strong>@item.ChargeableWeightKg kg</strong><br />
+                        <small>Vol: @item.VolumetricWeightDesi / Calc: @item.CalculatedDesi</small>
+                    </td>
+                    <td>
+                        @item.MatchDecision<br />
+                        <small>Score: @item.Score / Gap: @item.ScoreGap</small>
+                    </td>
+                    <td><small>@Html.Raw(item.AttributeDescription)</small></td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>

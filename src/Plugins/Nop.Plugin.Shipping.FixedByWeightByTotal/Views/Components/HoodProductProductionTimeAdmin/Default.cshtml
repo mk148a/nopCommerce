@@ -1,0 +1,142 @@
+@model Nop.Plugin.Shipping.FixedByWeightByTotal.Models.ProductionTime.ProductProductionTimeModel
+
+<div class="card card-default mt-3" id="hood-production-time-admin-card">
+    <div class="card-header">
+        <strong>Hood production time</strong>
+        <span class="text-muted"> - handmade/make-to-order lead time shown on product page and added to delivery estimate</span>
+    </div>
+    <div class="card-body">
+        <input type="hidden" id="HoodProductionProductId" value="@Model.ProductId" />
+        <div class="form-group row">
+            <div class="col-md-3">Enabled</div>
+            <div class="col-md-9">
+                @if (Model.Enabled)
+                {
+                    <input type="checkbox" id="HoodProductionEnabled" checked="checked" />
+                }
+                else
+                {
+                    <input type="checkbox" id="HoodProductionEnabled" />
+                }
+                <small class="text-muted ml-2">If enabled, production time is shown and can be added to estimated delivery.</small>
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-md-3">Handmade / made to order</div>
+            <div class="col-md-9">
+                @if (Model.IsHandmade)
+                {
+                    <input type="checkbox" id="HoodProductionIsHandmade" checked="checked" />
+                }
+                else
+                {
+                    <input type="checkbox" id="HoodProductionIsHandmade" />
+                }
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-md-3">Production days</div>
+            <div class="col-md-9">
+                <div class="row">
+                    <div class="col-md-3"><input class="form-control" id="HoodProductionMinDays" placeholder="Min days" value="@Model.ProductionMinDays" /></div>
+                    <div class="col-md-3"><input class="form-control" id="HoodProductionMaxDays" placeholder="Max days" value="@Model.ProductionMaxDays" /></div>
+                    <div class="col-md-6"><input class="form-control" id="HoodProductionTimeText" placeholder="Display text, e.g. About 1 week" value="@Model.ProductionTimeText" /></div>
+                </div>
+                <small class="text-muted">Use max days for delivery estimate. Example: 7-10 days or About 1 week.</small>
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-md-3">Message</div>
+            <div class="col-md-9">
+                <textarea class="form-control" id="HoodProductionMessage" rows="2">@Model.Message</textarea>
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-md-3">Display / calculation</div>
+            <div class="col-md-9">
+                <label class="mr-4">
+                    @if (Model.DisplayOnProductPage)
+                    {
+                        <input type="checkbox" id="HoodProductionDisplayOnProductPage" checked="checked" />
+                    }
+                    else
+                    {
+                        <input type="checkbox" id="HoodProductionDisplayOnProductPage" />
+                    }
+                    Show on product page
+                </label>
+                <label>
+                    @if (Model.IncludeInShippingEstimate)
+                    {
+                        <input type="checkbox" id="HoodProductionIncludeInShippingEstimate" checked="checked" />
+                    }
+                    else
+                    {
+                        <input type="checkbox" id="HoodProductionIncludeInShippingEstimate" />
+                    }
+                    Add to shipping estimated delivery days
+                </label>
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-md-3">Source</div>
+            <div class="col-md-9">
+                <span class="text-muted">@Model.Source</span>
+                @if (Model.ParsedFromDescription)
+                {
+                    <span class="badge badge-info ml-2">parsed from description</span>
+                }
+            </div>
+        </div>
+        <button type="button" class="btn btn-primary" id="HoodProductionSaveBtn">Save production time</button>
+        <button type="button" class="btn btn-secondary" id="HoodProductionExtractBtn">Extract from description</button>
+        <a class="btn btn-info" href="@Url.Action("ProductProductionTimes", "FixedByWeightByTotal", new { productId = Model.ProductId })" target="_blank">Open production time manager</a>
+        <span id="HoodProductionStatus" class="ml-2"></span>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        function collectHoodProductionData(saveFromDescription) {
+            var postData = {
+                ProductId: $('#HoodProductionProductId').val(),
+                Enabled: $('#HoodProductionEnabled').is(':checked'),
+                IsHandmade: $('#HoodProductionIsHandmade').is(':checked'),
+                ProductionMinDays: $('#HoodProductionMinDays').val(),
+                ProductionMaxDays: $('#HoodProductionMaxDays').val(),
+                ProductionTimeText: $('#HoodProductionTimeText').val(),
+                Message: $('#HoodProductionMessage').val(),
+                DisplayOnProductPage: $('#HoodProductionDisplayOnProductPage').is(':checked'),
+                IncludeInShippingEstimate: $('#HoodProductionIncludeInShippingEstimate').is(':checked'),
+                ParsedFromDescription: saveFromDescription === true
+            };
+            addAntiForgeryToken(postData);
+            return postData;
+        }
+
+        $('#HoodProductionSaveBtn').on('click', function () {
+            $('#HoodProductionStatus').text('Saving...');
+            $.post('@Url.Action("SaveProductProductionTime", "FixedByWeightByTotal")', collectHoodProductionData(false), function (r) {
+                $('#HoodProductionStatus').text(r && r.Result ? 'Saved' : 'Save failed');
+            });
+        });
+
+        $('#HoodProductionExtractBtn').on('click', function () {
+            $('#HoodProductionStatus').text('Extracting...');
+            var postData = { productId: $('#HoodProductionProductId').val(), save: true };
+            addAntiForgeryToken(postData);
+            $.post('@Url.Action("ExtractProductProductionTime", "FixedByWeightByTotal")', postData, function (r) {
+                if (!r || !r.Result) { $('#HoodProductionStatus').text('Extract failed'); return; }
+                $('#HoodProductionEnabled').prop('checked', r.Model.Enabled);
+                $('#HoodProductionIsHandmade').prop('checked', r.Model.IsHandmade);
+                $('#HoodProductionMinDays').val(r.Model.ProductionMinDays);
+                $('#HoodProductionMaxDays').val(r.Model.ProductionMaxDays);
+                $('#HoodProductionTimeText').val(r.Model.ProductionTimeText);
+                $('#HoodProductionMessage').val(r.Model.Message);
+                $('#HoodProductionDisplayOnProductPage').prop('checked', r.Model.DisplayOnProductPage);
+                $('#HoodProductionIncludeInShippingEstimate').prop('checked', r.Model.IncludeInShippingEstimate);
+                $('#HoodProductionStatus').text('Extracted and saved');
+            });
+        });
+    });
+</script>
