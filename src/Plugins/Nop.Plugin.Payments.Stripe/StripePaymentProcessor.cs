@@ -529,8 +529,7 @@ namespace Nop.Plugin.Payments.Stripe
 
                 var refundOpt = CreateRefundOptions(refundPaymentRequest.Order.AuthorizationTransactionId);
 
-                var refund = await service.CreateAsync(refundOpt,
-                    GetStripeApiRequestOptions($"nop-refund-{refundPaymentRequest.Order.Id}-full"));
+                var refund = await service.CreateAsync(refundOpt, GetStripeApiRequestOptions());
              
             
                 if (refund.Status == "succeeded")
@@ -590,8 +589,7 @@ namespace Nop.Plugin.Payments.Stripe
 
 
 
-                var refund = await service.CreateAsync(refundOpt,
-                    GetStripeApiRequestOptions($"nop-refund-{refundPaymentRequest.Order.Id}-partial-{refundOpt.Amount}"));
+                var refund = await service.CreateAsync(refundOpt, GetStripeApiRequestOptions());
 
                 if (refund.Status == "succeeded")
                 {
@@ -672,8 +670,7 @@ namespace Nop.Plugin.Payments.Stripe
 
 
 
-            var refund = await service.CreateAsync(refundOpt,
-                GetStripeApiRequestOptions($"nop-refund-{voidPaymentRequest.Order.Id}-void"));
+            var refund = await service.CreateAsync(refundOpt, GetStripeApiRequestOptions());
 
             if (refund.Status == "succeeded")
             {
