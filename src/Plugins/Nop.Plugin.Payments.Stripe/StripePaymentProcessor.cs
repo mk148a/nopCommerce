@@ -527,11 +527,10 @@ namespace Nop.Plugin.Payments.Stripe
             {
                 var service = new RefundService();
 
-                var refundOpt= new RefundCreateOptions();
-               
-                refundOpt.Charge = refundPaymentRequest.Order.AuthorizationTransactionId.ToString();
+                var refundOpt = CreateRefundOptions(refundPaymentRequest.Order.AuthorizationTransactionId);
 
-                var refund = await service.CreateAsync(refundOpt, GetStripeApiRequestOptions());
+                var refund = await service.CreateAsync(refundOpt,
+                    GetStripeApiRequestOptions($"nop-refund-{refundPaymentRequest.Order.Id}-full"));
              
             
                 if (refund.Status == "succeeded")
@@ -586,13 +585,13 @@ namespace Nop.Plugin.Payments.Stripe
             {
                 var service = new RefundService();
 
-                var refundOpt = new RefundCreateOptions();
-                refundOpt.Amount = (long)(convertedCurrency * 100);
-                refundOpt.Charge = refundPaymentRequest.Order.AuthorizationTransactionId.ToString();
+                var refundOpt = CreateRefundOptions(refundPaymentRequest.Order.AuthorizationTransactionId,
+                    (long)(convertedCurrency * 100));
 
 
 
-                var refund = await service.CreateAsync(refundOpt, GetStripeApiRequestOptions());
+                var refund = await service.CreateAsync(refundOpt,
+                    GetStripeApiRequestOptions($"nop-refund-{refundPaymentRequest.Order.Id}-partial-{refundOpt.Amount}"));
 
                 if (refund.Status == "succeeded")
                 {
@@ -638,6 +637,23 @@ namespace Nop.Plugin.Payments.Stripe
         }
 
         /// <summary>
+        /// Builds a Stripe refund request for either a PaymentIntent-backed or legacy Charge-backed order.
+        /// </summary>
+        private static RefundCreateOptions CreateRefundOptions(string authorizationTransactionId, long? amount = null)
+        {
+            if (string.IsNullOrWhiteSpace(authorizationTransactionId))
+                throw new NopException("No Stripe authorization transaction ID found for the refund.");
+
+            var options = new RefundCreateOptions { Amount = amount };
+            if (authorizationTransactionId.StartsWith("pi_", StringComparison.Ordinal))
+                options.PaymentIntent = authorizationTransactionId;
+            else
+                options.Charge = authorizationTransactionId;
+
+            return options;
+        }
+
+        /// <summary>
         /// Voids a payment
         /// </summary>
         /// <param name="voidPaymentRequest">Request</param>
@@ -650,14 +666,14 @@ namespace Nop.Plugin.Payments.Stripe
             var result = new VoidPaymentResult();
             var service = new RefundService();
 
-            var refundOpt = new RefundCreateOptions();
-            refundOpt.Charge = voidPaymentRequest.Order.AuthorizationTransactionId.ToString();
+            var refundOpt = CreateRefundOptions(voidPaymentRequest.Order.AuthorizationTransactionId);
      
 
 
 
 
-            var refund = await service.CreateAsync(refundOpt, GetStripeApiRequestOptions());
+            var refund = await service.CreateAsync(refundOpt,
+                GetStripeApiRequestOptions($"nop-refund-{voidPaymentRequest.Order.Id}-void"));
 
             if (refund.Status == "succeeded")
             {
