@@ -181,6 +181,31 @@ public class OrderProcessingServiceTests : ServiceTest
     }
 
     [Test]
+    public async Task CancelOrderShouldNotCancelWhenCapturedPaymentRefundFails()
+    {
+        var order = new Order
+        {
+            BillingAddressId = 1,
+            CustomOrderNumber = "cancel-refund-test",
+            CustomerId = 1,
+            OrderTotal = 1,
+            PaymentMethodSystemName = "Payments.TestMethod",
+            PaymentStatus = PaymentStatus.Paid
+        };
+        await _orderService.InsertOrderAsync(order);
+
+        TestPaymentMethod.TestSupportRefund = true;
+
+        var action = async () => await _orderProcessingService.CancelOrderAsync(order, false);
+        await action.Should().ThrowAsync<global::Nop.Core.NopException>();
+
+        order.PaymentStatus.Should().Be(PaymentStatus.Paid);
+        order.OrderStatus.Should().NotBe(OrderStatus.Cancelled);
+
+        await GetService<IRepository<Order>>().DeleteAsync(order);
+    }
+
+    [Test]
     public async Task EnsureOrderCannotBeRefundedWhenOrderTotalIsZero()
     {
         var order = new Order

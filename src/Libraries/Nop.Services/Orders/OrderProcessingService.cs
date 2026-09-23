@@ -2320,6 +2320,16 @@ public partial class OrderProcessingService : IOrderProcessingService
         if (!CanCancelOrder(order))
             throw new NopException("Cannot do cancel for order.");
 
+        //A captured payment must be refunded before the order can be cancelled.
+        //Otherwise a failed gateway refund would leave a cancelled order marked as paid.
+        if (order.PaymentStatus == PaymentStatus.Paid &&
+            await _paymentService.SupportRefundAsync(order.PaymentMethodSystemName))
+        {
+            var refundErrors = await RefundAsync(order);
+            if (refundErrors.Any())
+                throw new NopException($"Cannot cancel order because its payment could not be refunded. {string.Join(" ", refundErrors)}");
+        }
+
         //cancel order
         await SetOrderStatusAsync(order, OrderStatus.Cancelled, notifyCustomer);
 
