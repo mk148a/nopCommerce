@@ -6,10 +6,22 @@
     "PreviousSha256": "4E5B2D35A32E477CA96EA489CF83F8BFC02F0F26C9EEE746FC06673A32630026"
   },
   {
+    "Source": "D:\\CodexData\\workspaces\\payment-audit-20261029\\source\\upgrade\\payment-hotfix\\artifacts\\Nop.Plugin.Misc.StripeBnplCore\\net9.0\\Nop.Plugin.Misc.StripeBnplCore.pdb",
+    "TargetRelativePath": "Plugins\\Misc.StripeBnplCore\\Nop.Plugin.Misc.StripeBnplCore.pdb",
+    "NewSha256": "3F3FFF35D6A325D1C5389D880AC6835343D33180D8285514D56F374C596A39E3",
+    "PreviousSha256": "C19A6C351D4A37EC433E70E08C0802BBCD102E28529ADBC4D9D931F9E17D69AB"
+  },
+  {
     "Source": "D:\\CodexData\\workspaces\\payment-audit-20261029\\source\\upgrade\\payment-hotfix\\artifacts\\Nop.Plugin.Payments.StripeAffirm\\net9.0\\Nop.Plugin.Payments.StripeAffirm.dll",
     "TargetRelativePath": "Plugins\\Payments.StripeAffirm\\Nop.Plugin.Payments.StripeAffirm.dll",
     "NewSha256": "802B34697654108882F348B75B3675FD9576083BD5820FC5E78C14175FF5033E",
     "PreviousSha256": "4CFE8A8C671F343FEF566CAB21BA02D62CA01B6014BEA257A8A198CE67002029"
+  },
+  {
+    "Source": "D:\\CodexData\\workspaces\\payment-audit-20261029\\source\\upgrade\\payment-hotfix\\artifacts\\Nop.Plugin.Payments.StripeAffirm\\net9.0\\Nop.Plugin.Payments.StripeAffirm.pdb",
+    "TargetRelativePath": "Plugins\\Payments.StripeAffirm\\Nop.Plugin.Payments.StripeAffirm.pdb",
+    "NewSha256": "E34D22A05F36E5912940B6A784D6EDCA06B634008E87D170AE48F588C3E57933",
+    "PreviousSha256": "FB5965F1173FBC1E555BF56748FC30D0AEA375E1654EA4CDCE8D4FCCCEE886D3"
   },
   {
     "Source": "D:\\CodexData\\workspaces\\payment-audit-20261029\\source\\upgrade\\payment-hotfix\\artifacts\\Nop.Plugin.Misc.StripeBnplCore\\net9.0\\Nop.Plugin.Misc.StripeBnplCore.dll",
@@ -24,6 +36,12 @@
     "PreviousSha256": "2215D15D0F7E5B5AE290B127972D553453720612CD02AF1CB8C65239BCA3AD9C"
   },
   {
+    "Source": "D:\\CodexData\\workspaces\\payment-audit-20261029\\source\\upgrade\\payment-hotfix\\artifacts\\Nop.Plugin.Payments.StripeKlarna\\net9.0\\Nop.Plugin.Payments.StripeKlarna.pdb",
+    "TargetRelativePath": "Plugins\\Payments.StripeKlarna\\Nop.Plugin.Payments.StripeKlarna.pdb",
+    "NewSha256": "F5084FAA15A44C070C5CBF44FD307CD36145DDD8BC45E6F7361AD377A44FC8D7",
+    "PreviousSha256": "BF7F926C2262DD6E4D4EA534A35336270DCED04B3EF5C3E91FDEDE7C140AEA7C"
+  },
+  {
     "Source": "D:\\CodexData\\workspaces\\payment-audit-20261029\\source\\upgrade\\payment-hotfix\\artifacts\\Nop.Plugin.Misc.StripeBnplCore\\net9.0\\Nop.Plugin.Misc.StripeBnplCore.dll",
     "TargetRelativePath": "Plugins\\Payments.StripeKlarna\\refs\\Nop.Plugin.Misc.StripeBnplCore.dll",
     "NewSha256": "9D4E533933F69E52BC9D49FFA7B64FF25301CDD4331A846269FC02B2A76356A1",
@@ -36,6 +54,12 @@
     "PreviousSha256": "F09B1402106C9F63D104175B434F68401BCFE8E831DD63EF2110A35B1339AD79"
   },
   {
+    "Source": "D:\\CodexData\\workspaces\\payment-audit-20261029\\source\\upgrade\\payment-hotfix\\artifacts\\Nop.Plugin.Payments.StripeAfterpay\\net9.0\\Nop.Plugin.Payments.StripeAfterpay.pdb",
+    "TargetRelativePath": "Plugins\\Payments.StripeAfterpay\\Nop.Plugin.Payments.StripeAfterpay.pdb",
+    "NewSha256": "A1C48FF867CDE269488AE237380F680DBDB4E4437A78997D93E07A8200F32356",
+    "PreviousSha256": "5ABA9668FBED7C24A026D2495635A8A20456E52A7CA8893D71CBC57554C875EF"
+  },
+  {
     "Source": "D:\\CodexData\\workspaces\\payment-audit-20261029\\source\\upgrade\\payment-hotfix\\artifacts\\Nop.Plugin.Misc.StripeBnplCore\\net9.0\\Nop.Plugin.Misc.StripeBnplCore.dll",
     "TargetRelativePath": "Plugins\\Payments.StripeAfterpay\\refs\\Nop.Plugin.Misc.StripeBnplCore.dll",
     "NewSha256": "9D4E533933F69E52BC9D49FFA7B64FF25301CDD4331A846269FC02B2A76356A1",
@@ -46,6 +70,12 @@
     "TargetRelativePath": "Plugins\\Payments.StripeZip\\Nop.Plugin.Payments.StripeZip.dll",
     "NewSha256": "F24C4F6A5B7FD5B0E19050E13855E432592108E8EB2E95B7245DB43E7D1D834A",
     "PreviousSha256": "D549E0ABCA5DDB09885041A5496E037C88A1B0957FCBDFDE76478CE8C76C966D"
+  },
+  {
+    "Source": "D:\\CodexData\\workspaces\\payment-audit-20261029\\source\\upgrade\\payment-hotfix\\artifacts\\Nop.Plugin.Payments.StripeZip\\net9.0\\Nop.Plugin.Payments.StripeZip.pdb",
+    "TargetRelativePath": "Plugins\\Payments.StripeZip\\Nop.Plugin.Payments.StripeZip.pdb",
+    "NewSha256": "1B199947AC7420CD5EC81ADABCD50576E6CBED81260A8D159C950913C3224E26",
+    "PreviousSha256": "3ECB7E869B0F78744B8F796A3CC4BF19F06E670108671852D21DA6420C95714C"
   },
   {
     "Source": "D:\\CodexData\\workspaces\\payment-audit-20261029\\source\\upgrade\\payment-hotfix\\artifacts\\Nop.Plugin.Misc.StripeBnplCore\\net9.0\\Nop.Plugin.Misc.StripeBnplCore.dll",

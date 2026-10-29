@@ -6,7 +6,7 @@ Scope: nopCommerce 4.80 BNPL eligibility and indeterminate-creation/cancellation
 - Implementation: complete; five plugin builds passed against verified live reference assemblies, zero warnings/errors on final build.
 - Validation: 42/42 isolated regression tests passed, including SQLite reservation tests and controlled shared-gate tests. Independent reviewer accepted 42/42 under the deployment precondition.
 - Release precondition: owning pool has exactly one worker, overlapping rotation disabled, and no alternate live database application host. Root owns enforcement and readback.
-- Deployment footprint: nine DLL targets in `payment-hotfix/deployment-manifest.json`. Schema, runtime, SDK, theme, and Nop.Web changes: none.
+- Deployment footprint: nine DLL targets plus five matching primary PDB companions in `payment-hotfix/deployment-manifest.json`. Schema, runtime, SDK, theme, and Nop.Web changes: none.
 - Push/live deployment: delegated to root after source checkpoint; this implementation lane made no production or database changes.
 - Historical cancelled orders: no automatic reopening, charging, refunding or customer communication.
 

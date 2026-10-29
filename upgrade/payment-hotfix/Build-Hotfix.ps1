@@ -10,6 +10,9 @@ $taskManifest = foreach ($taskPlugin in $taskPluginNames) {
     $taskSource = Join-Path $PSScriptRoot "artifacts\Nop.Plugin.$taskPlugin\net9.0\Nop.Plugin.$taskPlugin.dll"
     $taskTarget = "Plugins\$taskPlugin\Nop.Plugin.$taskPlugin.dll"
     [pscustomobject]@{ Source = $taskSource; TargetRelativePath = $taskTarget; NewSha256 = (Get-FileHash -LiteralPath $taskSource).Hash; PreviousSha256 = (Get-FileHash -LiteralPath (Join-Path $taskLiveRoot $taskTarget)).Hash }
+    $taskPdbSource = [IO.Path]::ChangeExtension($taskSource, '.pdb')
+    $taskPdbTarget = [IO.Path]::ChangeExtension($taskTarget, '.pdb')
+    [pscustomobject]@{ Source = $taskPdbSource; TargetRelativePath = $taskPdbTarget; NewSha256 = (Get-FileHash -LiteralPath $taskPdbSource).Hash; PreviousSha256 = (Get-FileHash -LiteralPath (Join-Path $taskLiveRoot $taskPdbTarget)).Hash }
     if ($taskPlugin -ne 'Misc.StripeBnplCore') {
         $taskCoreSource = Join-Path $PSScriptRoot 'artifacts\Nop.Plugin.Misc.StripeBnplCore\net9.0\Nop.Plugin.Misc.StripeBnplCore.dll'
         $taskCoreTarget = "Plugins\$taskPlugin\refs\Nop.Plugin.Misc.StripeBnplCore.dll"
