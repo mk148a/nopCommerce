@@ -14,7 +14,6 @@ namespace Nop.Plugin.Misc.StripeBnplCore.Services;
 
 public sealed class StripeBnplPaymentFinalizer : IStripeBnplPaymentFinalizer
 {
-    private static readonly ConcurrentDictionary<int, SemaphoreSlim> OrderLocks = new();
 
     private readonly ICurrencyService _currencyService;
     private readonly IOrderProcessingService _orderProcessingService;
@@ -83,7 +82,7 @@ public sealed class StripeBnplPaymentFinalizer : IStripeBnplPaymentFinalizer
                 StringComparison.OrdinalIgnoreCase))
             throw new NopException("Stripe Checkout Session eligibility snapshot metadata mismatch.");
 
-        var gate = OrderLocks.GetOrAdd(orderId, _ => new SemaphoreSlim(1, 1));
+        var gate = StripeBnplOrderGate.Get(orderId);
         await gate.WaitAsync();
         try
         {

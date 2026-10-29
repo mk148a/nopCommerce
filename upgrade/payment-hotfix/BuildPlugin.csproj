@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+<PropertyGroup>
+<TargetFramework>net9.0</TargetFramework><ImplicitUsings>enable</ImplicitUsings><Nullable>disable</Nullable>
+<PluginName Condition="'$(PluginName)' == ''">Nop.Plugin.Misc.StripeBnplCore</PluginName>
+<AssemblyName>$(PluginName)</AssemblyName><AssemblyVersion>1.0.0.0</AssemblyVersion><FileVersion>1.0.0.0</FileVersion>
+<EnableDefaultCompileItems>false</EnableDefaultCompileItems><CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
+<OutputPath>artifacts/$(PluginName)/</OutputPath>
+</PropertyGroup>
+<ItemGroup>
+<FrameworkReference Include="Microsoft.AspNetCore.App" />
+<Compile Include="../../src/Plugins/$(PluginName)/**/*.cs" Exclude="../../src/Plugins/$(PluginName)/obj/**;../../src/Plugins/$(PluginName)/bin/**" />
+<Compile Include="../../src/Plugins/Nop.Plugin.Payments.StripeBnpl.Shared/StripeBnplPaymentMethodBase.cs" Condition="'$(PluginName)' != 'Nop.Plugin.Misc.StripeBnplCore'" />
+<Reference Include="$(LiveRoot)/*.dll"><Private>false</Private></Reference>
+<Reference Include="$(LiveRoot)/Plugins/Misc.StripeBnplCore/Stripe.net.dll"><Private>false</Private></Reference>
+<Reference Include="artifacts/Nop.Plugin.Misc.StripeBnplCore/net9.0/Nop.Plugin.Misc.StripeBnplCore.dll" Condition="'$(PluginName)' != 'Nop.Plugin.Misc.StripeBnplCore'"><Private>false</Private></Reference>
+</ItemGroup>
+<Target Name="RequireLiveReferences" BeforeTargets="ResolveReferences"><Error Condition="'$(LiveRoot)' == '' Or !Exists('$(LiveRoot)/Nop.Core.dll')" Text="Pass verified live reference path with -p:LiveRoot (read only)." /></Target>
+</Project>

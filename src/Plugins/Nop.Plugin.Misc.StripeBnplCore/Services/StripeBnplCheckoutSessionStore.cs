@@ -53,6 +53,13 @@ public sealed class StripeBnplCheckoutSessionStore : IStripeBnplCheckoutSessionS
         {
             var now = DateTime.UtcNow;
             var latest = await GetLatestAsync(orderId, provider);
+            // A local deadline is not proof that Stripe did not create a session.
+            // Its idempotency key may already have been pruned after 24 hours.
+            // Never rotate an unresolved request into a new payable attempt.
+            if (latest != null && (latest.Status == "create_unknown" ||
+                (latest.Status == "creating" && latest.ExpiresOnUtc <= now.AddMinutes(30))))
+                throw new InvalidOperationException(
+                    "The previous Stripe Checkout creation requires reconciliation before retry.");
             if (latest != null &&
                 (string.Equals(latest.Status, "creating", StringComparison.OrdinalIgnoreCase) ||
                  string.Equals(latest.Status, "open", StringComparison.OrdinalIgnoreCase)) &&
@@ -65,11 +72,9 @@ public sealed class StripeBnplCheckoutSessionStore : IStripeBnplCheckoutSessionS
                         "A different Stripe BNPL Checkout attempt is currently being created for this order.");
             }
 
-            if (latest != null && string.Equals(latest.Status, "creating", StringComparison.OrdinalIgnoreCase))
-            {
-                await UpdateStatusAsync(latest, "create_expired");
-                continue;
-            }
+            if (latest != null && string.Equals(latest.Status, "create_expired", StringComparison.OrdinalIgnoreCase))
+                throw new InvalidOperationException(
+                    "The previous Stripe Checkout creation requires reconciliation before retry.");
 
             var attemptNumber = checked((latest?.AttemptNumber ?? 0) + 1);
             var idempotencyKey = $"nop-bnpl-session-{orderGuid:N}-{(int)provider}-a{attemptNumber}";
@@ -128,7 +133,7 @@ public sealed class StripeBnplCheckoutSessionStore : IStripeBnplCheckoutSessionS
         var now = DateTime.UtcNow;
         var nextStatus = string.IsNullOrWhiteSpace(session.Status) ? "open" : session.Status;
         var affected = await _repository.Table
-            .Where(item => item.Id == record.Id && item.Status == "creating" &&
+            .Where(item => item.Id == record.Id && (item.Status == "creating" || item.Status == "create_unknown") &&
                            item.UpdatedOnUtc == record.UpdatedOnUtc &&
                            item.IdempotencyKey == record.IdempotencyKey &&
                            item.EligibilitySnapshotHash == record.EligibilitySnapshotHash)
@@ -251,6 +256,8 @@ public sealed class StripeBnplCheckoutSessionStore : IStripeBnplCheckoutSessionS
 
     public static string SelectMonotonicStatus(string current, string next)
     {
+        if (next is "create_rejected" or "create_unknown" && current != "creating")
+            return current;
         if (string.IsNullOrWhiteSpace(next) || string.Equals(current, next, StringComparison.OrdinalIgnoreCase))
             return current;
         if (string.Equals(current, "paid", StringComparison.OrdinalIgnoreCase))
@@ -323,6 +330,10 @@ public sealed class StripeBnplCheckoutSessionStore : IStripeBnplCheckoutSessionS
              status.Equals("payment_failed", StringComparison.OrdinalIgnoreCase) ||
              status.Equals("create_expired", StringComparison.OrdinalIgnoreCase)))
             return 50;
+        if (status == "create_rejected")
+            return 50;
+        if (status == "create_unknown")
+            return 15;
         if (string.Equals(status, "not_reusable", StringComparison.OrdinalIgnoreCase))
             return 40;
         if (string.Equals(status, "complete", StringComparison.OrdinalIgnoreCase))

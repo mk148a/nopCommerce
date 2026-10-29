@@ -4,6 +4,8 @@ using Nop.Core.Domain.Orders;
 using Nop.Core.Domain.Payments;
 using Nop.Plugin.Misc.StripeBnplCore.Domain;
 using Nop.Services.Payments;
+using Nop.Services.Customers;
+using Nop.Services.Orders;
 
 namespace Nop.Plugin.Misc.StripeBnplCore.Services;
 
@@ -15,6 +17,8 @@ public sealed class StripeBnplService : IStripeBnplService
     private readonly IStripeBnplConfigurationClient _configurationClient;
     private readonly StripeBnplSettings _settings;
     private readonly IWebHelper _webHelper;
+    private readonly ICustomerService _customerService;
+    private readonly IShoppingCartService _shoppingCartService;
 
     public StripeBnplService(
         IBnplEligibilityService eligibilityService,
@@ -22,7 +26,9 @@ public sealed class StripeBnplService : IStripeBnplService
         IStripeBnplCheckoutService checkoutService,
         IStripeBnplConfigurationClient configurationClient,
         StripeBnplSettings settings,
-        IWebHelper webHelper)
+        IWebHelper webHelper,
+        ICustomerService customerService,
+        IShoppingCartService shoppingCartService)
     {
         _eligibilityService = eligibilityService;
         _httpContextAccessor = httpContextAccessor;
@@ -30,6 +36,24 @@ public sealed class StripeBnplService : IStripeBnplService
         _configurationClient = configurationClient;
         _settings = settings;
         _webHelper = webHelper;
+        _customerService = customerService;
+        _shoppingCartService = shoppingCartService;
+    }
+
+    public async Task<ProcessPaymentResult> ValidatePaymentAsync(BnplProvider provider, ProcessPaymentRequest request)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        var customer = await _customerService.GetCustomerByIdAsync(request.CustomerId);
+        var cart = customer == null ? new List<ShoppingCartItem>() :
+            await _shoppingCartService.GetShoppingCartAsync(customer, ShoppingCartType.ShoppingCart, request.StoreId);
+        // Payment radio options may be stale after an address/currency change.
+        // nopCommerce checks this result before saving the order.
+        if (!(await _eligibilityService.EvaluateCartAsync(provider, cart)).IsEligible)
+            return new ProcessPaymentResult
+            {
+                Errors = ["This payment method is unavailable for your current country, currency or cart. Please choose another payment method."]
+            };
+        return new ProcessPaymentResult();
     }
 
     public Task<BnplCartEligibilityResult> EvaluateCartAsync(BnplProvider provider, IList<ShoppingCartItem> cart) =>

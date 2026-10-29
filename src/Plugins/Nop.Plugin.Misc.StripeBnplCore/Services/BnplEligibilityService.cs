@@ -143,7 +143,27 @@ public sealed class BnplEligibilityService : IBnplEligibilityService
             return BnplCartEligibilityResult.Blocked("cart_context_unknown",
                 "Customer country, currency, or final cart total is not known.", cart.Select(item => item.ProductId));
 
-        // Stripe is the authority for buyer-country, currency, amount and credit
+        // Affirm cannot present EUR (or other unsupported currencies). Reject this
+        // technical incompatibility before nopCommerce places an unpaid order.
+        // Stripe still decides account activation, credit and final eligibility.
+        // https://docs.stripe.com/payments/affirm
+        if (provider == BnplProvider.Affirm &&
+            !string.Equals(context.CurrencyCode, "USD", StringComparison.OrdinalIgnoreCase) &&
+            !string.Equals(context.CurrencyCode, "CAD", StringComparison.OrdinalIgnoreCase))
+            return BnplCartEligibilityResult.Blocked("affirm_currency_unsupported",
+                "Affirm is available only for USD or CAD checkout. Choose another payment method.");
+        if (provider == BnplProvider.Affirm)
+        {
+            var accountCountry = _settings.StripeAccountCountryIso2?.Trim().ToUpperInvariant();
+            var domesticCurrency = accountCountry switch { "US" => "USD", "CA" => "CAD", _ => null };
+            if (domesticCurrency == null ||
+                !string.Equals(context.CustomerCountryIso2, accountCountry, StringComparison.OrdinalIgnoreCase) ||
+                !string.Equals(context.CurrencyCode, domesticCurrency, StringComparison.OrdinalIgnoreCase))
+                return BnplCartEligibilityResult.Blocked("affirm_domestic_checkout_required",
+                    "Affirm requires a supported domestic checkout. Choose another payment method.");
+        }
+
+        // Stripe is the authority for buyer-country, amount and credit
         // eligibility. The checkout session receives the final address, currency
         // and total; Stripe's dynamic payment-method engine decides whether the
         // selected provider can actually be offered. Do not duplicate or freeze

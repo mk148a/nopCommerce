@@ -1,0 +1,56 @@
+[
+  {
+    "Source": "D:\\CodexData\\workspaces\\payment-audit-20261029\\source\\upgrade\\payment-hotfix\\artifacts\\Nop.Plugin.Misc.StripeBnplCore\\net9.0\\Nop.Plugin.Misc.StripeBnplCore.dll",
+    "TargetRelativePath": "Plugins\\Misc.StripeBnplCore\\Nop.Plugin.Misc.StripeBnplCore.dll",
+    "NewSha256": "9D4E533933F69E52BC9D49FFA7B64FF25301CDD4331A846269FC02B2A76356A1",
+    "PreviousSha256": "4E5B2D35A32E477CA96EA489CF83F8BFC02F0F26C9EEE746FC06673A32630026"
+  },
+  {
+    "Source": "D:\\CodexData\\workspaces\\payment-audit-20261029\\source\\upgrade\\payment-hotfix\\artifacts\\Nop.Plugin.Payments.StripeAffirm\\net9.0\\Nop.Plugin.Payments.StripeAffirm.dll",
+    "TargetRelativePath": "Plugins\\Payments.StripeAffirm\\Nop.Plugin.Payments.StripeAffirm.dll",
+    "NewSha256": "802B34697654108882F348B75B3675FD9576083BD5820FC5E78C14175FF5033E",
+    "PreviousSha256": "4CFE8A8C671F343FEF566CAB21BA02D62CA01B6014BEA257A8A198CE67002029"
+  },
+  {
+    "Source": "D:\\CodexData\\workspaces\\payment-audit-20261029\\source\\upgrade\\payment-hotfix\\artifacts\\Nop.Plugin.Misc.StripeBnplCore\\net9.0\\Nop.Plugin.Misc.StripeBnplCore.dll",
+    "TargetRelativePath": "Plugins\\Payments.StripeAffirm\\refs\\Nop.Plugin.Misc.StripeBnplCore.dll",
+    "NewSha256": "9D4E533933F69E52BC9D49FFA7B64FF25301CDD4331A846269FC02B2A76356A1",
+    "PreviousSha256": "CA71F1ED28DD3DB1922DC977529C81B98378048571B2B0DCAC10EE9A2DF49616"
+  },
+  {
+    "Source": "D:\\CodexData\\workspaces\\payment-audit-20261029\\source\\upgrade\\payment-hotfix\\artifacts\\Nop.Plugin.Payments.StripeKlarna\\net9.0\\Nop.Plugin.Payments.StripeKlarna.dll",
+    "TargetRelativePath": "Plugins\\Payments.StripeKlarna\\Nop.Plugin.Payments.StripeKlarna.dll",
+    "NewSha256": "89243019534B29098ADFCD572EB299A3FE76BDB10F89F5BEFA57A60552C8EFA1",
+    "PreviousSha256": "2215D15D0F7E5B5AE290B127972D553453720612CD02AF1CB8C65239BCA3AD9C"
+  },
+  {
+    "Source": "D:\\CodexData\\workspaces\\payment-audit-20261029\\source\\upgrade\\payment-hotfix\\artifacts\\Nop.Plugin.Misc.StripeBnplCore\\net9.0\\Nop.Plugin.Misc.StripeBnplCore.dll",
+    "TargetRelativePath": "Plugins\\Payments.StripeKlarna\\refs\\Nop.Plugin.Misc.StripeBnplCore.dll",
+    "NewSha256": "9D4E533933F69E52BC9D49FFA7B64FF25301CDD4331A846269FC02B2A76356A1",
+    "PreviousSha256": "CA71F1ED28DD3DB1922DC977529C81B98378048571B2B0DCAC10EE9A2DF49616"
+  },
+  {
+    "Source": "D:\\CodexData\\workspaces\\payment-audit-20261029\\source\\upgrade\\payment-hotfix\\artifacts\\Nop.Plugin.Payments.StripeAfterpay\\net9.0\\Nop.Plugin.Payments.StripeAfterpay.dll",
+    "TargetRelativePath": "Plugins\\Payments.StripeAfterpay\\Nop.Plugin.Payments.StripeAfterpay.dll",
+    "NewSha256": "AB3552719091E55309473DE5B013084808461DF8A00963A41DE4940409FDB50C",
+    "PreviousSha256": "F09B1402106C9F63D104175B434F68401BCFE8E831DD63EF2110A35B1339AD79"
+  },
+  {
+    "Source": "D:\\CodexData\\workspaces\\payment-audit-20261029\\source\\upgrade\\payment-hotfix\\artifacts\\Nop.Plugin.Misc.StripeBnplCore\\net9.0\\Nop.Plugin.Misc.StripeBnplCore.dll",
+    "TargetRelativePath": "Plugins\\Payments.StripeAfterpay\\refs\\Nop.Plugin.Misc.StripeBnplCore.dll",
+    "NewSha256": "9D4E533933F69E52BC9D49FFA7B64FF25301CDD4331A846269FC02B2A76356A1",
+    "PreviousSha256": "CA71F1ED28DD3DB1922DC977529C81B98378048571B2B0DCAC10EE9A2DF49616"
+  },
+  {
+    "Source": "D:\\CodexData\\workspaces\\payment-audit-20261029\\source\\upgrade\\payment-hotfix\\artifacts\\Nop.Plugin.Payments.StripeZip\\net9.0\\Nop.Plugin.Payments.StripeZip.dll",
+    "TargetRelativePath": "Plugins\\Payments.StripeZip\\Nop.Plugin.Payments.StripeZip.dll",
+    "NewSha256": "F24C4F6A5B7FD5B0E19050E13855E432592108E8EB2E95B7245DB43E7D1D834A",
+    "PreviousSha256": "D549E0ABCA5DDB09885041A5496E037C88A1B0957FCBDFDE76478CE8C76C966D"
+  },
+  {
+    "Source": "D:\\CodexData\\workspaces\\payment-audit-20261029\\source\\upgrade\\payment-hotfix\\artifacts\\Nop.Plugin.Misc.StripeBnplCore\\net9.0\\Nop.Plugin.Misc.StripeBnplCore.dll",
+    "TargetRelativePath": "Plugins\\Payments.StripeZip\\refs\\Nop.Plugin.Misc.StripeBnplCore.dll",
+    "NewSha256": "9D4E533933F69E52BC9D49FFA7B64FF25301CDD4331A846269FC02B2A76356A1",
+    "PreviousSha256": "CA71F1ED28DD3DB1922DC977529C81B98378048571B2B0DCAC10EE9A2DF49616"
+  }
+]

@@ -36,7 +36,7 @@ public abstract class StripeBnplPaymentMethodBase : BasePlugin, IPaymentMethod
     public Task<ProcessPaymentResult> ProcessPaymentAsync(ProcessPaymentRequest processPaymentRequest)
     {
         ArgumentNullException.ThrowIfNull(processPaymentRequest);
-        return Task.FromResult(new ProcessPaymentResult());
+        return _stripeBnplService.ValidatePaymentAsync(Provider, processPaymentRequest);
     }
 
     public async Task PostProcessPaymentAsync(PostProcessPaymentRequest postProcessPaymentRequest)

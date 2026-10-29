@@ -6,6 +6,7 @@ namespace Nop.Plugin.Misc.StripeBnplCore.Services;
 
 public interface IStripeBnplService
 {
+    Task<ProcessPaymentResult> ValidatePaymentAsync(BnplProvider provider, ProcessPaymentRequest request);
     Task<BnplCartEligibilityResult> EvaluateCartAsync(BnplProvider provider, IList<ShoppingCartItem> cart);
     Task<bool> ShouldHidePaymentMethodAsync(BnplProvider provider, IList<ShoppingCartItem> cart);
     Task CreateCheckoutAndRedirectAsync(BnplProvider provider, PostProcessPaymentRequest request);

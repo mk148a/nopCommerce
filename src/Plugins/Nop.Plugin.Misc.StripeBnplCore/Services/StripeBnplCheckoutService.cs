@@ -67,6 +67,19 @@ public sealed class StripeBnplCheckoutService : IStripeBnplCheckoutService
     public async Task<StripeBnplCheckoutResult> CreateAsync(BnplProvider provider, Order order)
     {
         ArgumentNullException.ThrowIfNull(order);
+        var gate = StripeBnplOrderGate.Get(order.Id);
+        await gate.WaitAsync();
+        try
+        {
+            return await CreateCoreAsync(provider, order);
+        }
+        finally { gate.Release(); }
+    }
+
+    private async Task<StripeBnplCheckoutResult> CreateCoreAsync(BnplProvider provider, Order order)
+    {
+        order = await _orderService.GetOrderByIdAsync(order.Id)
+            ?? throw new NopException("The order no longer exists.");
         _environmentGuard.EnsureSafe();
 
         if (order.Deleted || order.PaymentStatus != Nop.Core.Domain.Payments.PaymentStatus.Pending)
@@ -100,15 +113,15 @@ public sealed class StripeBnplCheckoutService : IStripeBnplCheckoutService
             provider, order, orderItems, amountMinor, currency);
 
         var latest = await _sessionStore.GetLatestAsync(order.Id, provider);
-        if (latest != null && latest.IsSandbox == _settings.UseSandbox &&
-            latest.AmountMinor == amountMinor &&
-            string.Equals(latest.Currency, currency, StringComparison.OrdinalIgnoreCase) &&
-            string.Equals(latest.EligibilitySnapshotHash, eligibilitySnapshot.Sha256,
-                StringComparison.OrdinalIgnoreCase) &&
-            string.Equals(latest.Status, "open", StringComparison.OrdinalIgnoreCase) &&
-            latest.ExpiresOnUtc > DateTime.UtcNow.AddMinutes(1))
+        if (latest?.SessionId?.StartsWith("cs_", StringComparison.Ordinal) == true)
         {
-            var reusable = await _sessionClient.GetAsync(latest.SessionId);
+            var reusable = await _sessionClient.GetAsync(latest.SessionId,
+                new SessionGetOptions { Expand = new List<string> { "payment_intent" } });
+            if (reusable == null || reusable.Id != latest.SessionId ||
+                reusable.Livemode == latest.IsSandbox || reusable.AmountTotal != latest.AmountMinor ||
+                !string.Equals(reusable.Currency, latest.Currency, StringComparison.OrdinalIgnoreCase) ||
+                !MetadataMatches(reusable.Metadata, order, provider, latest.EligibilitySnapshotHash))
+                throw new NopException("The previous payment request requires reconciliation before retry.");
             if (reusable != null && string.Equals(reusable.Status, "open", StringComparison.OrdinalIgnoreCase) &&
                 reusable.ExpiresAt > DateTime.UtcNow.AddMinutes(1) && reusable.AmountTotal == amountMinor &&
                 string.Equals(reusable.Currency, currency, StringComparison.OrdinalIgnoreCase) &&
@@ -119,10 +132,18 @@ public sealed class StripeBnplCheckoutService : IStripeBnplCheckoutService
                 return ToResult(reusable);
             }
 
-            await _sessionStore.UpdateStatusAsync(latest,
-                reusable?.Status ?? (latest.ExpiresOnUtc <= DateTime.UtcNow ? "expired" : "not_reusable"),
-                reusable?.PaymentIntentId);
+            // Do not create a second payable session if the first is still open,
+            // completed, or its outcome cannot be verified.
+            if (reusable.Status != "expired" || reusable.PaymentStatus != "unpaid" ||
+                (!string.IsNullOrWhiteSpace(reusable.PaymentIntentId) &&
+                 (reusable.PaymentIntent == null || reusable.PaymentIntent.Status is not ("canceled" or "requires_payment_method"))))
+                throw new NopException("The previous payment request requires reconciliation before retry.");
+            await _sessionStore.UpdateStatusAsync(latest, "expired", reusable.PaymentIntentId);
         }
+
+        if (latest != null && (latest.Status is "complete" or "processing" or "paid" or "not_reusable" ||
+            (latest.Status == "open" && latest.ExpiresOnUtc > DateTime.UtcNow)))
+            throw new NopException("The previous payment request requires reconciliation before retry.");
 
         var attempt = await _sessionStore.ReserveAttemptAsync(order.Id, order.OrderGuid, provider, amountMinor, currency,
             _settings.UseSandbox, eligibilitySnapshot);
@@ -171,7 +192,28 @@ public sealed class StripeBnplCheckoutService : IStripeBnplCheckoutService
         {
             IdempotencyKey = attempt.IdempotencyKey
         };
-        var session = await _sessionClient.CreateAsync(sessionOptions, requestOptions);
+        Session session;
+        try
+        {
+            session = await _sessionClient.CreateAsync(sessionOptions, requestOptions);
+        }
+        catch (Exception exception)
+        {
+            var rejected = IsDefinitiveCreationRejection(exception);
+            await _sessionStore.UpdateStatusAsync(attempt, rejected ? "create_rejected" : "create_unknown");
+            // Stripe exception messages can contain customer input. Retain only
+            // structured, non-personal diagnostics and the request correlation id.
+            var stripeException = exception as StripeException;
+            await _logger.WarningAsync(
+                $"[Stripe BNPL] Checkout creation {(rejected ? "rejected" : "outcome unknown")}; " +
+                $"order {order.Id}, provider {provider}, attempt {attempt.AttemptNumber}, " +
+                $"HTTP {(int?)stripeException?.HttpStatusCode}, " +
+                $"type {stripeException?.StripeError?.Type}, code {stripeException?.StripeError?.Code}, " +
+                $"request {stripeException?.StripeResponse?.RequestId}.");
+            throw new NopException(rejected
+                ? "Stripe could not start this payment. Please choose another payment method."
+                : "The payment request is being checked. Please contact the store before trying another payment.");
+        }
 
         await _sessionStore.CompleteAttemptAsync(attempt, session);
 
@@ -375,6 +417,12 @@ public sealed class StripeBnplCheckoutService : IStripeBnplCheckoutService
         var suffix = new string(hash.Take(8).Select(value => (char)('a' + value % 26)).ToArray());
         return $"nop_bnpl_{StripeBnplDefaults.GetProviderSlug(provider)}_{suffix}";
     }
+
+    public static bool IsDefinitiveCreationRejection(Exception exception) =>
+        exception is StripeException stripe &&
+        stripe.HttpStatusCode == System.Net.HttpStatusCode.BadRequest &&
+        string.Equals(stripe.StripeError?.Type, "invalid_request_error", StringComparison.Ordinal) &&
+        stripe.StripeError?.Code is not ("idempotency_key_in_use" or "idempotency_error");
 
     private static string Truncate(string value, int maxLength) =>
         string.IsNullOrEmpty(value) || value.Length <= maxLength ? value : value[..maxLength];
